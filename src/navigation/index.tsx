@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import Home from "@/pages/home";
-import Auth from "@/pages/auth";
+import Register from "@/pages/auth/register";
+import Login from "@/pages/auth/login";
 
 export default function Navigation() {
   const isAuthenticated = false;
@@ -9,7 +10,8 @@ export default function Navigation() {
     <BrowserRouter>
       <Routes>
         <Route element={isAuthenticated ? <Navigate to={"/"} /> : <Outlet />}>
-          <Route path={"/auth"} element={<Auth />} />
+          <Route path={"/auth"} element={<Login />} />
+          <Route path={"/register"} element={<Register />} />
         </Route>
         <Route element={isAuthenticated ? <Outlet /> : <Navigate to={"/auth"} />}>
           <Route path={"/"} element={<Home />} />
