@@ -8,11 +8,14 @@ import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
 import { registerFormSchema, type RegisterFormData } from "@/lib/validations/auth";
 import { Link } from "react-router";
+import supabase from "@/lib/supabase";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const {
     register,
@@ -26,25 +29,49 @@ export default function Register() {
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true);
-      console.log("Sign up with:", { email: data.email, password: data.password });
+      setErrorMessage("");
+
+      // Register the user
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (signUpError) throw signUpError;
+
+      // Auto sign in after registration
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (signInError) throw signInError;
+
+      toast.success("Account created and logged in successfully");
     } catch (err) {
       console.error("Error during sign up:", err);
+      setErrorMessage(err instanceof Error ? err.message : "An error occurred during signup");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+    <div className="container flex h-screen w-full flex-col items-center justify-center px-4 md:px-6">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-4 sm:space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Create an account</h1>
           <p className="text-sm text-muted-foreground">Enter your details to create your account</p>
         </div>
-        <div className="grid gap-6">
+        <div className="grid gap-4 sm:gap-6">
+          {errorMessage && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm">
+              {errorMessage}
+            </div>
+          )}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid gap-4">
-              <div className="grid gap-2">
+            <div className="grid gap-3 sm:gap-4">
+              <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -55,7 +82,7 @@ export default function Register() {
                 />
                 {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
@@ -77,7 +104,7 @@ export default function Register() {
                 </div>
                 {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <div className="relative">
                   <Input
@@ -101,7 +128,7 @@ export default function Register() {
                   <p className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</p>
                 )}
               </div>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} className="mt-2">
                 {isLoading ? "Creating account..." : "Create account"}
               </Button>
             </div>

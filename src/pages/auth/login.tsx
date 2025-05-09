@@ -8,10 +8,13 @@ import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
 import { loginFormSchema, type LoginFormData } from "@/lib/validations/auth";
 import { Link } from "react-router";
+import supabase from "@/lib/supabase";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const {
     register,
@@ -20,48 +23,72 @@ export default function Login() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: { email: "", password: "" },
+    mode: "onChange",
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true);
-      console.log("Login with:", { email: data.email, password: data.password });
+      setErrorMessage("");
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) throw error;
+
+      toast.success("Login Successful");
     } catch (err) {
       console.error("Error during login:", err);
+      setErrorMessage(err instanceof Error ? err.message : "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleInputChange = () => {
+    if (errorMessage) setErrorMessage("");
+  };
+
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+    <div className="container flex h-screen w-full flex-col items-center justify-center px-4 md:px-6">
+      <div className="mx-auto flex w-full flex-col justify-center space-y-4 sm:space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">Sign in to your account</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight">Sign in to your account</h1>
           <p className="text-sm text-muted-foreground">Enter your credentials to sign in</p>
         </div>
-        <div className="grid gap-6">
+        <div className="grid gap-4 sm:gap-6">
+          {errorMessage && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm">
+              {errorMessage}
+            </div>
+          )}
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid gap-4">
-              <div className="grid gap-2">
+            <div className="grid gap-3 sm:gap-4">
+              <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   className={cn(errors.email && "border-red-500")}
                   placeholder="name@example.com"
-                  {...register("email")}
+                  {...register("email", {
+                    onChange: handleInputChange,
+                  })}
                 />
                 {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     className={cn(errors.password && "border-red-500")}
-                    {...register("password")}
+                    {...register("password", {
+                      onChange: handleInputChange,
+                    })}
                   />
                   <Button
                     type="button"
@@ -76,7 +103,7 @@ export default function Login() {
                 </div>
                 {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
               </div>
-              <Button type="submit" disabled={isLoading}>
+              <Button type="submit" disabled={isLoading} className="mt-2">
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </div>

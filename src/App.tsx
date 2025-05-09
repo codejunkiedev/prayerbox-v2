@@ -1,7 +1,13 @@
+import { Toaster } from "react-hot-toast";
 import Navigation from "./navigation";
 
 function App() {
-  return <Navigation />;
+  return (
+    <div>
+      <Navigation />
+      <Toaster />
+    </div>
+  );
 }
 
 export default App;
