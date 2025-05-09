@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button, Input, Label } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
-import { loginFormSchema, type LoginFormData } from "@/lib/validations/auth";
+import { loginFormSchema, type LoginFormData } from "@/lib/zod";
 import { Link } from "react-router";
 import supabase from "@/lib/supabase";
 import toast from "react-hot-toast";
+import { AuthRoutes } from "@/constants";
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -102,6 +101,11 @@ export default function Login() {
                   </Button>
                 </div>
                 {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+                <div className="text-right">
+                  <Link to={AuthRoutes.ForgotPassword} className="text-xs text-muted-foreground hover:text-primary">
+                    Forgot password?
+                  </Link>
+                </div>
               </div>
               <Button type="submit" disabled={isLoading} className="mt-2">
                 {isLoading ? "Signing in..." : "Sign in"}
@@ -110,7 +114,7 @@ export default function Login() {
           </form>
           <div className="text-center text-sm">
             Don't have an account?{" "}
-            <Link to="/register" className="underline underline-offset-4 hover:text-primary">
+            <Link to={AuthRoutes.Register} className="underline underline-offset-4 hover:text-primary">
               Create an account
             </Link>
           </div>

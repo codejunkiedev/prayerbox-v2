@@ -1,15 +1,14 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button, Input, Label } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
-import { registerFormSchema, type RegisterFormData } from "@/lib/validations/auth";
+import { registerFormSchema, type RegisterFormData } from "@/lib/zod";
 import { Link } from "react-router";
 import supabase from "@/lib/supabase";
 import toast from "react-hot-toast";
+import { AuthRoutes } from "@/constants";
 
 export default function Register() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -56,6 +55,10 @@ export default function Register() {
     }
   };
 
+  const handleInputChange = () => {
+    if (errorMessage) setErrorMessage("");
+  };
+
   return (
     <div className="container flex h-screen w-full flex-col items-center justify-center px-4 md:px-6">
       <div className="mx-auto flex w-full flex-col justify-center space-y-4 sm:space-y-6 sm:w-[350px]">
@@ -78,7 +81,9 @@ export default function Register() {
                   type="email"
                   className={cn(errors.email && "border-red-500")}
                   placeholder="name@example.com"
-                  {...register("email")}
+                  {...register("email", {
+                    onChange: handleInputChange,
+                  })}
                 />
                 {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
               </div>
@@ -89,7 +94,9 @@ export default function Register() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     className={cn(errors.password && "border-red-500")}
-                    {...register("password")}
+                    {...register("password", {
+                      onChange: handleInputChange,
+                    })}
                   />
                   <Button
                     type="button"
@@ -111,7 +118,9 @@ export default function Register() {
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
                     className={cn(errors.confirmPassword && "border-red-500")}
-                    {...register("confirmPassword")}
+                    {...register("confirmPassword", {
+                      onChange: handleInputChange,
+                    })}
                   />
                   <Button
                     type="button"
@@ -135,7 +144,7 @@ export default function Register() {
           </form>
           <div className="text-center text-sm">
             Already have an account?{" "}
-            <Link to="/login" className="underline underline-offset-4 hover:text-primary">
+            <Link to={AuthRoutes.Login} className="underline underline-offset-4 hover:text-primary">
               Sign in
             </Link>
           </div>
