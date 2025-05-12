@@ -9,6 +9,9 @@ import supabase from "@/lib/supabase";
 import toast from "react-hot-toast";
 import { AuthRoutes } from "@/constants";
 
+const origin = window.location.origin;
+const resetPasswordRoute = `${origin}${AuthRoutes.ResetPassword}`;
+
 export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -30,7 +33,7 @@ export default function ForgotPassword() {
       setErrorMessage("");
 
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: resetPasswordRoute,
       });
 
       if (error) throw error;

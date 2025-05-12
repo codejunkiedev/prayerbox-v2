@@ -4,23 +4,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Input, Label } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Eye, EyeOff } from "lucide-react";
-import { z } from "zod";
 import { Link } from "react-router";
 import supabase from "@/lib/supabase";
 import toast from "react-hot-toast";
 import { AuthRoutes } from "@/constants";
+import { resetPasswordSchema, type ResetPasswordData } from "@/lib/zod";
 
-const resetPasswordSchema = z
-  .object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
+// type ResetPasswordParams = {
+//   error?: string;
+//   error_code?: string;
+//   error_description?: string;
+// };
 
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);

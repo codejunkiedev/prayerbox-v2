@@ -30,7 +30,7 @@ export default function Navigation() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAuthenticated(!!session);
+      setIsAuthenticated(!!session?.user);
     });
 
     return () => {
