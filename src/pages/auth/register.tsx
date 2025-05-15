@@ -29,10 +29,7 @@ export default function Register() {
     try {
       setIsLoading(true);
       setErrorMessage('');
-
-      // Register the user
       await signUpWithEmail(data.email, data.password);
-
       toast.success('Account created and logged in successfully');
     } catch (err) {
       console.error('Error during sign up:', err);

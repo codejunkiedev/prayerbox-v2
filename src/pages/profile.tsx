@@ -12,12 +12,15 @@ import {
 } from '@/lib/zod';
 import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase/services';
 import toast from 'react-hot-toast';
+import { Copy } from 'lucide-react';
 
 export default function Profile() {
   const [masjidLogo, setMasjidLogo] = useState<File | null>(null);
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [masjidCode, setMasjidCode] = useState<string>('');
+  const [isCopied, setIsCopied] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -39,6 +42,7 @@ export default function Profile() {
 
         if (profile) {
           reset({ name: profile.name, address: profile.address });
+          setMasjidCode(profile.code);
 
           if (profile.logo_url) {
             setPreviewLogo(profile.logo_url);
@@ -54,6 +58,18 @@ export default function Profile() {
 
     fetchProfile();
   }, [reset]);
+
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(masjidCode);
+      setIsCopied(true);
+      toast.success('Masjid code copied to clipboard');
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy code:', error);
+      toast.error('Failed to copy code');
+    }
+  };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -111,6 +127,34 @@ export default function Profile() {
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+          {masjidCode && (
+            <div className='space-y-2'>
+              <Label htmlFor='code'>Masjid Code</Label>
+              <div className='flex relative'>
+                <Input
+                  id='code'
+                  value={masjidCode}
+                  readOnly
+                  className='bg-muted cursor-not-allowed pr-10'
+                />
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  onClick={handleCopyCode}
+                  className='absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8'
+                  title='Copy masjid code'
+                >
+                  <Copy size={16} className={isCopied ? 'text-green-500' : ''} />
+                  <span className='sr-only'>Copy masjid code</span>
+                </Button>
+              </div>
+              <p className='text-sm text-muted-foreground'>
+                This code was automatically generated and cannot be changed.
+              </p>
+            </div>
+          )}
+
           <div className='space-y-2'>
             <Label htmlFor='name'>Masjid Name</Label>
             <Input
