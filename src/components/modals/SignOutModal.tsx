@@ -22,18 +22,18 @@ export function SignOutModal({ isOpen, onClose }: SignOutModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="bg-slate-800 text-white border-slate-700">
+      <DialogContent className='bg-slate-800 text-white border-slate-700'>
         <DialogHeader>
           <DialogTitle>Sign Out</DialogTitle>
-          <DialogDescription className="text-slate-300">
+          <DialogDescription className='text-slate-300'>
             Are you sure you want to sign out?
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="mt-4">
+        <DialogFooter className='mt-4'>
           <Button
-            variant="default"
+            variant='default'
             onClick={onClose}
-            className="mr-2 border-slate-600 text-white hover:bg-slate-700 hover:text-white"
+            className='mr-2 border-slate-600 text-white hover:bg-slate-700 hover:text-white'
           >
             Cancel
           </Button>
