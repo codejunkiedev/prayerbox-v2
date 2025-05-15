@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Label } from "@/components/ui";
-import { cn } from "@/lib/utils";
-import { Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router";
-import supabase from "@/lib/supabase";
-import toast from "react-hot-toast";
-import { AuthRoutes } from "@/constants";
-import { resetPasswordSchema, type ResetPasswordData } from "@/lib/zod";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Input, Label } from '@/components/ui';
+import { cn } from '@/lib/utils';
+import { Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router';
+import { updateUserPassword } from '@/lib/supabase';
+import toast from 'react-hot-toast';
+import { AuthRoutes } from '@/constants';
+import { resetPasswordSchema, type ResetPasswordData } from '@/lib/zod';
 
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const {
@@ -23,25 +23,21 @@ export default function ResetPassword() {
     formState: { errors },
   } = useForm<ResetPasswordData>({
     resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { password: "", confirmPassword: "" },
-    mode: "onChange",
+    defaultValues: { password: '', confirmPassword: '' },
+    mode: 'onChange',
   });
 
   const onSubmit = async (data: ResetPasswordData) => {
     try {
       setIsLoading(true);
-      setErrorMessage("");
+      setErrorMessage('');
 
-      const { error } = await supabase.auth.updateUser({
-        password: data.password,
-      });
-
-      if (error) throw error;
+      await updateUserPassword(data.password);
 
       setIsSuccess(true);
-      toast.success("Password reset successfully");
+      toast.success('Password reset successfully');
     } catch (err) {
-      console.error("Error during password reset:", err);
+      console.error('Error during password reset:', err);
       setErrorMessage(
         err instanceof Error
           ? err.message
@@ -53,7 +49,7 @@ export default function ResetPassword() {
   };
 
   const handleInputChange = () => {
-    if (errorMessage) setErrorMessage("");
+    if (errorMessage) setErrorMessage('');
   };
 
   return (
@@ -86,9 +82,9 @@ export default function ResetPassword() {
                   <div className="relative">
                     <Input
                       id="password"
-                      type={showPassword ? "text" : "password"}
-                      className={cn(errors.password && "border-red-500")}
-                      {...register("password", {
+                      type={showPassword ? 'text' : 'password'}
+                      className={cn(errors.password && 'border-red-500')}
+                      {...register('password', {
                         onChange: handleInputChange,
                       })}
                     />
@@ -103,16 +99,18 @@ export default function ResetPassword() {
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </div>
-                  {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+                  {errors.password && (
+                    <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+                  )}
                 </div>
                 <div className="grid gap-1 sm:gap-2">
                   <Label htmlFor="confirmPassword">Confirm New Password</Label>
                   <div className="relative">
                     <Input
                       id="confirmPassword"
-                      type={showConfirmPassword ? "text" : "password"}
-                      className={cn(errors.confirmPassword && "border-red-500")}
-                      {...register("confirmPassword", {
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className={cn(errors.confirmPassword && 'border-red-500')}
+                      {...register('confirmPassword', {
                         onChange: handleInputChange,
                       })}
                     />
@@ -132,7 +130,7 @@ export default function ResetPassword() {
                   )}
                 </div>
                 <Button type="submit" disabled={isLoading} className="mt-2">
-                  {isLoading ? "Resetting password..." : "Reset password"}
+                  {isLoading ? 'Resetting password...' : 'Reset password'}
                 </Button>
               </div>
             </form>

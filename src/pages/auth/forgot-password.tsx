@@ -1,21 +1,18 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Label } from "@/components/ui";
-import { cn } from "@/lib/utils";
-import { forgotPasswordSchema, type ForgotPasswordData } from "@/lib/zod";
-import { Link } from "react-router";
-import supabase from "@/lib/supabase";
-import toast from "react-hot-toast";
-import { AppRoutes, AuthRoutes } from "@/constants";
-
-const origin = window.location.origin;
-const resetPasswordRoute = `${origin}${AppRoutes.ResetPassword}`;
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Input, Label } from '@/components/ui';
+import { cn } from '@/lib/utils';
+import { forgotPasswordSchema, type ForgotPasswordData } from '@/lib/zod';
+import { Link } from 'react-router';
+import { resetPasswordForEmail } from '@/lib/supabase';
+import toast from 'react-hot-toast';
+import { AuthRoutes } from '@/constants';
 
 export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const {
     register,
@@ -23,33 +20,29 @@ export default function ForgotPassword() {
     formState: { errors },
   } = useForm<ForgotPasswordData>({
     resolver: zodResolver(forgotPasswordSchema),
-    defaultValues: { email: "" },
-    mode: "onChange",
+    defaultValues: { email: '' },
+    mode: 'onChange',
   });
 
   const onSubmit = async (data: ForgotPasswordData) => {
     try {
       setIsLoading(true);
-      setErrorMessage("");
+      setErrorMessage('');
 
-      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: resetPasswordRoute,
-      });
-
-      if (error) throw error;
+      await resetPasswordForEmail(data.email);
 
       setIsSubmitted(true);
-      toast.success("Password reset link sent to your email");
+      toast.success('Password reset link sent to your email');
     } catch (err) {
-      console.error("Error during password reset:", err);
-      setErrorMessage(err instanceof Error ? err.message : "Failed to send reset link");
+      console.error('Error during password reset:', err);
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to send reset link');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleInputChange = () => {
-    if (errorMessage) setErrorMessage("");
+    if (errorMessage) setErrorMessage('');
   };
 
   return (
@@ -69,8 +62,8 @@ export default function ForgotPassword() {
           )}
           {isSubmitted ? (
             <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm">
-              Check your email for a link to reset your password. If it doesn't appear within a few minutes, check your
-              spam folder.
+              Check your email for a link to reset your password. If it doesn't appear within a few
+              minutes, check your spam folder.
             </div>
           ) : (
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -80,22 +73,24 @@ export default function ForgotPassword() {
                   <Input
                     id="email"
                     type="email"
-                    className={cn(errors.email && "border-red-500")}
+                    className={cn(errors.email && 'border-red-500')}
                     placeholder="name@example.com"
-                    {...register("email", {
+                    {...register('email', {
                       onChange: handleInputChange,
                     })}
                   />
-                  {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+                  {errors.email && (
+                    <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+                  )}
                 </div>
                 <Button type="submit" disabled={isLoading} className="mt-2">
-                  {isLoading ? "Sending link..." : "Send reset link"}
+                  {isLoading ? 'Sending link...' : 'Send reset link'}
                 </Button>
               </div>
             </form>
           )}
           <div className="text-center text-sm">
-            Remember your password?{" "}
+            Remember your password?{' '}
             <Link to={AuthRoutes.Login} className="underline underline-offset-4 hover:text-primary">
               Sign in
             </Link>
