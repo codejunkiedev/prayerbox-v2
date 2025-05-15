@@ -13,6 +13,7 @@ import {
 import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase/services';
 import toast from 'react-hot-toast';
 import { Copy } from 'lucide-react';
+import { useTrigger } from '@/hooks';
 
 export default function Profile() {
   const [masjidLogo, setMasjidLogo] = useState<File | null>(null);
@@ -22,6 +23,7 @@ export default function Profile() {
   const [masjidCode, setMasjidCode] = useState<string>('');
   const [isCopied, setIsCopied] = useState(false);
 
+  const [trigger, triggerUpdate] = useTrigger();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
@@ -57,7 +59,7 @@ export default function Profile() {
     }
 
     fetchProfile();
-  }, [reset]);
+  }, [reset, trigger]);
 
   const handleCopyCode = async () => {
     try {
@@ -108,6 +110,7 @@ export default function Profile() {
       setIsSaving(true);
       await upsertMasjidProfile(data, masjidLogo);
       toast.success('Masjid profile saved successfully');
+      triggerUpdate();
     } catch (error) {
       console.error('Error saving profile:', error);
       toast.error('Failed to save profile');
