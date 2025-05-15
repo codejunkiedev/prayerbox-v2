@@ -1,4 +1,4 @@
-import type { MasjidProfile } from '@/types';
+import { SupabaseBuckets, SupabaseTables, type MasjidProfile } from '@/types';
 import type { MasjidProfileData } from '../zod';
 import { getCurrentUser, uploadFile, fetchByColumn, updateRecord, insertRecord } from './helpers';
 
@@ -6,11 +6,13 @@ import { getCurrentUser, uploadFile, fetchByColumn, updateRecord, insertRecord }
 export async function getMasjidProfile(): Promise<MasjidProfile | null> {
   const user = await getCurrentUser();
 
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
+  if (!user) throw new Error('User not authenticated');
 
-  const profiles = await fetchByColumn<MasjidProfile>('masjid_profiles', 'user_id', user.id);
+  const profiles = await fetchByColumn<MasjidProfile>(
+    SupabaseTables.MasjidProfiles,
+    'user_id',
+    user.id
+  );
   return profiles.length > 0 ? profiles[0] : null;
 }
 
@@ -26,30 +28,34 @@ export async function upsertMasjidProfile(profileData: MasjidProfileData, logoFi
 
   // Upload logo if provided
   if (logoFile) {
-    logoUrl = await uploadFile('masjid_logos', logoFile, `${user.id}-${Date.now()}`);
+    logoUrl = await uploadFile(SupabaseBuckets.MasjidLogos, logoFile, `${user.id}-${Date.now()}`);
   }
 
   // Check if profile exists
-  const profiles = await fetchByColumn<MasjidProfile>('masjid_profiles', 'user_id', user.id);
+  const profiles = await fetchByColumn<MasjidProfile>(
+    SupabaseTables.MasjidProfiles,
+    'user_id',
+    user.id
+  );
   const existingProfile = profiles.length > 0 ? profiles[0] : null;
 
-  const profileToUpsert: MasjidProfile = {
+  const profileToUpsert: Partial<MasjidProfile> = {
     ...profileData,
     user_id: user.id,
     ...(logoUrl && { logo_url: logoUrl }),
     updated_at: new Date().toISOString(),
+    address: profileData.address,
+    name: profileData.name,
   };
 
   if (existingProfile) {
-    // Update existing profile
     return await updateRecord<MasjidProfile>(
-      'masjid_profiles',
+      SupabaseTables.MasjidProfiles,
       existingProfile.id as string,
       profileToUpsert
     );
   } else {
-    // Create new profile
     profileToUpsert.created_at = new Date().toISOString();
-    return await insertRecord<MasjidProfile>('masjid_profiles', profileToUpsert);
+    return await insertRecord<MasjidProfile>(SupabaseTables.MasjidProfiles, profileToUpsert);
   }
 }

@@ -1,5 +1,9 @@
-export enum Table {
-  Accounts = 'accounts',
+export enum SupabaseTables {
+  MasjidProfiles = 'masjid_profiles',
+}
+
+export enum SupabaseBuckets {
+  MasjidLogos = 'masjid-logos',
 }
 
 export interface MasjidProfile {
@@ -8,6 +12,7 @@ export interface MasjidProfile {
   address: string;
   code: string;
   logo_url: string;
+  name: string;
   created_at: string;
   updated_at: string;
 }

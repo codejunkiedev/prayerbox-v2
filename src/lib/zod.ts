@@ -39,8 +39,8 @@ export const resetPasswordSchema = z
 export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
 
 export const masjidProfileSchema = z.object({
-  masjidName: z.string().min(1, 'Masjid name is required'),
-  masjidLocation: z.string().min(1, 'Masjid location is required'),
+  name: z.string().min(1, 'Masjid name is required'),
+  address: z.string().min(1, 'Masjid location is required'),
 });
 
 export type MasjidProfileData = z.infer<typeof masjidProfileSchema>;

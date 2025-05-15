@@ -28,13 +28,9 @@ export default function Profile() {
     reset,
   } = useForm<MasjidProfileData>({
     resolver: zodResolver(masjidProfileSchema),
-    defaultValues: {
-      masjidName: '',
-      masjidLocation: '',
-    },
+    defaultValues: { name: '', address: '' },
   });
 
-  // Fetch existing profile data on component mount
   useEffect(() => {
     async function fetchProfile() {
       try {
@@ -42,13 +38,8 @@ export default function Profile() {
         const profile = await getMasjidProfile();
 
         if (profile) {
-          // Update form with profile data
-          reset({
-            masjidName: profile.masjidName,
-            masjidLocation: profile.masjidLocation,
-          });
+          reset({ name: profile.name, address: profile.address });
 
-          // Set logo preview if exists
           if (profile.logo_url) {
             setPreviewLogo(profile.logo_url);
           }
@@ -121,28 +112,26 @@ export default function Profile() {
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="masjidName">Masjid Name</Label>
+            <Label htmlFor="name">Masjid Name</Label>
             <Input
-              id="masjidName"
-              {...register('masjidName')}
+              id="name"
+              {...register('name')}
               placeholder="Enter masjid name"
-              className={errors.masjidName ? 'border-red-500' : ''}
+              className={errors.name ? 'border-red-500' : ''}
             />
-            {errors.masjidName && (
-              <p className="text-red-500 text-sm mt-1">{errors.masjidName.message}</p>
-            )}
+            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="masjidLocation">Masjid Location</Label>
+            <Label htmlFor="address">Masjid Location</Label>
             <Input
-              id="masjidLocation"
-              {...register('masjidLocation')}
+              id="address"
+              {...register('address')}
               placeholder="Enter masjid location"
-              className={errors.masjidLocation ? 'border-red-500' : ''}
+              className={errors.address ? 'border-red-500' : ''}
             />
-            {errors.masjidLocation && (
-              <p className="text-red-500 text-sm mt-1">{errors.masjidLocation.message}</p>
+            {errors.address && (
+              <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
             )}
           </div>
 
