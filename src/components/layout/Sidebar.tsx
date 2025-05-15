@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router";
-import { ChevronLeft, ChevronRight, Home, User, LogOut } from "lucide-react";
-import { AppRoutes } from "@/constants";
-import { Button } from "@/components/ui";
-import { cn } from "@/lib/utils";
-import supabase from "@/lib/supabase";
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router';
+import { ChevronLeft, ChevronRight, Home, User, LogOut } from 'lucide-react';
+import { AppRoutes } from '@/constants';
+import { Button } from '@/components/ui';
+import { cn } from '@/lib/utils';
+import supabase from '@/lib/supabase';
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -24,12 +24,12 @@ export default function Sidebar() {
 
   const navItems = [
     {
-      label: "Home",
+      label: 'Home',
       path: AppRoutes.Home,
       icon: <Home size={20} />,
     },
     {
-      label: "Profile",
+      label: 'Profile',
       path: AppRoutes.Profile,
       icon: <User size={20} />,
     },
@@ -38,8 +38,8 @@ export default function Sidebar() {
   return (
     <aside
       className={cn(
-        "h-screen bg-slate-800 text-white transition-all duration-300 ease-in-out relative flex flex-col",
-        collapsed ? "w-16" : "w-64"
+        'h-screen bg-slate-800 text-white transition-all duration-300 ease-in-out relative flex flex-col',
+        collapsed ? 'w-16' : 'w-64'
       )}
     >
       <div className="p-4 flex items-center justify-between border-b border-slate-700">
@@ -47,7 +47,7 @@ export default function Sidebar() {
         <Button
           variant="ghost"
           size="icon"
-          className={cn("text-white hover:bg-slate-700 ml-auto", collapsed && "mx-auto")}
+          className={cn('text-white hover:bg-slate-700 ml-auto', collapsed && 'mx-auto')}
           onClick={toggleSidebar}
         >
           {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
@@ -56,14 +56,14 @@ export default function Sidebar() {
 
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-2 px-2">
-          {navItems.map((item) => (
+          {navItems.map(item => (
             <li key={item.path}>
               <Link
                 to={item.path}
                 className={cn(
-                  "flex items-center rounded-md px-3 py-2 hover:bg-slate-700 transition-colors",
-                  isActive(item.path) && "bg-slate-700",
-                  collapsed ? "justify-center" : "space-x-3"
+                  'flex items-center rounded-md px-3 py-2 hover:bg-slate-700 transition-colors',
+                  isActive(item.path) && 'bg-slate-700',
+                  collapsed ? 'justify-center' : 'space-x-3'
                 )}
               >
                 <span>{item.icon}</span>
@@ -78,8 +78,8 @@ export default function Sidebar() {
         <Button
           variant="ghost"
           className={cn(
-            "w-full text-white hover:bg-slate-700 flex items-center",
-            collapsed ? "justify-center" : "justify-start space-x-3"
+            'w-full text-white hover:bg-slate-700 flex items-center',
+            collapsed ? 'justify-center' : 'justify-start space-x-3'
           )}
           onClick={handleSignOut}
         >

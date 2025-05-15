@@ -1,5 +1,5 @@
-import { Toaster } from "react-hot-toast";
-import Navigation from "./navigation";
+import { Toaster } from 'react-hot-toast';
+import Navigation from './navigation';
 
 function App() {
   return (

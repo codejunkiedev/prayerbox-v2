@@ -1,17 +1,17 @@
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
-import { useEffect, useState } from "react";
-import supabase from "@/lib/supabase";
-import LoadingPage from "@/components/LoadingPage";
-import { AppRoutes, AuthRoutes } from "@/constants";
-import { AppLayout } from "@/components/layout";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
+import { useEffect, useState } from 'react';
+import supabase from '@/lib/supabase';
+import LoadingPage from '@/components/LoadingPage';
+import { AppRoutes, AuthRoutes } from '@/constants';
+import { AppLayout } from '@/components/layout';
 
 // Pages
-import Home from "@/pages/home";
-import Register from "@/pages/auth/register";
-import Login from "@/pages/auth/login";
-import ForgotPassword from "@/pages/auth/forgot-password";
-import ResetPassword from "@/pages/auth/reset-password";
-import Profile from "@/pages/profile";
+import Home from '@/pages/home';
+import Register from '@/pages/auth/register';
+import Login from '@/pages/auth/login';
+import ForgotPassword from '@/pages/auth/forgot-password';
+import ResetPassword from '@/pages/auth/reset-password';
+import Profile from '@/pages/profile';
 
 export default function Navigation() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -23,7 +23,7 @@ export default function Navigation() {
         const { data } = await supabase.auth.getSession();
         setIsAuthenticated(!!data.session);
       } catch (error) {
-        console.error("Error checking authentication:", error);
+        console.error('Error checking authentication:', error);
       } finally {
         setIsLoading(false);
       }
@@ -63,7 +63,7 @@ export default function Navigation() {
           <Route path={AppRoutes.ResetPassword} element={<ResetPassword />} />
         </Route>
 
-        <Route path={"*"} element={<Navigate to={AppRoutes.Home} />} />
+        <Route path={'*'} element={<Navigate to={AppRoutes.Home} />} />
       </Routes>
     </BrowserRouter>
   );

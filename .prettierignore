@@ -1,0 +1,8 @@
+# Ignore artifacts:
+dist
+node_modules
+.git
+.DS_Store
+package-lock.json
+*.lock
+*.log 

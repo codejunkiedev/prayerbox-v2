@@ -1,20 +1,20 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Label } from "@/components/ui";
-import { cn } from "@/lib/utils";
-import { Eye, EyeOff } from "lucide-react";
-import { registerFormSchema, type RegisterFormData } from "@/lib/zod";
-import { Link } from "react-router";
-import supabase from "@/lib/supabase";
-import toast from "react-hot-toast";
-import { AuthRoutes } from "@/constants";
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Button, Input, Label } from '@/components/ui';
+import { cn } from '@/lib/utils';
+import { Eye, EyeOff } from 'lucide-react';
+import { registerFormSchema, type RegisterFormData } from '@/lib/zod';
+import { Link } from 'react-router';
+import supabase from '@/lib/supabase';
+import toast from 'react-hot-toast';
+import { AuthRoutes } from '@/constants';
 
 export default function Register() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const {
     register,
@@ -22,13 +22,13 @@ export default function Register() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
-    defaultValues: { email: "", password: "", confirmPassword: "" },
+    defaultValues: { email: '', password: '', confirmPassword: '' },
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true);
-      setErrorMessage("");
+      setErrorMessage('');
 
       // Register the user
       const { error: signUpError } = await supabase.auth.signUp({
@@ -46,17 +46,17 @@ export default function Register() {
 
       if (signInError) throw signInError;
 
-      toast.success("Account created and logged in successfully");
+      toast.success('Account created and logged in successfully');
     } catch (err) {
-      console.error("Error during sign up:", err);
-      setErrorMessage(err instanceof Error ? err.message : "An error occurred during signup");
+      console.error('Error during sign up:', err);
+      setErrorMessage(err instanceof Error ? err.message : 'An error occurred during signup');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleInputChange = () => {
-    if (errorMessage) setErrorMessage("");
+    if (errorMessage) setErrorMessage('');
   };
 
   return (
@@ -79,22 +79,24 @@ export default function Register() {
                 <Input
                   id="email"
                   type="email"
-                  className={cn(errors.email && "border-red-500")}
+                  className={cn(errors.email && 'border-red-500')}
                   placeholder="name@example.com"
-                  {...register("email", {
+                  {...register('email', {
                     onChange: handleInputChange,
                   })}
                 />
-                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+                {errors.email && (
+                  <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+                )}
               </div>
               <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? "text" : "password"}
-                    className={cn(errors.password && "border-red-500")}
-                    {...register("password", {
+                    type={showPassword ? 'text' : 'password'}
+                    className={cn(errors.password && 'border-red-500')}
+                    {...register('password', {
                       onChange: handleInputChange,
                     })}
                   />
@@ -109,16 +111,18 @@ export default function Register() {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
                 </div>
-                {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+                {errors.password && (
+                  <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+                )}
               </div>
               <div className="grid gap-1 sm:gap-2">
                 <Label htmlFor="confirmPassword">Confirm Password</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    className={cn(errors.confirmPassword && "border-red-500")}
-                    {...register("confirmPassword", {
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    className={cn(errors.confirmPassword && 'border-red-500')}
+                    {...register('confirmPassword', {
                       onChange: handleInputChange,
                     })}
                   />
@@ -138,12 +142,12 @@ export default function Register() {
                 )}
               </div>
               <Button type="submit" disabled={isLoading} className="mt-2">
-                {isLoading ? "Creating account..." : "Create account"}
+                {isLoading ? 'Creating account...' : 'Create account'}
               </Button>
             </div>
           </form>
           <div className="text-center text-sm">
-            Already have an account?{" "}
+            Already have an account?{' '}
             <Link to={AuthRoutes.Login} className="underline underline-offset-4 hover:text-primary">
               Sign in
             </Link>

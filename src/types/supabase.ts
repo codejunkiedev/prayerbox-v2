@@ -1,5 +1,5 @@
 export enum Table {
-  Accounts = "accounts",
+  Accounts = 'accounts',
 }
 
 export type Account = {

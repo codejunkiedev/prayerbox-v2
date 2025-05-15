@@ -1,7 +1,7 @@
-import { Menu, Bell, User } from "lucide-react";
-import { Button } from "@/components/ui";
-import { Link } from "react-router";
-import { AppRoutes } from "@/constants";
+import { Menu, Bell, User } from 'lucide-react';
+import { Button } from '@/components/ui';
+import { Link } from 'react-router';
+import { AppRoutes } from '@/constants';
 
 interface HeaderProps {
   onMenuClick: () => void;

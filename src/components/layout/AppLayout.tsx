@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { Outlet } from "react-router";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
+import { useState, useEffect } from 'react';
+import { Outlet } from 'react-router';
+import Sidebar from './Sidebar';
+import Header from './Header';
 
 export default function AppLayout() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
@@ -14,8 +14,8 @@ export default function AppLayout() {
       }
     };
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const toggleMobileSidebar = () => {
@@ -31,8 +31,11 @@ export default function AppLayout() {
 
       {/* Mobile sidebar - absolutely positioned overlay */}
       {showMobileSidebar && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50" onClick={toggleMobileSidebar}>
-          <div className="h-full" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="md:hidden fixed inset-0 z-50 bg-black bg-opacity-50"
+          onClick={toggleMobileSidebar}
+        >
+          <div className="h-full" onClick={e => e.stopPropagation()}>
             <Sidebar />
           </div>
         </div>
