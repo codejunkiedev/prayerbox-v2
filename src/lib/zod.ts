@@ -37,3 +37,13 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
+
+export const masjidProfileSchema = z.object({
+  masjidName: z.string().min(1, "Masjid name is required"),
+  masjidLocation: z.string().min(1, "Masjid location is required"),
+});
+
+export type MasjidProfileData = z.infer<typeof masjidProfileSchema>;
+
+export const VALID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB

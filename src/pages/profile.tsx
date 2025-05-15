@@ -1,22 +1,45 @@
 import React, { useState, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { masjidProfileSchema, type MasjidProfileData, VALID_IMAGE_TYPES, MAX_FILE_SIZE } from "@/lib/zod";
 
 export default function Profile() {
-  const [masjidName, setMasjidName] = useState("");
-  const [masjidLocation, setMasjidLocation] = useState("");
   const [masjidLogo, setMasjidLogo] = useState<File | null>(null);
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<MasjidProfileData>({
+    resolver: zodResolver(masjidProfileSchema),
+    defaultValues: {
+      masjidName: "",
+      masjidLocation: "",
+    },
+  });
+
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+
+      if (!VALID_IMAGE_TYPES.includes(file.type)) {
+        alert("Please select a valid image file (JPEG, PNG, GIF, WEBP)");
+        return;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        alert("File size exceeds 5MB limit");
+        return;
+      }
+
       setMasjidLogo(file);
 
-      // Create preview URL for the logo
       const reader = new FileReader();
       reader.onload = () => {
         setPreviewLogo(reader.result as string);
@@ -28,19 +51,18 @@ export default function Profile() {
   const resetLogo = () => {
     setMasjidLogo(null);
     setPreviewLogo(null);
-    // Reset the file input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({
-      masjidName,
-      masjidLocation,
+  const onSubmit = (data: MasjidProfileData) => {
+    const formData = {
+      ...data,
       masjidLogo,
-    });
+    };
+
+    console.log(formData);
     // Here you would typically send the data to your backend
   };
 
@@ -48,27 +70,27 @@ export default function Profile() {
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <h1 className="text-2xl font-bold mb-6">Masjid Profile</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="masjid-name">Masjid Name</Label>
+          <Label htmlFor="masjidName">Masjid Name</Label>
           <Input
-            id="masjid-name"
-            value={masjidName}
-            onChange={(e) => setMasjidName(e.target.value)}
+            id="masjidName"
+            {...register("masjidName")}
             placeholder="Enter masjid name"
-            required
+            className={errors.masjidName ? "border-red-500" : ""}
           />
+          {errors.masjidName && <p className="text-red-500 text-sm mt-1">{errors.masjidName.message}</p>}
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="masjid-location">Masjid Location</Label>
+          <Label htmlFor="masjidLocation">Masjid Location</Label>
           <Input
-            id="masjid-location"
-            value={masjidLocation}
-            onChange={(e) => setMasjidLocation(e.target.value)}
+            id="masjidLocation"
+            {...register("masjidLocation")}
             placeholder="Enter masjid location"
-            required
+            className={errors.masjidLocation ? "border-red-500" : ""}
           />
+          {errors.masjidLocation && <p className="text-red-500 text-sm mt-1">{errors.masjidLocation.message}</p>}
         </div>
 
         <div className="space-y-2">
@@ -83,6 +105,7 @@ export default function Profile() {
                 onChange={handleLogoChange}
                 className="cursor-pointer"
               />
+              <p className="text-sm text-gray-500 mt-1">Accepted formats: JPEG, PNG, GIF, WEBP (max 5MB)</p>
             </div>
             {previewLogo && (
               <div className="w-24 h-24 rounded overflow-hidden border relative">
