@@ -30,7 +30,7 @@ export default function Sidebar() {
     },
     {
       label: "Profile",
-      path: AppRoutes.UpdateUser,
+      path: AppRoutes.Profile,
       icon: <User size={20} />,
     },
   ];

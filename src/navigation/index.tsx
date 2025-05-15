@@ -11,7 +11,7 @@ import Register from "@/pages/auth/register";
 import Login from "@/pages/auth/login";
 import ForgotPassword from "@/pages/auth/forgot-password";
 import ResetPassword from "@/pages/auth/reset-password";
-import UpdateUser from "@/pages/update-user";
+import Profile from "@/pages/profile";
 
 export default function Navigation() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -59,8 +59,8 @@ export default function Navigation() {
         {/* App routes with layout - require authentication */}
         <Route element={isAuthenticated ? <AppLayout /> : <Navigate to={AuthRoutes.Login} />}>
           <Route path={AppRoutes.Home} element={<Home />} />
+          <Route path={AppRoutes.Profile} element={<Profile />} />
           <Route path={AppRoutes.ResetPassword} element={<ResetPassword />} />
-          <Route path={AppRoutes.UpdateUser} element={<UpdateUser />} />
         </Route>
 
         <Route path={"*"} element={<Navigate to={AppRoutes.Home} />} />

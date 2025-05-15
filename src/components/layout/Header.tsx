@@ -20,7 +20,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <Button variant="ghost" size="icon" className="text-slate-600">
           <Bell size={20} />
         </Button>
-        <Link to={AppRoutes.UpdateUser}>
+        <Link to={AppRoutes.Profile}>
           <Button variant="ghost" size="icon" className="text-slate-600">
             <User size={20} />
           </Button>
