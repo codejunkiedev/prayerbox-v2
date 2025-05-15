@@ -5,7 +5,7 @@ import { Button, Input, Label } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router';
-import supabase from '@/lib/supabase';
+import { updateUserPassword } from '@/lib/supabase';
 import toast from 'react-hot-toast';
 import { AuthRoutes } from '@/constants';
 import { resetPasswordSchema, type ResetPasswordData } from '@/lib/zod';
@@ -32,11 +32,7 @@ export default function ResetPassword() {
       setIsLoading(true);
       setErrorMessage('');
 
-      const { error } = await supabase.auth.updateUser({
-        password: data.password,
-      });
-
-      if (error) throw error;
+      await updateUserPassword(data.password);
 
       setIsSuccess(true);
       toast.success('Password reset successfully');

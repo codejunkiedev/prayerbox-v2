@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useEffect, useState } from 'react';
-import supabase from '@/lib/supabase';
+import { getCurrentSession, subscribeToAuthChanges } from '@/lib/supabase';
 import LoadingPage from '@/components/LoadingPage';
 import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
@@ -20,8 +20,8 @@ export default function Navigation() {
   useEffect(() => {
     const checkUser = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
-        setIsAuthenticated(!!data.session);
+        const session = await getCurrentSession();
+        setIsAuthenticated(!!session);
       } catch (error) {
         console.error('Error checking authentication:', error);
       } finally {
@@ -33,12 +33,12 @@ export default function Navigation() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = subscribeToAuthChanges(session => {
       setIsAuthenticated(!!session?.user);
     });
 
     return () => {
-      subscription.unsubscribe();
+      if (subscription) subscription.unsubscribe();
     };
   }, []);
 

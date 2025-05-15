@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { loginFormSchema, type LoginFormData } from '@/lib/zod';
 import { Link } from 'react-router';
-import supabase from '@/lib/supabase';
+import { signInWithEmail } from '@/lib/supabase';
 import toast from 'react-hot-toast';
 import { AuthRoutes } from '@/constants';
 
@@ -30,12 +30,7 @@ export default function Login() {
       setIsLoading(true);
       setErrorMessage('');
 
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) throw error;
+      await signInWithEmail(data.email, data.password);
 
       toast.success('Login Successful');
     } catch (err) {

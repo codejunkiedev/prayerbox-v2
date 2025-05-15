@@ -5,12 +5,9 @@ import { Button, Input, Label } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { forgotPasswordSchema, type ForgotPasswordData } from '@/lib/zod';
 import { Link } from 'react-router';
-import supabase from '@/lib/supabase';
+import { resetPasswordForEmail } from '@/lib/supabase';
 import toast from 'react-hot-toast';
-import { AppRoutes, AuthRoutes } from '@/constants';
-
-const origin = window.location.origin;
-const resetPasswordRoute = `${origin}${AppRoutes.ResetPassword}`;
+import { AuthRoutes } from '@/constants';
 
 export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -32,11 +29,7 @@ export default function ForgotPassword() {
       setIsLoading(true);
       setErrorMessage('');
 
-      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: resetPasswordRoute,
-      });
-
-      if (error) throw error;
+      await resetPasswordForEmail(data.email);
 
       setIsSubmitted(true);
       toast.success('Password reset link sent to your email');

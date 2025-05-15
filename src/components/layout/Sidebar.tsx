@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Home, User, LogOut } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import supabase from '@/lib/supabase';
+import { signOut } from '@/lib/supabase';
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -15,7 +15,7 @@ export default function Sidebar() {
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut();
   };
 
   const isActive = (path: string) => {
