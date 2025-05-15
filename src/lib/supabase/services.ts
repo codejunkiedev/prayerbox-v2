@@ -1,6 +1,7 @@
 import { SupabaseBuckets, SupabaseTables, type MasjidProfile } from '@/types';
 import type { MasjidProfileData } from '../zod';
 import { getCurrentUser, uploadFile, fetchByColumn, updateRecord, insertRecord } from './helpers';
+import { generateMasjidCode } from '@/utils/general';
 
 // Get masjid profile for current user
 export async function getMasjidProfile(): Promise<MasjidProfile | null> {
@@ -46,6 +47,7 @@ export async function upsertMasjidProfile(profileData: MasjidProfileData, logoFi
     updated_at: new Date().toISOString(),
     address: profileData.address,
     name: profileData.name,
+    code: existingProfile?.code || generateMasjidCode(),
   };
 
   if (existingProfile) {
