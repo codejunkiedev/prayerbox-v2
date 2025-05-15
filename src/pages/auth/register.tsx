@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { registerFormSchema, type RegisterFormData } from '@/lib/zod';
 import { Link } from 'react-router';
-import { signInWithEmail, signUpWithEmail } from '@/lib/supabase';
+import { signUpWithEmail } from '@/lib/supabase';
 import toast from 'react-hot-toast';
 import { AuthRoutes } from '@/constants';
 
@@ -31,11 +31,7 @@ export default function Register() {
       setErrorMessage('');
 
       // Register the user
-      const { user } = await signUpWithEmail(data.email, data.password);
-      if (user) {
-        // Auto sign in after registration
-        await signInWithEmail(data.email, data.password);
-      }
+      await signUpWithEmail(data.email, data.password);
 
       toast.success('Account created and logged in successfully');
     } catch (err) {
