@@ -7,10 +7,10 @@ import { forgotPasswordSchema, type ForgotPasswordData } from "@/lib/zod";
 import { Link } from "react-router";
 import supabase from "@/lib/supabase";
 import toast from "react-hot-toast";
-import { AuthRoutes } from "@/constants";
+import { AppRoutes, AuthRoutes } from "@/constants";
 
 const origin = window.location.origin;
-const resetPasswordRoute = `${origin}${AuthRoutes.ResetPassword}`;
+const resetPasswordRoute = `${origin}${AppRoutes.ResetPassword}`;
 
 export default function ForgotPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
