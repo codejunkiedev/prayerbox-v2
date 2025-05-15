@@ -7,7 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router';
 import { updateUserPassword } from '@/lib/supabase';
 import toast from 'react-hot-toast';
-import { AuthRoutes } from '@/constants';
+import { AppRoutes } from '@/constants';
 import { resetPasswordSchema, type ResetPasswordData } from '@/lib/zod';
 
 export default function ResetPassword() {
@@ -53,7 +53,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className='container flex h-screen w-full flex-col items-center justify-center px-4 md:px-6'>
+    <div className='container flex h-full w-full flex-col items-center justify-center px-4 md:px-6'>
       <div className='mx-auto flex w-full flex-col justify-center space-y-4 sm:space-y-6 sm:w-[350px]'>
         <div className='flex flex-col space-y-2 text-center'>
           <h1 className='text-xl sm:text-2xl font-semibold tracking-tight'>Reset your password</h1>
@@ -71,7 +71,7 @@ export default function ResetPassword() {
                 Your password has been reset successfully.
               </div>
               <Button className='mt-2' asChild>
-                <Link to={AuthRoutes.Login}>Go to login</Link>
+                <Link to={AppRoutes.Home}>Go to Home</Link>
               </Button>
             </>
           ) : (
