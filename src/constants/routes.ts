@@ -5,6 +5,7 @@ export enum AuthRoutes {
 }
 
 export enum AppRoutes {
-  ResetPassword = "/user/reset-password",
   Home = "/",
+  UpdateUser = "/user/update",
+  ResetPassword = "/user/reset-password",
 }
