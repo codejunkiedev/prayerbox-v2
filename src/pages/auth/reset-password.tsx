@@ -10,12 +10,6 @@ import toast from "react-hot-toast";
 import { AuthRoutes } from "@/constants";
 import { resetPasswordSchema, type ResetPasswordData } from "@/lib/zod";
 
-// type ResetPasswordParams = {
-//   error?: string;
-//   error_code?: string;
-//   error_description?: string;
-// };
-
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);

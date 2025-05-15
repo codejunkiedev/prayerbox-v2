@@ -49,10 +49,10 @@ export default function Navigation() {
           <Route path={AuthRoutes.Login} element={<Login />} />
           <Route path={AuthRoutes.Register} element={<Register />} />
           <Route path={AuthRoutes.ForgotPassword} element={<ForgotPassword />} />
-          <Route path={AuthRoutes.ResetPassword} element={<ResetPassword />} />
         </Route>
         <Route element={isAuthenticated ? <Outlet /> : <Navigate to={AuthRoutes.Login} />}>
           <Route path={AppRoutes.Home} element={<Home />} />
+          <Route path={AppRoutes.ResetPassword} element={<ResetPassword />} />
         </Route>
         <Route path={"*"} element={<Navigate to={AppRoutes.Home} />} />
       </Routes>
