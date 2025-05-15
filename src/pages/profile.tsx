@@ -101,93 +101,93 @@ export default function Profile() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <h1 className="text-2xl font-bold mb-6">Masjid Profile</h1>
+    <div className='container mx-auto px-4 py-8 max-w-2xl'>
+      <h1 className='text-2xl font-bold mb-6'>Masjid Profile</h1>
 
       {isLoading ? (
-        <div className="flex justify-center p-8">
-          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-          <span className="sr-only">Loading...</span>
+        <div className='flex justify-center p-8'>
+          <div className='animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full'></div>
+          <span className='sr-only'>Loading...</span>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="name">Masjid Name</Label>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+          <div className='space-y-2'>
+            <Label htmlFor='name'>Masjid Name</Label>
             <Input
-              id="name"
+              id='name'
               {...register('name')}
-              placeholder="Enter masjid name"
+              placeholder='Enter masjid name'
               className={errors.name ? 'border-red-500' : ''}
             />
-            {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
+            {errors.name && <p className='text-red-500 text-sm mt-1'>{errors.name.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="address">Masjid Location</Label>
+          <div className='space-y-2'>
+            <Label htmlFor='address'>Masjid Location</Label>
             <Input
-              id="address"
+              id='address'
               {...register('address')}
-              placeholder="Enter masjid location"
+              placeholder='Enter masjid location'
               className={errors.address ? 'border-red-500' : ''}
             />
             {errors.address && (
-              <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
+              <p className='text-red-500 text-sm mt-1'>{errors.address.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="masjid-logo">Masjid Logo</Label>
-            <div className="flex items-start gap-4">
-              <div className="flex-1">
+          <div className='space-y-2'>
+            <Label htmlFor='masjid-logo'>Masjid Logo</Label>
+            <div className='flex items-start gap-4'>
+              <div className='flex-1'>
                 <Input
-                  id="masjid-logo"
+                  id='masjid-logo'
                   ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
+                  type='file'
+                  accept='image/*'
                   onChange={handleLogoChange}
-                  className="cursor-pointer"
+                  className='cursor-pointer'
                 />
-                <p className="text-sm text-gray-500 mt-1">
+                <p className='text-sm text-gray-500 mt-1'>
                   Accepted formats: JPEG, PNG, GIF, WEBP (max 5MB)
                 </p>
               </div>
               {previewLogo && (
-                <div className="w-24 h-24 rounded overflow-hidden border relative">
+                <div className='w-24 h-24 rounded overflow-hidden border relative'>
                   <button
-                    type="button"
+                    type='button'
                     onClick={resetLogo}
-                    className="absolute top-0 right-0 bg-black bg-opacity-50 text-white p-1 rounded-bl-md hover:bg-opacity-70"
-                    aria-label="Remove logo"
+                    className='absolute top-0 right-0 bg-black bg-opacity-50 text-white p-1 rounded-bl-md hover:bg-opacity-70'
+                    aria-label='Remove logo'
                   >
                     <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                      xmlns='http://www.w3.org/2000/svg'
+                      width='16'
+                      height='16'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='2'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
                     >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                      <line x1='18' y1='6' x2='6' y2='18'></line>
+                      <line x1='6' y1='6' x2='18' y2='18'></line>
                     </svg>
                   </button>
                   <img
                     src={previewLogo}
-                    alt="Logo preview"
-                    className="w-full h-full object-cover"
+                    alt='Logo preview'
+                    className='w-full h-full object-cover'
                   />
                 </div>
               )}
             </div>
           </div>
 
-          <Button type="submit" disabled={isSaving}>
+          <Button type='submit' disabled={isSaving}>
             {isSaving ? (
               <>
-                <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                <div className='h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2'></div>
                 Saving...
               </>
             ) : (

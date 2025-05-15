@@ -48,11 +48,11 @@ export default function Sidebar() {
           collapsed ? 'w-16' : 'w-64'
         )}
       >
-        <div className="p-4 flex items-center justify-between border-b border-slate-700">
-          {!collapsed && <h1 className="text-xl font-semibold">PrayerBox</h1>}
+        <div className='p-4 flex items-center justify-between border-b border-slate-700'>
+          {!collapsed && <h1 className='text-xl font-semibold'>PrayerBox</h1>}
           <Button
-            variant="ghost"
-            size="icon"
+            variant='ghost'
+            size='icon'
             className={cn('text-white hover:bg-slate-700 ml-auto', collapsed && 'mx-auto')}
             onClick={toggleSidebar}
           >
@@ -60,8 +60,8 @@ export default function Sidebar() {
           </Button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-4">
-          <ul className="space-y-2 px-2">
+        <nav className='flex-1 overflow-y-auto py-4'>
+          <ul className='space-y-2 px-2'>
             {navItems.map(item => (
               <li key={item.path}>
                 <Link
@@ -80,9 +80,9 @@ export default function Sidebar() {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-slate-700">
+        <div className='p-4 border-t border-slate-700'>
           <Button
-            variant="ghost"
+            variant='ghost'
             className={cn(
               'w-full text-white hover:bg-slate-700 flex items-center',
               collapsed ? 'justify-center' : 'justify-start space-x-3'
