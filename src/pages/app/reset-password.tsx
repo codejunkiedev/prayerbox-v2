@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Label } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
-import { Link } from 'react-router';
 import { updateUserPassword } from '@/lib/supabase';
 import toast from 'react-hot-toast';
 import { AppRoutes } from '@/constants';
 import { resetPasswordSchema, type ResetPasswordData } from '@/lib/zod';
+import { AutoRedirectNotice } from '@/components/AutoRedirectNotice';
 
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -66,14 +66,12 @@ export default function ResetPassword() {
             </div>
           )}
           {isSuccess ? (
-            <>
-              <div className='bg-green-100 border border-green-400 text-green-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm'>
-                Your password has been reset successfully.
-              </div>
-              <Button className='mt-2' asChild>
-                <Link to={AppRoutes.Home}>Go to Home</Link>
-              </Button>
-            </>
+            <AutoRedirectNotice
+              to={AppRoutes.Home}
+              delaySeconds={5}
+              message={'Your password has been reset successfully.'}
+              buttonLabel='Go to Home'
+            />
           ) : (
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className='grid gap-3 sm:gap-4'>
