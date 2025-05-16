@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui';
-import { Link } from 'react-router';
 import { useAutoRedirect } from '@/hooks';
 
 interface AutoRedirectNoticeProps {
@@ -26,8 +25,8 @@ export function AutoRedirectNotice({
           {secondsLeft !== 1 ? 's' : ''}...
         </div>
       </div>
-      <Button className='mt-2' asChild onClick={redirectNow}>
-        <Link to={to}>{buttonLabel}</Link>
+      <Button className='mt-2' onClick={redirectNow}>
+        {buttonLabel}
       </Button>
     </>
   );
