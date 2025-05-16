@@ -21,8 +21,10 @@ export function AutoRedirectNotice({
     <>
       <div className='bg-green-100 border border-green-400 text-green-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm mb-2'>
         {message} <br />
-        Redirecting in <span className='font-semibold'>{secondsLeft}</span> second
-        {secondsLeft !== 1 ? 's' : ''}...
+        <div className='text-center'>
+          Redirecting in <span className='font-semibold'>{secondsLeft}</span> second
+          {secondsLeft !== 1 ? 's' : ''}...
+        </div>
       </div>
       <Button className='mt-2' asChild onClick={redirectNow}>
         <Link to={to}>{buttonLabel}</Link>
