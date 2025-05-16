@@ -1,19 +1,18 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Label } from '@/components/ui';
+import { Button, Input, Label, ErrorBox } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
-import { Link } from 'react-router';
 import { updateUserPassword } from '@/lib/supabase';
 import toast from 'react-hot-toast';
 import { AppRoutes } from '@/constants';
 import { resetPasswordSchema, type ResetPasswordData } from '@/lib/zod';
+import { AutoRedirectNotice } from '@/components/AutoRedirectNotice';
 
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState({ new: false, confirm: false });
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
@@ -60,20 +59,14 @@ export default function ResetPassword() {
           <p className='text-sm text-muted-foreground'>Enter your new password below</p>
         </div>
         <div className='grid gap-4 sm:gap-6'>
-          {errorMessage && (
-            <div className='bg-red-100 border border-red-400 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm'>
-              {errorMessage}
-            </div>
-          )}
+          {errorMessage && <ErrorBox message={errorMessage} />}
           {isSuccess ? (
-            <>
-              <div className='bg-green-100 border border-green-400 text-green-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm'>
-                Your password has been reset successfully.
-              </div>
-              <Button className='mt-2' asChild>
-                <Link to={AppRoutes.Home}>Go to Home</Link>
-              </Button>
-            </>
+            <AutoRedirectNotice
+              to={AppRoutes.Home}
+              delaySeconds={5}
+              message={'Your password has been reset successfully.'}
+              buttonLabel='Go to Home'
+            />
           ) : (
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className='grid gap-3 sm:gap-4'>
@@ -82,7 +75,7 @@ export default function ResetPassword() {
                   <div className='relative'>
                     <Input
                       id='password'
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword.new ? 'text' : 'password'}
                       className={cn(errors.password && 'border-red-500')}
                       {...register('password', {
                         onChange: handleInputChange,
@@ -93,10 +86,10 @@ export default function ResetPassword() {
                       variant='ghost'
                       size='icon'
                       className='absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0'
-                      onClick={() => setShowPassword(!showPassword)}
+                      onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
                       tabIndex={-1}
                     >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showPassword.new ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </div>
                   {errors.password && (
@@ -108,7 +101,7 @@ export default function ResetPassword() {
                   <div className='relative'>
                     <Input
                       id='confirmPassword'
-                      type={showConfirmPassword ? 'text' : 'password'}
+                      type={showPassword.confirm ? 'text' : 'password'}
                       className={cn(errors.confirmPassword && 'border-red-500')}
                       {...register('confirmPassword', {
                         onChange: handleInputChange,
@@ -119,17 +112,17 @@ export default function ResetPassword() {
                       variant='ghost'
                       size='icon'
                       className='absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0'
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
                       tabIndex={-1}
                     >
-                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {showPassword.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
                     </Button>
                   </div>
                   {errors.confirmPassword && (
                     <p className='text-xs text-red-500 mt-1'>{errors.confirmPassword.message}</p>
                   )}
                 </div>
-                <Button type='submit' disabled={isLoading} className='mt-2'>
+                <Button type='submit' loading={isLoading} className='mt-2'>
                   {isLoading ? 'Resetting password...' : 'Reset password'}
                 </Button>
               </div>

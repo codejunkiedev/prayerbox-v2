@@ -235,15 +235,8 @@ export default function Profile() {
             </div>
           </div>
 
-          <Button type='submit' disabled={isSaving}>
-            {isSaving ? (
-              <>
-                <div className='h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2'></div>
-                Saving...
-              </>
-            ) : (
-              'Save Masjid Profile'
-            )}
+          <Button type='submit' loading={isSaving}>
+            {isSaving ? 'Saving...' : 'Save Masjid Profile'}
           </Button>
         </form>
       )}

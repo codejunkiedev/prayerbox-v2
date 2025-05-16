@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { ChevronLeft, ChevronRight, Home, User, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, User, LogOut, Lock } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -37,6 +37,11 @@ export default function Sidebar() {
       label: 'Profile',
       path: AppRoutes.Profile,
       icon: <User size={20} />,
+    },
+    {
+      label: 'Update Password',
+      path: AppRoutes.UpdatePassword,
+      icon: <Lock size={20} />,
     },
   ];
 

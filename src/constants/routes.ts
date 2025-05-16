@@ -8,4 +8,5 @@ export enum AppRoutes {
   Home = '/',
   Profile = '/profile',
   ResetPassword = '/user/reset-password',
+  UpdatePassword = '/user/update-password',
 }
