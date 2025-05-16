@@ -12,8 +12,7 @@ import { AuthRoutes } from '@/constants';
 
 export default function Register() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState({ new: false, confirm: false });
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const {
@@ -78,7 +77,7 @@ export default function Register() {
                 <div className='relative'>
                   <Input
                     id='password'
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword.new ? 'text' : 'password'}
                     className={cn(errors.password && 'border-red-500')}
                     {...register('password', {
                       onChange: handleInputChange,
@@ -89,10 +88,10 @@ export default function Register() {
                     variant='ghost'
                     size='icon'
                     className='absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0'
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
                     tabIndex={-1}
                   >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPassword.new ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
                 </div>
                 {errors.password && (
@@ -104,7 +103,7 @@ export default function Register() {
                 <div className='relative'>
                   <Input
                     id='confirmPassword'
-                    type={showConfirmPassword ? 'text' : 'password'}
+                    type={showPassword.confirm ? 'text' : 'password'}
                     className={cn(errors.confirmPassword && 'border-red-500')}
                     {...register('confirmPassword', {
                       onChange: handleInputChange,
@@ -115,10 +114,10 @@ export default function Register() {
                     variant='ghost'
                     size='icon'
                     className='absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0'
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
                     tabIndex={-1}
                   >
-                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    {showPassword.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
                 </div>
                 {errors.confirmPassword && (
