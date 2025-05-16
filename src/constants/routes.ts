@@ -1,12 +1,12 @@
 export enum AuthRoutes {
-  Login = '/auth/login',
-  Register = '/auth/register',
-  ForgotPassword = '/auth/forgot-password',
+  Login = '/login',
+  Register = '/register',
+  ForgotPassword = '/forgot-password',
 }
 
 export enum AppRoutes {
   Home = '/',
   Profile = '/profile',
-  ResetPassword = '/user/reset-password',
-  UpdatePassword = '/user/update-password',
+  ResetPassword = '/reset-password',
+  UpdatePassword = '/update-password',
 }
