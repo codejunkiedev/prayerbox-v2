@@ -38,6 +38,19 @@ export const resetPasswordSchema = z
 
 export type ResetPasswordData = z.infer<typeof resetPasswordSchema>;
 
+export const updatePasswordSchema = z
+  .object({
+    oldPassword: z.string().min(8, 'Password must be at least 8 characters'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'New passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export type UpdatePasswordData = z.infer<typeof updatePasswordSchema>;
+
 export const masjidProfileSchema = z.object({
   name: z.string().min(1, 'Masjid name is required'),
   address: z.string().min(1, 'Masjid location is required'),

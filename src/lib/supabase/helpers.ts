@@ -204,6 +204,39 @@ export async function updateUserPassword(password: string) {
 }
 
 /**
+ * Helper to update the user's password with old password verification
+ * @param email User's email
+ * @param oldPassword User's current password
+ * @param newPassword User's new password
+ */
+export async function updateUserPasswordWithVerification(
+  email: string,
+  oldPassword: string,
+  newPassword: string
+) {
+  // First, verify the old password by attempting to sign in
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password: oldPassword,
+  });
+
+  if (signInError) {
+    console.error('Error verifying current password:', signInError);
+    throw new Error('Current password is incorrect');
+  }
+
+  // If sign-in is successful, update to the new password
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+  if (error) {
+    console.error('Error updating user password:', error);
+    throw error;
+  }
+
+  return true;
+}
+
+/**
  * Helper to reset the user's password
  * @param email User's email
  */

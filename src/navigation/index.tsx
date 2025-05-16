@@ -3,7 +3,16 @@ import { useEffect, useState } from 'react';
 import { getCurrentSession, subscribeToAuthChanges } from '@/lib/supabase';
 import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
-import { ForgotPassword, Home, Loading, Login, Profile, Register, ResetPassword } from '@/pages';
+import {
+  ForgotPassword,
+  Home,
+  Loading,
+  Login,
+  Profile,
+  Register,
+  ResetPassword,
+  UpdatePassword,
+} from '@/pages';
 
 export default function Navigation() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -53,6 +62,7 @@ export default function Navigation() {
           <Route path={AppRoutes.Home} element={<Home />} />
           <Route path={AppRoutes.Profile} element={<Profile />} />
           <Route path={AppRoutes.ResetPassword} element={<ResetPassword />} />
+          <Route path={AppRoutes.UpdatePassword} element={<UpdatePassword />} />
         </Route>
 
         <Route path={'*'} element={<Navigate to={AppRoutes.Home} />} />
