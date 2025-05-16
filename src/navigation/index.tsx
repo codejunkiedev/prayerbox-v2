@@ -1,17 +1,9 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useEffect, useState } from 'react';
 import { getCurrentSession, subscribeToAuthChanges } from '@/lib/supabase';
-import LoadingPage from '@/components/LoadingPage';
 import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
-
-// Pages
-import Home from '@/pages/home';
-import Register from '@/pages/auth/register';
-import Login from '@/pages/auth/login';
-import ForgotPassword from '@/pages/auth/forgot-password';
-import ResetPassword from '@/pages/auth/reset-password';
-import Profile from '@/pages/profile';
+import { ForgotPassword, Home, Loading, Login, Profile, Register, ResetPassword } from '@/pages';
 
 export default function Navigation() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -43,7 +35,7 @@ export default function Navigation() {
   }, []);
 
   if (isLoading) {
-    return <LoadingPage />;
+    return <Loading />;
   }
 
   return (
