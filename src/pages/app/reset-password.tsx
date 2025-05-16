@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Label } from '@/components/ui';
+import { Button, Input, Label, ErrorBox } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { updateUserPassword } from '@/lib/supabase';
@@ -59,11 +59,7 @@ export default function ResetPassword() {
           <p className='text-sm text-muted-foreground'>Enter your new password below</p>
         </div>
         <div className='grid gap-4 sm:gap-6'>
-          {errorMessage && (
-            <div className='bg-red-100 border border-red-400 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm'>
-              {errorMessage}
-            </div>
-          )}
+          {errorMessage && <ErrorBox message={errorMessage} />}
           {isSuccess ? (
             <AutoRedirectNotice
               to={AppRoutes.Home}
@@ -126,7 +122,7 @@ export default function ResetPassword() {
                     <p className='text-xs text-red-500 mt-1'>{errors.confirmPassword.message}</p>
                   )}
                 </div>
-                <Button type='submit' disabled={isLoading} className='mt-2'>
+                <Button type='submit' loading={isLoading} className='mt-2'>
                   {isLoading ? 'Resetting password...' : 'Reset password'}
                 </Button>
               </div>

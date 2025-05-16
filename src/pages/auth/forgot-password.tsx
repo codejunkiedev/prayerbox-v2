@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Label } from '@/components/ui';
+import { Button, Input, Label, ErrorBox } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { forgotPasswordSchema, type ForgotPasswordData } from '@/lib/zod';
 import { Link } from 'react-router';
@@ -55,11 +55,7 @@ export default function ForgotPassword() {
           </p>
         </div>
         <div className='grid gap-4 sm:gap-6'>
-          {errorMessage && (
-            <div className='bg-red-100 border border-red-400 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm'>
-              {errorMessage}
-            </div>
-          )}
+          {errorMessage && <ErrorBox message={errorMessage} />}
           {isSubmitted ? (
             <div className='bg-green-100 border border-green-400 text-green-700 px-3 py-2 sm:px-4 sm:py-3 rounded text-sm'>
               Check your email for a link to reset your password. If it doesn't appear within a few
@@ -83,7 +79,7 @@ export default function ForgotPassword() {
                     <p className='text-xs text-red-500 mt-1'>{errors.email.message}</p>
                   )}
                 </div>
-                <Button type='submit' disabled={isLoading} className='mt-2'>
+                <Button type='submit' loading={isLoading} className='mt-2'>
                   {isLoading ? 'Sending link...' : 'Send reset link'}
                 </Button>
               </div>
