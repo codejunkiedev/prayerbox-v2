@@ -130,43 +130,47 @@ export default function Profile() {
         </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
-          {masjidCode && (
-            <div className='space-y-2'>
-              <Label htmlFor='code'>Masjid Code</Label>
-              <div className='flex relative'>
-                <Input
-                  id='code'
-                  value={masjidCode}
-                  readOnly
-                  className='bg-muted cursor-not-allowed pr-10'
-                />
-                <Button
-                  type='button'
-                  variant='ghost'
-                  size='icon'
-                  onClick={handleCopyCode}
-                  className='absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8'
-                  title='Copy masjid code'
-                >
-                  <Copy size={16} className={isCopied ? 'text-green-500' : ''} />
-                  <span className='sr-only'>Copy masjid code</span>
-                </Button>
+          <div
+            className={`grid gap-4 ${masjidCode ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}
+          >
+            {masjidCode && (
+              <div className='space-y-2'>
+                <Label htmlFor='code'>Masjid Code</Label>
+                <div className='flex relative'>
+                  <Input
+                    id='code'
+                    value={masjidCode}
+                    readOnly
+                    className='bg-muted cursor-not-allowed pr-10'
+                  />
+                  <Button
+                    type='button'
+                    variant='ghost'
+                    size='icon'
+                    onClick={handleCopyCode}
+                    className='absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8'
+                    title='Copy masjid code'
+                  >
+                    <Copy size={16} className={isCopied ? 'text-green-500' : ''} />
+                    <span className='sr-only'>Copy masjid code</span>
+                  </Button>
+                </div>
+                <p className='text-sm text-muted-foreground'>
+                  This code was automatically generated and cannot be changed.
+                </p>
               </div>
-              <p className='text-sm text-muted-foreground'>
-                This code was automatically generated and cannot be changed.
-              </p>
-            </div>
-          )}
+            )}
 
-          <div className='space-y-2'>
-            <Label htmlFor='name'>Masjid Name</Label>
-            <Input
-              id='name'
-              {...register('name')}
-              placeholder='Enter masjid name'
-              className={errors.name ? 'border-red-500' : ''}
-            />
-            {errors.name && <p className='text-red-500 text-sm mt-1'>{errors.name.message}</p>}
+            <div className='space-y-2'>
+              <Label htmlFor='name'>Masjid Name</Label>
+              <Input
+                id='name'
+                {...register('name')}
+                placeholder='Enter masjid name'
+                className={errors.name ? 'border-red-500' : ''}
+              />
+              {errors.name && <p className='text-red-500 text-sm mt-1'>{errors.name.message}</p>}
+            </div>
           </div>
 
           <div className='space-y-2'>
