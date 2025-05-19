@@ -60,3 +60,12 @@ export type MasjidProfileData = z.infer<typeof masjidProfileSchema>;
 
 export const VALID_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+export const ayatAndHadithSchema = z.object({
+  text: z.string().min(1, 'text is required'),
+  translation: z.string().min(1, 'translation is required'),
+  reference: z.string().min(1, 'reference is required'),
+  type: z.enum(['ayat', 'hadith']),
+});
+
+export type AyatAndHadithData = z.infer<typeof ayatAndHadithSchema>;

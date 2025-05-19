@@ -131,6 +131,42 @@ export async function fetchByColumn<T>(
 }
 
 /**
+ * Helper to fetch records by multiple column conditions
+ * @param table The table name to query
+ * @param conditions Array of conditions with column, value, and optional isNull flag
+ * @param columns The columns to select, defaults to '*'
+ * @returns The fetched records
+ */
+export async function fetchByMultipleConditions<T>(
+  table: string,
+  conditions: Array<{ column: string; value?: string | number | boolean; isNull?: boolean }>,
+  columns: string = '*'
+): Promise<T[]> {
+  let query = supabase.from(table).select(columns);
+
+  for (const condition of conditions) {
+    if (condition.isNull) {
+      // Handle condition where we want to include both null values and the specified value
+      query = query.or(`${condition.column}.is.null,${condition.column}.eq.${condition.value}`);
+    } else if (condition.value !== undefined) {
+      // Standard equals condition
+      query = query.eq(condition.column, condition.value);
+    } else {
+      // Just check for null
+      query = query.is(condition.column, null);
+    }
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw handleSupabaseError(error, `Error fetching records from ${table}`);
+  }
+
+  return data as T[];
+}
+
+/**
  * Helper to upload a file to Supabase storage
  * @param bucket The storage bucket name
  * @param file The file to upload
