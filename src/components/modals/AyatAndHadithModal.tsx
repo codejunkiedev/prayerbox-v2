@@ -79,7 +79,7 @@ export function AyatAndHadithModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[425px]'>
+      <DialogContent className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit' : 'Add'} Ayat or Hadith</DialogTitle>
         </DialogHeader>
@@ -117,7 +117,9 @@ export function AyatAndHadithModal({
               {...register('text')}
               className={errors.text ? 'border-red-500' : ''}
             />
-            {errors.text && <p className='text-red-500 text-sm'>{errors.text.message}</p>}
+            {errors.text && (
+              <p className='text-red-500 text-sm capitalize'>{`${selectedType} ${errors.text.message}`}</p>
+            )}
           </div>
 
           <div className='space-y-2'>
@@ -129,7 +131,7 @@ export function AyatAndHadithModal({
               className={errors.translation ? 'border-red-500' : ''}
             />
             {errors.translation && (
-              <p className='text-red-500 text-sm'>{errors.translation.message}</p>
+              <p className='text-red-500 text-sm capitalize'>{`${selectedType} ${errors.translation.message}`}</p>
             )}
           </div>
 
@@ -141,7 +143,9 @@ export function AyatAndHadithModal({
               {...register('reference')}
               className={errors.reference ? 'border-red-500' : ''}
             />
-            {errors.reference && <p className='text-red-500 text-sm'>{errors.reference.message}</p>}
+            {errors.reference && (
+              <p className='text-red-500 text-sm capitalize'>{`${selectedType} ${errors.reference.message}`}</p>
+            )}
           </div>
 
           <DialogFooter>

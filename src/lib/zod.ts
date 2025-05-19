@@ -62,9 +62,9 @@ export const VALID_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const ayatAndHadithSchema = z.object({
-  text: z.string().min(1, 'Ayat or Hadith text is required'),
-  translation: z.string().min(1, 'Ayat or Hadith translation is required'),
-  reference: z.string().min(1, 'Ayat or Hadith reference is required'),
+  text: z.string().min(1, 'text is required'),
+  translation: z.string().min(1, 'translation is required'),
+  reference: z.string().min(1, 'reference is required'),
   type: z.enum(['ayat', 'hadith']),
 });
 
