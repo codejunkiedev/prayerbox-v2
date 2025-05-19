@@ -23,47 +23,43 @@ import { useTrigger } from '@/hooks';
 
 function TableSkeleton() {
   return (
-    <Card>
-      <CardContent className='p-0'>
-        <div className='rounded-md overflow-x-auto'>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className='max-w-[300px] w-[35%]'>Text</TableHead>
-                <TableHead className='max-w-[300px] w-[35%]'>Translation</TableHead>
-                <TableHead className='max-w-[150px] w-[15%]'>Reference</TableHead>
-                <TableHead className='w-[10%]'>Type</TableHead>
-                <TableHead className='w-[5%]'>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(5)].map((_, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Skeleton className='h-4 w-[80%]' />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className='h-4 w-[90%]' />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className='h-4 w-[60%]' />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className='h-4 w-[40%]' />
-                  </TableCell>
-                  <TableCell>
-                    <div className='flex space-x-1'>
-                      <Skeleton className='h-8 w-8 rounded-md' />
-                      <Skeleton className='h-8 w-8 rounded-md' />
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+    <div className='rounded-md overflow-x-auto'>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className='max-w-[300px] w-[35%]'>Text</TableHead>
+            <TableHead className='max-w-[300px] w-[35%]'>Translation</TableHead>
+            <TableHead className='max-w-[150px] w-[15%]'>Reference</TableHead>
+            <TableHead className='w-[10%]'>Type</TableHead>
+            <TableHead className='w-[5%]'>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {[...Array(5)].map((_, index) => (
+            <TableRow key={index}>
+              <TableCell>
+                <Skeleton className='h-4 w-[80%]' />
+              </TableCell>
+              <TableCell>
+                <Skeleton className='h-4 w-[90%]' />
+              </TableCell>
+              <TableCell>
+                <Skeleton className='h-4 w-[60%]' />
+              </TableCell>
+              <TableCell>
+                <Skeleton className='h-4 w-[40%]' />
+              </TableCell>
+              <TableCell>
+                <div className='flex space-x-1'>
+                  <Skeleton className='h-8 w-8 rounded-md' />
+                  <Skeleton className='h-8 w-8 rounded-md' />
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
 
