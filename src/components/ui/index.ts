@@ -3,3 +3,7 @@ export * from './input';
 export * from './label';
 export * from './dialog';
 export * from './error-box';
+export * from './table';
+export * from './select';
+export * from './skeleton';
+export * from './textarea';
