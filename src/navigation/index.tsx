@@ -4,6 +4,7 @@ import { getCurrentSession, subscribeToAuthChanges } from '@/lib/supabase';
 import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
 import {
+  AyatAndHadith,
   ForgotPassword,
   Home,
   Loading,
@@ -63,6 +64,7 @@ export default function Navigation() {
           <Route path={AppRoutes.Profile} element={<Profile />} />
           <Route path={AppRoutes.ResetPassword} element={<ResetPassword />} />
           <Route path={AppRoutes.UpdatePassword} element={<UpdatePassword />} />
+          <Route path={AppRoutes.AyatAndHadith} element={<AyatAndHadith />} />
         </Route>
 
         <Route path={'*'} element={<Navigate to={AppRoutes.Home} />} />

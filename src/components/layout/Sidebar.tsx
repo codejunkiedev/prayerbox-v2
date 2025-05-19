@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { ChevronLeft, ChevronRight, Home, User, LogOut, Lock } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, User, LogOut, Lock, BookOpen } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,11 @@ export default function Sidebar() {
       label: 'Home',
       path: AppRoutes.Home,
       icon: <Home size={20} />,
+    },
+    {
+      label: 'Ayat & Hadith',
+      path: AppRoutes.AyatAndHadith,
+      icon: <BookOpen size={20} />,
     },
     {
       label: 'Profile',

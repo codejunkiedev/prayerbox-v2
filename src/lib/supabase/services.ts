@@ -1,12 +1,11 @@
-import { SupabaseBuckets, SupabaseTables, type MasjidProfile } from '@/types';
-import type { MasjidProfileData } from '../zod';
+import { SupabaseBuckets, SupabaseTables, type AyatAndHadith, type MasjidProfile } from '@/types';
+import type { AyatAndHadithData, MasjidProfileData } from '../zod';
 import { getCurrentUser, uploadFile, fetchByColumn, updateRecord, insertRecord } from './helpers';
 import { generateMasjidCode } from '@/utils/general';
 
 // Get masjid profile for current user
 export async function getMasjidProfile(): Promise<MasjidProfile | null> {
   const user = await getCurrentUser();
-
   if (!user) throw new Error('User not authenticated');
 
   const profiles = await fetchByColumn<MasjidProfile>(
@@ -20,10 +19,7 @@ export async function getMasjidProfile(): Promise<MasjidProfile | null> {
 // Create or update masjid profile
 export async function upsertMasjidProfile(profileData: MasjidProfileData, logoFile: File | null) {
   const user = await getCurrentUser();
-
-  if (!user) {
-    throw new Error('User not authenticated');
-  }
+  if (!user) throw new Error('User not authenticated');
 
   let logoUrl = undefined;
 
@@ -59,5 +55,47 @@ export async function upsertMasjidProfile(profileData: MasjidProfileData, logoFi
   } else {
     profileToUpsert.created_at = new Date().toISOString();
     return await insertRecord<MasjidProfile>(SupabaseTables.MasjidProfiles, profileToUpsert);
+  }
+}
+
+export async function getAyatAndHadith(): Promise<AyatAndHadith[]> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const ayatAndHadith = await fetchByColumn<AyatAndHadith>(
+    SupabaseTables.AyatAndHadith,
+    'user_id',
+    user.id
+  );
+  return ayatAndHadith;
+}
+
+export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const ayatAndHadiths = await fetchByColumn<AyatAndHadith>(
+    SupabaseTables.AyatAndHadith,
+    'user_id',
+    user.id
+  );
+
+  const existingAyatAndHadith = ayatAndHadiths.length > 0 ? ayatAndHadiths[0] : null;
+
+  const ayatAndHadithToUpsert: Partial<AyatAndHadith> = {
+    ...ayatAndHadith,
+    user_id: user.id,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (existingAyatAndHadith) {
+    return await updateRecord<AyatAndHadith>(
+      SupabaseTables.AyatAndHadith,
+      existingAyatAndHadith.id as string,
+      ayatAndHadithToUpsert
+    );
+  } else {
+    ayatAndHadithToUpsert.created_at = new Date().toISOString();
+    return await insertRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, ayatAndHadithToUpsert);
   }
 }

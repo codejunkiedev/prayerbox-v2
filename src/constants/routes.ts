@@ -9,4 +9,5 @@ export enum AppRoutes {
   Profile = '/profile',
   ResetPassword = '/reset-password',
   UpdatePassword = '/update-password',
+  AyatAndHadith = '/ayat-and-hadith',
 }
