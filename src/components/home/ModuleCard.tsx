@@ -14,10 +14,14 @@ export type ModuleCardProps = {
 export function ModuleCard({ title, description, icon, path, color }: ModuleCardProps) {
   return (
     <Card className={`overflow-hidden border h-full flex flex-col ${color}`}>
-      <CardHeader className='px-6 py-2 flex-grow'>
-        <div className='flex justify-between items-center'>{icon}</div>
-        <CardTitle className='mt-4'>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+      <CardHeader className='px-6 py-4 flex-grow'>
+        <div className='flex items-start gap-4'>
+          <div className='flex-shrink-0 pt-1'>{icon}</div>
+          <div>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription className='mt-1.5'>{description}</CardDescription>
+          </div>
+        </div>
       </CardHeader>
       <CardFooter className='flex justify-between items-center px-6'>
         <Link to={path}>
