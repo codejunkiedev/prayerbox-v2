@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   Dialog,
@@ -29,6 +29,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const isEdit = !!initialData;
 
   const {
@@ -41,12 +42,24 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
     defaultValues: { title: initialData?.title || '' },
   });
 
+  useEffect(() => {
+    if (initialData?.image_url) {
+      setImageError(null);
+    }
+  }, [initialData]);
+
   const handleImageChange = (file: File | null) => {
     setImageFile(file);
+    setImageError(file ? null : 'Image is required');
   };
 
   const onSubmit = async (data: z.infer<typeof postSchema>) => {
     try {
+      if (!imageFile && !initialData?.image_url) {
+        setImageError('Image is required');
+        return;
+      }
+
       setIsSubmitting(true);
       setError(null);
       await upsertPost(
@@ -59,6 +72,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
 
       reset();
       setImageFile(null);
+      setImageError(null);
       onSuccess();
       onClose();
     } catch (error) {
@@ -101,6 +115,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
               value={initialData?.image_url}
               disabled={isSubmitting}
             />
+            {imageError && <p className='text-red-500 text-sm'>{imageError}</p>}
           </div>
 
           <DialogFooter>
