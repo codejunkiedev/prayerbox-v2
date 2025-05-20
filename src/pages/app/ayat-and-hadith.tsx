@@ -1,67 +1,19 @@
 import { useEffect, useState } from 'react';
 import { getAyatAndHadith, deleteAyatAndHadith } from '@/lib/supabase';
 import type { AyatAndHadith } from '@/types';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Button,
-  Skeleton,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  Badge,
-} from '@/components/ui';
+import { Badge } from '@/components/ui';
+import { TableSkeleton } from '@/components/skeletons';
 import { AyatAndHadithModal, DeleteConfirmationModal } from '@/components/modals';
-import { Plus, Edit, Trash2, AlertCircle, BookOpen, BookText } from 'lucide-react';
+import {
+  PageHeader,
+  ErrorAlert,
+  EmptyState,
+  ActionButtons,
+  DataTable,
+  type Column,
+} from '@/components/common';
+import { BookOpen, BookText } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-
-function TableSkeleton() {
-  return (
-    <div className='rounded-md overflow-x-auto'>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className='max-w-[300px] w-[35%]'>Text</TableHead>
-            <TableHead className='max-w-[300px] w-[35%]'>Translation</TableHead>
-            <TableHead className='max-w-[150px] w-[15%]'>Reference</TableHead>
-            <TableHead className='w-[10%]'>Type</TableHead>
-            <TableHead className='w-[5%]'>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[...Array(5)].map((_, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <Skeleton className='h-4 w-[80%]' />
-              </TableCell>
-              <TableCell>
-                <Skeleton className='h-4 w-[90%]' />
-              </TableCell>
-              <TableCell>
-                <Skeleton className='h-4 w-[60%]' />
-              </TableCell>
-              <TableCell>
-                <Skeleton className='h-4 w-[40%]' />
-              </TableCell>
-              <TableCell>
-                <div className='flex space-x-1'>
-                  <Skeleton className='h-8 w-8 rounded-md' />
-                  <Skeleton className='h-8 w-8 rounded-md' />
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
 
 export default function AyatAndHadithPage() {
   const [ayatAndHadith, setAyatAndHadith] = useState<AyatAndHadith[]>([]);
@@ -138,114 +90,92 @@ export default function AyatAndHadithPage() {
     return type === 'ayat' ? <BookOpen className='h-4 w-4' /> : <BookText className='h-4 w-4' />;
   };
 
+  const columns: Column<AyatAndHadith>[] = [
+    {
+      key: 'text',
+      name: 'Text',
+      width: 'max-w-[300px] w-[35%]',
+      render: (value, item) => (
+        <div className='font-medium max-w-[300px]'>
+          <div className='truncate' title={item.text}>
+            {value as string}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'translation',
+      name: 'Translation',
+      width: 'max-w-[300px] w-[35%]',
+      render: (value, item) => (
+        <div className='max-w-[300px]'>
+          <div className='truncate' title={item.translation}>
+            {value as string}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'reference',
+      name: 'Reference',
+      width: 'max-w-[150px] w-[15%]',
+      render: (value, item) => (
+        <div className='max-w-[150px]'>
+          <div className='truncate' title={item.reference}>
+            {value as string}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'type',
+      name: 'Type',
+      width: 'w-[10%]',
+      render: value => (
+        <Badge variant={'default'} className='flex items-center gap-1'>
+          {getTypeIcon(value as string)}
+          <span className='capitalize'>{value as string}</span>
+        </Badge>
+      ),
+    },
+  ];
+
   return (
     <div className='container mx-auto py-8 space-y-6'>
-      <Card>
-        <CardHeader>
-          <div className='flex justify-between items-center'>
-            <div>
-              <CardTitle>Ayat and Hadith</CardTitle>
-              <CardDescription>Manage your collection of Quranic verses and Hadith</CardDescription>
-            </div>
-            <Button onClick={handleAddNew}>
-              <Plus className='mr-2 h-4 w-4' /> Add New
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+      <PageHeader
+        title='Ayat and Hadith'
+        description='Manage your collection of Quranic verses and Hadith'
+        onAddClick={handleAddNew}
+      />
 
-      {error && (
-        <Card className='border-destructive'>
-          <CardContent className='p-4 flex items-center'>
-            <AlertCircle className='h-5 w-5 text-destructive mr-2' />
-            <p className='text-destructive'>{error}</p>
-          </CardContent>
-        </Card>
-      )}
+      <ErrorAlert message={error} onClose={() => setError(null)} />
 
       {loading ? (
-        <TableSkeleton />
+        <TableSkeleton columns={columns} showRowNumbers={true} rowNumberWidth='w-[4%]' />
       ) : ayatAndHadith.length === 0 ? (
-        <div className='text-center py-12 px-4'>
-          <div className='flex flex-col items-center space-y-4'>
-            <div className='rounded-full bg-muted p-3'>
-              <BookOpen className='h-6 w-6 text-muted-foreground' />
-            </div>
-            <h3 className='text-lg font-medium'>No entries found</h3>
-            <p className='text-muted-foreground max-w-sm'>
-              You haven't added any ayat or hadith yet. Add your first one to get started.
-            </p>
-            <Button onClick={handleAddNew} variant='outline'>
-              <Plus className='mr-2 h-4 w-4' /> Add First Entry
-            </Button>
-          </div>
-        </div>
+        <EmptyState
+          icon={<BookOpen className='h-6 w-6 text-muted-foreground' />}
+          title='No entries found'
+          description="You haven't added any ayat or hadith yet. Add your first one to get started."
+          actionText='Add First Entry'
+          onActionClick={handleAddNew}
+        />
       ) : (
-        <div className='overflow-x-auto'>
-          <Table>
-            <TableHeader>
-              <TableRow className='bg-muted/50'>
-                <TableHead className='max-w-[300px] w-[35%]'>Text</TableHead>
-                <TableHead className='max-w-[300px] w-[35%]'>Translation</TableHead>
-                <TableHead className='max-w-[150px] w-[15%]'>Reference</TableHead>
-                <TableHead className='w-[10%]'>Type</TableHead>
-                <TableHead className='w-[5%] text-center'>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {ayatAndHadith.map(item => (
-                <TableRow key={item.id} className='hover:bg-muted/30'>
-                  <TableCell className='font-medium max-w-[300px]'>
-                    <div className='truncate' title={item.text}>
-                      {item.text}
-                    </div>
-                  </TableCell>
-                  <TableCell className='max-w-[300px]'>
-                    <div className='truncate' title={item.translation}>
-                      {item.translation}
-                    </div>
-                  </TableCell>
-                  <TableCell className='max-w-[150px]'>
-                    <div className='truncate' title={item.reference}>
-                      {item.reference}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={item.type === 'ayat' ? 'default' : 'secondary'}
-                      className='flex items-center gap-1'
-                    >
-                      {getTypeIcon(item.type)}
-                      <span className='capitalize'>{item.type}</span>
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className='flex space-x-1'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleEdit(item)}
-                        title='Edit'
-                        className='hover:bg-muted'
-                      >
-                        <Edit className='h-4 w-4' />
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleDeleteClick(item)}
-                        title='Delete'
-                        className='hover:bg-destructive/10 hover:text-destructive'
-                      >
-                        <Trash2 className='h-4 w-4 text-destructive' />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={columns}
+          data={ayatAndHadith}
+          keyField='id'
+          actionsWidth='w-[5%]'
+          showRowNumbers={true}
+          rowNumberWidth='w-[4%]'
+          renderActions={item => (
+            <ActionButtons
+              onEdit={() => handleEdit(item)}
+              onDelete={() => handleDeleteClick(item)}
+              centered={false}
+            />
+          )}
+        />
       )}
 
       <AyatAndHadithModal
