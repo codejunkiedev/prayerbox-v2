@@ -2,6 +2,7 @@ export enum SupabaseTables {
   MasjidProfiles = 'masjid_profiles',
   AyatAndHadith = 'ayat_and_hadith',
   Announcements = 'announcements',
+  Events = 'events',
 }
 
 export enum SupabaseBuckets {

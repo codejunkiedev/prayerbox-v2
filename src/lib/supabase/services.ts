@@ -4,8 +4,9 @@ import {
   type AyatAndHadith,
   type MasjidProfile,
   type Announcement,
+  type Event,
 } from '@/types';
-import type { AyatAndHadithData, MasjidProfileData, AnnouncementData } from '../zod';
+import type { AyatAndHadithData, MasjidProfileData, AnnouncementData, EventData } from '../zod';
 import {
   getCurrentUser,
   uploadFile,
@@ -168,5 +169,51 @@ export async function deleteAnnouncement(id: string): Promise<boolean> {
   const updates: Partial<Announcement> = { archived: true, updated_at: new Date().toISOString() };
 
   await updateRecord<Announcement>(SupabaseTables.Announcements, id, updates);
+  return true;
+}
+
+export async function getEvents(): Promise<Event[]> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const conditions = [
+    { column: 'user_id', value: user.id },
+    { column: 'archived', value: false, isNull: true },
+  ];
+
+  return await fetchByMultipleConditions<Event>(SupabaseTables.Events, conditions);
+}
+
+export async function upsertEvent(event: EventData & { id?: string }) {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const eventToUpsert: Partial<Event> = {
+    ...event,
+    user_id: user.id,
+    updated_at: new Date().toISOString(),
+    archived: false,
+  };
+
+  if (event.id) {
+    return await updateRecord<Event>(SupabaseTables.Events, event.id, eventToUpsert);
+  } else {
+    eventToUpsert.created_at = new Date().toISOString();
+    return await insertRecord<Event>(SupabaseTables.Events, eventToUpsert);
+  }
+}
+
+export async function deleteEvent(id: string): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const items = await fetchByColumn<Event>(SupabaseTables.Events, 'id', id);
+
+  if (items.length === 0) throw new Error('Item not found');
+  if (items[0].user_id !== user.id) throw new Error('Not authorized to delete this item');
+
+  const updates: Partial<Event> = { archived: true, updated_at: new Date().toISOString() };
+
+  await updateRecord<Event>(SupabaseTables.Events, id, updates);
   return true;
 }
