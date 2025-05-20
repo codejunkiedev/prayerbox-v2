@@ -38,7 +38,11 @@ export async function getMasjidProfile(): Promise<MasjidProfile | null> {
 }
 
 // Create or update masjid profile
-export async function upsertMasjidProfile(profileData: MasjidProfileData, logoFile: File | null) {
+export async function upsertMasjidProfile(
+  profileData: MasjidProfileData,
+  logoFile: File | null,
+  shouldRemoveLogo: boolean = false
+) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
 
@@ -60,12 +64,14 @@ export async function upsertMasjidProfile(profileData: MasjidProfileData, logoFi
   const profileToUpsert: Partial<MasjidProfile> = {
     ...profileData,
     user_id: user.id,
-    ...(logoUrl && { logo_url: logoUrl }),
     updated_at: new Date().toISOString(),
     address: profileData.address,
     name: profileData.name,
     code: existingProfile?.code || generateMasjidCode(),
   };
+
+  if (logoUrl) profileToUpsert.logo_url = logoUrl;
+  else if (shouldRemoveLogo) profileToUpsert.logo_url = '';
 
   if (existingProfile) {
     return await updateRecord<MasjidProfile>(

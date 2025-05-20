@@ -22,6 +22,7 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [masjidCode, setMasjidCode] = useState<string>('');
   const [isCopied, setIsCopied] = useState(false);
+  const [logoRemoved, setLogoRemoved] = useState(false);
 
   const [trigger, triggerUpdate] = useTrigger();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +49,9 @@ export default function Profile() {
 
           if (profile.logo_url) {
             setPreviewLogo(profile.logo_url);
+            setLogoRemoved(false);
+          } else {
+            setPreviewLogo(null);
           }
         }
       } catch (error) {
@@ -88,6 +92,7 @@ export default function Profile() {
       }
 
       setMasjidLogo(file);
+      if (logoRemoved) setLogoRemoved(false);
 
       const reader = new FileReader();
       reader.onload = () => {
@@ -100,6 +105,7 @@ export default function Profile() {
   const resetLogo = () => {
     setMasjidLogo(null);
     setPreviewLogo(null);
+    setLogoRemoved(true);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -108,9 +114,10 @@ export default function Profile() {
   const onSubmit = async (data: MasjidProfileData) => {
     try {
       setIsSaving(true);
-      await upsertMasjidProfile(data, masjidLogo);
+      await upsertMasjidProfile(data, masjidLogo, logoRemoved);
       toast.success('Masjid profile saved successfully');
       triggerUpdate();
+      if (logoRemoved) setLogoRemoved(false);
     } catch (error) {
       console.error('Error saving profile:', error);
       toast.error('Failed to save profile');
