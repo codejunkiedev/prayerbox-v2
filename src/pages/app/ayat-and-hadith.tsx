@@ -211,10 +211,7 @@ export default function AyatAndHadithPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={item.type === 'ayat' ? 'default' : 'secondary'}
-                      className='flex items-center gap-1'
-                    >
+                    <Badge variant={'default'} className='flex items-center gap-1'>
                       {getTypeIcon(item.type)}
                       <span className='capitalize'>{item.type}</span>
                     </Badge>
