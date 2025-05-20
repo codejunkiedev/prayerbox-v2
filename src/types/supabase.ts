@@ -2,40 +2,49 @@ export enum SupabaseTables {
   MasjidProfiles = 'masjid_profiles',
   AyatAndHadith = 'ayat_and_hadith',
   Announcements = 'announcements',
+  Events = 'events',
 }
 
 export enum SupabaseBuckets {
   MasjidLogos = 'masjid-logos',
 }
 
-export interface MasjidProfile {
+interface Base {
   id: string;
   user_id: string;
-  address: string;
-  code: string;
-  logo_url: string;
-  name: string;
   created_at: string;
   updated_at: string;
 }
 
-export interface AyatAndHadith {
-  id: string;
-  user_id: string;
+export interface MasjidProfile extends Base {
+  address: string;
+  code: string;
+  logo_url: string;
+  name: string;
+}
+
+export interface AyatAndHadith extends Base {
   text: string;
   translation: string;
   reference: string;
   type: 'ayat' | 'hadith';
   archived: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
-export interface Announcement {
-  id: string;
-  user_id: string;
+export interface Announcement extends Base {
   description: string;
   archived: boolean;
-  created_at: string;
-  updated_at: string;
+}
+
+export interface Event extends Base {
+  title: string;
+  description: string;
+  date_time: string;
+  location: string;
+  chief_guest: string;
+  host: string;
+  qari: string;
+  naat_khawn: string;
+  karm_farma: string;
+  archived: boolean;
 }

@@ -75,3 +75,17 @@ export const announcementSchema = z.object({
 });
 
 export type AnnouncementData = z.infer<typeof announcementSchema>;
+
+export const eventSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().min(1, 'Description is required'),
+  date_time: z.string().min(1, 'Date and time is required'),
+  location: z.string().min(1, 'Location is required'),
+  chief_guest: z.string().min(1, 'Chief guest is required'),
+  host: z.string().optional(),
+  qari: z.string().min(1, 'Qari is required'),
+  naat_khawn: z.string().min(1, 'Naat khawn is required'),
+  karm_farma: z.string().min(1, 'Karm farm is required'),
+});
+
+export type EventData = z.infer<typeof eventSchema>;

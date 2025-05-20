@@ -7,7 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { registerFormSchema, type RegisterFormData } from '@/lib/zod';
 import { Link } from 'react-router';
 import { signUpWithEmail } from '@/lib/supabase';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { AuthRoutes } from '@/constants';
 
 export default function Register() {

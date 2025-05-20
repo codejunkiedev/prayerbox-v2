@@ -6,6 +6,7 @@ import { AppLayout } from '@/components/layout';
 import {
   Announcements,
   AyatAndHadith,
+  Events,
   ForgotPassword,
   Home,
   Loading,
@@ -67,6 +68,7 @@ export default function Navigation() {
           <Route path={AppRoutes.UpdatePassword} element={<UpdatePassword />} />
           <Route path={AppRoutes.AyatAndHadith} element={<AyatAndHadith />} />
           <Route path={AppRoutes.Announcements} element={<Announcements />} />
+          <Route path={AppRoutes.Events} element={<Events />} />
         </Route>
 
         <Route path={'*'} element={<Navigate to={AppRoutes.Home} />} />

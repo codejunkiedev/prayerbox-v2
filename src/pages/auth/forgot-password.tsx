@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { forgotPasswordSchema, type ForgotPasswordData } from '@/lib/zod';
 import { Link } from 'react-router';
 import { resetPasswordForEmail } from '@/lib/supabase';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { AuthRoutes } from '@/constants';
 
 export default function ForgotPassword() {

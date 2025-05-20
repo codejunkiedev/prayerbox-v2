@@ -5,7 +5,7 @@ import { Button, Input, Label, ErrorBox } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { updateUserPasswordWithVerification, getCurrentUser } from '@/lib/supabase';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { AppRoutes } from '@/constants';
 import { updatePasswordSchema, type UpdatePasswordData } from '@/lib/zod';
 import { AutoRedirectNotice } from '@/components/AutoRedirectNotice';

@@ -10,3 +10,8 @@ export * from './textarea';
 export * from './card';
 export * from './badge';
 export * from './dropdown-menu';
+export * from './popover';
+export * from './calendar';
+export * from './scroll-area';
+export * from './sonner';
+export * from './date-time-picker';

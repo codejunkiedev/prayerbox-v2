@@ -11,7 +11,7 @@ import {
   MAX_FILE_SIZE,
 } from '@/lib/zod';
 import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase/services';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { Copy } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 

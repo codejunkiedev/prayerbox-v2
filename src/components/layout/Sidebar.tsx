@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { ChevronLeft, ChevronRight, Home, BookOpen, Bell } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, BookOpen, Bell, Calendar } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -32,6 +32,11 @@ export default function Sidebar() {
       label: 'Announcements',
       path: AppRoutes.Announcements,
       icon: <Bell size={20} />,
+    },
+    {
+      label: 'Events',
+      path: AppRoutes.Events,
+      icon: <Calendar size={20} />,
     },
   ];
 

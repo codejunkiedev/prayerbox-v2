@@ -33,7 +33,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         <Menu size={20} />
       </Button>
 
-      <h1 className='text-xl font-semibold md:ml-4'>PrayerBox</h1>
+      <h1 className='text-xl font-semibold md:ml-1'>PrayerBox</h1>
 
       <div className='ml-auto flex items-center space-x-2'>
         <Button variant='ghost' size='icon' className='text-slate-600'>
