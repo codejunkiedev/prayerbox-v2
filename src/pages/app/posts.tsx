@@ -92,9 +92,15 @@ export default function Posts() {
       width: 'w-[100px]',
       render: value =>
         value ? (
-          <img src={value as string} alt='Post' className='w-16 h-16 object-cover rounded-md' />
+          <div className='w-12 h-12 relative'>
+            <img
+              src={value as string}
+              alt='Post'
+              className='absolute inset-0 w-full h-full object-cover rounded-md aspect-square'
+            />
+          </div>
         ) : (
-          <div className='w-16 h-16 bg-gray-100 flex items-center justify-center rounded-md'>
+          <div className='w-12 h-12 bg-gray-100 flex items-center justify-center rounded-md aspect-square'>
             <FileImage className='w-6 h-6 text-gray-400' />
           </div>
         ),
