@@ -170,7 +170,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
             </div>
           </div>
 
-          <div className='border-t border-gray-200 pt-4'></div>
+          <div className='border-t border-gray-200'></div>
 
           {/* Participants Information */}
           <div className='space-y-4'>
