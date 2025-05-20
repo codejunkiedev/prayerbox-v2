@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { ChevronLeft, ChevronRight, Home, BookOpen } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Home, BookOpen, Bell } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,11 @@ export default function Sidebar() {
       label: 'Ayat & Hadith',
       path: AppRoutes.AyatAndHadith,
       icon: <BookOpen size={20} />,
+    },
+    {
+      label: 'Announcements',
+      path: AppRoutes.Announcements,
+      icon: <Bell size={20} />,
     },
   ];
 
