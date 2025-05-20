@@ -1,4 +1,4 @@
-import { Toaster } from 'react-hot-toast';
+import { Toaster } from './components/ui';
 import Navigation from './navigation';
 import ErrorBoundary from './components/ErrorBoundary';
 

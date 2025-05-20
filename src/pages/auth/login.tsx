@@ -7,7 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { loginFormSchema, type LoginFormData } from '@/lib/zod';
 import { Link } from 'react-router';
 import { signInWithEmail } from '@/lib/supabase';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { AuthRoutes } from '@/constants';
 
 export default function Login() {
