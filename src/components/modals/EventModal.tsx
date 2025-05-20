@@ -11,6 +11,7 @@ import {
   DialogTitle,
   Input,
   Label,
+  DateTimePicker,
 } from '@/components/ui';
 import { eventSchema, type EventData } from '@/lib/zod';
 import { upsertEvent } from '@/lib/supabase';
@@ -27,11 +28,15 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isEdit = !!initialData;
+  const [dateTime, setDateTime] = useState<Date | undefined>(
+    initialData?.date_time ? new Date(initialData.date_time) : undefined
+  );
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<EventData>({
     resolver: zodResolver(eventSchema),
@@ -50,8 +55,10 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
 
   useEffect(() => {
     if (isOpen) {
-      if (initialData) reset(initialData);
-      else
+      if (initialData) {
+        reset(initialData);
+        setDateTime(initialData.date_time ? new Date(initialData.date_time) : undefined);
+      } else {
         reset({
           title: '',
           description: '',
@@ -63,8 +70,17 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
           naat_khawn: '',
           karm_farma: '',
         });
+        setDateTime(undefined);
+      }
     }
   }, [initialData, isOpen, reset]);
+
+  // Update form value when dateTime changes
+  useEffect(() => {
+    if (dateTime) {
+      setValue('date_time', dateTime.toISOString());
+    }
+  }, [dateTime, setValue]);
 
   const onSubmit = async (data: EventData) => {
     try {
@@ -76,6 +92,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
       });
 
       reset();
+      setDateTime(undefined);
       onSuccess();
       onClose();
     } catch (error) {
@@ -126,12 +143,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
 
           <div className='space-y-2'>
             <Label htmlFor='date_time'>Date & Time</Label>
-            <Input
-              id='date_time'
-              placeholder='Enter date and time'
-              className={errors.date_time ? 'border-red-500' : ''}
-              {...register('date_time')}
-            />
+            <DateTimePicker date={dateTime} setDate={setDateTime} disabled={isSubmitting} />
             {errors.date_time && <p className='text-red-500 text-sm'>{errors.date_time.message}</p>}
           </div>
 

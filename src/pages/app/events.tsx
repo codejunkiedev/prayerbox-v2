@@ -13,6 +13,7 @@ import {
 } from '@/components/common';
 import { Calendar } from 'lucide-react';
 import { useTrigger } from '@/hooks';
+import dayjs from 'dayjs';
 
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -89,31 +90,29 @@ export default function Events() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[20%]',
+      width: 'w-[25%]',
       render: value => <div className='font-medium'>{value as string}</div>,
-    },
-    {
-      key: 'date_time',
-      name: 'Date & Time',
-      width: 'w-[15%]',
-    },
-    {
-      key: 'location',
-      name: 'Location',
-      width: 'w-[15%]',
-    },
-    {
-      key: 'chief_guest',
-      name: 'Chief Guest',
-      width: 'w-[15%]',
     },
     {
       key: 'description',
       name: 'Description',
-      width: 'w-[25%]',
+      width: 'w-[35%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-2 overflow-hidden'>{value as string}</div>
       ),
+    },
+    {
+      key: 'date_time',
+      name: 'Date & Time',
+      width: 'w-[20%]',
+      render: value => (
+        <div>{value ? dayjs(value as string).format('MMM D, YYYY h:mm A') : ''}</div>
+      ),
+    },
+    {
+      key: 'location',
+      name: 'Location',
+      width: 'w-[20%]',
     },
   ];
 
@@ -166,7 +165,9 @@ export default function Events() {
         isDeleting={isDeleting}
         itemType='event'
         itemTitle={itemToDelete?.title}
-        itemSubtitle={itemToDelete?.date_time}
+        itemSubtitle={
+          itemToDelete?.date_time ? dayjs(itemToDelete.date_time).format('MMM D, YYYY h:mm A') : ''
+        }
       />
     </div>
   );
