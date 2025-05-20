@@ -48,3 +48,9 @@ export interface Event extends Base {
   karm_farma: string;
   archived: boolean;
 }
+
+export interface Post extends Base {
+  title: string;
+  image_url: string;
+  archived: boolean;
+}
