@@ -69,3 +69,9 @@ export const ayatAndHadithSchema = z.object({
 });
 
 export type AyatAndHadithData = z.infer<typeof ayatAndHadithSchema>;
+
+export const announcementSchema = z.object({
+  description: z.string().min(1, 'Description is required'),
+});
+
+export type AnnouncementData = z.infer<typeof announcementSchema>;
