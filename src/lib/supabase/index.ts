@@ -7,5 +7,5 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default supabase;
 
-export * from './helpers';
 export * from './services';
+export * from './helpers';

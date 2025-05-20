@@ -89,3 +89,9 @@ export const eventSchema = z.object({
 });
 
 export type EventData = z.infer<typeof eventSchema>;
+
+export const postSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+});
+
+export type PostData = z.infer<typeof postSchema>;

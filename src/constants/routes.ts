@@ -12,4 +12,5 @@ export enum AppRoutes {
   AyatAndHadith = '/ayat-and-hadith',
   Announcements = '/announcements',
   Events = '/events',
+  Posts = '/posts',
 }

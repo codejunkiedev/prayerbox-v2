@@ -11,6 +11,7 @@ import {
   Home,
   Loading,
   Login,
+  Posts,
   Profile,
   Register,
   ResetPassword,
@@ -69,6 +70,7 @@ export default function Navigation() {
           <Route path={AppRoutes.AyatAndHadith} element={<AyatAndHadith />} />
           <Route path={AppRoutes.Announcements} element={<Announcements />} />
           <Route path={AppRoutes.Events} element={<Events />} />
+          <Route path={AppRoutes.Posts} element={<Posts />} />
         </Route>
 
         <Route path={'*'} element={<Navigate to={AppRoutes.Home} />} />

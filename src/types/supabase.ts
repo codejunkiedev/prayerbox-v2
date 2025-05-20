@@ -3,10 +3,12 @@ export enum SupabaseTables {
   AyatAndHadith = 'ayat_and_hadith',
   Announcements = 'announcements',
   Events = 'events',
+  Posts = 'posts',
 }
 
 export enum SupabaseBuckets {
   MasjidLogos = 'masjid-logos',
+  MasjidPosts = 'masjid-posts',
 }
 
 interface Base {
@@ -46,5 +48,11 @@ export interface Event extends Base {
   qari: string;
   naat_khawn: string;
   karm_farma: string;
+  archived: boolean;
+}
+
+export interface Post extends Base {
+  title: string;
+  image_url: string;
   archived: boolean;
 }
