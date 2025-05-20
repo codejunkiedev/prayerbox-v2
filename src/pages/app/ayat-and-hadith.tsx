@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
   Button,
-  Skeleton,
   Card,
   CardHeader,
   CardTitle,
@@ -18,50 +17,9 @@ import {
   Badge,
 } from '@/components/ui';
 import { AyatAndHadithModal, DeleteConfirmationModal } from '@/components/modals';
+import { TableSkeleton } from '@/components/skeletons';
 import { Plus, Edit, Trash2, AlertCircle, BookOpen, BookText } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-
-function TableSkeleton() {
-  return (
-    <div className='rounded-md overflow-x-auto'>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className='max-w-[300px] w-[35%]'>Text</TableHead>
-            <TableHead className='max-w-[300px] w-[35%]'>Translation</TableHead>
-            <TableHead className='max-w-[150px] w-[15%]'>Reference</TableHead>
-            <TableHead className='w-[10%]'>Type</TableHead>
-            <TableHead className='w-[5%]'>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[...Array(5)].map((_, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <Skeleton className='h-4 w-[80%]' />
-              </TableCell>
-              <TableCell>
-                <Skeleton className='h-4 w-[90%]' />
-              </TableCell>
-              <TableCell>
-                <Skeleton className='h-4 w-[60%]' />
-              </TableCell>
-              <TableCell>
-                <Skeleton className='h-4 w-[40%]' />
-              </TableCell>
-              <TableCell>
-                <div className='flex space-x-1'>
-                  <Skeleton className='h-8 w-8 rounded-md' />
-                  <Skeleton className='h-8 w-8 rounded-md' />
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
 
 export default function AyatAndHadithPage() {
   const [ayatAndHadith, setAyatAndHadith] = useState<AyatAndHadith[]>([]);
@@ -164,7 +122,14 @@ export default function AyatAndHadithPage() {
       )}
 
       {loading ? (
-        <TableSkeleton />
+        <TableSkeleton
+          columns={[
+            { name: 'Text', width: 'max-w-[300px] w-[35%]' },
+            { name: 'Translation', width: 'max-w-[300px] w-[35%]' },
+            { name: 'Reference', width: 'max-w-[150px] w-[15%]' },
+            { name: 'Type', width: 'w-[10%]' },
+          ]}
+        />
       ) : ayatAndHadith.length === 0 ? (
         <div className='text-center py-12 px-4'>
           <div className='flex flex-col items-center space-y-4'>

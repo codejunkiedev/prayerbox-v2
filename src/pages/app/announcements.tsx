@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
   Button,
-  Skeleton,
   Card,
   CardHeader,
   CardTitle,
@@ -17,38 +16,9 @@ import {
   CardContent,
 } from '@/components/ui';
 import { AnnouncementModal, DeleteConfirmationModal } from '@/components/modals';
+import { TableSkeleton } from '@/components/skeletons';
 import { Plus, Edit, Trash2, AlertCircle, Bell } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-
-function TableSkeleton() {
-  return (
-    <div className='rounded-md overflow-x-auto'>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className='w-[85%]'>Description</TableHead>
-            <TableHead className='w-[15%] text-right'>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {[...Array(5)].map((_, index) => (
-            <TableRow key={index}>
-              <TableCell>
-                <Skeleton className='h-4 w-[90%]' />
-              </TableCell>
-              <TableCell className='text-right'>
-                <div className='flex justify-end space-x-1'>
-                  <Skeleton className='h-8 w-8 rounded-md' />
-                  <Skeleton className='h-8 w-8 rounded-md' />
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
-}
 
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -147,7 +117,7 @@ export default function Announcements() {
       )}
 
       {loading ? (
-        <TableSkeleton />
+        <TableSkeleton columns={[{ name: 'Description', width: 'w-[90%]' }]} />
       ) : announcements.length === 0 ? (
         <div className='text-center py-12 px-4'>
           <div className='flex flex-col items-center space-y-4'>
