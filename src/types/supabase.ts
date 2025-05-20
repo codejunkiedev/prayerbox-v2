@@ -3,10 +3,12 @@ export enum SupabaseTables {
   AyatAndHadith = 'ayat_and_hadith',
   Announcements = 'announcements',
   Events = 'events',
+  Posts = 'posts',
 }
 
 export enum SupabaseBuckets {
   MasjidLogos = 'masjid-logos',
+  MasjidPosts = 'masjid-posts',
 }
 
 interface Base {
