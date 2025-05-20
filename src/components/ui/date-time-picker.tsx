@@ -4,7 +4,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { CalendarIcon } from 'lucide-react';
-import dayjs from 'dayjs';
+import { format, setHours, setMinutes, getHours, getMinutes } from 'date-fns';
 
 interface DateTimePickerProps {
   date: Date | undefined;
@@ -26,24 +26,24 @@ export function DateTimePicker({ date, setDate, disabled }: DateTimePickerProps)
 
   function handleTimeChange(type: 'hour' | 'minute' | 'ampm', value: string) {
     const currentDate = date || new Date();
-    let updatedDate = dayjs(currentDate);
+    let updatedDate = new Date(currentDate);
 
     if (type === 'hour') {
       const hour = parseInt(value, 10);
-      const isPM = updatedDate.hour() >= 12;
-      updatedDate = updatedDate.hour(isPM ? hour + 12 : hour);
+      const isPM = getHours(updatedDate) >= 12;
+      updatedDate = setHours(updatedDate, isPM ? hour + 12 : hour);
     } else if (type === 'minute') {
-      updatedDate = updatedDate.minute(parseInt(value, 10));
+      updatedDate = setMinutes(updatedDate, parseInt(value, 10));
     } else if (type === 'ampm') {
-      const hours = updatedDate.hour();
+      const hours = getHours(updatedDate);
       if (value === 'AM' && hours >= 12) {
-        updatedDate = updatedDate.hour(hours - 12);
+        updatedDate = setHours(updatedDate, hours - 12);
       } else if (value === 'PM' && hours < 12) {
-        updatedDate = updatedDate.hour(hours + 12);
+        updatedDate = setHours(updatedDate, hours + 12);
       }
     }
 
-    setDate(updatedDate.toDate());
+    setDate(updatedDate);
   }
 
   return (
@@ -54,12 +54,7 @@ export function DateTimePicker({ date, setDate, disabled }: DateTimePickerProps)
           className={cn('w-full pl-3 text-left font-normal', !date && 'text-muted-foreground')}
           disabled={disabled}
         >
-          {date ? (
-            // Use dayjs for formatting
-            dayjs(date).format('MM/DD/YYYY hh:mm A')
-          ) : (
-            <span>MM/DD/YYYY hh:mm AA</span>
-          )}
+          {date ? format(date, 'MM/dd/yyyy hh:mm a') : <span>MM/DD/YYYY hh:mm AA</span>}
           <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
         </Button>
       </PopoverTrigger>
@@ -75,7 +70,7 @@ export function DateTimePicker({ date, setDate, disabled }: DateTimePickerProps)
                     <Button
                       key={hour}
                       size='icon'
-                      variant={date && dayjs(date).hour() % 12 === hour % 12 ? 'default' : 'ghost'}
+                      variant={date && getHours(date) % 12 === hour % 12 ? 'default' : 'ghost'}
                       className='sm:w-full shrink-0 aspect-square'
                       onClick={() => handleTimeChange('hour', hour.toString())}
                     >
@@ -91,7 +86,7 @@ export function DateTimePicker({ date, setDate, disabled }: DateTimePickerProps)
                   <Button
                     key={minute}
                     size='icon'
-                    variant={date && dayjs(date).minute() === minute ? 'default' : 'ghost'}
+                    variant={date && getMinutes(date) === minute ? 'default' : 'ghost'}
                     className='sm:w-full shrink-0 aspect-square'
                     onClick={() => handleTimeChange('minute', minute.toString())}
                   >
@@ -109,8 +104,8 @@ export function DateTimePicker({ date, setDate, disabled }: DateTimePickerProps)
                     size='icon'
                     variant={
                       date &&
-                      ((ampm === 'AM' && dayjs(date).hour() < 12) ||
-                        (ampm === 'PM' && dayjs(date).hour() >= 12))
+                      ((ampm === 'AM' && getHours(date) < 12) ||
+                        (ampm === 'PM' && getHours(date) >= 12))
                         ? 'default'
                         : 'ghost'
                     }

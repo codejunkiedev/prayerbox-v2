@@ -13,7 +13,7 @@ import {
 } from '@/components/common';
 import { Calendar } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-import dayjs from 'dayjs';
+import { format } from 'date-fns';
 
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -106,7 +106,7 @@ export default function Events() {
       name: 'Date & Time',
       width: 'w-[20%]',
       render: value => (
-        <div>{value ? dayjs(value as string).format('MMM D, YYYY h:mm A') : ''}</div>
+        <div>{value ? format(new Date(value as string), 'MMM d, yyyy h:mm a') : ''}</div>
       ),
     },
     {
@@ -166,7 +166,9 @@ export default function Events() {
         itemType='event'
         itemTitle={itemToDelete?.title}
         itemSubtitle={
-          itemToDelete?.date_time ? dayjs(itemToDelete.date_time).format('MMM D, YYYY h:mm A') : ''
+          itemToDelete?.date_time
+            ? format(new Date(itemToDelete.date_time), 'MMM d, yyyy h:mm a')
+            : ''
         }
       />
     </div>
