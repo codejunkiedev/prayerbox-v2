@@ -65,7 +65,11 @@ export function AyatAndHadithModal({
     try {
       setIsSubmitting(true);
       setError(null);
-      await upsertAyatAndHadith(data);
+      if (initialData?.id) {
+        await upsertAyatAndHadith({ ...data, id: initialData.id });
+      } else {
+        await upsertAyatAndHadith(data);
+      }
       reset();
       onSuccess();
       onClose();

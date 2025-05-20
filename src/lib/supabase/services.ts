@@ -77,17 +77,9 @@ export async function getAyatAndHadith(): Promise<AyatAndHadith[]> {
   return await fetchByMultipleConditions<AyatAndHadith>(SupabaseTables.AyatAndHadith, conditions);
 }
 
-export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData) {
+export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData & { id?: string }) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
-
-  const ayatAndHadiths = await fetchByColumn<AyatAndHadith>(
-    SupabaseTables.AyatAndHadith,
-    'user_id',
-    user.id
-  );
-
-  const existingAyatAndHadith = ayatAndHadiths.length > 0 ? ayatAndHadiths[0] : null;
 
   const ayatAndHadithToUpsert: Partial<AyatAndHadith> = {
     ...ayatAndHadith,
@@ -96,10 +88,10 @@ export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData) {
     archived: false,
   };
 
-  if (existingAyatAndHadith) {
+  if (ayatAndHadith.id) {
     return await updateRecord<AyatAndHadith>(
       SupabaseTables.AyatAndHadith,
-      existingAyatAndHadith.id as string,
+      ayatAndHadith.id,
       ayatAndHadithToUpsert
     );
   } else {
