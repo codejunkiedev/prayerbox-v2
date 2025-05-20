@@ -9,6 +9,7 @@ import {
   DialogTitle,
   Input,
   Label,
+  ImageUpload,
 } from '@/components/ui';
 import { z } from 'zod';
 import { postSchema } from '@/lib/zod';
@@ -40,10 +41,8 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
     defaultValues: { title: initialData?.title || '' },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-    }
+  const handleImageChange = (file: File | null) => {
+    setImageFile(file);
   };
 
   const onSubmit = async (data: z.infer<typeof postSchema>) => {
@@ -96,34 +95,12 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='image'>Image</Label>
-            <Input
-              id='image'
-              type='file'
-              accept='image/*'
+            <ImageUpload
+              label='Image'
               onChange={handleImageChange}
-              className='cursor-pointer'
+              value={initialData?.image_url}
+              disabled={isSubmitting}
             />
-            {initialData?.image_url && !imageFile && (
-              <div className='mt-2'>
-                <p className='text-sm text-gray-500 mb-2'>Current image:</p>
-                <img
-                  src={initialData.image_url}
-                  alt={initialData.title}
-                  className='max-h-40 rounded-md'
-                />
-              </div>
-            )}
-            {imageFile && (
-              <div className='mt-2'>
-                <p className='text-sm text-gray-500 mb-2'>New image preview:</p>
-                <img
-                  src={URL.createObjectURL(imageFile)}
-                  alt='Preview'
-                  className='max-h-40 rounded-md'
-                />
-              </div>
-            )}
           </div>
 
           <DialogFooter>
@@ -132,7 +109,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
                 Cancel
               </Button>
             </DialogClose>
-            <Button type='submit' disabled={isSubmitting}>
+            <Button type='submit' disabled={isSubmitting} loading={isSubmitting}>
               {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Add'}
             </Button>
           </DialogFooter>
