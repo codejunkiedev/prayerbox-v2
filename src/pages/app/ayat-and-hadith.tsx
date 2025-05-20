@@ -189,7 +189,7 @@ export default function AyatAndHadithPage() {
                 <TableHead className='max-w-[300px] w-[35%]'>Translation</TableHead>
                 <TableHead className='max-w-[150px] w-[15%]'>Reference</TableHead>
                 <TableHead className='w-[10%]'>Type</TableHead>
-                <TableHead className='w-[5%]'>Actions</TableHead>
+                <TableHead className='w-[5%] text-center'>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
