@@ -37,10 +37,17 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
     handleSubmit,
     reset,
     formState: { errors },
+    setValue,
   } = useForm<z.infer<typeof postSchema>>({
     resolver: zodResolver(postSchema),
-    defaultValues: { title: initialData?.title || '' },
+    defaultValues: initialData || { title: '' },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setValue('title', initialData.title);
+    }
+  }, [initialData, setValue]);
 
   useEffect(() => {
     if (initialData?.image_url) {

@@ -41,7 +41,7 @@ export function AnnouncementModal({
     formState: { errors },
   } = useForm<z.infer<typeof announcementSchema>>({
     resolver: zodResolver(announcementSchema),
-    defaultValues: { description: initialData?.description || '' },
+    defaultValues: initialData || { description: '' },
   });
 
   const onSubmit = async (data: z.infer<typeof announcementSchema>) => {
