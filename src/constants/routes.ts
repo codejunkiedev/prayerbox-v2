@@ -11,4 +11,5 @@ export enum AppRoutes {
   UpdatePassword = '/update-password',
   AyatAndHadith = '/ayat-and-hadith',
   Announcements = '/announcements',
+  Events = '/events',
 }
