@@ -12,14 +12,23 @@ type TableSkeletonProps = {
   columns: Array<{ name: string; width: string }>;
   rows?: number;
   showActions?: boolean;
+  showRowNumbers?: boolean;
+  rowNumberWidth?: string;
 };
 
-export function TableSkeleton({ columns, rows = 5, showActions = true }: TableSkeletonProps) {
+export function TableSkeleton({
+  columns,
+  rows = 5,
+  showActions = true,
+  showRowNumbers = false,
+  rowNumberWidth = 'w-[5%]',
+}: TableSkeletonProps) {
   return (
     <div className='rounded-md overflow-x-auto'>
       <Table>
         <TableHeader>
           <TableRow>
+            {showRowNumbers && <TableHead className={rowNumberWidth}>#</TableHead>}
             {columns.map((column, index) => (
               <TableHead key={index} className={column.width}>
                 {column.name}
@@ -31,6 +40,11 @@ export function TableSkeleton({ columns, rows = 5, showActions = true }: TableSk
         <TableBody>
           {[...Array(rows)].map((_, index) => (
             <TableRow key={index}>
+              {showRowNumbers && (
+                <TableCell>
+                  <Skeleton className='h-4 w-4' />
+                </TableCell>
+              )}
               {columns.map((_, colIndex) => (
                 <TableCell key={colIndex}>
                   <Skeleton className='h-4 w-[90%]' />

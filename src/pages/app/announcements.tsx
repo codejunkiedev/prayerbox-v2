@@ -1,23 +1,17 @@
 import { useEffect, useState } from 'react';
 import { getAnnouncements, deleteAnnouncement } from '@/lib/supabase';
 import type { Announcement } from '@/types';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Button,
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui';
-import { AnnouncementModal, DeleteConfirmationModal } from '@/components/modals';
 import { TableSkeleton } from '@/components/skeletons';
-import { Plus, Edit, Trash2, AlertCircle, Bell } from 'lucide-react';
+import { AnnouncementModal, DeleteConfirmationModal } from '@/components/modals';
+import {
+  PageHeader,
+  ErrorAlert,
+  EmptyState,
+  ActionButtons,
+  DataTable,
+  type Column,
+} from '@/components/common';
+import { Bell } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 
 export default function Announcements() {
@@ -91,92 +85,50 @@ export default function Announcements() {
     setItemToDelete(null);
   };
 
+  const columns: Column<Announcement>[] = [
+    {
+      key: 'description',
+      name: 'Description',
+      width: 'w-[90%]',
+      render: value => (
+        <div className='whitespace-pre-wrap line-clamp-2 overflow-hidden'>{value as string}</div>
+      ),
+    },
+  ];
+
   return (
     <div className='container mx-auto py-8 space-y-6'>
-      <Card>
-        <CardHeader>
-          <div className='flex justify-between items-center'>
-            <div>
-              <CardTitle>Announcements</CardTitle>
-              <CardDescription>Manage your masjid announcements</CardDescription>
-            </div>
-            <Button onClick={handleAddNew}>
-              <Plus className='mr-2 h-4 w-4' /> Add New
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
+      <PageHeader
+        title='Announcements'
+        description='Manage your masjid announcements'
+        onAddClick={handleAddNew}
+      />
 
-      {error && (
-        <Card className='border-destructive'>
-          <CardContent className='p-4 flex items-center'>
-            <AlertCircle className='h-5 w-5 text-destructive mr-2' />
-            <p className='text-destructive'>{error}</p>
-          </CardContent>
-        </Card>
-      )}
+      <ErrorAlert message={error} onClose={() => setError(null)} />
 
       {loading ? (
-        <TableSkeleton columns={[{ name: 'Description', width: 'w-[90%]' }]} />
+        <TableSkeleton columns={columns} showRowNumbers={true} />
       ) : announcements.length === 0 ? (
-        <div className='text-center py-12 px-4'>
-          <div className='flex flex-col items-center space-y-4'>
-            <div className='rounded-full bg-muted p-3'>
-              <Bell className='h-6 w-6 text-muted-foreground' />
-            </div>
-            <h3 className='text-lg font-medium'>No announcements found</h3>
-            <p className='text-muted-foreground max-w-sm'>
-              You haven't added any announcements yet. Add your first one to get started.
-            </p>
-            <Button onClick={handleAddNew} variant='outline'>
-              <Plus className='mr-2 h-4 w-4' /> Add First Announcement
-            </Button>
-          </div>
-        </div>
+        <EmptyState
+          icon={<Bell className='h-6 w-6 text-muted-foreground' />}
+          title='No announcements found'
+          description="You haven't added any announcements yet. Add your first one to get started."
+          actionText='Add First Announcement'
+          onActionClick={handleAddNew}
+        />
       ) : (
-        <div className='overflow-x-auto'>
-          <Table>
-            <TableHeader>
-              <TableRow className='bg-muted/50'>
-                <TableHead className='w-[90%]'>Description</TableHead>
-                <TableHead className='w-[10%] text-center'>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {announcements.map(item => (
-                <TableRow key={item.id} className='hover:bg-muted/30'>
-                  <TableCell>
-                    <div className='whitespace-pre-wrap line-clamp-2 overflow-hidden'>
-                      {item.description}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className='flex justify-center space-x-1'>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleEdit(item)}
-                        title='Edit'
-                        className='hover:bg-muted'
-                      >
-                        <Edit className='h-4 w-4' />
-                      </Button>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        onClick={() => handleDeleteClick(item)}
-                        title='Delete'
-                        className='hover:bg-destructive/10 hover:text-destructive'
-                      >
-                        <Trash2 className='h-4 w-4 text-destructive' />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <DataTable
+          columns={columns}
+          data={announcements}
+          keyField='id'
+          showRowNumbers={true}
+          renderActions={item => (
+            <ActionButtons
+              onEdit={() => handleEdit(item)}
+              onDelete={() => handleDeleteClick(item)}
+            />
+          )}
+        />
       )}
 
       <AnnouncementModal
