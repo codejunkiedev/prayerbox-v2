@@ -14,6 +14,7 @@ import {
 import { FileImage } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { toast } from 'sonner';
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -35,6 +36,7 @@ export default function Posts() {
         setPosts(data);
       } catch (err) {
         setError('Failed to fetch posts');
+        toast.error('Failed to fetch posts');
         console.error(err);
       } finally {
         setLoading(false);
@@ -73,9 +75,11 @@ export default function Posts() {
       forceUpdate();
       setIsDeleteDialogOpen(false);
       setItemToDelete(null);
+      toast.success('Post deleted successfully');
     } catch (err) {
       console.error('Error deleting item:', err);
       setError('Failed to delete post. Please try again.');
+      toast.error('Failed to delete post, please try again.');
     } finally {
       setIsDeleting(false);
     }

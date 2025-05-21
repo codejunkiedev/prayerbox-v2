@@ -13,6 +13,7 @@ import {
 } from '@/components/common';
 import { Bell } from 'lucide-react';
 import { useTrigger } from '@/hooks';
+import { toast } from 'sonner';
 
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -34,6 +35,7 @@ export default function Announcements() {
         setAnnouncements(data);
       } catch (err) {
         setError('Failed to fetch announcements');
+        toast.error('Failed to fetch announcements');
         console.error(err);
       } finally {
         setLoading(false);
@@ -72,9 +74,11 @@ export default function Announcements() {
       forceUpdate();
       setIsDeleteDialogOpen(false);
       setItemToDelete(null);
+      toast.success('Announcement deleted successfully');
     } catch (err) {
       console.error('Error deleting item:', err);
       setError('Failed to delete announcement. Please try again.');
+      toast.error('Failed to delete announcement, please try again.');
     } finally {
       setIsDeleting(false);
     }

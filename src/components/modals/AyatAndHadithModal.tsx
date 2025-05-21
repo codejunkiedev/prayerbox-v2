@@ -21,6 +21,7 @@ import {
 import { ayatAndHadithSchema, type AyatAndHadithData } from '@/lib/zod';
 import { upsertAyatAndHadith } from '@/lib/supabase';
 import type { AyatAndHadith } from '@/types';
+import { toast } from 'sonner';
 
 interface AyatAndHadithModalProps {
   isOpen: boolean;
@@ -65,17 +66,18 @@ export function AyatAndHadithModal({
     try {
       setIsSubmitting(true);
       setError(null);
-      if (initialData?.id) {
-        await upsertAyatAndHadith({ ...data, id: initialData.id });
-      } else {
-        await upsertAyatAndHadith(data);
-      }
+      await upsertAyatAndHadith({ ...data, ...(initialData?.id && { id: initialData.id }) });
+      const itemType = data.type === 'ayat' ? 'Ayat' : 'Hadith';
+      toast.success(`${itemType} ${isEditing ? 'updated' : 'created'} successfully`);
+
       reset();
       onSuccess();
       onClose();
     } catch (err) {
       console.error('Error saving ayat/hadith:', err);
       setError('Failed to save. Please try again.');
+      const itemType = data.type === 'ayat' ? 'ayat' : 'hadith';
+      toast.error(`Failed to ${isEditing ? 'update' : 'create'} ${itemType}, please try again.`);
     } finally {
       setIsSubmitting(false);
     }

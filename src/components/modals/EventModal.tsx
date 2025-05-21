@@ -17,6 +17,7 @@ import {
 import { eventSchema, type EventData } from '@/lib/zod';
 import { upsertEvent } from '@/lib/supabase';
 import type { Event } from '@/types';
+import { toast } from 'sonner';
 
 interface EventModalProps {
   isOpen: boolean;
@@ -76,7 +77,6 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
     }
   }, [initialData, isOpen, reset]);
 
-  // Update form value when dateTime changes
   useEffect(() => {
     if (dateTime) {
       setValue('date_time', dateTime.toISOString());
@@ -87,10 +87,8 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
     try {
       setIsSubmitting(true);
       setError(null);
-      await upsertEvent({
-        ...data,
-        ...(initialData?.id && { id: initialData.id }),
-      });
+      await upsertEvent({ ...data, ...(initialData?.id && { id: initialData.id }) });
+      toast.success(`Event ${isEdit ? 'updated' : 'created'} successfully`);
 
       reset();
       setDateTime(undefined);
@@ -99,6 +97,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
     } catch (error) {
       console.error('Error saving event:', error);
       setError('Failed to save event. Please try again.');
+      toast.error(`Failed to ${isEdit ? 'update' : 'create'} event, please try again.`);
     } finally {
       setIsSubmitting(false);
     }

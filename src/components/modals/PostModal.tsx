@@ -16,6 +16,7 @@ import { upsertPost } from '@/lib/supabase';
 import type { Post } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 
 type PostModalProps = {
   isOpen: boolean;
@@ -68,13 +69,8 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
 
       setIsSubmitting(true);
       setError(null);
-      await upsertPost(
-        {
-          ...data,
-          ...(initialData?.id && { id: initialData.id }),
-        },
-        imageFile
-      );
+      await upsertPost({ ...data, ...(initialData?.id && { id: initialData.id }) }, imageFile);
+      toast.success(`Post ${isEdit ? 'updated' : 'created'} successfully`);
 
       reset();
       setImageFile(null);
@@ -84,6 +80,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
     } catch (error) {
       console.error('Error saving post:', error);
       setError('Failed to save post. Please try again.');
+      toast.error(`Failed to ${isEdit ? 'update' : 'create'} post, please try again.`);
     } finally {
       setIsSubmitting(false);
     }

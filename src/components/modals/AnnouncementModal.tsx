@@ -15,6 +15,7 @@ import type { Announcement } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Label } from '@/components/ui';
+import { toast } from 'sonner';
 
 type AnnouncementModalProps = {
   isOpen: boolean;
@@ -53,10 +54,8 @@ export function AnnouncementModal({
     try {
       setIsSubmitting(true);
       setError(null);
-      await upsertAnnouncement({
-        ...data,
-        ...(initialData?.id && { id: initialData.id }),
-      });
+      await upsertAnnouncement({ ...data, ...(initialData?.id && { id: initialData.id }) });
+      toast.success(`Announcement ${isEdit ? 'updated' : 'created'} successfully`);
 
       reset();
       onSuccess();
@@ -64,6 +63,7 @@ export function AnnouncementModal({
     } catch (error) {
       console.error('Error saving announcement:', error);
       setError('Failed to save announcement. Please try again.');
+      toast.error(`Failed to ${isEdit ? 'update' : 'create'} announcement, please try again.`);
     } finally {
       setIsSubmitting(false);
     }

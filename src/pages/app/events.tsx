@@ -14,6 +14,7 @@ import {
 import { Calendar } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -35,6 +36,7 @@ export default function Events() {
         setEvents(data);
       } catch (err) {
         setError('Failed to fetch events');
+        toast.error('Failed to fetch events');
         console.error(err);
       } finally {
         setLoading(false);
@@ -73,9 +75,11 @@ export default function Events() {
       forceUpdate();
       setIsDeleteDialogOpen(false);
       setItemToDelete(null);
+      toast.success('Event deleted successfully');
     } catch (err) {
       console.error('Error deleting item:', err);
       setError('Failed to delete event. Please try again.');
+      toast.error('Failed to delete event, please try again.');
     } finally {
       setIsDeleting(false);
     }

@@ -14,6 +14,7 @@ import {
 } from '@/components/common';
 import { BookOpen, BookText } from 'lucide-react';
 import { useTrigger } from '@/hooks';
+import { toast } from 'sonner';
 
 export default function AyatAndHadithPage() {
   const [ayatAndHadith, setAyatAndHadith] = useState<AyatAndHadith[]>([]);
@@ -35,6 +36,7 @@ export default function AyatAndHadithPage() {
         setAyatAndHadith(data);
       } catch (err) {
         setError('Failed to fetch ayat and hadith data');
+        toast.error('Failed to fetch ayat and hadith data');
         console.error(err);
       } finally {
         setLoading(false);
@@ -73,9 +75,13 @@ export default function AyatAndHadithPage() {
       forceUpdate();
       setIsDeleteDialogOpen(false);
       setItemToDelete(null);
+      toast.success(`${itemToDelete.type === 'ayat' ? 'Ayat' : 'Hadith'} deleted successfully`);
     } catch (err) {
       console.error('Error deleting item:', err);
       setError('Failed to delete item. Please try again.');
+      toast.error(
+        `Failed to delete ${itemToDelete.type === 'ayat' ? 'ayat' : 'hadith'}, please try again.`
+      );
     } finally {
       setIsDeleting(false);
     }
