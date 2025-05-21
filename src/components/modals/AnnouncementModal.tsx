@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Button,
   Textarea,
@@ -42,6 +42,12 @@ export function AnnouncementModal({
     resolver: zodResolver(announcementSchema),
     defaultValues: initialData || { description: '' },
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      reset(initialData || { description: '' });
+    }
+  }, [isOpen, initialData, reset]);
 
   const onSubmit = async (data: AnnouncementData) => {
     try {
