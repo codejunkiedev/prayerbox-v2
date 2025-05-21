@@ -13,6 +13,7 @@ import {
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
 import { useTrigger } from '@/hooks';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -92,13 +93,26 @@ export default function Posts() {
       width: 'w-[100px]',
       render: value =>
         value ? (
-          <div className='w-12 h-12 relative'>
-            <img
-              src={value as string}
-              alt='Post'
-              className='absolute inset-0 w-full h-full object-cover rounded-md aspect-square'
-            />
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <div className='w-12 h-12 relative cursor-zoom-in'>
+                <img
+                  src={value as string}
+                  alt='Post'
+                  className='absolute inset-0 w-full h-full object-cover rounded-md aspect-square'
+                />
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className='p-0 w-80'>
+              <div className='relative aspect-square w-full overflow-hidden'>
+                <img
+                  src={value as string}
+                  alt='Post enlarged'
+                  className='w-full h-full object-cover'
+                />
+              </div>
+            </PopoverContent>
+          </Popover>
         ) : (
           <div className='w-12 h-12 bg-gray-100 flex items-center justify-center rounded-md aspect-square'>
             <FileImage className='w-6 h-6 text-gray-400' />
