@@ -94,37 +94,25 @@ export default function AyatAndHadithPage() {
     {
       key: 'text',
       name: 'Text',
-      width: 'max-w-[300px] w-[35%]',
-      render: (value, item) => (
-        <div className='font-medium max-w-[300px]'>
-          <div className='truncate' title={item.text}>
-            {value as string}
-          </div>
-        </div>
+      width: 'w-[35%]',
+      render: value => (
+        <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
     },
     {
       key: 'translation',
       name: 'Translation',
-      width: 'max-w-[300px] w-[35%]',
-      render: (value, item) => (
-        <div className='max-w-[300px]'>
-          <div className='truncate' title={item.translation}>
-            {value as string}
-          </div>
-        </div>
+      width: 'w-[35%]',
+      render: value => (
+        <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
     },
     {
       key: 'reference',
       name: 'Reference',
-      width: 'max-w-[150px] w-[15%]',
-      render: (value, item) => (
-        <div className='max-w-[150px]'>
-          <div className='truncate' title={item.reference}>
-            {value as string}
-          </div>
-        </div>
+      width: 'w-[15%]',
+      render: value => (
+        <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
     },
     {

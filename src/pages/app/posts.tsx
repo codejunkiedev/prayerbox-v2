@@ -109,7 +109,11 @@ export default function Posts() {
       key: 'title',
       name: 'Title',
       width: 'w-[80%]',
-      render: value => <div className='font-medium'>{value as string}</div>,
+      render: value => (
+        <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
+          {value as string}
+        </div>
+      ),
     },
   ];
 

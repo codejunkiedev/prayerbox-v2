@@ -91,14 +91,18 @@ export default function Events() {
       key: 'title',
       name: 'Title',
       width: 'w-[25%]',
-      render: value => <div className='font-medium'>{value as string}</div>,
+      render: value => (
+        <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
+          {value as string}
+        </div>
+      ),
     },
     {
       key: 'description',
       name: 'Description',
       width: 'w-[35%]',
       render: value => (
-        <div className='whitespace-pre-wrap line-clamp-2 overflow-hidden'>{value as string}</div>
+        <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
     },
     {

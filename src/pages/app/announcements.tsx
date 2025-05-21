@@ -91,7 +91,7 @@ export default function Announcements() {
       name: 'Description',
       width: 'w-[90%]',
       render: value => (
-        <div className='whitespace-pre-wrap line-clamp-2 overflow-hidden'>{value as string}</div>
+        <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
     },
   ];
