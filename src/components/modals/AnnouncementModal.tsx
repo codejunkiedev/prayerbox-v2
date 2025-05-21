@@ -9,8 +9,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui';
-import { z } from 'zod';
-import { announcementSchema } from '@/lib/zod';
+import { announcementSchema, type AnnouncementData } from '@/lib/zod';
 import { upsertAnnouncement } from '@/lib/supabase';
 import type { Announcement } from '@/types';
 import { useForm } from 'react-hook-form';
@@ -39,12 +38,12 @@ export function AnnouncementModal({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<z.infer<typeof announcementSchema>>({
+  } = useForm<AnnouncementData>({
     resolver: zodResolver(announcementSchema),
     defaultValues: initialData || { description: '' },
   });
 
-  const onSubmit = async (data: z.infer<typeof announcementSchema>) => {
+  const onSubmit = async (data: AnnouncementData) => {
     try {
       setIsSubmitting(true);
       setError(null);

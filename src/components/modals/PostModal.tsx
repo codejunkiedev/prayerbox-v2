@@ -11,8 +11,7 @@ import {
   Label,
   ImageUpload,
 } from '@/components/ui';
-import { z } from 'zod';
-import { postSchema } from '@/lib/zod';
+import { postSchema, type PostData } from '@/lib/zod';
 import { upsertPost } from '@/lib/supabase';
 import type { Post } from '@/types';
 import { useForm } from 'react-hook-form';
@@ -38,7 +37,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
     reset,
     formState: { errors },
     setValue,
-  } = useForm<z.infer<typeof postSchema>>({
+  } = useForm<PostData>({
     resolver: zodResolver(postSchema),
     defaultValues: initialData || { title: '' },
   });
@@ -60,7 +59,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
     setImageError(file ? null : 'Image is required');
   };
 
-  const onSubmit = async (data: z.infer<typeof postSchema>) => {
+  const onSubmit = async (data: PostData) => {
     try {
       if (!imageFile && !initialData?.image_url) {
         setImageError('Image is required');
