@@ -30,9 +30,7 @@ export default function ResetPassword() {
     try {
       setIsLoading(true);
       setErrorMessage('');
-
       await updateUserPassword(data.password);
-
       setIsSuccess(true);
       toast.success('Password reset successfully');
     } catch (err) {
@@ -52,84 +50,79 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className='container flex h-full w-full flex-col items-center justify-center px-4 md:px-6'>
-      <div className='mx-auto flex w-full flex-col justify-center space-y-4 sm:space-y-6 sm:w-[350px]'>
-        <div className='flex flex-col space-y-2 text-center'>
-          <h1 className='text-xl sm:text-2xl font-semibold tracking-tight'>Reset your password</h1>
-          <p className='text-sm text-muted-foreground'>Enter your new password below</p>
-        </div>
-        <div className='grid gap-4 sm:gap-6'>
-          {errorMessage && <ErrorBox message={errorMessage} />}
-          {isSuccess ? (
-            <AutoRedirectNotice
-              to={AppRoutes.Home}
-              delaySeconds={5}
-              message={'Your password has been reset successfully.'}
-              buttonLabel='Go to Home'
-            />
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className='grid gap-3 sm:gap-4'>
-                <div className='grid gap-1 sm:gap-2'>
-                  <Label htmlFor='password'>New Password</Label>
-                  <div className='relative'>
-                    <Input
-                      id='password'
-                      type={showPassword.new ? 'text' : 'password'}
-                      className={cn(errors.password && 'border-red-500')}
-                      {...register('password', {
-                        onChange: handleInputChange,
-                      })}
-                    />
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='icon'
-                      className='absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0'
-                      onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
-                      tabIndex={-1}
-                    >
-                      {showPassword.new ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </Button>
-                  </div>
-                  {errors.password && (
-                    <p className='text-xs text-red-500 mt-1'>{errors.password.message}</p>
-                  )}
-                </div>
-                <div className='grid gap-1 sm:gap-2'>
-                  <Label htmlFor='confirmPassword'>Confirm New Password</Label>
-                  <div className='relative'>
-                    <Input
-                      id='confirmPassword'
-                      type={showPassword.confirm ? 'text' : 'password'}
-                      className={cn(errors.confirmPassword && 'border-red-500')}
-                      {...register('confirmPassword', {
-                        onChange: handleInputChange,
-                      })}
-                    />
-                    <Button
-                      type='button'
-                      variant='ghost'
-                      size='icon'
-                      className='absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 p-0'
-                      onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
-                      tabIndex={-1}
-                    >
-                      {showPassword.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </Button>
-                  </div>
-                  {errors.confirmPassword && (
-                    <p className='text-xs text-red-500 mt-1'>{errors.confirmPassword.message}</p>
-                  )}
-                </div>
-                <Button type='submit' loading={isLoading} className='mt-2'>
-                  {isLoading ? 'Resetting password...' : 'Reset password'}
-                </Button>
-              </div>
-            </form>
-          )}
-        </div>
-      </div>
+    <div className='container mx-auto px-4 py-8 max-w-2xl'>
+      <h1 className='text-2xl font-bold mb-6'>Reset Password</h1>
+
+      {errorMessage && <ErrorBox message={errorMessage} className='mb-6' />}
+
+      {isSuccess ? (
+        <AutoRedirectNotice
+          to={AppRoutes.Home}
+          delaySeconds={5}
+          message={'Your password has been reset successfully.'}
+          buttonLabel='Go to Home'
+        />
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+          <div className='space-y-2'>
+            <Label htmlFor='password'>New Password</Label>
+            <div className='relative'>
+              <Input
+                id='password'
+                type={showPassword.new ? 'text' : 'password'}
+                className={cn(errors.password && 'border-red-500')}
+                {...register('password', {
+                  onChange: handleInputChange,
+                })}
+              />
+              <Button
+                type='button'
+                variant='ghost'
+                size='icon'
+                className='absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 p-0'
+                onClick={() => setShowPassword(prev => ({ ...prev, new: !prev.new }))}
+                tabIndex={-1}
+              >
+                {showPassword.new ? <EyeOff size={16} /> : <Eye size={16} />}
+              </Button>
+            </div>
+            {errors.password && (
+              <p className='text-red-500 text-sm mt-1'>{errors.password.message}</p>
+            )}
+          </div>
+
+          <div className='space-y-2'>
+            <Label htmlFor='confirmPassword'>Confirm New Password</Label>
+            <div className='relative'>
+              <Input
+                id='confirmPassword'
+                type={showPassword.confirm ? 'text' : 'password'}
+                className={cn(errors.confirmPassword && 'border-red-500')}
+                {...register('confirmPassword', {
+                  onChange: handleInputChange,
+                })}
+              />
+              <Button
+                type='button'
+                variant='ghost'
+                size='icon'
+                className='absolute right-1 top-1/2 h-8 w-8 -translate-y-1/2 p-0'
+                onClick={() => setShowPassword(prev => ({ ...prev, confirm: !prev.confirm }))}
+                tabIndex={-1}
+              >
+                {showPassword.confirm ? <EyeOff size={16} /> : <Eye size={16} />}
+              </Button>
+            </div>
+            {errors.confirmPassword && (
+              <p className='text-red-500 text-sm mt-1'>{errors.confirmPassword.message}</p>
+            )}
+          </div>
+
+          <Button type='submit' loading={isLoading}>
+            {isLoading ? 'Resetting password...' : 'Reset Password'}
+          </Button>
+        </form>
+      )}
     </div>
   );
 }
