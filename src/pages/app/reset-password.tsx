@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Label, ErrorBox } from '@/components/ui';
+import { Button, Input, Label, ErrorBox, PasswordStrengthMeter } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { updateUserPassword } from '@/lib/supabase';
@@ -20,11 +20,13 @@ export default function ResetPassword() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<ResetPasswordData>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { password: '', confirmPassword: '' },
-    mode: 'onChange',
   });
+
+  const password = watch('password');
 
   const onSubmit = async (data: ResetPasswordData) => {
     try {
@@ -86,6 +88,7 @@ export default function ResetPassword() {
                 {showPassword.new ? <EyeOff size={16} /> : <Eye size={16} />}
               </Button>
             </div>
+            {password && <PasswordStrengthMeter password={password} />}
             {errors.password && (
               <p className='text-red-500 text-sm mt-1'>{errors.password.message}</p>
             )}

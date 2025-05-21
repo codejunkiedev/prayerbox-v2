@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Label, ErrorBox } from '@/components/ui';
+import { Button, Input, Label, ErrorBox, PasswordStrengthMeter } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { registerFormSchema, type RegisterFormData } from '@/lib/zod';
@@ -14,15 +14,25 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState({ new: false, confirm: false });
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: { email: '', password: '', confirmPassword: '' },
   });
+
+  // Watch the password field for changes
+  const watchedPassword = watch('password');
+
+  // Update password state when the watched password changes
+  if (watchedPassword !== password) {
+    setPassword(watchedPassword);
+  }
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
@@ -90,6 +100,7 @@ export default function Register() {
                     {showPassword.new ? <EyeOff size={16} /> : <Eye size={16} />}
                   </Button>
                 </div>
+                {password && <PasswordStrengthMeter password={password} />}
                 {errors.password && (
                   <p className='text-xs text-red-500 mt-1'>{errors.password.message}</p>
                 )}
