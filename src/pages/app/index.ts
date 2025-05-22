@@ -6,3 +6,4 @@ export { default as AyatAndHadith } from './ayat-and-hadith';
 export { default as Announcements } from './announcements';
 export { default as Events } from './events';
 export { default as Posts } from './posts';
+export { default as SalahTimings } from './salah-timings';

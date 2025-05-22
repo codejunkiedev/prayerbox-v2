@@ -15,6 +15,7 @@ import {
   Profile,
   Register,
   ResetPassword,
+  SalahTimings,
   UpdatePassword,
 } from '@/pages';
 
@@ -71,6 +72,7 @@ export default function Navigation() {
           <Route path={AppRoutes.Announcements} element={<Announcements />} />
           <Route path={AppRoutes.Events} element={<Events />} />
           <Route path={AppRoutes.Posts} element={<Posts />} />
+          <Route path={AppRoutes.SalahTimings} element={<SalahTimings />} />
         </Route>
 
         <Route path={'*'} element={<Navigate to={AppRoutes.Home} />} />

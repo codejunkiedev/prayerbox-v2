@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { ChevronLeft, ChevronRight, Home, BookOpen, Bell, Calendar, File } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  BookOpen,
+  Bell,
+  Calendar,
+  File,
+  Clock,
+} from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -42,6 +51,11 @@ export default function Sidebar() {
       label: 'Posts',
       path: AppRoutes.Posts,
       icon: <File size={20} />,
+    },
+    {
+      label: 'Salah Timings',
+      path: AppRoutes.SalahTimings,
+      icon: <Clock size={20} />,
     },
   ];
 
