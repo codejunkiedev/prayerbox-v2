@@ -16,4 +16,5 @@ export * from './scroll-area';
 export * from './sonner';
 export * from './date-time-picker';
 export * from './image-upload';
-export * from './PasswordStrengthMeter';
+export * from './password-strength-meter';
+export * from './map';
