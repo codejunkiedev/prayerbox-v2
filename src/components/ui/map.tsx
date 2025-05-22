@@ -58,6 +58,25 @@ const MapControls: React.FC<MapControlsProps> = ({ onLocateMe }) => {
   );
 };
 
+interface CoordinateOverlayProps {
+  position: L.LatLng | null;
+}
+
+const CoordinateOverlay: React.FC<CoordinateOverlayProps> = ({ position }) => {
+  if (!position) return null;
+
+  return (
+    <div className='leaflet-top leaflet-right' style={{ zIndex: 1000 }}>
+      <div className='leaflet-control bg-white p-2 m-2 rounded-md shadow-md text-sm'>
+        <div>
+          <span className='font-bold'>Coordinates:</span> {position.lat.toFixed(3)},{' '}
+          {position.lng.toFixed(3)}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 interface MapProps {
   onCoordinatesChange?: (latitude: number, longitude: number) => void;
   coordinates?: { latitude: number; longitude: number } | null;
@@ -70,8 +89,35 @@ export function Map({ onCoordinatesChange, coordinates }: MapProps) {
 
   const mapRef = useRef<L.Map | null>(null);
 
+  const isNearMapEdge = (position: L.LatLng): boolean => {
+    if (!mapRef.current) return false;
+
+    const bounds = mapRef.current.getBounds();
+    const padding = 0.2;
+
+    const mapWidth = bounds.getEast() - bounds.getWest();
+    const mapHeight = bounds.getNorth() - bounds.getSouth();
+
+    const edgeWest = bounds.getWest() + mapWidth * padding;
+    const edgeEast = bounds.getEast() - mapWidth * padding;
+    const edgeSouth = bounds.getSouth() + mapHeight * padding;
+    const edgeNorth = bounds.getNorth() - mapHeight * padding;
+
+    return (
+      position.lng <= edgeWest ||
+      position.lng >= edgeEast ||
+      position.lat <= edgeSouth ||
+      position.lat >= edgeNorth
+    );
+  };
+
   const handlePositionChange = (coords: L.LatLng) => {
     setCurrentPosition(coords);
+
+    if (mapRef.current && isNearMapEdge(coords)) {
+      mapRef.current.setView(coords, mapRef.current.getZoom());
+    }
+
     if (onCoordinatesChange) {
       onCoordinatesChange(coords.lat, coords.lng);
     }
@@ -107,7 +153,12 @@ export function Map({ onCoordinatesChange, coordinates }: MapProps) {
 
   useEffect(() => {
     if (coordinates) {
-      setCurrentPosition(L.latLng(coordinates.latitude, coordinates.longitude));
+      const newPosition = L.latLng(coordinates.latitude, coordinates.longitude);
+      setCurrentPosition(newPosition);
+
+      if (mapRef.current && isNearMapEdge(newPosition)) {
+        mapRef.current.setView(newPosition, mapRef.current.getZoom());
+      }
     }
   }, [coordinates]);
 
@@ -123,6 +174,7 @@ export function Map({ onCoordinatesChange, coordinates }: MapProps) {
         <TileLayer url={TILE_URL} attribution={ATTRIBUTION} />
         <LocationMarker onPositionChange={handlePositionChange} position={currentPosition} />
         <MapControls onLocateMe={handleLocateMe} />
+        <CoordinateOverlay position={currentPosition} />
       </MapContainer>
     </div>
   );
