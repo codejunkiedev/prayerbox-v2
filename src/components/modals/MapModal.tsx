@@ -8,6 +8,7 @@ import {
   DialogTitle,
   Map,
 } from '@/components/ui';
+import { isDev } from '@/utils';
 import { toast } from 'sonner';
 
 type MapModalProps = {
@@ -24,8 +25,14 @@ export function MapModal({ isOpen, onClose, onCoordinatesSelect, coordinates }: 
       toast.success('Location picked successfully');
       onClose();
     } else {
-      toast.error('Please select a location on the map');
+      toast.warning('Please select a location on the map');
     }
+  };
+
+  const handleReset = () => {
+    // @ts-expect-error - we want to reset the coordinates
+    onCoordinatesSelect(null, null);
+    toast.success('Location reset successfully');
   };
 
   return (
@@ -45,7 +52,12 @@ export function MapModal({ isOpen, onClose, onCoordinatesSelect, coordinates }: 
               Cancel
             </Button>
           </DialogClose>
-          <Button onClick={handleSave}>Save Location</Button>
+          {isDev && (
+            <Button variant='destructive' onClick={handleReset}>
+              Reset Location
+            </Button>
+          )}
+          <Button onClick={handleSave}>Select Location</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
