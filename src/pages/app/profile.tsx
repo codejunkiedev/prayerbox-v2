@@ -12,8 +12,9 @@ import {
 } from '@/lib/zod';
 import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase/services';
 import { toast } from 'sonner';
-import { Copy } from 'lucide-react';
+import { Copy, MapPin } from 'lucide-react';
 import { useTrigger } from '@/hooks';
+import { MapModal } from '@/components/modals';
 
 export default function Profile() {
   const [masjidLogo, setMasjidLogo] = useState<File | null>(null);
@@ -23,6 +24,7 @@ export default function Profile() {
   const [masjidCode, setMasjidCode] = useState<string>('');
   const [isCopied, setIsCopied] = useState(false);
   const [logoRemoved, setLogoRemoved] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
   const [trigger, triggerUpdate] = useTrigger();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -32,10 +34,16 @@ export default function Profile() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<MasjidProfileData>({
     resolver: zodResolver(masjidProfileSchema),
-    defaultValues: { name: '', address: '' },
+    defaultValues: { name: '', latitude: 0, longitude: 0 },
   });
+
+  const latitude = watch('latitude');
+  const longitude = watch('longitude');
+  const coordinates = latitude && longitude ? { latitude, longitude } : null;
 
   useEffect(() => {
     async function fetchProfile() {
@@ -44,7 +52,11 @@ export default function Profile() {
         const profile = await getMasjidProfile();
 
         if (profile) {
-          reset({ name: profile.name, address: profile.address });
+          reset({
+            name: profile.name,
+            latitude: profile.latitude || 0,
+            longitude: profile.longitude || 0,
+          });
           setMasjidCode(profile.code);
 
           if (profile.logo_url) {
@@ -109,6 +121,11 @@ export default function Profile() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const handleCoordinatesSelect = (latitude: number, longitude: number) => {
+    setValue('latitude', latitude);
+    setValue('longitude', longitude);
   };
 
   const onSubmit = async (data: MasjidProfileData) => {
@@ -181,15 +198,31 @@ export default function Profile() {
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='address'>Masjid Location</Label>
-            <Input
-              id='address'
-              {...register('address')}
-              placeholder='Enter masjid location'
-              className={errors.address ? 'border-red-500' : ''}
-            />
-            {errors.address && (
-              <p className='text-red-500 text-sm mt-1'>{errors.address.message}</p>
+            <Label htmlFor='location'>Masjid Location</Label>
+            <div className='flex gap-2'>
+              <Input
+                id='location'
+                placeholder='Select location on map'
+                readOnly
+                value={
+                  coordinates
+                    ? `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`
+                    : ''
+                }
+                className='bg-muted cursor-not-allowed flex-1'
+              />
+              <Button
+                type='button'
+                variant='outline'
+                onClick={() => setIsMapModalOpen(true)}
+                className='flex items-center gap-2'
+              >
+                <MapPin size={16} />
+                {coordinates ? 'Change Location' : 'Set Location'}
+              </Button>
+            </div>
+            {(errors.latitude || errors.longitude) && (
+              <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
             )}
           </div>
 
@@ -247,6 +280,13 @@ export default function Profile() {
           </Button>
         </form>
       )}
+
+      <MapModal
+        isOpen={isMapModalOpen}
+        onClose={() => setIsMapModalOpen(false)}
+        onCoordinatesSelect={handleCoordinatesSelect}
+        coordinates={coordinates}
+      />
     </div>
   );
 }
