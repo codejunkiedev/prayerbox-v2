@@ -19,10 +19,11 @@ interface Base {
 }
 
 export interface MasjidProfile extends Base {
-  address: string;
   code: string;
   logo_url: string;
   name: string;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface AyatAndHadith extends Base {

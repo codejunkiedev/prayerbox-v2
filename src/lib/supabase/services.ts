@@ -65,7 +65,8 @@ export async function upsertMasjidProfile(
     ...profileData,
     user_id: user.id,
     updated_at: new Date().toISOString(),
-    address: profileData.address,
+    latitude: profileData.latitude || null,
+    longitude: profileData.longitude || null,
     name: profileData.name,
     code: existingProfile?.code || generateMasjidCode(),
   };

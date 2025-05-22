@@ -53,7 +53,8 @@ export type UpdatePasswordData = z.infer<typeof updatePasswordSchema>;
 
 export const masjidProfileSchema = z.object({
   name: z.string().min(1, 'Masjid name is required'),
-  address: z.string().min(1, 'Masjid location is required'),
+  latitude: z.number(),
+  longitude: z.number(),
 });
 
 export type MasjidProfileData = z.infer<typeof masjidProfileSchema>;
