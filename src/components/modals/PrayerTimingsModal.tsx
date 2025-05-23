@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -19,20 +19,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CalculationMethod, CalculationSchool } from '@/constants/config';
-import { prayerTimingsFormSchema, type PrayerTimingsFormData } from '@/lib/zod';
-import { fetchPrayerTimesForDate } from '@/api';
-import type { PrayerTimesForDate } from '@/types';
+import { CalculationMethod, JuristicSchool } from '@/constants';
+import { prayerTimingsFormSchema, type PrayerTimingsData } from '@/lib/zod';
+import { savePrayerTimeSettings } from '@/lib/supabase/services';
 import { MapPin } from 'lucide-react';
 import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';
-import { format } from 'date-fns';
 
 interface PrayerTimingsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: PrayerTimesForDate) => void;
+  onSubmit: () => void;
   masjidCoordinates: { latitude: number; longitude: number } | null;
+  initialValues: PrayerTimingsData | null;
 }
 
 export function PrayerTimingsModal({
@@ -40,55 +39,61 @@ export function PrayerTimingsModal({
   onClose,
   onSubmit,
   masjidCoordinates,
+  initialValues,
 }: PrayerTimingsModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<PrayerTimingsFormData>({
+    watch,
+  } = useForm<PrayerTimingsData>({
     resolver: zodResolver(prayerTimingsFormSchema),
     defaultValues: {
-      method: CalculationMethod.Muslim_World_League,
-      school: CalculationSchool.Shafi,
+      calculation_method:
+        initialValues?.calculation_method || CalculationMethod.Muslim_World_League,
+      juristic_school: initialValues?.juristic_school || JuristicSchool.Shafi,
     },
   });
 
-  const onFormSubmit = async (data: PrayerTimingsFormData) => {
+  useEffect(() => {
+    if (initialValues) {
+      setValue('calculation_method', initialValues.calculation_method);
+      setValue('juristic_school', initialValues.juristic_school);
+    }
+  }, [initialValues, setValue]);
+
+  const onFormSubmit = async (data: PrayerTimingsData) => {
     if (!masjidCoordinates) {
       toast.error('Please set masjid coordinates in your profile first');
       return;
     }
 
     try {
-      setIsLoading(true);
-      const today = format(new Date(), 'dd-MM-yyyy');
+      setIsSubmitting(true);
+      await savePrayerTimeSettings(data);
 
-      const response = await fetchPrayerTimesForDate({
-        date: today,
-        latitude: masjidCoordinates.latitude,
-        longitude: masjidCoordinates.longitude,
-        method: data.method,
-        school: data.school,
-      });
-      onSubmit(response.data);
+      onSubmit();
       onClose();
-      toast.success('Prayer times fetched successfully');
+      toast.success('Prayer time settings saved successfully');
     } catch (error) {
-      console.error('Error fetching prayer times:', error);
-      toast.error('Failed to fetch prayer times');
+      console.error('Error saving prayer time settings:', error);
+      toast.error('Failed to save prayer time settings');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
+  const calculationMethod = watch('calculation_method');
+  const juristicSchool = watch('juristic_school');
+
   const handleMethodChange = (value: string) => {
-    setValue('method', parseInt(value));
+    setValue('calculation_method', parseInt(value));
   };
 
   const handleSchoolChange = (value: string) => {
-    setValue('school', parseInt(value));
+    setValue('juristic_school', parseInt(value));
   };
 
   return (
@@ -100,12 +105,9 @@ export function PrayerTimingsModal({
 
         <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-4'>
           <div className='space-y-2'>
-            <Label htmlFor='method'>Calculation Method</Label>
-            <Select
-              onValueChange={handleMethodChange}
-              defaultValue={CalculationMethod.Muslim_World_League.toString()}
-            >
-              <SelectTrigger id='method' className='w-full'>
+            <Label htmlFor='calculation_method'>Calculation Method</Label>
+            <Select onValueChange={handleMethodChange} value={calculationMethod?.toString()}>
+              <SelectTrigger id='calculation_method' className='w-full'>
                 <SelectValue placeholder='Select calculation method' />
               </SelectTrigger>
               <SelectContent>
@@ -116,27 +118,28 @@ export function PrayerTimingsModal({
                 ))}
               </SelectContent>
             </Select>
-            {errors.method && <p className='text-red-500 text-sm mt-1'>{errors.method.message}</p>}
+            {errors.calculation_method && (
+              <p className='text-red-500 text-sm mt-1'>{errors.calculation_method.message}</p>
+            )}
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='school'>Juristic School</Label>
-            <Select
-              onValueChange={handleSchoolChange}
-              defaultValue={CalculationSchool.Shafi.toString()}
-            >
-              <SelectTrigger id='school' className='w-full'>
+            <Label htmlFor='juristic_school'>Juristic School</Label>
+            <Select onValueChange={handleSchoolChange} value={juristicSchool?.toString()}>
+              <SelectTrigger id='juristic_school' className='w-full'>
                 <SelectValue placeholder='Select juristic school' />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(CalculationSchool).map(([key, value]) => (
+                {Object.entries(JuristicSchool).map(([key, value]) => (
                   <SelectItem key={key} value={value.toString()}>
                     {key}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.school && <p className='text-red-500 text-sm mt-1'>{errors.school.message}</p>}
+            {errors.juristic_school && (
+              <p className='text-red-500 text-sm mt-1'>{errors.juristic_school.message}</p>
+            )}
           </div>
 
           <div className='space-y-2'>
@@ -170,13 +173,11 @@ export function PrayerTimingsModal({
                 />
               </div>
             </div>
-            {!masjidCoordinates && (
-              <p className='text-amber-500 text-sm mt-1'>
-                Please set your masjid location in the profile page
-              </p>
-            )}
+
             <p className='text-xs text-muted-foreground mt-1'>
-              To update these coordinates, please visit the{' '}
+              {masjidCoordinates
+                ? 'To update these coordinates, please visit the'
+                : 'To set these coordinates, please visit the'}{' '}
               <Link to={AppRoutes.Profile} className='text-primary hover:underline'>
                 Profile page
               </Link>
@@ -188,8 +189,8 @@ export function PrayerTimingsModal({
             <Button type='button' variant='outline' onClick={onClose}>
               Cancel
             </Button>
-            <Button type='submit' loading={isLoading} disabled={!masjidCoordinates}>
-              {isLoading ? 'Fetching...' : 'Fetch Prayer Times'}
+            <Button type='submit' loading={isSubmitting} disabled={!masjidCoordinates}>
+              {isSubmitting ? 'Saving...' : 'Save Settings'}
             </Button>
           </DialogFooter>
         </form>

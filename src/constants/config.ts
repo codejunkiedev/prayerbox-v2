@@ -24,7 +24,7 @@ export const CalculationMethod = {
   Ministry_Of_Awqaf_Islamic_Affairs_And_Holy_Places_Jordan: 23,
 };
 
-export const CalculationSchool = {
+export const JuristicSchool = {
   Shafi: 0,
   Hanafi: 1,
 };

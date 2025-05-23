@@ -98,8 +98,8 @@ export const postSchema = z.object({
 export type PostData = z.infer<typeof postSchema>;
 
 export const prayerTimingsFormSchema = z.object({
-  method: z.number(),
-  school: z.number(),
+  calculation_method: z.number(),
+  juristic_school: z.number(),
 });
 
-export type PrayerTimingsFormData = z.infer<typeof prayerTimingsFormSchema>;
+export type PrayerTimingsData = z.infer<typeof prayerTimingsFormSchema>;

@@ -4,6 +4,7 @@ export enum SupabaseTables {
   Announcements = 'announcements',
   Events = 'events',
   Posts = 'posts',
+  PrayerTimes = 'prayer_times',
 }
 
 export enum SupabaseBuckets {
@@ -56,4 +57,9 @@ export interface Post extends Base {
   title: string;
   image_url: string;
   archived: boolean;
+}
+
+export interface PrayerTimes extends Base {
+  calculation_method: number;
+  juristic_school: number;
 }

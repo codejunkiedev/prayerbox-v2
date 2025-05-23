@@ -4,9 +4,13 @@ import { CalendarIcon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PrayerTimingsModal } from '@/components/modals';
-import { getMasjidProfile } from '@/lib/supabase/services';
+import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase/services';
+import { fetchPrayerTimesForDate } from '@/api';
 import { toast } from 'sonner';
-import type { PrayerTimesForDate } from '@/types';
+import type { PrayerTimes, PrayerTimesForDate } from '@/types';
+import { useTrigger } from '@/hooks';
+import { AppRoutes, CalculationMethod, JuristicSchool } from '@/constants';
+import { Link } from 'react-router';
 
 export default function SalahTimings() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,12 +19,16 @@ export default function SalahTimings() {
     latitude: number;
     longitude: number;
   } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
+  const [isFetchingCoordinates, setIsFetchingCoordinates] = useState(true);
+  const [isFetchingTimes, setIsFetchingTimes] = useState(false);
+
+  const [trigger, forceUpdate] = useTrigger();
 
   useEffect(() => {
     async function fetchMasjidProfile() {
       try {
-        setIsLoading(true);
+        setIsFetchingCoordinates(true);
         const profile = await getMasjidProfile();
         if (profile && profile.latitude && profile.longitude) {
           setMasjidCoordinates({ latitude: profile.latitude, longitude: profile.longitude });
@@ -31,16 +39,44 @@ export default function SalahTimings() {
         console.error('Error fetching masjid profile:', error);
         toast.error('Failed to fetch masjid profile');
       } finally {
-        setIsLoading(false);
+        setIsFetchingCoordinates(false);
       }
     }
-
     fetchMasjidProfile();
   }, []);
 
-  const handlePrayerTimesSubmit = (data: PrayerTimesForDate) => {
-    setPrayerTimes(data);
-  };
+  useEffect(() => {
+    async function fetchPrayerTimes() {
+      if (!masjidCoordinates) return;
+
+      try {
+        setIsFetchingTimes(true);
+        const savedSettings = await getPrayerTimeSettings();
+        if (savedSettings) {
+          setSavedSettings(savedSettings);
+        }
+
+        const today = format(new Date(), 'dd-MM-yyyy');
+        const response = await fetchPrayerTimesForDate({
+          date: today,
+          latitude: masjidCoordinates.latitude,
+          longitude: masjidCoordinates.longitude,
+          method: savedSettings?.calculation_method || CalculationMethod.Muslim_World_League,
+          school: savedSettings?.juristic_school || JuristicSchool.Shafi,
+        });
+
+        setPrayerTimes(response.data);
+        toast.success('Fetched prayer times successfully');
+      } catch (error) {
+        console.error('Error fetching prayer times:', error);
+        toast.error('Failed to fetch prayer times');
+      } finally {
+        setIsFetchingTimes(false);
+      }
+    }
+
+    fetchPrayerTimes();
+  }, [masjidCoordinates, trigger]);
 
   const formatTime = (timeString: string) => {
     try {
@@ -65,7 +101,7 @@ export default function SalahTimings() {
         </Button>
       </div>
 
-      {isLoading ? (
+      {isFetchingCoordinates ? (
         <div className='flex justify-center p-8'>
           <div className='animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full'></div>
           <span className='sr-only'>Loading...</span>
@@ -73,13 +109,18 @@ export default function SalahTimings() {
       ) : !masjidCoordinates ? (
         <div className='text-center py-8'>
           <p className='text-lg mb-4'>Please set your masjid location in the profile page</p>
-          <Button variant='default' asChild>
-            <a href='/app/profile'>Go to Profile</a>
-          </Button>
+          <Link to={AppRoutes.Profile}>
+            <Button variant='default'>Go to Profile</Button>
+          </Link>
         </div>
       ) : (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-          {prayerTimes ? (
+          {isFetchingTimes ? (
+            <div className='col-span-full flex justify-center p-8'>
+              <div className='animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full'></div>
+              <span className='sr-only'>Fetching prayer times...</span>
+            </div>
+          ) : prayerTimes ? (
             <>
               <Card>
                 <CardHeader className='bg-primary/5 pb-2'>
@@ -161,18 +202,18 @@ export default function SalahTimings() {
             </>
           ) : (
             <div className='col-span-full text-center py-8'>
-              <p className='text-lg mb-4'>Click on Settings to fetch prayer times</p>
-              <Button onClick={() => setIsModalOpen(true)}>Fetch Prayer Times</Button>
+              <p className='text-lg mb-4'>Click on Settings to configure and fetch prayer times</p>
+              <Button onClick={() => setIsModalOpen(true)}>Configure Prayer Times</Button>
             </div>
           )}
         </div>
       )}
-
       <PrayerTimingsModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handlePrayerTimesSubmit}
+        onSubmit={() => forceUpdate()}
         masjidCoordinates={masjidCoordinates}
+        initialValues={savedSettings}
       />
     </div>
   );
