@@ -37,11 +37,10 @@ export function PrayerTimesTable({
   };
 
   const getAdjustedPrayerTime = (prayerName: PrayerName, originalTime: string): string => {
-    if (!savedSettings?.prayer_adjustments) return originalTime;
-
     const timeOnly = originalTime.split(' ')[0];
-    const adjustment = savedSettings.prayer_adjustments[prayerName];
+    if (!savedSettings?.prayer_adjustments) return timeOnly;
 
+    const adjustment = savedSettings.prayer_adjustments[prayerName];
     if (!adjustment) return timeOnly;
 
     if (adjustment.type === 'default') {
@@ -74,7 +73,12 @@ export function PrayerTimesTable({
     if (!adjustment || adjustment.type === 'default') return '';
 
     if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
-      return `(${adjustment.offset && adjustment.offset > 0 ? '+' : ''}${adjustment.offset} min)`;
+      const offset = adjustment.offset;
+      const offsetDirection = offset > 0 ? '+' : offset < 0 ? '-' : '';
+      const offsetValue = Math.abs(offset);
+      const hours = Math.floor(offsetValue / 60);
+      const minutes = offsetValue % 60;
+      return `(${offsetDirection}${hours}h ${minutes}m)`;
     } else if (adjustment.type === 'manual' && adjustment.manual_time !== undefined) {
       return '(manual)';
     }

@@ -34,8 +34,8 @@ export function PageHeader({
           {rightContent || (
             <div className='flex gap-2'>
               {showSettingsButton && onSettingsClick && (
-                <Button onClick={onSettingsClick} className='flex items-center gap-2'>
-                  <Settings size={16} />
+                <Button onClick={onSettingsClick}>
+                  <Settings className='mr-2 h-4 w-4' />
                   Settings
                 </Button>
               )}

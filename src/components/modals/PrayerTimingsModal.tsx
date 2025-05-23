@@ -147,6 +147,10 @@ export function PrayerTimingsModal({
     const offset = prayerAdjustments?.[prayer]?.offset || 0;
     const manualTime = prayerAdjustments?.[prayer]?.manual_time || '';
 
+    const offsetValue = Math.abs(offset);
+    const hours = Math.floor(offsetValue / 60);
+    const minutes = offsetValue % 60;
+
     const getTimeFromString = (timeString: string): Date | undefined => {
       if (!timeString) return undefined;
       try {
@@ -196,8 +200,8 @@ export function PrayerTimingsModal({
               <div className='space-y-3'>
                 <div className='flex flex-row xs:flex-row justify-between items-start xs:items-center gap-2'>
                   <Label>
-                    Minutes to adjust ({offset > 0 ? '+' : ''}
-                    {offset})
+                    {offset > 0 ? '+' : offset < 0 ? '-' : ''}
+                    {hours}h {minutes}m
                   </Label>
                   <div className='flex items-center gap-1 text-xs'>
                     <Minus className='h-3 w-3 text-muted-foreground' />
