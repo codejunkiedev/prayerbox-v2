@@ -1,6 +1,4 @@
 import { format, parse, addMinutes } from 'date-fns';
-import { useMemo } from 'react';
-import { Info } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -14,7 +12,6 @@ import {
   TableRow,
 } from '@/components/ui';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
-import { CalculationMethod, JuristicSchool } from '@/constants';
 
 interface PrayerTimesTableProps {
   prayerTimes: AlAdhanPrayerTimes[];
@@ -29,7 +26,6 @@ export function PrayerTimesTable({
   currentDay,
   currentMonth,
 }: PrayerTimesTableProps) {
-  // Helper function to format prayer times
   const formatTime = (timeString: string) => {
     try {
       return format(parse(timeString, 'HH:mm', new Date()), 'h:mm a');
@@ -38,7 +34,6 @@ export function PrayerTimesTable({
     }
   };
 
-  // Get adjusted prayer time based on settings
   const getAdjustedPrayerTime = (prayerName: string, originalTime: string) => {
     if (!savedSettings?.prayer_adjustments) return originalTime;
 
@@ -88,38 +83,12 @@ export function PrayerTimesTable({
     return '';
   };
 
-  const calculationMethod = useMemo(() => {
-    type CalculationMethodType = keyof typeof CalculationMethod;
-    const method = Object.keys(CalculationMethod).find(
-      key => CalculationMethod[key as CalculationMethodType] === savedSettings?.calculation_method
-    );
-    return method?.replace(/_/g, ' ') || 'Not set';
-  }, [savedSettings?.calculation_method]);
-
-  const juristicSchool = useMemo(() => {
-    type JuristicSchoolType = keyof typeof JuristicSchool;
-    const school = Object.keys(JuristicSchool).find(
-      key => JuristicSchool[key as JuristicSchoolType] === savedSettings?.juristic_school
-    );
-    return school;
-  }, [savedSettings?.juristic_school]);
-
   return (
     <Card>
-      <CardHeader className='bg-primary/5 py-5'>
-        <CardTitle className='flex justify-between items-center'>
+      <CardHeader className='bg-primary/5'>
+        <CardTitle className='flex justify-between items-center mt-2'>
           <span>Prayer Times for {currentMonth}</span>
         </CardTitle>
-        <div className='flex flex-wrap items-center gap-1 text-sm '>
-          <div className='flex items-center gap-1'>
-            <Info size={14} />
-            <span>Method: {calculationMethod}</span>
-          </div>
-          <span className='hidden sm:inline'>•</span>
-          <div>
-            <span>School: {juristicSchool}</span>
-          </div>
-        </div>
       </CardHeader>
       <CardContent className='p-0 overflow-auto'>
         <Table>

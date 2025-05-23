@@ -173,8 +173,8 @@ export function PrayerTimingsModal({
             </RadioGroup>
 
             {type === 'offset' && (
-              <div className='space-y-2'>
-                <div className='flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2'>
+              <div className='space-y-3'>
+                <div className='flex flex-row xs:flex-row justify-between items-start xs:items-center gap-2'>
                   <Label>
                     Minutes to adjust ({offset > 0 ? '+' : ''}
                     {offset})
@@ -311,7 +311,7 @@ export function PrayerTimingsModal({
             </TabsContent>
 
             <TabsContent value='adjustments' className='space-y-4 pt-4'>
-              <div className='flex items-center gap-2 mb-4'>
+              <div className='flex items-center gap-2 mb-2'>
                 <Clock size={16} />
                 <h3 className='font-medium'>Prayer Time Adjustments</h3>
               </div>
