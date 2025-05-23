@@ -24,7 +24,7 @@ import {
   insertRecord,
   fetchByMultipleConditions,
 } from './helpers';
-import { generateMasjidCode } from '@/utils/general';
+import { generateMasjidCode } from '@/utils';
 
 // Get masjid profile for current user
 export async function getMasjidProfile(): Promise<MasjidProfile | null> {

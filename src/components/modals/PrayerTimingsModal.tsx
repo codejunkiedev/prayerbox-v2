@@ -31,7 +31,7 @@ import {
 } from '@/components/ui';
 import { CalculationMethod, JuristicSchool } from '@/constants';
 import { prayerTimingsFormSchema, type PrayerTimingsData } from '@/lib/zod';
-import { savePrayerTimeSettings } from '@/lib/supabase/services';
+import { savePrayerTimeSettings } from '@/lib/supabase';
 import { MapPin, Clock, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';

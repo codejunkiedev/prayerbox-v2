@@ -13,7 +13,7 @@ import {
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
 import { toast } from 'sonner';
 
 export default function Posts() {

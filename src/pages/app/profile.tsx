@@ -1,16 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button, Input, Label } from '@/components/ui';
 import {
   masjidProfileSchema,
   type MasjidProfileData,
   VALID_IMAGE_TYPES,
   MAX_FILE_SIZE,
 } from '@/lib/zod';
-import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase/services';
+import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { Copy, MapPin } from 'lucide-react';
 import { useTrigger } from '@/hooks';

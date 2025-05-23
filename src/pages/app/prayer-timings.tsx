@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { format } from 'date-fns';
 import { PrayerTimingsModal } from '@/components/modals';
-import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase/services';
+import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
 import { useTrigger } from '@/hooks';
