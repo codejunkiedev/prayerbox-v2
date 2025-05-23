@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { format, addMonths, subMonths } from 'date-fns';
-import { Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { PrayerTimingsModal } from '@/components/modals';
 import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase/services';
@@ -9,6 +9,7 @@ import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
 import { useTrigger } from '@/hooks';
 import { CalculationMethod, JuristicSchool } from '@/constants';
 import { fetchPrayerTimesForThisMonth } from '@/api';
+import { PageHeader } from '@/components/common/PageHeader';
 import {
   PrayerTimesTable,
   PrayerTimesLoading,
@@ -135,20 +136,15 @@ export default function SalahTimings() {
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <div className='flex justify-between items-center mb-6'>
-        <h1 className='text-2xl font-bold'>Prayer Times</h1>
-        <Button
-          variant='outline'
-          size='sm'
-          className='flex items-center gap-2'
-          onClick={handleOpenModal}
-        >
-          <Settings size={16} />
-          Settings
-        </Button>
-      </div>
+      <PageHeader
+        title='Prayer Times'
+        description='View and manage prayer times for your masjid'
+        showAddButton={false}
+        showSettingsButton={true}
+        onSettingsClick={handleOpenModal}
+      />
 
-      <div className='grid grid-cols-3 items-center mb-6'>
+      <div className='grid grid-cols-3 items-center my-6'>
         <div className='justify-self-start'>
           <Button
             variant='ghost'
