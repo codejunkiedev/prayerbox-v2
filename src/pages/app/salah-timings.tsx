@@ -1,7 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { format, addMonths, subMonths } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui';
+import { format } from 'date-fns';
 import { PrayerTimingsModal } from '@/components/modals';
 import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase/services';
 import { toast } from 'sonner';
@@ -17,6 +15,8 @@ import {
   LocationNotSet,
 } from '@/components/prayer-times';
 
+const currentDate = new Date();
+
 export default function SalahTimings() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes[] | null>(null);
@@ -27,10 +27,9 @@ export default function SalahTimings() {
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
   const [isFetchingCoordinates, setIsFetchingCoordinates] = useState(true);
   const [isFetchingTimes, setIsFetchingTimes] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const currentDay = useMemo(() => selectedDate.getDate() - 1, [selectedDate]);
-  const currentMonth = useMemo(() => format(selectedDate, 'MMMM yyyy'), [selectedDate]);
+  const currentDay = useMemo(() => currentDate.getDate() - 1, []);
+  const currentMonth = useMemo(() => format(currentDate, 'MMMM yyyy'), []);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -68,7 +67,7 @@ export default function SalahTimings() {
         if (!masjidCoordinates) return;
 
         const response = await fetchPrayerTimesForThisMonth({
-          date: selectedDate,
+          date: currentDate,
           latitude: masjidCoordinates.latitude,
           longitude: masjidCoordinates.longitude,
           method: savedSettings?.calculation_method ?? CalculationMethod.Shia_Ithna_Ashari,
@@ -95,25 +94,10 @@ export default function SalahTimings() {
     return () => {
       abortController.abort();
     };
-  }, [masjidCoordinates, selectedDate, trigger]);
+  }, [masjidCoordinates, trigger]);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
-  };
-
-  const handlePreviousMonth = () => {
-    setSelectedDate(prevDate => subMonths(prevDate, 1));
-    setPrayerTimes(null);
-  };
-
-  const handleNextMonth = () => {
-    setSelectedDate(prevDate => addMonths(prevDate, 1));
-    setPrayerTimes(null);
-  };
-
-  const handleResetToCurrentMonth = () => {
-    setSelectedDate(new Date());
-    setPrayerTimes(null);
   };
 
   const renderContent = () => {
@@ -154,39 +138,6 @@ export default function SalahTimings() {
         showSettingsButton={true}
         onSettingsClick={handleOpenModal}
       />
-
-      <div className='grid grid-cols-3 items-center my-6'>
-        <div className='justify-self-start'>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={handlePreviousMonth}
-            className='flex items-center gap-1'
-          >
-            <ChevronLeft size={16} />
-            Previous Month
-          </Button>
-        </div>
-        <div className='flex flex-col items-center justify-self-center'>
-          <h2 className='text-xl font-medium'>{currentMonth}</h2>
-          {format(selectedDate, 'MMMM yyyy') !== format(new Date(), 'MMMM yyyy') && (
-            <Button variant='link' size='sm' onClick={handleResetToCurrentMonth}>
-              Reset to current month
-            </Button>
-          )}
-        </div>
-        <div className='justify-self-end'>
-          <Button
-            variant='ghost'
-            size='sm'
-            onClick={handleNextMonth}
-            className='flex items-center gap-1'
-          >
-            Next Month
-            <ChevronRight size={16} />
-          </Button>
-        </div>
-      </div>
 
       {renderContent()}
 
