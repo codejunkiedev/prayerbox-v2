@@ -73,9 +73,9 @@ export function PrayerTimesTable({
 
     if (!adjustment || adjustment.type === 'default') return '';
 
-    if (adjustment.type === 'offset') {
+    if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
       return `(${adjustment.offset && adjustment.offset > 0 ? '+' : ''}${adjustment.offset} min)`;
-    } else if (adjustment.type === 'manual') {
+    } else if (adjustment.type === 'manual' && adjustment.manual_time !== undefined) {
       return '(manual)';
     }
 
