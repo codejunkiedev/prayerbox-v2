@@ -37,26 +37,28 @@ export function PrayerTimesTable({
   const getAdjustedPrayerTime = (prayerName: string, originalTime: string) => {
     if (!savedSettings?.prayer_adjustments) return originalTime;
 
+    const timeOnly = originalTime.split(' ')[0];
+
     const prayerKey = prayerName.toLowerCase() as keyof typeof savedSettings.prayer_adjustments;
     const adjustment = savedSettings.prayer_adjustments[prayerKey];
 
-    if (!adjustment) return originalTime;
+    if (!adjustment) return timeOnly;
 
     if (adjustment.type === 'default') {
-      return originalTime;
+      return timeOnly;
     } else if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
       try {
-        const parsedTime = parse(originalTime, 'HH:mm', new Date());
+        const parsedTime = parse(timeOnly, 'HH:mm', new Date());
         const adjustedTime = addMinutes(parsedTime, adjustment.offset);
         return format(adjustedTime, 'HH:mm');
       } catch {
-        return originalTime;
+        return timeOnly;
       }
     } else if (adjustment.type === 'manual' && adjustment.manual_time) {
       return adjustment.manual_time;
     }
 
-    return originalTime;
+    return timeOnly;
   };
 
   // Check if a prayer time has been adjusted

@@ -51,19 +51,17 @@ export function TimePicker({ time, setTime, disabled, minuteInterval = 5 }: Time
         <div className='flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x'>
           <ScrollArea className='w-64 sm:w-auto h-60'>
             <div className='flex sm:flex-col p-2 gap-1'>
-              {Array.from({ length: 12 }, (_, i) => i + 1)
-
-                .map(hour => (
-                  <Button
-                    key={hour}
-                    size='sm'
-                    variant={time && getHours(time) % 12 === hour % 12 ? 'default' : 'ghost'}
-                    className='sm:w-full h-9 shrink-0'
-                    onClick={() => handleTimeChange('hour', hour.toString())}
-                  >
-                    {hour}
-                  </Button>
-                ))}
+              {Array.from({ length: 12 }, (_, i) => i + 1).map(hour => (
+                <Button
+                  key={hour}
+                  size='sm'
+                  variant={time && getHours(time) % 12 === hour % 12 ? 'default' : 'ghost'}
+                  className='sm:w-full h-9 shrink-0'
+                  onClick={() => handleTimeChange('hour', hour.toString())}
+                >
+                  {hour}
+                </Button>
+              ))}
             </div>
             <ScrollBar orientation='horizontal' className='sm:hidden' />
           </ScrollArea>

@@ -211,8 +211,8 @@ export function PrayerTimingsModal({
                 </div>
                 <Slider
                   defaultValue={[offset]}
-                  min={-60}
-                  max={60}
+                  min={-120}
+                  max={120}
                   step={1}
                   onValueChange={value => handleOffsetChange(prayer, value)}
                 />

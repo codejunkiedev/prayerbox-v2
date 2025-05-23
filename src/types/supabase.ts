@@ -59,39 +59,22 @@ export interface Post extends Base {
   archived: boolean;
 }
 
+type PrayerAdjustmentType = 'offset' | 'manual' | 'default';
+type PrayerAdjustment = {
+  type: PrayerAdjustmentType;
+  offset?: number;
+  manual_time?: string;
+};
+
 export interface PrayerTimes extends Base {
   calculation_method: number;
   juristic_school: number;
   prayer_adjustments?: {
-    fajr: {
-      type: 'offset' | 'manual' | 'default';
-      offset?: number;
-      manual_time?: string;
-    };
-    sunrise: {
-      type: 'offset' | 'manual' | 'default';
-      offset?: number;
-      manual_time?: string;
-    };
-    dhuhr: {
-      type: 'offset' | 'manual' | 'default';
-      offset?: number;
-      manual_time?: string;
-    };
-    asr: {
-      type: 'offset' | 'manual' | 'default';
-      offset?: number;
-      manual_time?: string;
-    };
-    maghrib: {
-      type: 'offset' | 'manual' | 'default';
-      offset?: number;
-      manual_time?: string;
-    };
-    isha: {
-      type: 'offset' | 'manual' | 'default';
-      offset?: number;
-      manual_time?: string;
-    };
+    fajr: PrayerAdjustment;
+    sunrise: PrayerAdjustment;
+    dhuhr: PrayerAdjustment;
+    asr: PrayerAdjustment;
+    maghrib: PrayerAdjustment;
+    isha: PrayerAdjustment;
   };
 }
