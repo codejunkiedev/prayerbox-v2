@@ -21,4 +21,4 @@ export * from './tabs';
 export * from './accordion';
 export * from './radio-group';
 export * from './slider';
-export { Map } from './map';
+export * from './map';

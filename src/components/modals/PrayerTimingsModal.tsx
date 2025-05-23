@@ -146,7 +146,9 @@ export function PrayerTimingsModal({
 
     return (
       <AccordionItem value={prayer} key={prayer}>
-        <AccordionTrigger className='text-lg font-medium'>{PRAYER_LABELS[prayer]}</AccordionTrigger>
+        <AccordionTrigger className='text-sm font-medium py-2'>
+          {PRAYER_LABELS[prayer]}
+        </AccordionTrigger>
         <AccordionContent>
           <div className='space-y-4'>
             <RadioGroup
@@ -154,7 +156,7 @@ export function PrayerTimingsModal({
               onValueChange={value =>
                 handlePrayerTypeChange(prayer, value as 'offset' | 'manual' | 'default')
               }
-              className='grid grid-cols-3 gap-2'
+              className='flex flex-row gap-4'
             >
               <div className='flex items-center space-x-2'>
                 <RadioGroupItem value='default' id={`${prayer}-default`} />
@@ -172,17 +174,17 @@ export function PrayerTimingsModal({
 
             {type === 'offset' && (
               <div className='space-y-2'>
-                <div className='flex justify-between items-center'>
+                <div className='flex flex-col xs:flex-row justify-between items-start xs:items-center gap-2'>
                   <Label>
                     Minutes to adjust ({offset > 0 ? '+' : ''}
                     {offset})
                   </Label>
-                  <div className='flex items-center gap-1'>
-                    <Minus className='h-4 w-4 text-muted-foreground' />
-                    <span className='text-xs text-muted-foreground'>Earlier</span>
-                    <span className='mx-2'>|</span>
-                    <span className='text-xs text-muted-foreground'>Later</span>
-                    <Plus className='h-4 w-4 text-muted-foreground' />
+                  <div className='flex items-center gap-1 text-xs'>
+                    <Minus className='h-3 w-3 text-muted-foreground' />
+                    <span className='text-muted-foreground'>Earlier</span>
+                    <span className='mx-1'>|</span>
+                    <span className='text-muted-foreground'>Later</span>
+                    <Plus className='h-3 w-3 text-muted-foreground' />
                   </div>
                 </div>
                 <Slider
@@ -214,7 +216,7 @@ export function PrayerTimingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[500px]'>
+      <DialogContent className='sm:max-w-[500px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle>Prayer Times Settings</DialogTitle>
         </DialogHeader>
@@ -269,7 +271,7 @@ export function PrayerTimingsModal({
                   <MapPin size={16} />
                   <Label>Masjid Location</Label>
                 </div>
-                <div className='grid grid-cols-2 gap-3'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
                   <div>
                     <Label htmlFor='latitude' className='text-xs text-muted-foreground'>
                       Latitude
@@ -325,11 +327,16 @@ export function PrayerTimingsModal({
             </TabsContent>
           </Tabs>
 
-          <DialogFooter>
-            <Button type='button' variant='outline' onClick={onClose}>
+          <DialogFooter className='flex flex-col sm:flex-row gap-2 sm:gap-0'>
+            <Button type='button' variant='outline' onClick={onClose} className='w-full sm:w-auto'>
               Cancel
             </Button>
-            <Button type='submit' loading={isSubmitting} disabled={!masjidCoordinates}>
+            <Button
+              type='submit'
+              loading={isSubmitting}
+              disabled={!masjidCoordinates}
+              className='w-full sm:w-auto'
+            >
               {isSubmitting ? 'Saving...' : 'Save Settings'}
             </Button>
           </DialogFooter>
