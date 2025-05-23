@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui';
-import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
+import type { AlAdhanPrayerTimes, PrayerAdjustments, PrayerTimes } from '@/types';
 
 interface PrayerTimesTableProps {
   prayerTimes: AlAdhanPrayerTimes[];
@@ -20,13 +20,15 @@ interface PrayerTimesTableProps {
   currentMonth: string;
 }
 
+type PrayerName = keyof PrayerAdjustments;
+
 export function PrayerTimesTable({
   prayerTimes,
   savedSettings,
   currentDay,
   currentMonth,
 }: PrayerTimesTableProps) {
-  const formatTime = (timeString: string) => {
+  const formatTime = (timeString: string): string => {
     try {
       return format(parse(timeString, 'HH:mm', new Date()), 'h:mm a');
     } catch {
@@ -34,13 +36,11 @@ export function PrayerTimesTable({
     }
   };
 
-  const getAdjustedPrayerTime = (prayerName: string, originalTime: string) => {
+  const getAdjustedPrayerTime = (prayerName: PrayerName, originalTime: string): string => {
     if (!savedSettings?.prayer_adjustments) return originalTime;
 
     const timeOnly = originalTime.split(' ')[0];
-
-    const prayerKey = prayerName.toLowerCase() as keyof typeof savedSettings.prayer_adjustments;
-    const adjustment = savedSettings.prayer_adjustments[prayerKey];
+    const adjustment = savedSettings.prayer_adjustments[prayerName];
 
     if (!adjustment) return timeOnly;
 
@@ -62,17 +62,15 @@ export function PrayerTimesTable({
   };
 
   // Check if a prayer time has been adjusted
-  const isPrayerAdjusted = (prayerName: string) => {
+  const isPrayerAdjusted = (prayerName: PrayerName): boolean => {
     if (!savedSettings?.prayer_adjustments) return false;
-    const prayerKey = prayerName.toLowerCase() as keyof typeof savedSettings.prayer_adjustments;
-    const adjustment = savedSettings.prayer_adjustments[prayerKey];
+    const adjustment = savedSettings.prayer_adjustments[prayerName];
     return adjustment && adjustment.type !== 'default';
   };
 
-  const getAdjustmentLabel = (prayerName: string) => {
+  const getAdjustmentLabel = (prayerName: PrayerName): string => {
     if (!savedSettings?.prayer_adjustments) return '';
-    const prayerKey = prayerName.toLowerCase() as keyof typeof savedSettings.prayer_adjustments;
-    const adjustment = savedSettings.prayer_adjustments[prayerKey];
+    const adjustment = savedSettings.prayer_adjustments[prayerName];
 
     if (!adjustment || adjustment.type === 'default') return '';
 
@@ -167,22 +165,22 @@ export function PrayerTimesTable({
               >
                 <TableCell className='font-medium text-center'>{day.date.gregorian.day}</TableCell>
                 <TableCell className='text-center'>
-                  {formatTime(getAdjustedPrayerTime('Fajr', day.timings.Fajr))}
+                  {formatTime(getAdjustedPrayerTime('fajr', day.timings.Fajr))}
                 </TableCell>
                 <TableCell className='text-center'>
-                  {formatTime(getAdjustedPrayerTime('Sunrise', day.timings.Sunrise))}
+                  {formatTime(getAdjustedPrayerTime('sunrise', day.timings.Sunrise))}
                 </TableCell>
                 <TableCell className='text-center'>
-                  {formatTime(getAdjustedPrayerTime('Dhuhr', day.timings.Dhuhr))}
+                  {formatTime(getAdjustedPrayerTime('dhuhr', day.timings.Dhuhr))}
                 </TableCell>
                 <TableCell className='text-center'>
-                  {formatTime(getAdjustedPrayerTime('Asr', day.timings.Asr))}
+                  {formatTime(getAdjustedPrayerTime('asr', day.timings.Asr))}
                 </TableCell>
                 <TableCell className='text-center'>
-                  {formatTime(getAdjustedPrayerTime('Maghrib', day.timings.Maghrib))}
+                  {formatTime(getAdjustedPrayerTime('maghrib', day.timings.Maghrib))}
                 </TableCell>
                 <TableCell className='text-center'>
-                  {formatTime(getAdjustedPrayerTime('Isha', day.timings.Isha))}
+                  {formatTime(getAdjustedPrayerTime('isha', day.timings.Isha))}
                 </TableCell>
               </TableRow>
             ))}

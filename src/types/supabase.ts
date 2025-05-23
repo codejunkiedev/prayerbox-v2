@@ -1,3 +1,5 @@
+import type { PrayerAdjustmentData } from '@/lib/zod';
+
 export enum SupabaseTables {
   MasjidProfiles = 'masjid_profiles',
   AyatAndHadith = 'ayat_and_hadith',
@@ -59,22 +61,23 @@ export interface Post extends Base {
   archived: boolean;
 }
 
-type PrayerAdjustmentType = 'offset' | 'manual' | 'default';
-type PrayerAdjustment = {
-  type: PrayerAdjustmentType;
+export interface PrayerAdjustment {
+  type: PrayerAdjustmentData['type'];
   offset?: number;
   manual_time?: string;
-};
+}
+
+export interface PrayerAdjustments {
+  fajr: PrayerAdjustment;
+  sunrise: PrayerAdjustment;
+  dhuhr: PrayerAdjustment;
+  asr: PrayerAdjustment;
+  maghrib: PrayerAdjustment;
+  isha: PrayerAdjustment;
+}
 
 export interface PrayerTimes extends Base {
   calculation_method: number;
   juristic_school: number;
-  prayer_adjustments?: {
-    fajr: PrayerAdjustment;
-    sunrise: PrayerAdjustment;
-    dhuhr: PrayerAdjustment;
-    asr: PrayerAdjustment;
-    maghrib: PrayerAdjustment;
-    isha: PrayerAdjustment;
-  };
+  prayer_adjustments?: PrayerAdjustments;
 }

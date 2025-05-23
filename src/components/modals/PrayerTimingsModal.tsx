@@ -36,6 +36,7 @@ import { MapPin, Clock, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';
 import { format, parse } from 'date-fns';
+import type { PrayerAdjustments } from '@/types';
 
 interface PrayerTimingsModalProps {
   isOpen: boolean;
@@ -45,16 +46,9 @@ interface PrayerTimingsModalProps {
   initialValues: PrayerTimingsData | null;
 }
 
-type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
+type PrayerName = keyof PrayerAdjustments;
+type PrayerAdjustmentType = PrayerAdjustments[PrayerName]['type'];
 const PRAYER_NAMES: PrayerName[] = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
-const PRAYER_LABELS: Record<PrayerName, string> = {
-  fajr: 'Fajr',
-  sunrise: 'Sunrise',
-  dhuhr: 'Dhuhr',
-  asr: 'Asr',
-  maghrib: 'Maghrib',
-  isha: 'Isha',
-};
 
 export function PrayerTimingsModal({
   isOpen,
@@ -124,19 +118,19 @@ export function PrayerTimingsModal({
   const juristicSchool = watch('juristic_school');
   const prayerAdjustments = watch('prayer_adjustments');
 
-  const handleMethodChange = (value: string) => {
+  const handleMethodChange = (value: string): void => {
     setValue('calculation_method', parseInt(value));
   };
 
-  const handleSchoolChange = (value: string) => {
+  const handleSchoolChange = (value: string): void => {
     setValue('juristic_school', parseInt(value));
   };
 
-  const handlePrayerTypeChange = (prayer: PrayerName, type: 'offset' | 'manual' | 'default') => {
+  const handlePrayerTypeChange = (prayer: PrayerName, type: PrayerAdjustmentType): void => {
     setValue(`prayer_adjustments.${prayer}.type`, type);
   };
 
-  const handleOffsetChange = (prayer: PrayerName, value: number[]) => {
+  const handleOffsetChange = (prayer: PrayerName, value: number[]): void => {
     setValue(`prayer_adjustments.${prayer}.offset`, value[0]);
   };
 
@@ -145,7 +139,6 @@ export function PrayerTimingsModal({
     const offset = prayerAdjustments?.[prayer]?.offset || 0;
     const manualTime = prayerAdjustments?.[prayer]?.manual_time || '';
 
-    // Convert string time to Date object for TimePicker
     const getTimeFromString = (timeString: string): Date | undefined => {
       if (!timeString) return undefined;
       try {
@@ -155,29 +148,26 @@ export function PrayerTimingsModal({
       }
     };
 
-    // Convert Date object back to string time for form submission
     const getStringFromTime = (time: Date): string => {
       return format(time, 'HH:mm');
     };
 
     const timeValue = getTimeFromString(manualTime);
 
-    const handleTimeChange = (time: Date) => {
+    const handleTimeChange = (time: Date): void => {
       setValue(`prayer_adjustments.${prayer}.manual_time`, getStringFromTime(time));
     };
 
     return (
       <AccordionItem value={prayer} key={prayer}>
-        <AccordionTrigger className='text-sm font-medium py-2'>
-          {PRAYER_LABELS[prayer]}
+        <AccordionTrigger className='text-sm font-medium py-2 capitalize'>
+          {prayer}
         </AccordionTrigger>
         <AccordionContent>
           <div className='space-y-4'>
             <RadioGroup
               value={type}
-              onValueChange={value =>
-                handlePrayerTypeChange(prayer, value as 'offset' | 'manual' | 'default')
-              }
+              onValueChange={value => handlePrayerTypeChange(prayer, value as PrayerAdjustmentType)}
               className='flex flex-row gap-4'
             >
               <div className='flex items-center space-x-2'>
@@ -252,11 +242,13 @@ export function PrayerTimingsModal({
                     <SelectValue placeholder='Select calculation method' />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(CalculationMethod).map(([key, value]) => (
-                      <SelectItem key={key} value={value.toString()}>
-                        {key.replace(/_/g, ' ')}
-                      </SelectItem>
-                    ))}
+                    {Object.entries(CalculationMethod)
+                      .filter(([key]) => isNaN(Number(key)))
+                      .map(([key, value]) => (
+                        <SelectItem key={key} value={value.toString()}>
+                          {key.replace(/_/g, ' ')}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 {errors.calculation_method && (
@@ -271,11 +263,13 @@ export function PrayerTimingsModal({
                     <SelectValue placeholder='Select juristic school' />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(JuristicSchool).map(([key, value]) => (
-                      <SelectItem key={key} value={value.toString()}>
-                        {key}
-                      </SelectItem>
-                    ))}
+                    {Object.entries(JuristicSchool)
+                      .filter(([key]) => isNaN(Number(key)))
+                      .map(([key, value]) => (
+                        <SelectItem key={key} value={value.toString()}>
+                          {key}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 {errors.juristic_school && (

@@ -3,15 +3,20 @@ import { getMonth, getYear } from 'date-fns';
 
 const AlAdhanBaseUrl = 'https://api.aladhan.com/v1';
 
-type Payload = {
+interface PrayerTimesPayload {
   date: Date;
   latitude: number;
   longitude: number;
   method: number;
   school: number;
   signal?: AbortSignal;
-};
-type Response<T> = { data: T; status: string; code: number };
+}
+
+interface ApiResponse<T> {
+  data: T;
+  status: string;
+  code: number;
+}
 
 export const fetchPrayerTimesForThisMonth = async ({
   date,
@@ -20,7 +25,7 @@ export const fetchPrayerTimesForThisMonth = async ({
   method,
   school,
   signal,
-}: Payload): Promise<Response<AlAdhanPrayerTimes[]>> => {
+}: PrayerTimesPayload): Promise<ApiResponse<AlAdhanPrayerTimes[]>> => {
   const [year, month] = [getYear(date), getMonth(date)];
 
   const url = new URL(`${AlAdhanBaseUrl}/calendar/${year}/${month}`);

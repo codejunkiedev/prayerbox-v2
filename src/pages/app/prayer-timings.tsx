@@ -17,16 +17,18 @@ import {
 
 const currentDate = new Date();
 
+interface MasjidCoordinates {
+  latitude: number;
+  longitude: number;
+}
+
 export default function PrayerTimings() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes[] | null>(null);
-  const [masjidCoordinates, setMasjidCoordinates] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
+  const [masjidCoordinates, setMasjidCoordinates] = useState<MasjidCoordinates | null>(null);
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
-  const [isFetchingCoordinates, setIsFetchingCoordinates] = useState(true);
-  const [isFetchingTimes, setIsFetchingTimes] = useState(false);
+  const [isFetchingCoordinates, setIsFetchingCoordinates] = useState<boolean>(true);
+  const [isFetchingTimes, setIsFetchingTimes] = useState<boolean>(false);
 
   const currentDay = useMemo(() => currentDate.getDate() - 1, []);
   const currentMonth = useMemo(() => format(currentDate, 'MMMM yyyy'), []);
