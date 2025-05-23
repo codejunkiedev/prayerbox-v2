@@ -128,6 +128,14 @@ export function PrayerTimingsModal({
 
   const handlePrayerTypeChange = (prayer: PrayerName, type: PrayerAdjustmentType): void => {
     setValue(`prayer_adjustments.${prayer}.type`, type);
+    if (type === 'offset') {
+      setValue(`prayer_adjustments.${prayer}.manual_time`, undefined);
+    } else if (type === 'manual') {
+      setValue(`prayer_adjustments.${prayer}.offset`, undefined);
+    } else if (type === 'default') {
+      setValue(`prayer_adjustments.${prayer}.offset`, undefined);
+      setValue(`prayer_adjustments.${prayer}.manual_time`, undefined);
+    }
   };
 
   const handleOffsetChange = (prayer: PrayerName, value: number[]): void => {
