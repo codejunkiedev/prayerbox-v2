@@ -17,4 +17,8 @@ export * from './sonner';
 export * from './date-time-picker';
 export * from './image-upload';
 export * from './password-strength-meter';
+export * from './tabs';
+export * from './accordion';
+export * from './radio-group';
+export * from './slider';
 export { Map } from './map';

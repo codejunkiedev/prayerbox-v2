@@ -1,20 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
-import { format, parse } from 'date-fns';
+import { format, parse, addMinutes } from 'date-fns';
 import { CalendarIcon, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
 import { PrayerTimingsModal } from '@/components/modals';
 import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase/services';
-import { fetchPrayerTimesForDate } from '@/api';
 import { toast } from 'sonner';
-import type { PrayerTimes, PrayerTimesForDate } from '@/types';
+import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
 import { useTrigger } from '@/hooks';
 import { AppRoutes, CalculationMethod, JuristicSchool } from '@/constants';
 import { Link } from 'react-router';
+import { fetchPrayerTimesForThisMonth } from '@/api';
 
 export default function SalahTimings() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [prayerTimes, setPrayerTimes] = useState<PrayerTimesForDate | null>(null);
+  const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes[] | null>(null);
   const [masjidCoordinates, setMasjidCoordinates] = useState<{
     latitude: number;
     longitude: number;
@@ -22,6 +21,7 @@ export default function SalahTimings() {
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
   const [isFetchingCoordinates, setIsFetchingCoordinates] = useState(true);
   const [isFetchingTimes, setIsFetchingTimes] = useState(false);
+  const [currentDay, setCurrentDay] = useState(0); // Index of the current day in the prayer times array
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -56,9 +56,8 @@ export default function SalahTimings() {
           setSavedSettings(savedSettings);
         }
 
-        const today = format(new Date(), 'dd-MM-yyyy');
-        const response = await fetchPrayerTimesForDate({
-          date: today,
+        const response = await fetchPrayerTimesForThisMonth({
+          date: new Date(),
           latitude: masjidCoordinates.latitude,
           longitude: masjidCoordinates.longitude,
           method: savedSettings?.calculation_method ?? CalculationMethod.Shia_Ithna_Ashari,
@@ -66,6 +65,11 @@ export default function SalahTimings() {
         });
 
         setPrayerTimes(response.data);
+
+        // Set current day to today's index in the month
+        const today = new Date().getDate() - 1; // 0-indexed
+        setCurrentDay(today);
+
         toast.success('Fetched prayer times successfully');
       } catch (error) {
         console.error('Error fetching prayer times:', error);
@@ -86,6 +90,32 @@ export default function SalahTimings() {
     }
   };
 
+  // Get adjusted prayer time based on settings
+  const getAdjustedPrayerTime = (prayerName: string, originalTime: string) => {
+    if (!savedSettings?.prayer_adjustments) return originalTime;
+
+    const prayerKey = prayerName.toLowerCase() as keyof typeof savedSettings.prayer_adjustments;
+    const adjustment = savedSettings.prayer_adjustments[prayerKey];
+
+    if (!adjustment) return originalTime;
+
+    if (adjustment.type === 'default') {
+      return originalTime;
+    } else if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
+      try {
+        const parsedTime = parse(originalTime, 'HH:mm', new Date());
+        const adjustedTime = addMinutes(parsedTime, adjustment.offset);
+        return format(adjustedTime, 'HH:mm');
+      } catch {
+        return originalTime;
+      }
+    } else if (adjustment.type === 'manual' && adjustment.manual_time) {
+      return adjustment.manual_time;
+    }
+
+    return originalTime;
+  };
+
   const calculationMethod = useMemo(() => {
     type CalculationMethodType = keyof typeof CalculationMethod;
     const method = Object.keys(CalculationMethod).find(
@@ -101,6 +131,12 @@ export default function SalahTimings() {
     );
     return school?.replace(/_/g, ' ');
   }, [savedSettings?.juristic_school]);
+
+  // Get current day's prayer times
+  const todayPrayerTimes = useMemo(() => {
+    if (!prayerTimes || !prayerTimes[currentDay]) return null;
+    return prayerTimes[currentDay];
+  }, [prayerTimes, currentDay]);
 
   return (
     <div className='container mx-auto px-4 py-8'>
@@ -136,7 +172,7 @@ export default function SalahTimings() {
               <div className='animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full'></div>
               <span className='sr-only'>Fetching prayer times...</span>
             </div>
-          ) : prayerTimes ? (
+          ) : todayPrayerTimes ? (
             <>
               <Card>
                 <CardHeader className='bg-primary/5 pb-2'>
@@ -144,12 +180,21 @@ export default function SalahTimings() {
                     <span>Fajr</span>
                     <span className='text-sm font-normal flex items-center gap-1'>
                       <CalendarIcon size={14} />
-                      {prayerTimes.date.readable}
+                      {todayPrayerTimes.date.readable}
                     </span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>{formatTime(prayerTimes.timings.Fajr)}</p>
+                  <p className='text-3xl font-bold'>
+                    {formatTime(getAdjustedPrayerTime('Fajr', todayPrayerTimes.timings.Fajr))}
+                  </p>
+                  {savedSettings?.prayer_adjustments?.fajr?.type !== 'default' && (
+                    <p className='text-xs text-muted-foreground mt-1'>
+                      {savedSettings?.prayer_adjustments?.fajr?.type === 'offset'
+                        ? `Adjusted by ${savedSettings.prayer_adjustments.fajr.offset} minutes`
+                        : 'Manually set'}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -158,7 +203,9 @@ export default function SalahTimings() {
                   <CardTitle>Sunrise</CardTitle>
                 </CardHeader>
                 <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>{formatTime(prayerTimes.timings.Sunrise)}</p>
+                  <p className='text-3xl font-bold'>
+                    {formatTime(todayPrayerTimes.timings.Sunrise)}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -167,7 +214,16 @@ export default function SalahTimings() {
                   <CardTitle>Dhuhr</CardTitle>
                 </CardHeader>
                 <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>{formatTime(prayerTimes.timings.Dhuhr)}</p>
+                  <p className='text-3xl font-bold'>
+                    {formatTime(getAdjustedPrayerTime('Dhuhr', todayPrayerTimes.timings.Dhuhr))}
+                  </p>
+                  {savedSettings?.prayer_adjustments?.dhuhr?.type !== 'default' && (
+                    <p className='text-xs text-muted-foreground mt-1'>
+                      {savedSettings?.prayer_adjustments?.dhuhr?.type === 'offset'
+                        ? `Adjusted by ${savedSettings.prayer_adjustments.dhuhr.offset} minutes`
+                        : 'Manually set'}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -176,7 +232,16 @@ export default function SalahTimings() {
                   <CardTitle>Asr</CardTitle>
                 </CardHeader>
                 <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>{formatTime(prayerTimes.timings.Asr)}</p>
+                  <p className='text-3xl font-bold'>
+                    {formatTime(getAdjustedPrayerTime('Asr', todayPrayerTimes.timings.Asr))}
+                  </p>
+                  {savedSettings?.prayer_adjustments?.asr?.type !== 'default' && (
+                    <p className='text-xs text-muted-foreground mt-1'>
+                      {savedSettings?.prayer_adjustments?.asr?.type === 'offset'
+                        ? `Adjusted by ${savedSettings.prayer_adjustments.asr.offset} minutes`
+                        : 'Manually set'}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -185,7 +250,16 @@ export default function SalahTimings() {
                   <CardTitle>Maghrib</CardTitle>
                 </CardHeader>
                 <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>{formatTime(prayerTimes.timings.Maghrib)}</p>
+                  <p className='text-3xl font-bold'>
+                    {formatTime(getAdjustedPrayerTime('Maghrib', todayPrayerTimes.timings.Maghrib))}
+                  </p>
+                  {savedSettings?.prayer_adjustments?.maghrib?.type !== 'default' && (
+                    <p className='text-xs text-muted-foreground mt-1'>
+                      {savedSettings?.prayer_adjustments?.maghrib?.type === 'offset'
+                        ? `Adjusted by ${savedSettings.prayer_adjustments.maghrib.offset} minutes`
+                        : 'Manually set'}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -194,7 +268,16 @@ export default function SalahTimings() {
                   <CardTitle>Isha</CardTitle>
                 </CardHeader>
                 <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>{formatTime(prayerTimes.timings.Isha)}</p>
+                  <p className='text-3xl font-bold'>
+                    {formatTime(getAdjustedPrayerTime('Isha', todayPrayerTimes.timings.Isha))}
+                  </p>
+                  {savedSettings?.prayer_adjustments?.isha?.type !== 'default' && (
+                    <p className='text-xs text-muted-foreground mt-1'>
+                      {savedSettings?.prayer_adjustments?.isha?.type === 'offset'
+                        ? `Adjusted by ${savedSettings.prayer_adjustments.isha.offset} minutes`
+                        : 'Manually set'}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 

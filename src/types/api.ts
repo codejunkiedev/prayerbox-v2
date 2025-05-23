@@ -1,4 +1,4 @@
-export type PrayerTimesForDate = {
+export type AlAdhanPrayerTimes = {
   timings: {
     Fajr: string;
     Sunrise: string;
