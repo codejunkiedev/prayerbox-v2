@@ -17,7 +17,7 @@ import {
 
 const currentDate = new Date();
 
-export default function SalahTimings() {
+export default function PrayerTimings() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes[] | null>(null);
   const [masjidCoordinates, setMasjidCoordinates] = useState<{

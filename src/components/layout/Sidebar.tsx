@@ -53,8 +53,8 @@ export default function Sidebar() {
       icon: <File size={20} />,
     },
     {
-      label: 'Salah Timings',
-      path: AppRoutes.SalahTimings,
+      label: 'Prayer Timings',
+      path: AppRoutes.PrayerTimings,
       icon: <Clock size={20} />,
     },
   ];

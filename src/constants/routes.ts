@@ -13,5 +13,5 @@ export enum AppRoutes {
   Announcements = '/announcements',
   Events = '/events',
   Posts = '/posts',
-  SalahTimings = '/salah-timings',
+  PrayerTimings = '/prayer-timings',
 }
