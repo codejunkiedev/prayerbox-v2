@@ -2,6 +2,8 @@ import type { PrayerTimesForDate } from '@/types';
 
 const AlAdhanBaseUrl = 'https://api.aladhan.com/v1';
 
+type Response<T> = { data: T; status: string; code: number };
+
 type FetchPrayerTimesForDatePayload = {
   date: string;
   latitude: number;
@@ -16,21 +18,16 @@ export const fetchPrayerTimesForDate = async ({
   longitude,
   method,
   school,
-}: FetchPrayerTimesForDatePayload): Promise<PrayerTimesForDate> => {
+}: FetchPrayerTimesForDatePayload): Promise<Response<PrayerTimesForDate>> => {
   const url = new URL(`${AlAdhanBaseUrl}/timings/${date}`);
   url.searchParams.set('latitude', latitude.toString());
   url.searchParams.set('longitude', longitude.toString());
   url.searchParams.set('method', method.toString());
   url.searchParams.set('school', school.toString());
 
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  });
+  const response = await fetch(url);
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch prayer times');
-  }
+  if (!response.ok) throw new Error('Failed to fetch prayer times');
 
   return response.json();
 };

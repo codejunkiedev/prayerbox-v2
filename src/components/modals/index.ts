@@ -5,3 +5,4 @@ export * from './AnnouncementModal';
 export * from './EventModal';
 export * from './PostModal';
 export * from './MapModal';
+export * from './PrayerTimingsModal';
