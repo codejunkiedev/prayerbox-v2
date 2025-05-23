@@ -52,8 +52,8 @@ export function PrayerTimingsModal({
     resolver: zodResolver(prayerTimingsFormSchema),
     defaultValues: {
       calculation_method:
-        initialValues?.calculation_method || CalculationMethod.Muslim_World_League,
-      juristic_school: initialValues?.juristic_school || JuristicSchool.Shafi,
+        initialValues?.calculation_method ?? CalculationMethod.Muslim_World_League,
+      juristic_school: initialValues?.juristic_school ?? JuristicSchool.Shafi,
     },
   });
 

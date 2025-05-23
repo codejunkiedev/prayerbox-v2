@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { format, parse } from 'date-fns';
 import { CalendarIcon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -61,8 +61,8 @@ export default function SalahTimings() {
           date: today,
           latitude: masjidCoordinates.latitude,
           longitude: masjidCoordinates.longitude,
-          method: savedSettings?.calculation_method || CalculationMethod.Muslim_World_League,
-          school: savedSettings?.juristic_school || JuristicSchool.Shafi,
+          method: savedSettings?.calculation_method ?? CalculationMethod.Shia_Ithna_Ashari,
+          school: savedSettings?.juristic_school ?? JuristicSchool.Shafi,
         });
 
         setPrayerTimes(response.data);
@@ -85,6 +85,22 @@ export default function SalahTimings() {
       return timeString;
     }
   };
+
+  const calculationMethod = useMemo(() => {
+    type CalculationMethodType = keyof typeof CalculationMethod;
+    const method = Object.keys(CalculationMethod).find(
+      key => CalculationMethod[key as CalculationMethodType] === savedSettings?.calculation_method
+    );
+    return method?.replace(/_/g, ' ');
+  }, [savedSettings?.calculation_method]);
+
+  const juristicSchool = useMemo(() => {
+    type JuristicSchoolType = keyof typeof JuristicSchool;
+    const school = Object.keys(JuristicSchool).find(
+      key => JuristicSchool[key as JuristicSchoolType] === savedSettings?.juristic_school
+    );
+    return school?.replace(/_/g, ' ');
+  }, [savedSettings?.juristic_school]);
 
   return (
     <div className='container mx-auto px-4 py-8'>
@@ -190,11 +206,11 @@ export default function SalahTimings() {
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                     <div>
                       <p className='font-semibold'>Method:</p>
-                      <p>{prayerTimes.meta.method.name}</p>
+                      <p>{calculationMethod}</p>
                     </div>
                     <div>
                       <p className='font-semibold'>School:</p>
-                      <p>{prayerTimes.meta.school}</p>
+                      <p>{juristicSchool?.replace(/_/g, ' ')}</p>
                     </div>
                   </div>
                 </CardContent>

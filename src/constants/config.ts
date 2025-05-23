@@ -1,5 +1,5 @@
 export const CalculationMethod = {
-  Jafari: 0,
+  Shia_Ithna_Ashari: 0,
   University_Of_Islamic_Sciences_Karachi: 1,
   Islamic_Society_Of_North_America: 2,
   Muslim_World_League: 3,
