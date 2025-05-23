@@ -15,6 +15,7 @@ export * from './calendar';
 export * from './scroll-area';
 export * from './sonner';
 export * from './date-time-picker';
+export * from './time-picker';
 export * from './image-upload';
 export * from './password-strength-meter';
 export * from './tabs';

@@ -27,6 +27,7 @@ import {
   RadioGroup,
   RadioGroupItem,
   Slider,
+  TimePicker,
 } from '@/components/ui';
 import { CalculationMethod, JuristicSchool } from '@/constants';
 import { prayerTimingsFormSchema, type PrayerTimingsData } from '@/lib/zod';
@@ -34,6 +35,7 @@ import { savePrayerTimeSettings } from '@/lib/supabase/services';
 import { MapPin, Clock, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';
+import { format, parse } from 'date-fns';
 
 interface PrayerTimingsModalProps {
   isOpen: boolean;
@@ -69,7 +71,6 @@ export function PrayerTimingsModal({
     formState: { errors },
     setValue,
     watch,
-    register,
   } = useForm<PrayerTimingsData>({
     resolver: zodResolver(prayerTimingsFormSchema),
     defaultValues: {
@@ -144,6 +145,27 @@ export function PrayerTimingsModal({
     const offset = prayerAdjustments?.[prayer]?.offset || 0;
     const manualTime = prayerAdjustments?.[prayer]?.manual_time || '';
 
+    // Convert string time to Date object for TimePicker
+    const getTimeFromString = (timeString: string): Date | undefined => {
+      if (!timeString) return undefined;
+      try {
+        return parse(timeString, 'HH:mm', new Date());
+      } catch {
+        return undefined;
+      }
+    };
+
+    // Convert Date object back to string time for form submission
+    const getStringFromTime = (time: Date): string => {
+      return format(time, 'HH:mm');
+    };
+
+    const timeValue = getTimeFromString(manualTime);
+
+    const handleTimeChange = (time: Date) => {
+      setValue(`prayer_adjustments.${prayer}.manual_time`, getStringFromTime(time));
+    };
+
     return (
       <AccordionItem value={prayer} key={prayer}>
         <AccordionTrigger className='text-sm font-medium py-2'>
@@ -199,13 +221,8 @@ export function PrayerTimingsModal({
 
             {type === 'manual' && (
               <div className='space-y-2'>
-                <Label htmlFor={`${prayer}-manual-time`}>Time (24h format)</Label>
-                <Input
-                  id={`${prayer}-manual-time`}
-                  type='time'
-                  {...register(`prayer_adjustments.${prayer}.manual_time`)}
-                  defaultValue={manualTime}
-                />
+                <Label htmlFor={`${prayer}-manual-time`}>Select Time</Label>
+                <TimePicker time={timeValue} setTime={handleTimeChange} />
               </div>
             )}
           </div>
