@@ -1,5 +1,6 @@
 import { format, parse, addMinutes } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
+import { useMemo } from 'react';
+import { Info } from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -13,6 +14,7 @@ import {
   TableRow,
 } from '@/components/ui';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
+import { CalculationMethod, JuristicSchool } from '@/constants';
 
 interface PrayerTimesTableProps {
   prayerTimes: AlAdhanPrayerTimes[];
@@ -70,7 +72,6 @@ export function PrayerTimesTable({
     return adjustment && adjustment.type !== 'default';
   };
 
-  // Get adjustment type label
   const getAdjustmentLabel = (prayerName: string) => {
     if (!savedSettings?.prayer_adjustments) return '';
     const prayerKey = prayerName.toLowerCase() as keyof typeof savedSettings.prayer_adjustments;
@@ -87,69 +88,103 @@ export function PrayerTimesTable({
     return '';
   };
 
+  const calculationMethod = useMemo(() => {
+    type CalculationMethodType = keyof typeof CalculationMethod;
+    const method = Object.keys(CalculationMethod).find(
+      key => CalculationMethod[key as CalculationMethodType] === savedSettings?.calculation_method
+    );
+    return method?.replace(/_/g, ' ') || 'Not set';
+  }, [savedSettings?.calculation_method]);
+
+  const juristicSchool = useMemo(() => {
+    type JuristicSchoolType = keyof typeof JuristicSchool;
+    const school = Object.keys(JuristicSchool).find(
+      key => JuristicSchool[key as JuristicSchoolType] === savedSettings?.juristic_school
+    );
+    return school;
+  }, [savedSettings?.juristic_school]);
+
   return (
     <Card>
-      <CardHeader className='bg-primary/5'>
+      <CardHeader className='bg-primary/5 py-5'>
         <CardTitle className='flex justify-between items-center'>
           <span>Prayer Times for {currentMonth}</span>
-          <div className='flex items-center gap-2'>
-            <CalendarIcon size={16} />
-            <span className='text-sm'>
-              {prayerTimes[0].date.gregorian.month.en} {prayerTimes[0].date.gregorian.year}
-            </span>
-          </div>
         </CardTitle>
+        <div className='flex flex-wrap items-center gap-1 text-sm '>
+          <div className='flex items-center gap-1'>
+            <Info size={14} />
+            <span>Method: {calculationMethod}</span>
+          </div>
+          <span className='hidden sm:inline'>•</span>
+          <div>
+            <span>School: {juristicSchool}</span>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className='p-0 overflow-auto'>
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead className='w-[80px]'>Date</TableHead>
-              <TableHead>
-                Fajr{' '}
-                {isPrayerAdjusted('fajr') && (
-                  <span className='text-xs text-muted-foreground'>
-                    {getAdjustmentLabel('fajr')}
-                  </span>
-                )}
+            <TableRow className='bg-muted/50'>
+              <TableHead className='w-[80px] text-center font-medium py-3'>Date</TableHead>
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Fajr</span>
+                  {isPrayerAdjusted('fajr') && (
+                    <span className='text-xs text-muted-foreground mt-0.5'>
+                      {getAdjustmentLabel('fajr')}
+                    </span>
+                  )}
+                </div>
               </TableHead>
-              <TableHead>
-                Sunrise{' '}
-                {isPrayerAdjusted('sunrise') && (
-                  <span className='text-xs text-muted-foreground'>
-                    {getAdjustmentLabel('sunrise')}
-                  </span>
-                )}
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Sunrise</span>
+                  {isPrayerAdjusted('sunrise') && (
+                    <span className='text-xs text-muted-foreground mt-0.5'>
+                      {getAdjustmentLabel('sunrise')}
+                    </span>
+                  )}
+                </div>
               </TableHead>
-              <TableHead>
-                Dhuhr{' '}
-                {isPrayerAdjusted('dhuhr') && (
-                  <span className='text-xs text-muted-foreground'>
-                    {getAdjustmentLabel('dhuhr')}
-                  </span>
-                )}
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Dhuhr</span>
+                  {isPrayerAdjusted('dhuhr') && (
+                    <span className='text-xs text-muted-foreground mt-0.5'>
+                      {getAdjustmentLabel('dhuhr')}
+                    </span>
+                  )}
+                </div>
               </TableHead>
-              <TableHead>
-                Asr{' '}
-                {isPrayerAdjusted('asr') && (
-                  <span className='text-xs text-muted-foreground'>{getAdjustmentLabel('asr')}</span>
-                )}
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Asr</span>
+                  {isPrayerAdjusted('asr') && (
+                    <span className='text-xs text-muted-foreground mt-0.5'>
+                      {getAdjustmentLabel('asr')}
+                    </span>
+                  )}
+                </div>
               </TableHead>
-              <TableHead>
-                Maghrib{' '}
-                {isPrayerAdjusted('maghrib') && (
-                  <span className='text-xs text-muted-foreground'>
-                    {getAdjustmentLabel('maghrib')}
-                  </span>
-                )}
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Maghrib</span>
+                  {isPrayerAdjusted('maghrib') && (
+                    <span className='text-xs text-muted-foreground mt-0.5'>
+                      {getAdjustmentLabel('maghrib')}
+                    </span>
+                  )}
+                </div>
               </TableHead>
-              <TableHead>
-                Isha{' '}
-                {isPrayerAdjusted('isha') && (
-                  <span className='text-xs text-muted-foreground'>
-                    {getAdjustmentLabel('isha')}
-                  </span>
-                )}
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Isha</span>
+                  {isPrayerAdjusted('isha') && (
+                    <span className='text-xs text-muted-foreground mt-0.5'>
+                      {getAdjustmentLabel('isha')}
+                    </span>
+                  )}
+                </div>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -159,19 +194,25 @@ export function PrayerTimesTable({
                 key={day.date.gregorian.date}
                 className={index === currentDay ? 'bg-primary/10' : ''}
               >
-                <TableCell className='font-medium'>{day.date.gregorian.day}</TableCell>
-                <TableCell>{formatTime(getAdjustedPrayerTime('Fajr', day.timings.Fajr))}</TableCell>
-                <TableCell>
+                <TableCell className='font-medium text-center'>{day.date.gregorian.day}</TableCell>
+                <TableCell className='text-center'>
+                  {formatTime(getAdjustedPrayerTime('Fajr', day.timings.Fajr))}
+                </TableCell>
+                <TableCell className='text-center'>
                   {formatTime(getAdjustedPrayerTime('Sunrise', day.timings.Sunrise))}
                 </TableCell>
-                <TableCell>
+                <TableCell className='text-center'>
                   {formatTime(getAdjustedPrayerTime('Dhuhr', day.timings.Dhuhr))}
                 </TableCell>
-                <TableCell>{formatTime(getAdjustedPrayerTime('Asr', day.timings.Asr))}</TableCell>
-                <TableCell>
+                <TableCell className='text-center'>
+                  {formatTime(getAdjustedPrayerTime('Asr', day.timings.Asr))}
+                </TableCell>
+                <TableCell className='text-center'>
                   {formatTime(getAdjustedPrayerTime('Maghrib', day.timings.Maghrib))}
                 </TableCell>
-                <TableCell>{formatTime(getAdjustedPrayerTime('Isha', day.timings.Isha))}</TableCell>
+                <TableCell className='text-center'>
+                  {formatTime(getAdjustedPrayerTime('Isha', day.timings.Isha))}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

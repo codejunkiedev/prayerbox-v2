@@ -11,11 +11,12 @@ import { CalculationMethod, JuristicSchool } from '@/constants';
 import { fetchPrayerTimesForThisMonth } from '@/api';
 import {
   PrayerTimesTable,
-  CalculationMethodCard,
   PrayerTimesLoading,
   PrayerTimesEmpty,
   LocationNotSet,
 } from '@/components/prayer-times';
+
+const date = new Date();
 
 export default function SalahTimings() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -27,7 +28,9 @@ export default function SalahTimings() {
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
   const [isFetchingCoordinates, setIsFetchingCoordinates] = useState(true);
   const [isFetchingTimes, setIsFetchingTimes] = useState(false);
-  const [currentDay, setCurrentDay] = useState(0); // Index of the current day in the prayer times array
+
+  const currentDay = useMemo(() => date.getDate() - 1, []);
+  const currentMonth = useMemo(() => format(date, 'MMMM yyyy'), []);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -71,11 +74,6 @@ export default function SalahTimings() {
         });
 
         setPrayerTimes(response.data);
-
-        // Set current day to today's index in the month
-        const today = new Date().getDate() - 1; // 0-indexed
-        setCurrentDay(today);
-
         toast.success('Fetched prayer times successfully');
       } catch (error) {
         console.error('Error fetching prayer times:', error);
@@ -87,12 +85,6 @@ export default function SalahTimings() {
 
     fetchPrayerTimes();
   }, [masjidCoordinates, trigger]);
-
-  // Get current month and year for the header
-  const currentMonth = useMemo(() => {
-    const now = new Date();
-    return format(now, 'MMMM yyyy');
-  }, []);
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -120,7 +112,6 @@ export default function SalahTimings() {
             currentDay={currentDay}
             currentMonth={currentMonth}
           />
-          <CalculationMethodCard savedSettings={savedSettings} />
         </div>
       );
     }
