@@ -1,7 +1,19 @@
 import { useState, useEffect, useMemo } from 'react';
 import { format, parse, addMinutes } from 'date-fns';
 import { CalendarIcon, Settings } from 'lucide-react';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui';
 import { PrayerTimingsModal } from '@/components/modals';
 import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase/services';
 import { toast } from 'sonner';
@@ -132,11 +144,36 @@ export default function SalahTimings() {
     return school?.replace(/_/g, ' ');
   }, [savedSettings?.juristic_school]);
 
-  // Get current day's prayer times
-  const todayPrayerTimes = useMemo(() => {
-    if (!prayerTimes || !prayerTimes[currentDay]) return null;
-    return prayerTimes[currentDay];
-  }, [prayerTimes, currentDay]);
+  // Get current month and year for the header
+  const currentMonth = useMemo(() => {
+    const now = new Date();
+    return format(now, 'MMMM yyyy');
+  }, []);
+
+  // Check if a prayer time has been adjusted
+  const isPrayerAdjusted = (prayerName: string) => {
+    if (!savedSettings?.prayer_adjustments) return false;
+    const prayerKey = prayerName.toLowerCase() as keyof typeof savedSettings.prayer_adjustments;
+    const adjustment = savedSettings.prayer_adjustments[prayerKey];
+    return adjustment && adjustment.type !== 'default';
+  };
+
+  // Get adjustment type label
+  const getAdjustmentLabel = (prayerName: string) => {
+    if (!savedSettings?.prayer_adjustments) return '';
+    const prayerKey = prayerName.toLowerCase() as keyof typeof savedSettings.prayer_adjustments;
+    const adjustment = savedSettings.prayer_adjustments[prayerKey];
+
+    if (!adjustment || adjustment.type === 'default') return '';
+
+    if (adjustment.type === 'offset') {
+      return `(${adjustment.offset && adjustment.offset > 0 ? '+' : ''}${adjustment.offset} min)`;
+    } else if (adjustment.type === 'manual') {
+      return '(manual)';
+    }
+
+    return '';
+  };
 
   return (
     <div className='container mx-auto px-4 py-8'>
@@ -166,122 +203,115 @@ export default function SalahTimings() {
           </Link>
         </div>
       ) : (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+        <div>
           {isFetchingTimes ? (
-            <div className='col-span-full flex justify-center p-8'>
+            <div className='flex justify-center p-8'>
               <div className='animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full'></div>
               <span className='sr-only'>Fetching prayer times...</span>
             </div>
-          ) : todayPrayerTimes ? (
-            <>
+          ) : prayerTimes && prayerTimes.length > 0 ? (
+            <div className='space-y-6'>
               <Card>
-                <CardHeader className='bg-primary/5 pb-2'>
+                <CardHeader className='bg-primary/5'>
                   <CardTitle className='flex justify-between items-center'>
-                    <span>Fajr</span>
-                    <span className='text-sm font-normal flex items-center gap-1'>
-                      <CalendarIcon size={14} />
-                      {todayPrayerTimes.date.readable}
-                    </span>
+                    <span>Prayer Times for {currentMonth}</span>
+                    <div className='flex items-center gap-2'>
+                      <CalendarIcon size={16} />
+                      <span className='text-sm'>
+                        {prayerTimes[0].date.gregorian.month.en}{' '}
+                        {prayerTimes[0].date.gregorian.year}
+                      </span>
+                    </div>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>
-                    {formatTime(getAdjustedPrayerTime('Fajr', todayPrayerTimes.timings.Fajr))}
-                  </p>
-                  {savedSettings?.prayer_adjustments?.fajr?.type !== 'default' && (
-                    <p className='text-xs text-muted-foreground mt-1'>
-                      {savedSettings?.prayer_adjustments?.fajr?.type === 'offset'
-                        ? `Adjusted by ${savedSettings.prayer_adjustments.fajr.offset} minutes`
-                        : 'Manually set'}
-                    </p>
-                  )}
+                <CardContent className='p-0 overflow-auto'>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className='w-[80px]'>Date</TableHead>
+                        <TableHead>
+                          Fajr{' '}
+                          {isPrayerAdjusted('fajr') && (
+                            <span className='text-xs text-muted-foreground'>
+                              {getAdjustmentLabel('fajr')}
+                            </span>
+                          )}
+                        </TableHead>
+                        <TableHead>
+                          Sunrise{' '}
+                          {isPrayerAdjusted('sunrise') && (
+                            <span className='text-xs text-muted-foreground'>
+                              {getAdjustmentLabel('sunrise')}
+                            </span>
+                          )}
+                        </TableHead>
+                        <TableHead>
+                          Dhuhr{' '}
+                          {isPrayerAdjusted('dhuhr') && (
+                            <span className='text-xs text-muted-foreground'>
+                              {getAdjustmentLabel('dhuhr')}
+                            </span>
+                          )}
+                        </TableHead>
+                        <TableHead>
+                          Asr{' '}
+                          {isPrayerAdjusted('asr') && (
+                            <span className='text-xs text-muted-foreground'>
+                              {getAdjustmentLabel('asr')}
+                            </span>
+                          )}
+                        </TableHead>
+                        <TableHead>
+                          Maghrib{' '}
+                          {isPrayerAdjusted('maghrib') && (
+                            <span className='text-xs text-muted-foreground'>
+                              {getAdjustmentLabel('maghrib')}
+                            </span>
+                          )}
+                        </TableHead>
+                        <TableHead>
+                          Isha{' '}
+                          {isPrayerAdjusted('isha') && (
+                            <span className='text-xs text-muted-foreground'>
+                              {getAdjustmentLabel('isha')}
+                            </span>
+                          )}
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {prayerTimes.map((day, index) => (
+                        <TableRow
+                          key={day.date.gregorian.date}
+                          className={index === currentDay ? 'bg-primary/10' : ''}
+                        >
+                          <TableCell className='font-medium'>{day.date.gregorian.day}</TableCell>
+                          <TableCell>
+                            {formatTime(getAdjustedPrayerTime('Fajr', day.timings.Fajr))}
+                          </TableCell>
+                          <TableCell>
+                            {formatTime(getAdjustedPrayerTime('Sunrise', day.timings.Sunrise))}
+                          </TableCell>
+                          <TableCell>
+                            {formatTime(getAdjustedPrayerTime('Dhuhr', day.timings.Dhuhr))}
+                          </TableCell>
+                          <TableCell>
+                            {formatTime(getAdjustedPrayerTime('Asr', day.timings.Asr))}
+                          </TableCell>
+                          <TableCell>
+                            {formatTime(getAdjustedPrayerTime('Maghrib', day.timings.Maghrib))}
+                          </TableCell>
+                          <TableCell>
+                            {formatTime(getAdjustedPrayerTime('Isha', day.timings.Isha))}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader className='bg-primary/5 pb-2'>
-                  <CardTitle>Sunrise</CardTitle>
-                </CardHeader>
-                <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>
-                    {formatTime(todayPrayerTimes.timings.Sunrise)}
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className='bg-primary/5 pb-2'>
-                  <CardTitle>Dhuhr</CardTitle>
-                </CardHeader>
-                <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>
-                    {formatTime(getAdjustedPrayerTime('Dhuhr', todayPrayerTimes.timings.Dhuhr))}
-                  </p>
-                  {savedSettings?.prayer_adjustments?.dhuhr?.type !== 'default' && (
-                    <p className='text-xs text-muted-foreground mt-1'>
-                      {savedSettings?.prayer_adjustments?.dhuhr?.type === 'offset'
-                        ? `Adjusted by ${savedSettings.prayer_adjustments.dhuhr.offset} minutes`
-                        : 'Manually set'}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className='bg-primary/5 pb-2'>
-                  <CardTitle>Asr</CardTitle>
-                </CardHeader>
-                <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>
-                    {formatTime(getAdjustedPrayerTime('Asr', todayPrayerTimes.timings.Asr))}
-                  </p>
-                  {savedSettings?.prayer_adjustments?.asr?.type !== 'default' && (
-                    <p className='text-xs text-muted-foreground mt-1'>
-                      {savedSettings?.prayer_adjustments?.asr?.type === 'offset'
-                        ? `Adjusted by ${savedSettings.prayer_adjustments.asr.offset} minutes`
-                        : 'Manually set'}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className='bg-primary/5 pb-2'>
-                  <CardTitle>Maghrib</CardTitle>
-                </CardHeader>
-                <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>
-                    {formatTime(getAdjustedPrayerTime('Maghrib', todayPrayerTimes.timings.Maghrib))}
-                  </p>
-                  {savedSettings?.prayer_adjustments?.maghrib?.type !== 'default' && (
-                    <p className='text-xs text-muted-foreground mt-1'>
-                      {savedSettings?.prayer_adjustments?.maghrib?.type === 'offset'
-                        ? `Adjusted by ${savedSettings.prayer_adjustments.maghrib.offset} minutes`
-                        : 'Manually set'}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className='bg-primary/5 pb-2'>
-                  <CardTitle>Isha</CardTitle>
-                </CardHeader>
-                <CardContent className='pt-4 text-center'>
-                  <p className='text-3xl font-bold'>
-                    {formatTime(getAdjustedPrayerTime('Isha', todayPrayerTimes.timings.Isha))}
-                  </p>
-                  {savedSettings?.prayer_adjustments?.isha?.type !== 'default' && (
-                    <p className='text-xs text-muted-foreground mt-1'>
-                      {savedSettings?.prayer_adjustments?.isha?.type === 'offset'
-                        ? `Adjusted by ${savedSettings.prayer_adjustments.isha.offset} minutes`
-                        : 'Manually set'}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className='md:col-span-2 lg:col-span-3'>
                 <CardHeader className='bg-primary/5 pb-2'>
                   <CardTitle>Calculation Method</CardTitle>
                 </CardHeader>
@@ -298,9 +328,9 @@ export default function SalahTimings() {
                   </div>
                 </CardContent>
               </Card>
-            </>
+            </div>
           ) : (
-            <div className='col-span-full text-center py-8'>
+            <div className='text-center py-8'>
               <p className='text-lg mb-4'>Click on Settings to configure and fetch prayer times</p>
               <Button onClick={() => setIsModalOpen(true)}>Configure Prayer Times</Button>
             </div>

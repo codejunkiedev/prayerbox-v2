@@ -43,10 +43,11 @@ interface PrayerTimingsModalProps {
   initialValues: PrayerTimingsData | null;
 }
 
-type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
-const PRAYER_NAMES: PrayerName[] = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+type PrayerName = 'fajr' | 'sunrise' | 'dhuhr' | 'asr' | 'maghrib' | 'isha';
+const PRAYER_NAMES: PrayerName[] = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
 const PRAYER_LABELS: Record<PrayerName, string> = {
   fajr: 'Fajr',
+  sunrise: 'Sunrise',
   dhuhr: 'Dhuhr',
   asr: 'Asr',
   maghrib: 'Maghrib',
@@ -77,6 +78,7 @@ export function PrayerTimingsModal({
       juristic_school: initialValues?.juristic_school ?? JuristicSchool.Shafi,
       prayer_adjustments: initialValues?.prayer_adjustments ?? {
         fajr: { type: 'default' },
+        sunrise: { type: 'default' },
         dhuhr: { type: 'default' },
         asr: { type: 'default' },
         maghrib: { type: 'default' },

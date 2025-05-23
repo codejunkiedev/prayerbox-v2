@@ -68,6 +68,11 @@ export interface PrayerTimes extends Base {
       offset?: number;
       manual_time?: string;
     };
+    sunrise: {
+      type: 'offset' | 'manual' | 'default';
+      offset?: number;
+      manual_time?: string;
+    };
     dhuhr: {
       type: 'offset' | 'manual' | 'default';
       offset?: number;

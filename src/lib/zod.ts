@@ -107,6 +107,11 @@ export const prayerTimingsFormSchema = z.object({
         offset: z.number().optional(),
         manual_time: z.string().optional(),
       }),
+      sunrise: z.object({
+        type: z.enum(['offset', 'manual', 'default']),
+        offset: z.number().optional(),
+        manual_time: z.string().optional(),
+      }),
       dhuhr: z.object({
         type: z.enum(['offset', 'manual', 'default']),
         offset: z.number().optional(),
