@@ -96,3 +96,44 @@ export const postSchema = z.object({
 });
 
 export type PostData = z.infer<typeof postSchema>;
+
+export const prayerTimingsFormSchema = z.object({
+  calculation_method: z.number(),
+  juristic_school: z.number(),
+  prayer_adjustments: z
+    .object({
+      fajr: z.object({
+        type: z.enum(['offset', 'manual', 'default']),
+        offset: z.number().optional(),
+        manual_time: z.string().optional(),
+      }),
+      sunrise: z.object({
+        type: z.enum(['offset', 'manual', 'default']),
+        offset: z.number().optional(),
+        manual_time: z.string().optional(),
+      }),
+      dhuhr: z.object({
+        type: z.enum(['offset', 'manual', 'default']),
+        offset: z.number().optional(),
+        manual_time: z.string().optional(),
+      }),
+      asr: z.object({
+        type: z.enum(['offset', 'manual', 'default']),
+        offset: z.number().optional(),
+        manual_time: z.string().optional(),
+      }),
+      maghrib: z.object({
+        type: z.enum(['offset', 'manual', 'default']),
+        offset: z.number().optional(),
+        manual_time: z.string().optional(),
+      }),
+      isha: z.object({
+        type: z.enum(['offset', 'manual', 'default']),
+        offset: z.number().optional(),
+        manual_time: z.string().optional(),
+      }),
+    })
+    .optional(),
+});
+
+export type PrayerTimingsData = z.infer<typeof prayerTimingsFormSchema>;
