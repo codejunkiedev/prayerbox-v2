@@ -135,7 +135,7 @@ export default function SalahTimings() {
   };
 
   return (
-    <div className='container mx-auto px-4 py-8'>
+    <div className='container mx-auto py-8 space-y-6'>
       <PageHeader
         title='Prayer Times'
         description='View and manage prayer times for your masjid'
