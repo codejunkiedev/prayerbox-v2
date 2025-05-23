@@ -1,8 +1,77 @@
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui';
+
 export function PrayerTimesLoading() {
+  const daysInMonth = Array.from({ length: 30 }, (_, i) => i + 1);
+
   return (
-    <div className='flex justify-center p-8'>
-      <div className='animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full'></div>
-      <span className='sr-only'>Fetching prayer times...</span>
-    </div>
+    <Card>
+      <CardHeader className='bg-primary/5'>
+        <CardTitle className='flex justify-between items-center mt-2'>
+          <span>Fetching Prayer Times...</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className='p-0 overflow-auto'>
+        <Table>
+          <TableHeader>
+            <TableRow className='bg-muted/50'>
+              <TableHead className='w-[80px] text-center font-medium py-3'>Date</TableHead>
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Fajr</span>
+                </div>
+              </TableHead>
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Sunrise</span>
+                </div>
+              </TableHead>
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Dhuhr</span>
+                </div>
+              </TableHead>
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Asr</span>
+                </div>
+              </TableHead>
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Maghrib</span>
+                </div>
+              </TableHead>
+              <TableHead className='text-center font-medium'>
+                <div className='flex flex-col items-center'>
+                  <span className='font-semibold'>Isha</span>
+                </div>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {daysInMonth.map(day => (
+              <TableRow key={day}>
+                <TableCell className='font-medium text-center'>{day}</TableCell>
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <TableCell key={i} className='text-center'>
+                    <div className='h-5 w-16 mx-auto bg-muted animate-pulse rounded'></div>
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
