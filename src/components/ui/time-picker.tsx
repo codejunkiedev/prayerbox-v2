@@ -9,9 +9,10 @@ interface TimePickerProps {
   time: Date | undefined;
   setTime: (time: Date) => void;
   disabled?: boolean;
+  minuteInterval?: number;
 }
 
-export function TimePicker({ time, setTime, disabled }: TimePickerProps) {
+export function TimePicker({ time, setTime, disabled, minuteInterval = 5 }: TimePickerProps) {
   function handleTimeChange(type: 'hour' | 'minute' | 'ampm', value: string) {
     const currentTime = time || new Date();
     let updatedTime = new Date(currentTime);
@@ -51,7 +52,7 @@ export function TimePicker({ time, setTime, disabled }: TimePickerProps) {
           <ScrollArea className='w-64 sm:w-auto h-60'>
             <div className='flex sm:flex-col p-2 gap-1'>
               {Array.from({ length: 12 }, (_, i) => i + 1)
-                .reverse()
+
                 .map(hour => (
                   <Button
                     key={hour}
@@ -68,7 +69,10 @@ export function TimePicker({ time, setTime, disabled }: TimePickerProps) {
           </ScrollArea>
           <ScrollArea className='w-64 sm:w-auto h-60'>
             <div className='flex sm:flex-col p-2 gap-1'>
-              {Array.from({ length: 12 }, (_, i) => i * 5).map(minute => (
+              {Array.from(
+                { length: Math.floor(60 / minuteInterval) },
+                (_, i) => i * minuteInterval
+              ).map(minute => (
                 <Button
                   key={minute}
                   size='sm'

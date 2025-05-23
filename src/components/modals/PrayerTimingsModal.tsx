@@ -222,7 +222,7 @@ export function PrayerTimingsModal({
             {type === 'manual' && (
               <div className='space-y-2'>
                 <Label htmlFor={`${prayer}-manual-time`}>Select Time</Label>
-                <TimePicker time={timeValue} setTime={handleTimeChange} />
+                <TimePicker time={timeValue} setTime={handleTimeChange} minuteInterval={1} />
               </div>
             )}
           </div>
