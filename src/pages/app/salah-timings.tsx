@@ -55,15 +55,17 @@ export default function SalahTimings() {
   }, []);
 
   useEffect(() => {
-    async function fetchPrayerTimes() {
-      if (!masjidCoordinates) return;
+    if (!masjidCoordinates) return;
 
+    const abortController = new AbortController();
+
+    async function fetchPrayerTimes() {
       try {
         setIsFetchingTimes(true);
         const savedSettings = await getPrayerTimeSettings();
-        if (savedSettings) {
-          setSavedSettings(savedSettings);
-        }
+        if (savedSettings) setSavedSettings(savedSettings);
+
+        if (!masjidCoordinates) return;
 
         const response = await fetchPrayerTimesForThisMonth({
           date: selectedDate,
@@ -71,19 +73,28 @@ export default function SalahTimings() {
           longitude: masjidCoordinates.longitude,
           method: savedSettings?.calculation_method ?? CalculationMethod.Shia_Ithna_Ashari,
           school: savedSettings?.juristic_school ?? JuristicSchool.Shafi,
+          signal: abortController.signal,
         });
 
         setPrayerTimes(response.data);
         toast.success('Fetched prayer times successfully');
       } catch (error) {
-        console.error('Error fetching prayer times:', error);
-        toast.error('Failed to fetch prayer times');
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          console.log('Prayer times fetch aborted');
+        } else {
+          console.error('Error fetching prayer times:', error);
+          toast.error('Failed to fetch prayer times');
+        }
       } finally {
         setIsFetchingTimes(false);
       }
     }
 
     fetchPrayerTimes();
+
+    return () => {
+      abortController.abort();
+    };
   }, [masjidCoordinates, selectedDate, trigger]);
 
   const handleOpenModal = () => {

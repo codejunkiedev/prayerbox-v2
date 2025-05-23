@@ -9,6 +9,7 @@ type Payload = {
   longitude: number;
   method: number;
   school: number;
+  signal?: AbortSignal;
 };
 type Response<T> = { data: T; status: string; code: number };
 
@@ -18,6 +19,7 @@ export const fetchPrayerTimesForThisMonth = async ({
   longitude,
   method,
   school,
+  signal,
 }: Payload): Promise<Response<AlAdhanPrayerTimes[]>> => {
   const [year, month] = [getYear(date), getMonth(date)];
 
@@ -28,7 +30,7 @@ export const fetchPrayerTimesForThisMonth = async ({
   url.searchParams.set('method', method.toString());
   url.searchParams.set('school', school.toString());
 
-  const response = await fetch(url);
+  const response = await fetch(url, { signal });
   if (!response.ok) throw new Error('Failed to fetch prayer times');
   return response.json();
 };
