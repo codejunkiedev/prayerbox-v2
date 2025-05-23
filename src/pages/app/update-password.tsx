@@ -18,7 +18,6 @@ export default function UpdatePassword() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    // Get the current user's email
     const fetchUserEmail = async () => {
       try {
         const user = await getCurrentUser();

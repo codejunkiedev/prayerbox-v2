@@ -61,7 +61,6 @@ export function PrayerTimesTable({
     return timeOnly;
   };
 
-  // Check if a prayer time has been adjusted
   const isPrayerAdjusted = (prayerName: PrayerName): boolean => {
     if (!savedSettings?.prayer_adjustments) return false;
     const adjustment = savedSettings.prayer_adjustments[prayerName];

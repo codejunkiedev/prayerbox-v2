@@ -24,7 +24,6 @@ export function ImageUpload({
 }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(typeof value === 'string' ? value : null);
 
-  // Handle file drop
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length === 0) return;
@@ -32,17 +31,14 @@ export function ImageUpload({
       const file = acceptedFiles[0];
       onChange(file);
 
-      // Create preview
       const objectUrl = URL.createObjectURL(file);
       setPreview(objectUrl);
 
-      // Clean up previous preview URL
       return () => URL.revokeObjectURL(objectUrl);
     },
     [onChange]
   );
 
-  // Configure dropzone
   const { getRootProps, getInputProps, isDragActive, fileRejections } = useDropzone({
     onDrop,
     accept: {
@@ -53,10 +49,8 @@ export function ImageUpload({
     maxFiles: 1,
   });
 
-  // Handle file rejection errors
   const fileRejectionError = fileRejections.length > 0 ? fileRejections[0].errors[0].message : null;
 
-  // Handle manual file removal
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange(null);

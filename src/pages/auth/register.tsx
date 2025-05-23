@@ -26,10 +26,8 @@ export default function Register() {
     defaultValues: { email: '', password: '', confirmPassword: '' },
   });
 
-  // Watch the password field for changes
   const watchedPassword = watch('password');
 
-  // Update password state when the watched password changes
   if (watchedPassword !== password) {
     setPassword(watchedPassword);
   }

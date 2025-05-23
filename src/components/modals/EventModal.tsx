@@ -117,7 +117,6 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
             </div>
           )}
 
-          {/* Basic Event Information */}
           <div className='space-y-4'>
             <h3 className='text-sm font-medium text-gray-500'>Basic Information</h3>
 
@@ -171,7 +170,6 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
 
           <div className='border-t border-gray-200'></div>
 
-          {/* Participants Information */}
           <div className='space-y-4'>
             <h3 className='text-sm font-medium text-gray-500'>Participants</h3>
 

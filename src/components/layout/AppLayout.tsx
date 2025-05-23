@@ -6,7 +6,6 @@ import Header from './Header';
 export default function AppLayout() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
-  // Close sidebar when screen size changes to prevent issues
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 768) {
@@ -24,12 +23,10 @@ export default function AppLayout() {
 
   return (
     <div className='flex h-screen'>
-      {/* Desktop sidebar */}
       <div className='hidden md:block'>
         <Sidebar />
       </div>
 
-      {/* Mobile sidebar - absolutely positioned overlay */}
       {showMobileSidebar && (
         <div
           className='md:hidden fixed inset-0 z-50 bg-black bg-opacity-50'
@@ -41,7 +38,6 @@ export default function AppLayout() {
         </div>
       )}
 
-      {/* Main content area */}
       <div className='flex flex-col flex-1 overflow-hidden'>
         <Header onMenuClick={toggleMobileSidebar} />
 
