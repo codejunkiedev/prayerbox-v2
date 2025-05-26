@@ -214,7 +214,7 @@ export default function AyatAndHadithPage() {
         title='Ayat and Hadith'
         description='Manage your collection of Quranic verses and Hadith'
         onAddClick={handleAddNew}
-        showReorderingButton
+        showReorderingButton={ayatAndHadith.length > 1}
         onToggleReordering={toggleDraggable}
         isReorderingEnabled={isDraggable}
       />

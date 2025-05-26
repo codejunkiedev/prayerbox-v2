@@ -181,7 +181,7 @@ export default function Announcements() {
         title='Announcements'
         description='Manage your masjid announcements'
         onAddClick={handleAddNew}
-        showReorderingButton
+        showReorderingButton={announcements.length > 1}
         onToggleReordering={toggleDraggable}
         isReorderingEnabled={isDraggable}
       />

@@ -200,7 +200,7 @@ export default function Events() {
         title='Events'
         description='Manage your masjid events and programs'
         onAddClick={handleAddNew}
-        showReorderingButton
+        showReorderingButton={events.length > 1}
         onToggleReordering={toggleDraggable}
         isReorderingEnabled={isDraggable}
       />

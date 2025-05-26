@@ -210,7 +210,7 @@ export default function Posts() {
         title='Posts'
         description='Manage your masjid posts'
         onAddClick={handleAddNew}
-        showReorderingButton
+        showReorderingButton={posts.length > 1}
         onToggleReordering={toggleDraggable}
         isReorderingEnabled={isDraggable}
       />
