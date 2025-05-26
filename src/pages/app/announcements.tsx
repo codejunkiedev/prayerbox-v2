@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getAnnouncements, deleteAnnouncement, toggleAnnouncementVisibility } from '@/lib/supabase';
+import {
+  getAnnouncements,
+  deleteAnnouncement,
+  toggleAnnouncementVisibility,
+  updateAnnouncementsOrder,
+} from '@/lib/supabase';
 import type { Announcement } from '@/types';
 import { Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
@@ -9,7 +14,7 @@ import {
   ErrorAlert,
   EmptyState,
   ActionButtons,
-  DataTable,
+  DraggableDataTable,
   type Column,
 } from '@/components/common';
 import { Bell } from 'lucide-react';
@@ -26,6 +31,8 @@ export default function Announcements() {
   const [itemToDelete, setItemToDelete] = useState<Announcement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [isDraggable, setIsDraggable] = useState(false);
+  const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -115,6 +122,35 @@ export default function Announcements() {
     }
   };
 
+  const toggleDraggable = () => {
+    setIsDraggable(prev => !prev);
+  };
+
+  const handleOrderChange = async (items: Announcement[]) => {
+    if (isUpdatingOrder) return;
+
+    try {
+      setIsUpdatingOrder(true);
+      const itemsCopy = [...items];
+      const updatedItems = itemsCopy.map((item, index) => ({
+        id: item.id,
+        display_order: index + 1,
+      }));
+
+      await updateAnnouncementsOrder(updatedItems);
+
+      setAnnouncements(itemsCopy);
+      toast.success('Order updated successfully');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      setError('Failed to update order. Please try again.');
+      toast.error('Failed to update order, please try again.');
+      forceUpdate();
+    } finally {
+      setIsUpdatingOrder(false);
+    }
+  };
+
   const columns: Column<Announcement>[] = [
     {
       key: 'description',
@@ -145,6 +181,9 @@ export default function Announcements() {
         title='Announcements'
         description='Manage your masjid announcements'
         onAddClick={handleAddNew}
+        showReorderingButton
+        onToggleReordering={toggleDraggable}
+        isReorderingEnabled={isDraggable}
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
@@ -160,12 +199,14 @@ export default function Announcements() {
           onActionClick={handleAddNew}
         />
       ) : (
-        <DataTable
+        <DraggableDataTable
           columns={columns}
           data={announcements}
           keyField='id'
           showRowNumbers={true}
           actionsWidth='w-[10%]'
+          isDraggable={isDraggable}
+          onOrderChange={handleOrderChange}
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}

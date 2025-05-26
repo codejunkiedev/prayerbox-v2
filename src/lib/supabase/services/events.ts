@@ -6,6 +6,7 @@ import {
   updateRecord,
   insertRecord,
   fetchByMultipleConditions,
+  updateRecordsOrder,
 } from '../helpers';
 
 export async function getEvents(): Promise<Event[]> {
@@ -17,7 +18,14 @@ export async function getEvents(): Promise<Event[]> {
     { column: 'archived', value: false, isNull: true },
   ];
 
-  return await fetchByMultipleConditions<Event>(SupabaseTables.Events, conditions);
+  const items = await fetchByMultipleConditions<Event>(SupabaseTables.Events, conditions);
+
+  return items.sort((a, b) => {
+    if (a.display_order !== undefined && b.display_order !== undefined) {
+      return a.display_order - b.display_order;
+    }
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
 }
 
 export async function upsertEvent(event: EventData & { id?: string }) {
@@ -36,6 +44,15 @@ export async function upsertEvent(event: EventData & { id?: string }) {
   } else {
     eventToUpsert.created_at = new Date().toISOString();
     eventToUpsert.visible = true;
+
+    const allItems = await getEvents();
+    const maxOrder = allItems.reduce(
+      (max, item) =>
+        item.display_order !== undefined && item.display_order > max ? item.display_order : max,
+      0
+    );
+    eventToUpsert.display_order = maxOrder + 1;
+
     return await insertRecord<Event>(SupabaseTables.Events, eventToUpsert);
   }
 }
@@ -68,4 +85,27 @@ export async function toggleEventVisibility(id: string, visible: boolean): Promi
 
   await updateRecord<Event>(SupabaseTables.Events, id, updates);
   return true;
+}
+
+export async function updateEventsOrder(
+  items: Array<{ id: string; display_order: number }>
+): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const itemIds = items.map(item => item.id);
+  const conditions = [{ column: 'id', value: itemIds[0] }];
+
+  for (let i = 1; i < itemIds.length; i++) {
+    conditions.push({ column: 'id', value: itemIds[i] });
+  }
+
+  const existingItems = await fetchByMultipleConditions<Event>(SupabaseTables.Events, conditions);
+
+  const unauthorized = existingItems.some(item => item.user_id !== user.id);
+  if (unauthorized) {
+    throw new Error('Not authorized to update one or more items');
+  }
+
+  return await updateRecordsOrder(SupabaseTables.Events, items, user.id);
 }

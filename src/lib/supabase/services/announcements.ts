@@ -6,6 +6,7 @@ import {
   updateRecord,
   insertRecord,
   fetchByMultipleConditions,
+  updateRecordsOrder,
 } from '../helpers';
 
 export async function getAnnouncements(): Promise<Announcement[]> {
@@ -17,7 +18,17 @@ export async function getAnnouncements(): Promise<Announcement[]> {
     { column: 'archived', value: false, isNull: true },
   ];
 
-  return await fetchByMultipleConditions<Announcement>(SupabaseTables.Announcements, conditions);
+  const items = await fetchByMultipleConditions<Announcement>(
+    SupabaseTables.Announcements,
+    conditions
+  );
+
+  return items.sort((a, b) => {
+    if (a.display_order !== undefined && b.display_order !== undefined) {
+      return a.display_order - b.display_order;
+    }
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
 }
 
 export async function upsertAnnouncement(announcement: AnnouncementData & { id?: string }) {
@@ -40,6 +51,15 @@ export async function upsertAnnouncement(announcement: AnnouncementData & { id?:
   } else {
     announcementToUpsert.created_at = new Date().toISOString();
     announcementToUpsert.visible = true;
+
+    const allItems = await getAnnouncements();
+    const maxOrder = allItems.reduce(
+      (max, item) =>
+        item.display_order !== undefined && item.display_order > max ? item.display_order : max,
+      0
+    );
+    announcementToUpsert.display_order = maxOrder + 1;
+
     return await insertRecord<Announcement>(SupabaseTables.Announcements, announcementToUpsert);
   }
 }
@@ -72,4 +92,30 @@ export async function toggleAnnouncementVisibility(id: string, visible: boolean)
 
   await updateRecord<Announcement>(SupabaseTables.Announcements, id, updates);
   return true;
+}
+
+export async function updateAnnouncementsOrder(
+  items: Array<{ id: string; display_order: number }>
+): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const itemIds = items.map(item => item.id);
+  const conditions = [{ column: 'id', value: itemIds[0] }];
+
+  for (let i = 1; i < itemIds.length; i++) {
+    conditions.push({ column: 'id', value: itemIds[i] });
+  }
+
+  const existingItems = await fetchByMultipleConditions<Announcement>(
+    SupabaseTables.Announcements,
+    conditions
+  );
+
+  const unauthorized = existingItems.some(item => item.user_id !== user.id);
+  if (unauthorized) {
+    throw new Error('Not authorized to update one or more items');
+  }
+
+  return await updateRecordsOrder(SupabaseTables.Announcements, items, user.id);
 }

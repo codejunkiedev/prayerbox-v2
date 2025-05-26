@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPosts, deletePost, togglePostVisibility } from '@/lib/supabase';
+import { getPosts, deletePost, togglePostVisibility, updatePostsOrder } from '@/lib/supabase';
 import type { Post } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
 import { PostModal, DeleteConfirmationModal } from '@/components/modals';
@@ -8,7 +8,7 @@ import {
   ErrorAlert,
   EmptyState,
   ActionButtons,
-  DataTable,
+  DraggableDataTable,
   type Column,
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
@@ -26,6 +26,8 @@ export default function Posts() {
   const [itemToDelete, setItemToDelete] = useState<Post | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [isDraggable, setIsDraggable] = useState(false);
+  const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -115,6 +117,35 @@ export default function Posts() {
     }
   };
 
+  const toggleDraggable = () => {
+    setIsDraggable(prev => !prev);
+  };
+
+  const handleOrderChange = async (items: Post[]) => {
+    if (isUpdatingOrder) return;
+
+    try {
+      setIsUpdatingOrder(true);
+      const itemsCopy = [...items];
+      const updatedItems = itemsCopy.map((item, index) => ({
+        id: item.id,
+        display_order: index + 1,
+      }));
+
+      await updatePostsOrder(updatedItems);
+
+      setPosts(itemsCopy);
+      toast.success('Order updated successfully');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      setError('Failed to update order. Please try again.');
+      toast.error('Failed to update order, please try again.');
+      forceUpdate();
+    } finally {
+      setIsUpdatingOrder(false);
+    }
+  };
+
   const columns: Column<Post>[] = [
     {
       key: 'image_url',
@@ -175,7 +206,14 @@ export default function Posts() {
 
   return (
     <div className='container mx-auto py-8 space-y-6'>
-      <PageHeader title='Posts' description='Manage your masjid posts' onAddClick={handleAddNew} />
+      <PageHeader
+        title='Posts'
+        description='Manage your masjid posts'
+        onAddClick={handleAddNew}
+        showReorderingButton
+        onToggleReordering={toggleDraggable}
+        isReorderingEnabled={isDraggable}
+      />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
@@ -190,12 +228,14 @@ export default function Posts() {
           onActionClick={handleAddNew}
         />
       ) : (
-        <DataTable
+        <DraggableDataTable
           columns={columns}
           data={posts}
           keyField='id'
           showRowNumbers={true}
           actionsWidth='w-[10%]'
+          isDraggable={isDraggable}
+          onOrderChange={handleOrderChange}
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}

@@ -43,6 +43,7 @@ export interface Announcement extends Base {
   description: string;
   archived: boolean;
   visible: boolean;
+  display_order?: number;
 }
 
 export interface Event extends Base {
@@ -57,6 +58,7 @@ export interface Event extends Base {
   karm_farma: string;
   archived: boolean;
   visible: boolean;
+  display_order?: number;
 }
 
 export interface Post extends Base {
@@ -64,6 +66,7 @@ export interface Post extends Base {
   image_url: string;
   archived: boolean;
   visible: boolean;
+  display_order?: number;
 }
 
 export interface PrayerAdjustment {

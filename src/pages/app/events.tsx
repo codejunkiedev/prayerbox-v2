@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getEvents, deleteEvent, toggleEventVisibility } from '@/lib/supabase';
+import { getEvents, deleteEvent, toggleEventVisibility, updateEventsOrder } from '@/lib/supabase';
 import type { Event } from '@/types';
 import { Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
@@ -9,7 +9,7 @@ import {
   ErrorAlert,
   EmptyState,
   ActionButtons,
-  DataTable,
+  DraggableDataTable,
   type Column,
 } from '@/components/common';
 import { Calendar } from 'lucide-react';
@@ -27,6 +27,8 @@ export default function Events() {
   const [itemToDelete, setItemToDelete] = useState<Event | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [isDraggable, setIsDraggable] = useState(false);
+  const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -116,6 +118,35 @@ export default function Events() {
     }
   };
 
+  const toggleDraggable = () => {
+    setIsDraggable(prev => !prev);
+  };
+
+  const handleOrderChange = async (items: Event[]) => {
+    if (isUpdatingOrder) return;
+
+    try {
+      setIsUpdatingOrder(true);
+      const itemsCopy = [...items];
+      const updatedItems = itemsCopy.map((item, index) => ({
+        id: item.id,
+        display_order: index + 1,
+      }));
+
+      await updateEventsOrder(updatedItems);
+
+      setEvents(itemsCopy);
+      toast.success('Order updated successfully');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      setError('Failed to update order. Please try again.');
+      toast.error('Failed to update order, please try again.');
+      forceUpdate();
+    } finally {
+      setIsUpdatingOrder(false);
+    }
+  };
+
   const columns: Column<Event>[] = [
     {
       key: 'title',
@@ -169,6 +200,9 @@ export default function Events() {
         title='Events'
         description='Manage your masjid events and programs'
         onAddClick={handleAddNew}
+        showReorderingButton
+        onToggleReordering={toggleDraggable}
+        isReorderingEnabled={isDraggable}
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
@@ -184,12 +218,14 @@ export default function Events() {
           onActionClick={handleAddNew}
         />
       ) : (
-        <DataTable
+        <DraggableDataTable
           columns={columns}
           data={events}
           keyField='id'
           showRowNumbers={true}
           actionsWidth='w-[10%]'
+          isDraggable={isDraggable}
+          onOrderChange={handleOrderChange}
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}
