@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getEvents, deleteEvent } from '@/lib/supabase';
+import { getEvents, deleteEvent, toggleEventVisibility } from '@/lib/supabase';
 import type { Event } from '@/types';
+import { Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
 import { EventModal, DeleteConfirmationModal } from '@/components/modals';
 import {
@@ -25,6 +26,7 @@ export default function Events() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Event | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -90,11 +92,26 @@ export default function Events() {
     setItemToDelete(null);
   };
 
+  const handleVisibilityToggle = async (item: Event) => {
+    try {
+      setIsTogglingVisibility(true);
+      await toggleEventVisibility(item.id, !item.visible);
+      forceUpdate();
+      toast.success('Event visibility updated');
+    } catch (err) {
+      console.error('Error toggling visibility:', err);
+      setError('Failed to update visibility. Please try again.');
+      toast.error('Failed to update visibility, please try again.');
+    } finally {
+      setIsTogglingVisibility(false);
+    }
+  };
+
   const columns: Column<Event>[] = [
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[25%]',
+      width: 'w-[20%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
           {value as string}
@@ -104,7 +121,7 @@ export default function Events() {
     {
       key: 'description',
       name: 'Description',
-      width: 'w-[35%]',
+      width: 'w-[30%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
@@ -121,6 +138,19 @@ export default function Events() {
       key: 'location',
       name: 'Location',
       width: 'w-[20%]',
+    },
+    {
+      key: 'visible',
+      name: 'Visible',
+      width: 'w-[10%]',
+      render: (value, item) => (
+        <Switch
+          checked={!!value}
+          onCheckedChange={() => handleVisibilityToggle(item)}
+          disabled={isTogglingVisibility}
+          aria-label={`Toggle visibility for event`}
+        />
+      ),
     },
   ];
 
@@ -150,6 +180,7 @@ export default function Events() {
           data={events}
           keyField='id'
           showRowNumbers={true}
+          actionsWidth='w-[10%]'
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}

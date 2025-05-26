@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPosts, deletePost } from '@/lib/supabase';
+import { getPosts, deletePost, togglePostVisibility } from '@/lib/supabase';
 import type { Post } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
 import { PostModal, DeleteConfirmationModal } from '@/components/modals';
@@ -13,7 +13,7 @@ import {
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
+import { Popover, PopoverContent, PopoverTrigger, Switch } from '@/components/ui';
 import { toast } from 'sonner';
 
 export default function Posts() {
@@ -25,6 +25,7 @@ export default function Posts() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Post | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -90,6 +91,21 @@ export default function Posts() {
     setItemToDelete(null);
   };
 
+  const handleVisibilityToggle = async (item: Post) => {
+    try {
+      setIsTogglingVisibility(true);
+      await togglePostVisibility(item.id, !item.visible);
+      forceUpdate();
+      toast.success('Post visibility updated');
+    } catch (err) {
+      console.error('Error toggling visibility:', err);
+      setError('Failed to update visibility. Please try again.');
+      toast.error('Failed to update visibility, please try again.');
+    } finally {
+      setIsTogglingVisibility(false);
+    }
+  };
+
   const columns: Column<Post>[] = [
     {
       key: 'image_url',
@@ -126,11 +142,24 @@ export default function Posts() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[80%]',
+      width: 'w-[70%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
           {value as string}
         </div>
+      ),
+    },
+    {
+      key: 'visible',
+      name: 'Visible',
+      width: 'w-[10%]',
+      render: (value, item) => (
+        <Switch
+          checked={!!value}
+          onCheckedChange={() => handleVisibilityToggle(item)}
+          disabled={isTogglingVisibility}
+          aria-label={`Toggle visibility for post`}
+        />
       ),
     },
   ];
@@ -157,6 +186,7 @@ export default function Posts() {
           data={posts}
           keyField='id'
           showRowNumbers={true}
+          actionsWidth='w-[10%]'
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}

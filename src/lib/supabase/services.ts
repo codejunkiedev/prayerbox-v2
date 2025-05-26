@@ -188,6 +188,7 @@ export async function upsertAnnouncement(announcement: AnnouncementData & { id?:
     );
   } else {
     announcementToUpsert.created_at = new Date().toISOString();
+    announcementToUpsert.visible = true;
     return await insertRecord<Announcement>(SupabaseTables.Announcements, announcementToUpsert);
   }
 }
@@ -202,6 +203,21 @@ export async function deleteAnnouncement(id: string): Promise<boolean> {
   if (items[0].user_id !== user.id) throw new Error('Not authorized to delete this item');
 
   const updates: Partial<Announcement> = { archived: true, updated_at: new Date().toISOString() };
+
+  await updateRecord<Announcement>(SupabaseTables.Announcements, id, updates);
+  return true;
+}
+
+export async function toggleAnnouncementVisibility(id: string, visible: boolean): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const items = await fetchByColumn<Announcement>(SupabaseTables.Announcements, 'id', id);
+
+  if (items.length === 0) throw new Error('Item not found');
+  if (items[0].user_id !== user.id) throw new Error('Not authorized to update this item');
+
+  const updates: Partial<Announcement> = { visible, updated_at: new Date().toISOString() };
 
   await updateRecord<Announcement>(SupabaseTables.Announcements, id, updates);
   return true;
@@ -234,6 +250,7 @@ export async function upsertEvent(event: EventData & { id?: string }) {
     return await updateRecord<Event>(SupabaseTables.Events, event.id, eventToUpsert);
   } else {
     eventToUpsert.created_at = new Date().toISOString();
+    eventToUpsert.visible = true;
     return await insertRecord<Event>(SupabaseTables.Events, eventToUpsert);
   }
 }
@@ -248,6 +265,21 @@ export async function deleteEvent(id: string): Promise<boolean> {
   if (items[0].user_id !== user.id) throw new Error('Not authorized to delete this item');
 
   const updates: Partial<Event> = { archived: true, updated_at: new Date().toISOString() };
+
+  await updateRecord<Event>(SupabaseTables.Events, id, updates);
+  return true;
+}
+
+export async function toggleEventVisibility(id: string, visible: boolean): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const items = await fetchByColumn<Event>(SupabaseTables.Events, 'id', id);
+
+  if (items.length === 0) throw new Error('Item not found');
+  if (items[0].user_id !== user.id) throw new Error('Not authorized to update this item');
+
+  const updates: Partial<Event> = { visible, updated_at: new Date().toISOString() };
 
   await updateRecord<Event>(SupabaseTables.Events, id, updates);
   return true;
@@ -288,6 +320,7 @@ export async function upsertPost(post: PostData & { id?: string }, imageFile: Fi
     return await updateRecord<Post>(SupabaseTables.Posts, post.id, postToUpsert);
   } else {
     postToUpsert.created_at = new Date().toISOString();
+    postToUpsert.visible = true;
     return await insertRecord<Post>(SupabaseTables.Posts, postToUpsert);
   }
 }
@@ -302,6 +335,21 @@ export async function deletePost(id: string): Promise<boolean> {
   if (items[0].user_id !== user.id) throw new Error('Not authorized to delete this item');
 
   const updates: Partial<Post> = { archived: true, updated_at: new Date().toISOString() };
+
+  await updateRecord<Post>(SupabaseTables.Posts, id, updates);
+  return true;
+}
+
+export async function togglePostVisibility(id: string, visible: boolean): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const items = await fetchByColumn<Post>(SupabaseTables.Posts, 'id', id);
+
+  if (items.length === 0) throw new Error('Item not found');
+  if (items[0].user_id !== user.id) throw new Error('Not authorized to update this item');
+
+  const updates: Partial<Post> = { visible, updated_at: new Date().toISOString() };
 
   await updateRecord<Post>(SupabaseTables.Posts, id, updates);
   return true;

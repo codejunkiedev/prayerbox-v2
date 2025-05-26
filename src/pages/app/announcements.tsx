@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getAnnouncements, deleteAnnouncement } from '@/lib/supabase';
+import { getAnnouncements, deleteAnnouncement, toggleAnnouncementVisibility } from '@/lib/supabase';
 import type { Announcement } from '@/types';
+import { Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
 import { AnnouncementModal, DeleteConfirmationModal } from '@/components/modals';
 import {
@@ -24,6 +25,7 @@ export default function Announcements() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Announcement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -89,13 +91,41 @@ export default function Announcements() {
     setItemToDelete(null);
   };
 
+  const handleVisibilityToggle = async (item: Announcement) => {
+    try {
+      setIsTogglingVisibility(true);
+      await toggleAnnouncementVisibility(item.id, !item.visible);
+      forceUpdate();
+      toast.success('Announcement visibility updated');
+    } catch (err) {
+      console.error('Error toggling visibility:', err);
+      setError('Failed to update visibility. Please try again.');
+      toast.error('Failed to update visibility, please try again.');
+    } finally {
+      setIsTogglingVisibility(false);
+    }
+  };
+
   const columns: Column<Announcement>[] = [
     {
       key: 'description',
       name: 'Description',
-      width: 'w-[90%]',
+      width: 'w-[80%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
+      ),
+    },
+    {
+      key: 'visible',
+      name: 'Visible',
+      width: 'w-[10%]',
+      render: (value, item) => (
+        <Switch
+          checked={!!value}
+          onCheckedChange={() => handleVisibilityToggle(item)}
+          disabled={isTogglingVisibility}
+          aria-label={`Toggle visibility for announcement`}
+        />
       ),
     },
   ];
@@ -126,6 +156,7 @@ export default function Announcements() {
           data={announcements}
           keyField='id'
           showRowNumbers={true}
+          actionsWidth='w-[10%]'
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}

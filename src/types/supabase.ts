@@ -41,6 +41,7 @@ export interface AyatAndHadith extends Base {
 export interface Announcement extends Base {
   description: string;
   archived: boolean;
+  visible: boolean;
 }
 
 export interface Event extends Base {
@@ -54,12 +55,14 @@ export interface Event extends Base {
   naat_khawn: string;
   karm_farma: string;
   archived: boolean;
+  visible: boolean;
 }
 
 export interface Post extends Base {
   title: string;
   image_url: string;
   archived: boolean;
+  visible: boolean;
 }
 
 export interface PrayerAdjustment {
