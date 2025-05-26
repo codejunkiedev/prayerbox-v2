@@ -6,7 +6,7 @@ import {
   updateAyatAndHadithOrder,
 } from '@/lib/supabase';
 import type { AyatAndHadith } from '@/types';
-import { Badge, Button, Switch } from '@/components/ui';
+import { Badge, Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
 import { AyatAndHadithModal, DeleteConfirmationModal } from '@/components/modals';
 import {
@@ -17,7 +17,7 @@ import {
   DraggableDataTable,
   type Column,
 } from '@/components/common';
-import { ArrowUpDown, BookOpen, BookText } from 'lucide-react';
+import { BookOpen, BookText } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
 
@@ -214,12 +214,9 @@ export default function AyatAndHadithPage() {
         title='Ayat and Hadith'
         description='Manage your collection of Quranic verses and Hadith'
         onAddClick={handleAddNew}
-        extraActions={
-          <Button onClick={toggleDraggable} variant={!isDraggable ? 'default' : 'outline'}>
-            <ArrowUpDown className='mr-2 h-4 w-4' />
-            {isDraggable ? 'Disable' : 'Enable'} Reordering
-          </Button>
-        }
+        showReorderingButton
+        onToggleReordering={toggleDraggable}
+        isReorderingEnabled={isDraggable}
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
