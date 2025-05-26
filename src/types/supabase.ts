@@ -35,6 +35,7 @@ export interface AyatAndHadith extends Base {
   reference: string;
   type: 'ayat' | 'hadith';
   archived: boolean;
+  visible: boolean;
 }
 
 export interface Announcement extends Base {

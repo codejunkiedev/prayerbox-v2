@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { getAyatAndHadith, deleteAyatAndHadith } from '@/lib/supabase';
+import {
+  getAyatAndHadith,
+  deleteAyatAndHadith,
+  toggleAyatAndHadithVisibility,
+} from '@/lib/supabase';
 import type { AyatAndHadith } from '@/types';
-import { Badge } from '@/components/ui';
+import { Badge, Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
 import { AyatAndHadithModal, DeleteConfirmationModal } from '@/components/modals';
 import {
@@ -25,6 +29,7 @@ export default function AyatAndHadithPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<AyatAndHadith | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -92,6 +97,21 @@ export default function AyatAndHadithPage() {
     setItemToDelete(null);
   };
 
+  const handleVisibilityToggle = async (item: AyatAndHadith) => {
+    try {
+      setIsTogglingVisibility(true);
+      await toggleAyatAndHadithVisibility(item.id, !item.visible);
+      forceUpdate();
+      toast.success(`${item.type === 'ayat' ? 'Ayat' : 'Hadith'} visibility updated`);
+    } catch (err) {
+      console.error('Error toggling visibility:', err);
+      setError('Failed to update visibility. Please try again.');
+      toast.error(`Failed to update visibility, please try again.`);
+    } finally {
+      setIsTogglingVisibility(false);
+    }
+  };
+
   const getTypeIcon = (type: string) => {
     return type === 'ayat' ? <BookOpen className='h-4 w-4' /> : <BookText className='h-4 w-4' />;
   };
@@ -100,7 +120,7 @@ export default function AyatAndHadithPage() {
     {
       key: 'text',
       name: 'Text',
-      width: 'w-[35%]',
+      width: 'w-[30%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
@@ -108,7 +128,7 @@ export default function AyatAndHadithPage() {
     {
       key: 'translation',
       name: 'Translation',
-      width: 'w-[35%]',
+      width: 'w-[30%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
@@ -130,6 +150,19 @@ export default function AyatAndHadithPage() {
           {getTypeIcon(value as string)}
           <span className='capitalize'>{value as string}</span>
         </Badge>
+      ),
+    },
+    {
+      key: 'visible',
+      name: 'Visible',
+      width: 'w-[10%]',
+      render: (value, item) => (
+        <Switch
+          checked={!!value}
+          onCheckedChange={() => handleVisibilityToggle(item)}
+          disabled={isTogglingVisibility}
+          aria-label={`Toggle visibility for ${item.type}`}
+        />
       ),
     },
   ];

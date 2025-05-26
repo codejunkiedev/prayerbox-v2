@@ -119,6 +119,7 @@ export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData & { i
     );
   } else {
     ayatAndHadithToUpsert.created_at = new Date().toISOString();
+    ayatAndHadithToUpsert.visible = true;
     return await insertRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, ayatAndHadithToUpsert);
   }
 }
@@ -133,6 +134,24 @@ export async function deleteAyatAndHadith(id: string): Promise<boolean> {
   if (items[0].user_id !== user.id) throw new Error('Not authorized to delete this item');
 
   const updates: Partial<AyatAndHadith> = { archived: true, updated_at: new Date().toISOString() };
+
+  await updateRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, id, updates);
+  return true;
+}
+
+export async function toggleAyatAndHadithVisibility(
+  id: string,
+  visible: boolean
+): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const items = await fetchByColumn<AyatAndHadith>(SupabaseTables.AyatAndHadith, 'id', id);
+
+  if (items.length === 0) throw new Error('Item not found');
+  if (items[0].user_id !== user.id) throw new Error('Not authorized to update this item');
+
+  const updates: Partial<AyatAndHadith> = { visible, updated_at: new Date().toISOString() };
 
   await updateRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, id, updates);
   return true;
