@@ -1,16 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import {
-  ChevronLeft,
-  ChevronRight,
-  Home,
-  BookOpen,
-  Bell,
-  Calendar,
-  File,
-  Clock,
-  X,
-} from 'lucide-react';
+import { ChevronLeft, Home, BookOpen, Bell, Calendar, File, Clock, X } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -99,7 +89,13 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             onClick={toggleSidebar}
             aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            {collapsed ? (
+              <div className='w-6 h-6 rounded-md bg-emerald-500 flex items-center justify-center'>
+                <span className='font-bold text-white text-xs'>P</span>
+              </div>
+            ) : (
+              <ChevronLeft size={20} />
+            )}
           </Button>
         )}
       </div>
