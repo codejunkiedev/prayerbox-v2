@@ -98,12 +98,21 @@ export default function AyatAndHadithPage() {
   };
 
   const handleVisibilityToggle = async (item: AyatAndHadith) => {
+    if (isTogglingVisibility) return;
+
+    const newVisibleState = !item.visible;
+    setAyatAndHadith(currentItems =>
+      currentItems.map(i => (i.id === item.id ? { ...i, visible: newVisibleState } : i))
+    );
+
     try {
       setIsTogglingVisibility(true);
-      await toggleAyatAndHadithVisibility(item.id, !item.visible);
-      forceUpdate();
+      await toggleAyatAndHadithVisibility(item.id, newVisibleState);
       toast.success(`${item.type === 'ayat' ? 'Ayat' : 'Hadith'} visibility updated`);
     } catch (err) {
+      setAyatAndHadith(currentItems =>
+        currentItems.map(i => (i.id === item.id ? { ...i, visible: item.visible } : i))
+      );
       console.error('Error toggling visibility:', err);
       setError('Failed to update visibility. Please try again.');
       toast.error(`Failed to update visibility, please try again.`);
@@ -159,8 +168,8 @@ export default function AyatAndHadithPage() {
       render: (value, item) => (
         <Switch
           checked={!!value}
-          onCheckedChange={() => handleVisibilityToggle(item)}
           disabled={isTogglingVisibility}
+          onCheckedChange={() => handleVisibilityToggle(item)}
           aria-label={`Toggle visibility for ${item.type}`}
         />
       ),

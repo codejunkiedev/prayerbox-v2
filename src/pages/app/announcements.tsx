@@ -92,12 +92,21 @@ export default function Announcements() {
   };
 
   const handleVisibilityToggle = async (item: Announcement) => {
+    if (isTogglingVisibility) return;
+
+    const newVisibleState = !item.visible;
+    setAnnouncements(currentItems =>
+      currentItems.map(i => (i.id === item.id ? { ...i, visible: newVisibleState } : i))
+    );
+
     try {
       setIsTogglingVisibility(true);
-      await toggleAnnouncementVisibility(item.id, !item.visible);
-      forceUpdate();
+      await toggleAnnouncementVisibility(item.id, newVisibleState);
       toast.success('Announcement visibility updated');
     } catch (err) {
+      setAnnouncements(currentItems =>
+        currentItems.map(i => (i.id === item.id ? { ...i, visible: item.visible } : i))
+      );
       console.error('Error toggling visibility:', err);
       setError('Failed to update visibility. Please try again.');
       toast.error('Failed to update visibility, please try again.');
