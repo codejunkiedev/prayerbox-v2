@@ -7,3 +7,4 @@ export { default as Announcements } from './announcements';
 export { default as Events } from './events';
 export { default as Posts } from './posts';
 export { default as PrayerTimings } from './prayer-timings';
+export { default as Settings } from './settings';

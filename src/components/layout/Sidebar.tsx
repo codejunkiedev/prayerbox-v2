@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { ChevronLeft, Home, BookOpen, Bell, Calendar, File, Clock, X } from 'lucide-react';
+import {
+  ChevronLeft,
+  Home,
+  BookOpen,
+  Bell,
+  Calendar,
+  File,
+  Clock,
+  Settings,
+  X,
+} from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
@@ -52,6 +62,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       label: 'Prayer Timings',
       path: AppRoutes.PrayerTimings,
       icon: <Clock size={20} />,
+    },
+    {
+      label: 'Settings',
+      path: AppRoutes.Settings,
+      icon: <Settings size={20} />,
     },
   ];
 
