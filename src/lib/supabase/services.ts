@@ -23,6 +23,7 @@ import {
   updateRecord,
   insertRecord,
   fetchByMultipleConditions,
+  updateRecordsOrder,
 } from './helpers';
 import { generateMasjidCode } from '@/utils';
 
@@ -97,7 +98,17 @@ export async function getAyatAndHadith(): Promise<AyatAndHadith[]> {
     { column: 'archived', value: false, isNull: true },
   ];
 
-  return await fetchByMultipleConditions<AyatAndHadith>(SupabaseTables.AyatAndHadith, conditions);
+  const items = await fetchByMultipleConditions<AyatAndHadith>(
+    SupabaseTables.AyatAndHadith,
+    conditions
+  );
+
+  return items.sort((a, b) => {
+    if (a.display_order !== undefined && b.display_order !== undefined) {
+      return a.display_order - b.display_order;
+    }
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+  });
 }
 
 export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData & { id?: string }) {
@@ -120,6 +131,15 @@ export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData & { i
   } else {
     ayatAndHadithToUpsert.created_at = new Date().toISOString();
     ayatAndHadithToUpsert.visible = true;
+
+    const allItems = await getAyatAndHadith();
+    const maxOrder = allItems.reduce(
+      (max, item) =>
+        item.display_order !== undefined && item.display_order > max ? item.display_order : max,
+      0
+    );
+    ayatAndHadithToUpsert.display_order = maxOrder + 1;
+
     return await insertRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, ayatAndHadithToUpsert);
   }
 }
@@ -155,6 +175,37 @@ export async function toggleAyatAndHadithVisibility(
 
   await updateRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, id, updates);
   return true;
+}
+
+/**
+ * Updates the display order of ayat and hadith records
+ * @param items Array of items with id and new order
+ * @returns Whether the update was successful
+ */
+export async function updateAyatAndHadithOrder(
+  items: Array<{ id: string; display_order: number }>
+): Promise<boolean> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const itemIds = items.map(item => item.id);
+  const conditions = [{ column: 'id', value: itemIds[0] }];
+
+  for (let i = 1; i < itemIds.length; i++) {
+    conditions.push({ column: 'id', value: itemIds[i] });
+  }
+
+  const existingItems = await fetchByMultipleConditions<AyatAndHadith>(
+    SupabaseTables.AyatAndHadith,
+    conditions
+  );
+
+  const unauthorized = existingItems.some(item => item.user_id !== user.id);
+  if (unauthorized) {
+    throw new Error('Not authorized to update one or more items');
+  }
+
+  return await updateRecordsOrder(SupabaseTables.AyatAndHadith, items, user.id);
 }
 
 export async function getAnnouncements(): Promise<Announcement[]> {

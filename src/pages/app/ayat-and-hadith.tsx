@@ -3,9 +3,10 @@ import {
   getAyatAndHadith,
   deleteAyatAndHadith,
   toggleAyatAndHadithVisibility,
+  updateAyatAndHadithOrder,
 } from '@/lib/supabase';
 import type { AyatAndHadith } from '@/types';
-import { Badge, Switch } from '@/components/ui';
+import { Badge, Button, Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
 import { AyatAndHadithModal, DeleteConfirmationModal } from '@/components/modals';
 import {
@@ -13,10 +14,10 @@ import {
   ErrorAlert,
   EmptyState,
   ActionButtons,
-  DataTable,
+  DraggableDataTable,
   type Column,
 } from '@/components/common';
-import { BookOpen, BookText } from 'lucide-react';
+import { ArrowUpDown, BookOpen, BookText } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
 
@@ -30,6 +31,8 @@ export default function AyatAndHadithPage() {
   const [itemToDelete, setItemToDelete] = useState<AyatAndHadith | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [isDraggable, setIsDraggable] = useState(false);
+  const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -121,6 +124,35 @@ export default function AyatAndHadithPage() {
     }
   };
 
+  const handleOrderChange = async (items: AyatAndHadith[]) => {
+    if (isUpdatingOrder) return;
+
+    try {
+      setIsUpdatingOrder(true);
+      const itemsCopy = [...items];
+      const updatedItems = itemsCopy.map((item, index) => ({
+        id: item.id,
+        display_order: index + 1,
+      }));
+
+      await updateAyatAndHadithOrder(updatedItems);
+
+      setAyatAndHadith(itemsCopy);
+      toast.success('Order updated successfully');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      setError('Failed to update order. Please try again.');
+      toast.error('Failed to update order, please try again.');
+      forceUpdate();
+    } finally {
+      setIsUpdatingOrder(false);
+    }
+  };
+
+  const toggleDraggable = () => {
+    setIsDraggable(prev => !prev);
+  };
+
   const getTypeIcon = (type: string) => {
     return type === 'ayat' ? <BookOpen className='h-4 w-4' /> : <BookText className='h-4 w-4' />;
   };
@@ -182,6 +214,12 @@ export default function AyatAndHadithPage() {
         title='Ayat and Hadith'
         description='Manage your collection of Quranic verses and Hadith'
         onAddClick={handleAddNew}
+        extraActions={
+          <Button onClick={toggleDraggable} variant={!isDraggable ? 'default' : 'outline'}>
+            <ArrowUpDown className='mr-2 h-4 w-4' />
+            {isDraggable ? 'Disable' : 'Enable'} Reordering
+          </Button>
+        }
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
@@ -197,13 +235,15 @@ export default function AyatAndHadithPage() {
           onActionClick={handleAddNew}
         />
       ) : (
-        <DataTable
+        <DraggableDataTable
           columns={columns}
           data={ayatAndHadith}
           keyField='id'
           actionsWidth='w-[5%]'
           showRowNumbers={true}
           rowNumberWidth='w-[4%]'
+          isDraggable={isDraggable}
+          onOrderChange={handleOrderChange}
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}

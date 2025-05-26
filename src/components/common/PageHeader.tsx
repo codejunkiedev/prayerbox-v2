@@ -11,6 +11,7 @@ type PageHeaderProps = {
   showSettingsButton?: boolean;
   onSettingsClick?: () => void;
   rightContent?: ReactNode;
+  extraActions?: ReactNode;
 };
 
 export function PageHeader({
@@ -22,6 +23,7 @@ export function PageHeader({
   showSettingsButton = false,
   onSettingsClick,
   rightContent,
+  extraActions,
 }: PageHeaderProps) {
   return (
     <Card>
@@ -33,6 +35,7 @@ export function PageHeader({
           </div>
           {rightContent || (
             <div className='flex gap-2'>
+              {extraActions}
               {showSettingsButton && onSettingsClick && (
                 <Button onClick={onSettingsClick}>
                   <Settings className='mr-2 h-4 w-4' />
