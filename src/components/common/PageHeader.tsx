@@ -1,6 +1,5 @@
 import { Button, Card, CardHeader, CardTitle, CardDescription } from '@/components/ui';
-import { Plus, Settings } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { ArrowUpDown, Plus, Settings } from 'lucide-react';
 
 type PageHeaderProps = {
   title: string;
@@ -10,7 +9,9 @@ type PageHeaderProps = {
   onAddClick?: () => void;
   showSettingsButton?: boolean;
   onSettingsClick?: () => void;
-  rightContent?: ReactNode;
+  showReorderingButton?: boolean;
+  onToggleReordering?: () => void;
+  isReorderingEnabled?: boolean;
 };
 
 export function PageHeader({
@@ -21,8 +22,12 @@ export function PageHeader({
   onAddClick,
   showSettingsButton = false,
   onSettingsClick,
-  rightContent,
+  showReorderingButton = false,
+  onToggleReordering,
+  isReorderingEnabled = false,
 }: PageHeaderProps) {
+  const isRightContent = showAddButton || showSettingsButton || showReorderingButton;
+
   return (
     <Card>
       <CardHeader>
@@ -31,8 +36,17 @@ export function PageHeader({
             <CardTitle>{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
-          {rightContent || (
+          {isRightContent && (
             <div className='flex gap-2'>
+              {showReorderingButton && (
+                <Button
+                  onClick={onToggleReordering}
+                  variant={!isReorderingEnabled ? 'default' : 'outline'}
+                >
+                  <ArrowUpDown className='mr-2 h-4 w-4' />
+                  {isReorderingEnabled ? 'Disable' : 'Enable'} Reordering
+                </Button>
+              )}
               {showSettingsButton && onSettingsClick && (
                 <Button onClick={onSettingsClick}>
                   <Settings className='mr-2 h-4 w-4' />

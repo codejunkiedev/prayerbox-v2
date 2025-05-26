@@ -35,11 +35,15 @@ export interface AyatAndHadith extends Base {
   reference: string;
   type: 'ayat' | 'hadith';
   archived: boolean;
+  visible: boolean;
+  display_order?: number;
 }
 
 export interface Announcement extends Base {
   description: string;
   archived: boolean;
+  visible: boolean;
+  display_order?: number;
 }
 
 export interface Event extends Base {
@@ -53,12 +57,16 @@ export interface Event extends Base {
   naat_khawn: string;
   karm_farma: string;
   archived: boolean;
+  visible: boolean;
+  display_order?: number;
 }
 
 export interface Post extends Base {
   title: string;
   image_url: string;
   archived: boolean;
+  visible: boolean;
+  display_order?: number;
 }
 
 export interface PrayerAdjustment {

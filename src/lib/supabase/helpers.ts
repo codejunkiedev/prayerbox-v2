@@ -373,3 +373,33 @@ export async function deleteRecord(table: string, id: string): Promise<boolean> 
 
   return true;
 }
+
+/**
+ * Helper to update order of records in a table
+ * @param table The table name
+ * @param items Array of items with id and order fields
+ * @param userId The user ID to include in the updates
+ * @returns Whether the update was successful
+ */
+export async function updateRecordsOrder(
+  table: string,
+  items: Array<{ id: string; display_order: number }>,
+  userId: string
+): Promise<boolean> {
+  // Prepare updates for each item
+  const updates = items.map(item => ({
+    id: item.id,
+    display_order: item.display_order,
+    updated_at: new Date().toISOString(),
+    user_id: userId,
+  }));
+
+  // Update all records in a single transaction
+  const { error } = await supabase.from(table).upsert(updates);
+
+  if (error) {
+    throw handleSupabaseError(error, `Error updating record order in ${table}`);
+  }
+
+  return true;
+}

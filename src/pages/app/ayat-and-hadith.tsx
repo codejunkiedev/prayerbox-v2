@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
-import { getAyatAndHadith, deleteAyatAndHadith } from '@/lib/supabase';
+import {
+  getAyatAndHadith,
+  deleteAyatAndHadith,
+  toggleAyatAndHadithVisibility,
+  updateAyatAndHadithOrder,
+} from '@/lib/supabase';
 import type { AyatAndHadith } from '@/types';
-import { Badge } from '@/components/ui';
+import { Badge, Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
 import { AyatAndHadithModal, DeleteConfirmationModal } from '@/components/modals';
 import {
@@ -9,7 +14,7 @@ import {
   ErrorAlert,
   EmptyState,
   ActionButtons,
-  DataTable,
+  DraggableDataTable,
   type Column,
 } from '@/components/common';
 import { BookOpen, BookText } from 'lucide-react';
@@ -25,6 +30,9 @@ export default function AyatAndHadithPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<AyatAndHadith | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [isDraggable, setIsDraggable] = useState(false);
+  const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -92,6 +100,59 @@ export default function AyatAndHadithPage() {
     setItemToDelete(null);
   };
 
+  const handleVisibilityToggle = async (item: AyatAndHadith) => {
+    if (isTogglingVisibility) return;
+
+    const newVisibleState = !item.visible;
+    setAyatAndHadith(currentItems =>
+      currentItems.map(i => (i.id === item.id ? { ...i, visible: newVisibleState } : i))
+    );
+
+    try {
+      setIsTogglingVisibility(true);
+      await toggleAyatAndHadithVisibility(item.id, newVisibleState);
+      toast.success(`${item.type === 'ayat' ? 'Ayat' : 'Hadith'} visibility updated`);
+    } catch (err) {
+      setAyatAndHadith(currentItems =>
+        currentItems.map(i => (i.id === item.id ? { ...i, visible: item.visible } : i))
+      );
+      console.error('Error toggling visibility:', err);
+      setError('Failed to update visibility. Please try again.');
+      toast.error(`Failed to update visibility, please try again.`);
+    } finally {
+      setIsTogglingVisibility(false);
+    }
+  };
+
+  const handleOrderChange = async (items: AyatAndHadith[]) => {
+    if (isUpdatingOrder) return;
+
+    try {
+      setIsUpdatingOrder(true);
+      const itemsCopy = [...items];
+      const updatedItems = itemsCopy.map((item, index) => ({
+        id: item.id,
+        display_order: index + 1,
+      }));
+
+      await updateAyatAndHadithOrder(updatedItems);
+
+      setAyatAndHadith(itemsCopy);
+      toast.success('Order updated successfully');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      setError('Failed to update order. Please try again.');
+      toast.error('Failed to update order, please try again.');
+      forceUpdate();
+    } finally {
+      setIsUpdatingOrder(false);
+    }
+  };
+
+  const toggleDraggable = () => {
+    setIsDraggable(prev => !prev);
+  };
+
   const getTypeIcon = (type: string) => {
     return type === 'ayat' ? <BookOpen className='h-4 w-4' /> : <BookText className='h-4 w-4' />;
   };
@@ -100,7 +161,7 @@ export default function AyatAndHadithPage() {
     {
       key: 'text',
       name: 'Text',
-      width: 'w-[35%]',
+      width: 'w-[30%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
@@ -108,7 +169,7 @@ export default function AyatAndHadithPage() {
     {
       key: 'translation',
       name: 'Translation',
-      width: 'w-[35%]',
+      width: 'w-[30%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
       ),
@@ -132,6 +193,19 @@ export default function AyatAndHadithPage() {
         </Badge>
       ),
     },
+    {
+      key: 'visible',
+      name: 'Visible',
+      width: 'w-[10%]',
+      render: (value, item) => (
+        <Switch
+          checked={!!value}
+          disabled={isTogglingVisibility}
+          onCheckedChange={() => handleVisibilityToggle(item)}
+          aria-label={`Toggle visibility for ${item.type}`}
+        />
+      ),
+    },
   ];
 
   return (
@@ -140,6 +214,9 @@ export default function AyatAndHadithPage() {
         title='Ayat and Hadith'
         description='Manage your collection of Quranic verses and Hadith'
         onAddClick={handleAddNew}
+        showReorderingButton
+        onToggleReordering={toggleDraggable}
+        isReorderingEnabled={isDraggable}
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
@@ -155,13 +232,15 @@ export default function AyatAndHadithPage() {
           onActionClick={handleAddNew}
         />
       ) : (
-        <DataTable
+        <DraggableDataTable
           columns={columns}
           data={ayatAndHadith}
           keyField='id'
           actionsWidth='w-[5%]'
           showRowNumbers={true}
           rowNumberWidth='w-[4%]'
+          isDraggable={isDraggable}
+          onOrderChange={handleOrderChange}
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}

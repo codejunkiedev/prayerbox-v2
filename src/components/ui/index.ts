@@ -23,3 +23,4 @@ export * from './accordion';
 export * from './radio-group';
 export * from './slider';
 export * from './map';
+export * from './switch';

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getPosts, deletePost } from '@/lib/supabase';
+import { getPosts, deletePost, togglePostVisibility, updatePostsOrder } from '@/lib/supabase';
 import type { Post } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
 import { PostModal, DeleteConfirmationModal } from '@/components/modals';
@@ -8,12 +8,12 @@ import {
   ErrorAlert,
   EmptyState,
   ActionButtons,
-  DataTable,
+  DraggableDataTable,
   type Column,
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
+import { Popover, PopoverContent, PopoverTrigger, Switch } from '@/components/ui';
 import { toast } from 'sonner';
 
 export default function Posts() {
@@ -25,6 +25,9 @@ export default function Posts() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Post | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [isDraggable, setIsDraggable] = useState(false);
+  const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -90,6 +93,59 @@ export default function Posts() {
     setItemToDelete(null);
   };
 
+  const handleVisibilityToggle = async (item: Post) => {
+    if (isTogglingVisibility) return;
+
+    const newVisibleState = !item.visible;
+    setPosts(currentItems =>
+      currentItems.map(i => (i.id === item.id ? { ...i, visible: newVisibleState } : i))
+    );
+
+    try {
+      setIsTogglingVisibility(true);
+      await togglePostVisibility(item.id, newVisibleState);
+      toast.success('Post visibility updated');
+    } catch (err) {
+      setPosts(currentItems =>
+        currentItems.map(i => (i.id === item.id ? { ...i, visible: item.visible } : i))
+      );
+      console.error('Error toggling visibility:', err);
+      setError('Failed to update visibility. Please try again.');
+      toast.error('Failed to update visibility, please try again.');
+    } finally {
+      setIsTogglingVisibility(false);
+    }
+  };
+
+  const toggleDraggable = () => {
+    setIsDraggable(prev => !prev);
+  };
+
+  const handleOrderChange = async (items: Post[]) => {
+    if (isUpdatingOrder) return;
+
+    try {
+      setIsUpdatingOrder(true);
+      const itemsCopy = [...items];
+      const updatedItems = itemsCopy.map((item, index) => ({
+        id: item.id,
+        display_order: index + 1,
+      }));
+
+      await updatePostsOrder(updatedItems);
+
+      setPosts(itemsCopy);
+      toast.success('Order updated successfully');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      setError('Failed to update order. Please try again.');
+      toast.error('Failed to update order, please try again.');
+      forceUpdate();
+    } finally {
+      setIsUpdatingOrder(false);
+    }
+  };
+
   const columns: Column<Post>[] = [
     {
       key: 'image_url',
@@ -126,18 +182,38 @@ export default function Posts() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[80%]',
+      width: 'w-[70%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
           {value as string}
         </div>
       ),
     },
+    {
+      key: 'visible',
+      name: 'Visible',
+      width: 'w-[10%]',
+      render: (value, item) => (
+        <Switch
+          checked={!!value}
+          onCheckedChange={() => handleVisibilityToggle(item)}
+          disabled={isTogglingVisibility}
+          aria-label={`Toggle visibility for post`}
+        />
+      ),
+    },
   ];
 
   return (
     <div className='container mx-auto py-8 space-y-6'>
-      <PageHeader title='Posts' description='Manage your masjid posts' onAddClick={handleAddNew} />
+      <PageHeader
+        title='Posts'
+        description='Manage your masjid posts'
+        onAddClick={handleAddNew}
+        showReorderingButton
+        onToggleReordering={toggleDraggable}
+        isReorderingEnabled={isDraggable}
+      />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
@@ -152,11 +228,14 @@ export default function Posts() {
           onActionClick={handleAddNew}
         />
       ) : (
-        <DataTable
+        <DraggableDataTable
           columns={columns}
           data={posts}
           keyField='id'
           showRowNumbers={true}
+          actionsWidth='w-[10%]'
+          isDraggable={isDraggable}
+          onOrderChange={handleOrderChange}
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}

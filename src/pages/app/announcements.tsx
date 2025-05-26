@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
-import { getAnnouncements, deleteAnnouncement } from '@/lib/supabase';
+import {
+  getAnnouncements,
+  deleteAnnouncement,
+  toggleAnnouncementVisibility,
+  updateAnnouncementsOrder,
+} from '@/lib/supabase';
 import type { Announcement } from '@/types';
+import { Switch } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
 import { AnnouncementModal, DeleteConfirmationModal } from '@/components/modals';
 import {
@@ -8,7 +14,7 @@ import {
   ErrorAlert,
   EmptyState,
   ActionButtons,
-  DataTable,
+  DraggableDataTable,
   type Column,
 } from '@/components/common';
 import { Bell } from 'lucide-react';
@@ -24,6 +30,9 @@ export default function Announcements() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Announcement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [isDraggable, setIsDraggable] = useState(false);
+  const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -89,13 +98,79 @@ export default function Announcements() {
     setItemToDelete(null);
   };
 
+  const handleVisibilityToggle = async (item: Announcement) => {
+    if (isTogglingVisibility) return;
+
+    const newVisibleState = !item.visible;
+    setAnnouncements(currentItems =>
+      currentItems.map(i => (i.id === item.id ? { ...i, visible: newVisibleState } : i))
+    );
+
+    try {
+      setIsTogglingVisibility(true);
+      await toggleAnnouncementVisibility(item.id, newVisibleState);
+      toast.success('Announcement visibility updated');
+    } catch (err) {
+      setAnnouncements(currentItems =>
+        currentItems.map(i => (i.id === item.id ? { ...i, visible: item.visible } : i))
+      );
+      console.error('Error toggling visibility:', err);
+      setError('Failed to update visibility. Please try again.');
+      toast.error('Failed to update visibility, please try again.');
+    } finally {
+      setIsTogglingVisibility(false);
+    }
+  };
+
+  const toggleDraggable = () => {
+    setIsDraggable(prev => !prev);
+  };
+
+  const handleOrderChange = async (items: Announcement[]) => {
+    if (isUpdatingOrder) return;
+
+    try {
+      setIsUpdatingOrder(true);
+      const itemsCopy = [...items];
+      const updatedItems = itemsCopy.map((item, index) => ({
+        id: item.id,
+        display_order: index + 1,
+      }));
+
+      await updateAnnouncementsOrder(updatedItems);
+
+      setAnnouncements(itemsCopy);
+      toast.success('Order updated successfully');
+    } catch (err) {
+      console.error('Error updating order:', err);
+      setError('Failed to update order. Please try again.');
+      toast.error('Failed to update order, please try again.');
+      forceUpdate();
+    } finally {
+      setIsUpdatingOrder(false);
+    }
+  };
+
   const columns: Column<Announcement>[] = [
     {
       key: 'description',
       name: 'Description',
-      width: 'w-[90%]',
+      width: 'w-[80%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden'>{value as string}</div>
+      ),
+    },
+    {
+      key: 'visible',
+      name: 'Visible',
+      width: 'w-[10%]',
+      render: (value, item) => (
+        <Switch
+          checked={!!value}
+          onCheckedChange={() => handleVisibilityToggle(item)}
+          disabled={isTogglingVisibility}
+          aria-label={`Toggle visibility for announcement`}
+        />
       ),
     },
   ];
@@ -106,6 +181,9 @@ export default function Announcements() {
         title='Announcements'
         description='Manage your masjid announcements'
         onAddClick={handleAddNew}
+        showReorderingButton
+        onToggleReordering={toggleDraggable}
+        isReorderingEnabled={isDraggable}
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
@@ -121,11 +199,14 @@ export default function Announcements() {
           onActionClick={handleAddNew}
         />
       ) : (
-        <DataTable
+        <DraggableDataTable
           columns={columns}
           data={announcements}
           keyField='id'
           showRowNumbers={true}
+          actionsWidth='w-[10%]'
+          isDraggable={isDraggable}
+          onOrderChange={handleOrderChange}
           renderActions={item => (
             <ActionButtons
               onEdit={() => handleEdit(item)}
