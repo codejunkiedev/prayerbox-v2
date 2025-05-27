@@ -47,7 +47,6 @@ export default function Loading() {
               style={{ width: `${progress}%` }}
             ></div>
           </div>
-          <p className='text-xs text-muted-foreground/70'>{progress}%</p>
         </div>
       </div>
     </div>
