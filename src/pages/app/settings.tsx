@@ -7,6 +7,10 @@ import { toast } from 'sonner';
 import { getOrCreateSettings, updateSettings } from '@/lib/supabase';
 import type { Module, Settings } from '@/types';
 import { TableSkeleton } from '@/components/skeletons/TableSkeleton';
+import { Button } from '@/components/ui/button';
+import { Pencil } from 'lucide-react';
+import { Link } from 'react-router';
+import { AppRoutes } from '@/constants';
 
 export default function Settings() {
   const [settings, setSettings] = useState<Settings | null>(null);
@@ -30,11 +34,26 @@ export default function Settings() {
     loadSettings();
   }, []);
 
+  const getModuleRoute = (moduleName: string): string => {
+    switch (moduleName) {
+      case 'Ayats & Hadiths':
+        return AppRoutes.AyatAndHadith;
+      case 'Announcements':
+        return AppRoutes.Announcements;
+      case 'Events':
+        return AppRoutes.Events;
+      case 'Posts':
+        return AppRoutes.Posts;
+      default:
+        return AppRoutes.Home;
+    }
+  };
+
   const columns: Column<Module>[] = [
     {
       key: 'name',
-      name: 'Module Name',
-      width: 'w-[90%]',
+      name: 'Module',
+      width: 'w-[80%]',
     },
     {
       key: 'toggle',
@@ -48,6 +67,19 @@ export default function Settings() {
         />
       ),
     },
+    {
+      key: 'manage',
+      name: 'Manage',
+      width: 'w-[10%]',
+      className: 'text-center',
+      render: (_, item) => (
+        <Link to={getModuleRoute(item.name)}>
+          <Button size='sm' variant='secondary' className='cursor-pointer'>
+            <Pencil className='h-4 w-4' />
+          </Button>
+        </Link>
+      ),
+    },
   ];
 
   const handleOrderChange = async (items: Module[]) => {
@@ -55,7 +87,7 @@ export default function Settings() {
 
     try {
       setIsSaving(true);
-      const updatedModules = items.map((item, index) => ({ ...item, order: index + 1 }));
+      const updatedModules = items.map((item, index) => ({ ...item, display_order: index + 1 }));
       const updatedSettings = await updateSettings(updatedModules);
       setSettings(updatedSettings);
       toast.success('Order updated successfully');
@@ -93,8 +125,10 @@ export default function Settings() {
         <CardHeader>
           <CardTitle>Module Settings</CardTitle>
           <CardDescription>
-            Drag and drop to reorder modules or toggle to enable/disable modules. Changes are saved
-            automatically.
+            Drag and drop to reorder modules or toggle to enable/disable modules.
+            <br />
+            Changes are saved automatically. Click "Manage" to go to a module's page to manage its
+            content.
           </CardDescription>
         </CardHeader>
         <CardContent>
