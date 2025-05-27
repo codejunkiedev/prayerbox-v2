@@ -1,9 +1,16 @@
-import { BookOpen, Bell, Calendar, User } from 'lucide-react';
+import { BookOpen, Bell, Clock, Settings, Images, Tickets, User } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { ModuleCard, QuickActionButton, WelcomeHeader, SectionTitle } from '@/components/home';
 
 export default function Home() {
   const modules = [
+    {
+      title: 'Prayer Timings',
+      description: 'Manage prayer times for your masjid',
+      icon: <Clock className='h-10 w-10 text-primary' />,
+      path: AppRoutes.PrayerTimings,
+      color: 'bg-red-50 dark:bg-red-950/30',
+    },
     {
       title: 'Ayat & Hadith',
       description: 'Manage your collection of Quranic verses and Hadith',
@@ -18,39 +25,32 @@ export default function Home() {
       path: AppRoutes.Announcements,
       color: 'bg-green-50 dark:bg-green-950/30',
     },
-    {
-      title: 'Events',
-      description: 'Schedule and manage upcoming events for your masjid',
-      icon: <Calendar className='h-10 w-10 text-primary' />,
-      path: AppRoutes.Events,
-      color: 'bg-amber-50 dark:bg-amber-950/30',
-    },
   ];
 
   const quickActions = [
     {
-      title: 'Add Ayat or Hadith',
-      description: 'Share wisdom with your community',
-      icon: <BookOpen className='h-5 w-5' />,
-      path: AppRoutes.AyatAndHadith,
-    },
-    {
-      title: 'Create Announcement',
-      description: 'Keep your community informed',
-      icon: <Bell className='h-5 w-5' />,
-      path: AppRoutes.Announcements,
-    },
-    {
       title: 'Schedule Event',
       description: 'Plan your next gathering',
-      icon: <Calendar className='h-5 w-5' />,
+      icon: <Tickets className='h-5 w-5' />,
       path: AppRoutes.Events,
+    },
+    {
+      title: 'Add Post',
+      description: 'Share content with your community',
+      icon: <Images className='h-5 w-5' />,
+      path: AppRoutes.Posts,
     },
     {
       title: 'Update Profile',
       description: 'Manage your masjid information',
       icon: <User className='h-5 w-5' />,
       path: AppRoutes.Profile,
+    },
+    {
+      title: 'Settings',
+      description: 'Update the display settings',
+      icon: <Settings className='h-5 w-5' />,
+      path: AppRoutes.Settings,
     },
   ];
 
