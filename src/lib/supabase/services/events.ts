@@ -7,6 +7,8 @@ import {
   insertRecord,
   fetchByMultipleConditions,
   updateRecordsOrder,
+  sortByDisplayOrderOrCreatedAt,
+  getMaxOrderValue,
 } from '../helpers';
 
 export async function getEvents(): Promise<Event[]> {
@@ -20,12 +22,7 @@ export async function getEvents(): Promise<Event[]> {
 
   const items = await fetchByMultipleConditions<Event>(SupabaseTables.Events, conditions);
 
-  return items.sort((a, b) => {
-    if (a.display_order !== undefined && b.display_order !== undefined) {
-      return a.display_order - b.display_order;
-    }
-    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-  });
+  return sortByDisplayOrderOrCreatedAt(items);
 }
 
 export async function upsertEvent(event: EventData & { id?: string }) {
@@ -46,12 +43,7 @@ export async function upsertEvent(event: EventData & { id?: string }) {
     eventToUpsert.visible = true;
 
     const allItems = await getEvents();
-    const maxOrder = allItems.reduce(
-      (max, item) =>
-        item.display_order !== undefined && item.display_order > max ? item.display_order : max,
-      0
-    );
-    eventToUpsert.display_order = maxOrder + 1;
+    eventToUpsert.display_order = getMaxOrderValue(allItems) + 1;
 
     return await insertRecord<Event>(SupabaseTables.Events, eventToUpsert);
   }

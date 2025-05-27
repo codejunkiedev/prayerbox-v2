@@ -403,3 +403,63 @@ export async function updateRecordsOrder(
 
   return true;
 }
+
+/**
+ * Sorts records by display_order/displayOrder (if available) or created_at/createdAt as fallback
+ * @param records Array of records to sort
+ * @param ascending Whether to sort in ascending order (true) or descending (false)
+ * @returns Sorted array of records
+ */
+export const sortByDisplayOrderOrCreatedAt = <
+  T extends { display_order?: number; created_at?: string },
+>(
+  records: T[],
+  ascending: boolean = true
+): T[] => {
+  return [...records].sort((a, b) => {
+    const aDisplayOrder = a?.display_order;
+    const bDisplayOrder = b?.display_order;
+    const aCreatedAt = a?.created_at;
+    const bCreatedAt = b?.created_at;
+
+    const checks = [null, undefined, 0];
+
+    // If both have display_order/displayOrder, sort by it
+    if (checks.includes(aDisplayOrder) && checks.includes(bDisplayOrder)) {
+      return ascending
+        ? Number(aDisplayOrder) - Number(bDisplayOrder)
+        : Number(bDisplayOrder) - Number(aDisplayOrder);
+    }
+
+    // If only one has display_order/displayOrder, prioritize the one with it
+    if (aDisplayOrder !== undefined && aDisplayOrder !== null) return ascending ? -1 : 1;
+    if (bDisplayOrder !== undefined && bDisplayOrder !== null) return ascending ? 1 : -1;
+
+    // If neither has display_order/displayOrder, fallback to created_at/createdAt
+    if (aCreatedAt && bCreatedAt) {
+      return ascending
+        ? new Date(String(aCreatedAt)).getTime() - new Date(String(bCreatedAt)).getTime()
+        : new Date(String(bCreatedAt)).getTime() - new Date(String(aCreatedAt)).getTime();
+    }
+
+    // If only one has created_at/createdAt, prioritize the one with it
+    if (aCreatedAt) return ascending ? -1 : 1;
+    if (bCreatedAt) return ascending ? 1 : -1;
+
+    // If neither has any sorting field, maintain original order
+    return 0;
+  });
+};
+
+/**
+ * Gets the maximum display_order value from an array of items
+ * @param items Array of items that may have a display_order property
+ * @returns The maximum display_order value found, or 0 if none exists
+ */
+export function getMaxOrderValue<T extends { display_order?: number }>(items: T[]): number {
+  return items.reduce(
+    (max, item) =>
+      item.display_order !== undefined && item.display_order > max ? item.display_order : max,
+    0
+  );
+}

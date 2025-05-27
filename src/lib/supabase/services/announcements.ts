@@ -7,6 +7,8 @@ import {
   insertRecord,
   fetchByMultipleConditions,
   updateRecordsOrder,
+  sortByDisplayOrderOrCreatedAt,
+  getMaxOrderValue,
 } from '../helpers';
 
 export async function getAnnouncements(): Promise<Announcement[]> {
@@ -23,12 +25,7 @@ export async function getAnnouncements(): Promise<Announcement[]> {
     conditions
   );
 
-  return items.sort((a, b) => {
-    if (a.display_order !== undefined && b.display_order !== undefined) {
-      return a.display_order - b.display_order;
-    }
-    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-  });
+  return sortByDisplayOrderOrCreatedAt(items);
 }
 
 export async function upsertAnnouncement(announcement: AnnouncementData & { id?: string }) {
@@ -53,12 +50,7 @@ export async function upsertAnnouncement(announcement: AnnouncementData & { id?:
     announcementToUpsert.visible = true;
 
     const allItems = await getAnnouncements();
-    const maxOrder = allItems.reduce(
-      (max, item) =>
-        item.display_order !== undefined && item.display_order > max ? item.display_order : max,
-      0
-    );
-    announcementToUpsert.display_order = maxOrder + 1;
+    announcementToUpsert.display_order = getMaxOrderValue(allItems) + 1;
 
     return await insertRecord<Announcement>(SupabaseTables.Announcements, announcementToUpsert);
   }

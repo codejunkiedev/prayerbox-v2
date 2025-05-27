@@ -1,5 +1,11 @@
 import { SupabaseTables, type Settings, type Module } from '@/types';
-import { getCurrentUser, insertRecord, fetchByColumn, updateRecord } from '../helpers';
+import {
+  getCurrentUser,
+  insertRecord,
+  fetchByColumn,
+  updateRecord,
+  sortByDisplayOrderOrCreatedAt,
+} from '../helpers';
 
 export async function fetchSettings(): Promise<Settings | null> {
   try {
@@ -10,7 +16,7 @@ export async function fetchSettings(): Promise<Settings | null> {
 
     if (results.length > 0) {
       const settings = results[0];
-      settings.modules = sortModulesByOrder(settings.modules);
+      settings.modules = sortByDisplayOrderOrCreatedAt(settings.modules);
       return settings;
     }
 
@@ -58,7 +64,7 @@ export async function updateSettings(modules: Module[]): Promise<Settings> {
     });
 
     // Sort modules by order in the returned result
-    updatedSettings.modules = sortModulesByOrder(updatedSettings.modules);
+    updatedSettings.modules = sortByDisplayOrderOrCreatedAt(updatedSettings.modules);
     return updatedSettings;
   } catch (error) {
     console.error('Error in updateSettings:', error);
@@ -70,13 +76,4 @@ export async function getOrCreateSettings(): Promise<Settings | null> {
   const settings = await fetchSettings();
   if (!settings) return await createDefaultSettings();
   return settings;
-}
-
-function sortModulesByOrder(modules: Module[]): Module[] {
-  return [...modules].sort((a, b) => {
-    if (a.display_order !== undefined && b.display_order !== undefined) {
-      return a.display_order - b.display_order;
-    }
-    return 0;
-  });
 }
