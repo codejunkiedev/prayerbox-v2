@@ -13,8 +13,9 @@ import {
   PrayerTimesEmpty,
   LocationNotSet,
 } from '@/components/prayer-times';
+import { getCurrentDate } from '@/utils';
 
-const currentDate = new Date();
+const currentDate = getCurrentDate();
 
 interface MasjidCoordinates {
   latitude: number;

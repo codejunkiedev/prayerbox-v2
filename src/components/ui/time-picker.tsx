@@ -8,7 +8,7 @@ import {
   ScrollBar,
 } from '@/components/ui';
 import { Clock } from 'lucide-react';
-import { format, setHours, setMinutes, getHours, getMinutes } from 'date-fns';
+import { formatTimePickerTime, getHours, getMinutes, setHours, setMinutes } from '@/utils';
 
 interface TimePickerProps {
   time: Date | undefined;
@@ -48,7 +48,7 @@ export function TimePicker({ time, setTime, disabled, minuteInterval = 5 }: Time
           className={cn('w-full pl-3 text-left font-normal', !time && 'text-muted-foreground')}
           disabled={disabled}
         >
-          {time ? format(time, 'hh:mm a') : <span>hh:mm AA</span>}
+          {time ? formatTimePickerTime(time) : <span>hh:mm AA</span>}
           <Clock className='ml-auto h-4 w-4 opacity-50' />
         </Button>
       </PopoverTrigger>

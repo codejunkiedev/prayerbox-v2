@@ -35,7 +35,7 @@ import { savePrayerTimeSettings } from '@/lib/supabase';
 import { MapPin, Clock, Plus, Minus } from 'lucide-react';
 import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';
-import { format, parse } from 'date-fns';
+import { parseTimeString, formatTimeString } from '@/utils';
 import type { PrayerAdjustments } from '@/types';
 
 interface PrayerTimingsModalProps {
@@ -164,20 +164,11 @@ export function PrayerTimingsModal({
     const hours = Math.floor(offsetValue / 60);
     const minutes = offsetValue % 60;
 
-    const getTimeFromString = (timeString: string): Date | undefined => {
-      if (!timeString) return undefined;
-      try {
-        return parse(timeString, 'HH:mm', new Date());
-      } catch {
-        return undefined;
-      }
-    };
-
     const getStringFromTime = (time: Date): string => {
-      return format(time, 'HH:mm');
+      return formatTimeString(time);
     };
 
-    const timeValue = getTimeFromString(manualTime);
+    const timeValue = parseTimeString(manualTime);
 
     const handleTimeChange = (time: Date): void => {
       setValue(`prayer_adjustments.${prayer}.manual_time`, getStringFromTime(time));

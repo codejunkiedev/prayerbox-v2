@@ -1,4 +1,4 @@
-import { format, parse, addMinutes, getDay } from 'date-fns';
+import { formatTime, addTimeMinutes, isFriday, getCurrentDay } from '@/utils';
 import {
   Card,
   CardContent,
@@ -21,17 +21,9 @@ interface PrayerTimesTableProps {
 type PrayerName = keyof PrayerAdjustments;
 type JummaPrayer = 'jumma1' | 'jumma2' | 'jumma3';
 
-const currentDay = new Date().getDate();
+const currentDay = getCurrentDay();
 
 export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTableProps) {
-  const formatTime = (timeString: string): string => {
-    try {
-      return format(parse(timeString, 'HH:mm', new Date()), 'h:mm a');
-    } catch {
-      return timeString;
-    }
-  };
-
   const getAdjustedPrayerTime = (prayerName: PrayerName, originalTime: string): string => {
     const timeOnly = originalTime.split(' ')[0];
     if (!savedSettings?.prayer_adjustments) return timeOnly;
@@ -42,13 +34,7 @@ export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTabl
     if (adjustment.type === 'default') {
       return timeOnly;
     } else if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
-      try {
-        const parsedTime = parse(timeOnly, 'HH:mm', new Date());
-        const adjustedTime = addMinutes(parsedTime, adjustment.offset);
-        return format(adjustedTime, 'HH:mm');
-      } catch {
-        return timeOnly;
-      }
+      return addTimeMinutes(timeOnly, adjustment.offset);
     } else if (adjustment.type === 'manual' && adjustment.manual_time) {
       return adjustment.manual_time;
     }
@@ -80,10 +66,6 @@ export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTabl
     }
 
     return '';
-  };
-
-  const isFriday = (dateStr: string): boolean => {
-    return getDay(dateStr) === 5;
   };
 
   const isJummaAdjusted = (jumma: JummaPrayer): boolean => {
