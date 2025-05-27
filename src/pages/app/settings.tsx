@@ -59,6 +59,7 @@ export default function Settings() {
       key: 'toggle',
       name: 'Visible',
       width: 'w-[10%]',
+      className: 'text-center',
       render: (_, item) => (
         <Switch
           checked={item.enabled}

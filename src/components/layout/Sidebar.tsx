@@ -4,11 +4,11 @@ import {
   Home,
   BookOpen,
   Bell,
-  Calendar,
-  File,
   Clock,
   Settings,
   X,
+  Images,
+  Tickets,
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
@@ -47,12 +47,12 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
     {
       label: 'Events',
       path: AppRoutes.Events,
-      icon: <Calendar size={20} />,
+      icon: <Tickets size={20} />,
     },
     {
       label: 'Posts',
       path: AppRoutes.Posts,
-      icon: <File size={20} />,
+      icon: <Images size={20} />,
     },
     {
       label: 'Prayer Timings',
