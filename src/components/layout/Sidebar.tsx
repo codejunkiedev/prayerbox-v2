@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import {
   ChevronLeft,
@@ -14,6 +13,7 @@ import {
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/lib/utils';
+import { useSidebarState } from '@/hooks';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -21,12 +21,8 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, toggleSidebar] = useSidebarState(false);
   const location = useLocation();
-
-  const toggleSidebar = () => {
-    setCollapsed(!collapsed);
-  };
 
   const isActive = (path: string) => {
     return location.pathname === path;
