@@ -9,7 +9,7 @@ import {
   ScrollBar,
 } from '@/components/ui';
 import { CalendarIcon } from 'lucide-react';
-import { format, setHours, setMinutes, getHours, getMinutes } from 'date-fns';
+import { formatDateTimePickerDate, getHours, getMinutes, setHours, setMinutes } from '@/utils';
 
 interface DateTimePickerProps {
   date: Date | undefined;
@@ -59,7 +59,7 @@ export function DateTimePicker({ date, setDate, disabled }: DateTimePickerProps)
           className={cn('w-full pl-3 text-left font-normal', !date && 'text-muted-foreground')}
           disabled={disabled}
         >
-          {date ? format(date, 'MM/dd/yyyy hh:mm a') : <span>MM/DD/YYYY hh:mm AA</span>}
+          {date ? formatDateTimePickerDate(date) : <span>MM/DD/YYYY hh:mm AA</span>}
           <CalendarIcon className='ml-auto h-4 w-4 opacity-50' />
         </Button>
       </PopoverTrigger>

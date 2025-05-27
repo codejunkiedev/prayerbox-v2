@@ -1,5 +1,5 @@
 import type { AlAdhanPrayerTimes } from '@/types';
-import { getMonth, getYear } from 'date-fns';
+import { getYearAndMonth } from '@/utils';
 
 const AlAdhanBaseUrl = 'https://api.aladhan.com/v1';
 
@@ -26,7 +26,7 @@ export const fetchPrayerTimesForThisMonth = async ({
   school,
   signal,
 }: PrayerTimesPayload): Promise<ApiResponse<AlAdhanPrayerTimes[]>> => {
-  const [year, month] = [getYear(date), getMonth(date)];
+  const [year, month] = getYearAndMonth(date);
 
   const url = new URL(`${AlAdhanBaseUrl}/calendar/${year}/${month}`);
 

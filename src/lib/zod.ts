@@ -116,6 +116,9 @@ export const prayerTimingsFormSchema = z.object({
       asr: prayerAdjustmentSchema,
       maghrib: prayerAdjustmentSchema,
       isha: prayerAdjustmentSchema,
+      jumma1: prayerAdjustmentSchema,
+      jumma2: prayerAdjustmentSchema,
+      jumma3: prayerAdjustmentSchema,
     })
     .optional(),
 });

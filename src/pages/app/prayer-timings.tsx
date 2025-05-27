@@ -1,5 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
-import { format } from 'date-fns';
+import { useState, useEffect } from 'react';
 import { PrayerTimingsModal } from '@/components/modals';
 import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -14,8 +13,9 @@ import {
   PrayerTimesEmpty,
   LocationNotSet,
 } from '@/components/prayer-times';
+import { getCurrentDate } from '@/utils';
 
-const currentDate = new Date();
+const currentDate = getCurrentDate();
 
 interface MasjidCoordinates {
   latitude: number;
@@ -29,9 +29,6 @@ export default function PrayerTimings() {
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
   const [isFetchingCoordinates, setIsFetchingCoordinates] = useState<boolean>(true);
   const [isFetchingTimes, setIsFetchingTimes] = useState<boolean>(false);
-
-  const currentDay = useMemo(() => currentDate.getDate() - 1, []);
-  const currentMonth = useMemo(() => format(currentDate, 'MMMM yyyy'), []);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -118,12 +115,7 @@ export default function PrayerTimings() {
     if (prayerTimes && prayerTimes.length > 0) {
       return (
         <div className='space-y-6'>
-          <PrayerTimesTable
-            prayerTimes={prayerTimes}
-            savedSettings={savedSettings}
-            currentDay={currentDay}
-            currentMonth={currentMonth}
-          />
+          <PrayerTimesTable prayerTimes={prayerTimes} savedSettings={savedSettings} />
         </div>
       );
     }

@@ -14,7 +14,7 @@ import {
 } from '@/components/common';
 import { Calendar } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-import { format } from 'date-fns';
+import { formatDateWithTime } from '@/utils';
 import { toast } from 'sonner';
 
 export default function Events() {
@@ -170,9 +170,7 @@ export default function Events() {
       key: 'date_time',
       name: 'Date & Time',
       width: 'w-[20%]',
-      render: value => (
-        <div>{value ? format(new Date(value as string), 'MMM d, yyyy h:mm a') : ''}</div>
-      ),
+      render: value => <div>{value ? formatDateWithTime(value as string) : ''}</div>,
     },
     {
       key: 'location',
@@ -249,11 +247,7 @@ export default function Events() {
         isDeleting={isDeleting}
         itemType='event'
         itemTitle={itemToDelete?.title}
-        itemSubtitle={
-          itemToDelete?.date_time
-            ? format(new Date(itemToDelete.date_time), 'MMM d, yyyy h:mm a')
-            : ''
-        }
+        itemSubtitle={itemToDelete?.date_time ? formatDateWithTime(itemToDelete.date_time) : ''}
       />
     </div>
   );
