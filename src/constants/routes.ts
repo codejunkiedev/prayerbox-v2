@@ -15,4 +15,5 @@ export enum AppRoutes {
   Posts = '/posts',
   PrayerTimings = '/prayer-timings',
   Settings = '/settings',
+  Display = '/display',
 }

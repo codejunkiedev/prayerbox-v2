@@ -18,6 +18,7 @@ import {
   Settings,
   UpdatePassword,
   PrayerTimings,
+  Display,
 } from '@/pages';
 
 export default function Navigation() {
@@ -75,6 +76,7 @@ export default function Navigation() {
           <Route path={AppRoutes.Posts} element={<Posts />} />
           <Route path={AppRoutes.PrayerTimings} element={<PrayerTimings />} />
           <Route path={AppRoutes.Settings} element={<Settings />} />
+          <Route path={AppRoutes.Display} element={<Display />} />
         </Route>
 
         <Route path={'*'} element={<Navigate to={AppRoutes.Home} />} />

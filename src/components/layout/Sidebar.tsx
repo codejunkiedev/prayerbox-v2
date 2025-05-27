@@ -9,6 +9,7 @@ import {
   X,
   Images,
   Tickets,
+  TvMinimalPlay,
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
@@ -33,6 +34,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       label: 'Home',
       path: AppRoutes.Home,
       icon: <Home size={20} />,
+    },
+    {
+      label: 'Display',
+      path: AppRoutes.Display,
+      icon: <TvMinimalPlay size={20} />,
     },
     {
       label: 'Ayat & Hadith',
