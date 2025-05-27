@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type DraggableDataTableProps<T> = {
   columns: Column<T>[];
@@ -77,7 +78,7 @@ function SortableRow<T>({
       </TableCell>
       {showRowNumbers && <TableCell className='text-muted-foreground'>{index + 1}</TableCell>}
       {columns.map(column => (
-        <TableCell key={column.key}>
+        <TableCell key={column.key} className={column.className}>
           {column.render
             ? column.render(item[column.key as keyof T], item)
             : (item[column.key as keyof T] as ReactNode)}
@@ -145,7 +146,7 @@ export function DraggableDataTable<T>({
               <TableHead className='w-8'></TableHead>
               {showRowNumbers && <TableHead className={rowNumberWidth}>#</TableHead>}
               {columns.map(column => (
-                <TableHead key={column.key} className={column.width}>
+                <TableHead key={column.key} className={cn(column.width, column.className)}>
                   {column.name}
                 </TableHead>
               ))}
@@ -166,7 +167,7 @@ export function DraggableDataTable<T>({
                   <TableCell className='text-muted-foreground'>{index + 1}</TableCell>
                 )}
                 {columns.map(column => (
-                  <TableCell key={column.key}>
+                  <TableCell key={column.key} className={column.className}>
                     {column.render
                       ? column.render(item[column.key as keyof T], item)
                       : (item[column.key as keyof T] as ReactNode)}
@@ -190,7 +191,7 @@ export function DraggableDataTable<T>({
               <TableHead className='w-8'></TableHead>
               {showRowNumbers && <TableHead className={rowNumberWidth}>#</TableHead>}
               {columns.map(column => (
-                <TableHead key={column.key} className={column.width}>
+                <TableHead key={column.key} className={cn(column.width, column.className)}>
                   {column.name}
                 </TableHead>
               ))}

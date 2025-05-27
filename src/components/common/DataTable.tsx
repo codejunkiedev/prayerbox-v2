@@ -6,6 +6,7 @@ export type Column<T> = {
   name: string;
   width: string;
   render?: (value: unknown, item: T) => ReactNode;
+  className?: string;
 };
 
 type DataTableProps<T> = {

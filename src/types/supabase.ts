@@ -7,6 +7,7 @@ export enum SupabaseTables {
   Events = 'events',
   Posts = 'posts',
   PrayerTimes = 'prayer_times',
+  Settings = 'settings',
 }
 
 export enum SupabaseBuckets {
@@ -91,4 +92,10 @@ export interface PrayerTimes extends Base {
   calculation_method: number;
   juristic_school: number;
   prayer_adjustments?: PrayerAdjustments;
+}
+
+export type Module = { id: string; name: string; enabled: boolean; display_order: number };
+
+export interface Settings extends Base {
+  modules: Module[];
 }
