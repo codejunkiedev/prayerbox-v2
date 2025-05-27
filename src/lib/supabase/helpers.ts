@@ -425,15 +425,15 @@ export const sortByDisplayOrderOrCreatedAt = <
     const checks = [null, undefined, 0];
 
     // If both have display_order/displayOrder, sort by it
-    if (checks.includes(aDisplayOrder) && checks.includes(bDisplayOrder)) {
+    if (!checks.includes(aDisplayOrder) && !checks.includes(bDisplayOrder)) {
       return ascending
         ? Number(aDisplayOrder) - Number(bDisplayOrder)
         : Number(bDisplayOrder) - Number(aDisplayOrder);
     }
 
     // If only one has display_order/displayOrder, prioritize the one with it
-    if (aDisplayOrder !== undefined && aDisplayOrder !== null) return ascending ? -1 : 1;
-    if (bDisplayOrder !== undefined && bDisplayOrder !== null) return ascending ? 1 : -1;
+    if (!checks.includes(aDisplayOrder)) return ascending ? -1 : 1;
+    if (!checks.includes(bDisplayOrder)) return ascending ? 1 : -1;
 
     // If neither has display_order/displayOrder, fallback to created_at/createdAt
     if (aCreatedAt && bCreatedAt) {

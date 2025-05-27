@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import type { ReactNode } from 'react';
 import type { Column } from './DataTable';
@@ -103,6 +103,8 @@ export function DraggableDataTable<T>({
 }: DraggableDataTableProps<T>) {
   const [items, setItems] = useState<T[]>(data);
 
+  const callbackTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
     setItems(data);
   }, [data]);
@@ -118,24 +120,33 @@ export function DraggableDataTable<T>({
     if (!over) return;
 
     if (active.id !== over.id) {
-      setItems(currentItems => {
-        const oldIndex = currentItems.findIndex(item => String(item[keyField]) === active.id);
-        const newIndex = currentItems.findIndex(item => String(item[keyField]) === over.id);
-        const newItems = arrayMove(currentItems, oldIndex, newIndex);
+      const oldIndex = items.findIndex(item => String(item[keyField]) === active.id);
+      const newIndex = items.findIndex(item => String(item[keyField]) === over.id);
 
-        return newItems;
-      });
+      const newItems = arrayMove([...items], oldIndex, newIndex);
+
+      setItems(newItems);
 
       if (onOrderChange) {
-        setTimeout(() => {
-          const oldIndex = items.findIndex(item => String(item[keyField]) === active.id);
-          const newIndex = items.findIndex(item => String(item[keyField]) === over.id);
-          const newItems = arrayMove([...items], oldIndex, newIndex);
+        if (callbackTimeoutRef.current) {
+          clearTimeout(callbackTimeoutRef.current);
+        }
+
+        callbackTimeoutRef.current = setTimeout(() => {
           onOrderChange(newItems);
-        }, 0);
+          callbackTimeoutRef.current = null;
+        }, 100);
       }
     }
   }
+
+  useEffect(() => {
+    return () => {
+      if (callbackTimeoutRef.current) {
+        clearTimeout(callbackTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!isDraggable) {
     return (
