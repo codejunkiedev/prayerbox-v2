@@ -48,7 +48,17 @@ interface PrayerTimingsModalProps {
 
 type PrayerName = keyof PrayerAdjustments;
 type PrayerAdjustmentType = PrayerAdjustments[PrayerName]['type'];
-const PRAYER_NAMES: PrayerName[] = ['fajr', 'sunrise', 'dhuhr', 'asr', 'maghrib', 'isha'];
+const PRAYER_NAMES: PrayerName[] = [
+  'fajr',
+  'sunrise',
+  'dhuhr',
+  'jumma1',
+  'jumma2',
+  'jumma3',
+  'asr',
+  'maghrib',
+  'isha',
+];
 
 export function PrayerTimingsModal({
   isOpen,
@@ -78,6 +88,9 @@ export function PrayerTimingsModal({
         asr: { type: 'default' },
         maghrib: { type: 'default' },
         isha: { type: 'default' },
+        jumma1: { type: 'default' },
+        jumma2: { type: 'default' },
+        jumma3: { type: 'default' },
       },
     },
   });
@@ -170,12 +183,26 @@ export function PrayerTimingsModal({
       setValue(`prayer_adjustments.${prayer}.manual_time`, getStringFromTime(time));
     };
 
+    const getJummaLabel = () => {
+      if (prayer === 'jumma1') return 'Jumma 1';
+      if (prayer === 'jumma2') return 'Jumma 2';
+      if (prayer === 'jumma3') return 'Jumma 3';
+      return prayer;
+    };
+
+    const isJummaPrayer = ['jumma1', 'jumma2', 'jumma3'].includes(prayer);
+
     return (
       <AccordionItem value={prayer} key={prayer}>
         <AccordionTrigger className='text-sm font-medium py-2 capitalize'>
-          {prayer}
+          {isJummaPrayer ? getJummaLabel() : prayer}
         </AccordionTrigger>
         <AccordionContent>
+          {isJummaPrayer && (
+            <p className='text-xs text-muted-foreground mb-3'>
+              This adjustment applies only on Fridays.
+            </p>
+          )}
           <div className='space-y-4'>
             <RadioGroup
               value={type}
@@ -201,7 +228,8 @@ export function PrayerTimingsModal({
                 <div className='flex flex-row xs:flex-row justify-between items-start xs:items-center gap-2'>
                   <Label>
                     {offset > 0 ? '+' : offset < 0 ? '-' : ''}
-                    {hours}h {minutes}m
+                    {hours > 0 ? `${hours.toString().padStart(2, '0')}h ` : ''}
+                    {minutes.toString().padStart(2, '0')}m
                   </Label>
                   <div className='flex items-center gap-1 text-xs'>
                     <Minus className='h-3 w-3 text-muted-foreground' />

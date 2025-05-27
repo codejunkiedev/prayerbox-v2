@@ -26,7 +26,7 @@ export const fetchPrayerTimesForThisMonth = async ({
   school,
   signal,
 }: PrayerTimesPayload): Promise<ApiResponse<AlAdhanPrayerTimes[]>> => {
-  const [year, month] = [getYear(date), getMonth(date)];
+  const [year, month] = [getYear(date), getMonth(date) + 1];
 
   const url = new URL(`${AlAdhanBaseUrl}/calendar/${year}/${month}`);
 

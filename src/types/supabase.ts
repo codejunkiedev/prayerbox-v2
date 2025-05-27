@@ -82,6 +82,9 @@ export interface PrayerAdjustments {
   asr: PrayerAdjustment;
   maghrib: PrayerAdjustment;
   isha: PrayerAdjustment;
+  jumma1: PrayerAdjustment;
+  jumma2: PrayerAdjustment;
+  jumma3: PrayerAdjustment;
 }
 
 export interface PrayerTimes extends Base {
