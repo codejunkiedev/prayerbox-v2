@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
+import { MapPin, Locate } from 'lucide-react';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 const API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY;
 const TILE_URL = `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${API_KEY}`;
@@ -18,7 +20,16 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({ onPositionChange, posit
     },
   });
 
-  return position === null ? null : <Marker position={position}></Marker>;
+  const customMarkerIcon = L.divIcon({
+    html: renderToStaticMarkup(
+      <MapPin size={32} color='#0f766e' fill='#14b8a6' fillOpacity={0.3} />
+    ),
+    className: 'custom-marker-icon',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  });
+
+  return position === null ? null : <Marker position={position} icon={customMarkerIcon}></Marker>;
 };
 
 interface MapControlsProps {
@@ -34,24 +45,7 @@ const MapControls: React.FC<MapControlsProps> = ({ onLocateMe }) => {
           className='bg-white p-2 rounded-md shadow-md hover:bg-gray-100 focus:outline-none'
           aria-label='Move to my location'
         >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='#1952c4'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          >
-            <circle cx='12' cy='12' r='10' />
-            <circle cx='12' cy='12' r='1' />
-            <line x1='12' y1='2' x2='12' y2='4' />
-            <line x1='12' y1='20' x2='12' y2='22' />
-            <line x1='4' y1='12' x2='2' y2='12' />
-            <line x1='22' y1='12' x2='20' y2='12' />
-          </svg>
+          <Locate size={24} color='#0f766e' />
         </button>
       </div>
     </div>
