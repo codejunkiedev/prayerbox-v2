@@ -320,7 +320,7 @@ export function PrayerTimingsModal({
                     </Label>
                     <Input
                       id='latitude'
-                      value={masjidCoordinates?.latitude.toFixed(6) || 'Not set'}
+                      value={masjidCoordinates?.latitude.toFixed(3) || 'Not set'}
                       readOnly
                       className='bg-muted cursor-not-allowed'
                       autoFocus={false}
@@ -332,7 +332,7 @@ export function PrayerTimingsModal({
                     </Label>
                     <Input
                       id='longitude'
-                      value={masjidCoordinates?.longitude.toFixed(6) || 'Not set'}
+                      value={masjidCoordinates?.longitude.toFixed(3) || 'Not set'}
                       readOnly
                       className='bg-muted cursor-not-allowed'
                       autoFocus={false}
