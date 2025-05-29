@@ -19,9 +19,11 @@ import {
 import { toast } from 'sonner';
 import { fetchPrayerTimesForDate } from '@/api';
 import { isNullOrUndefined } from '@/utils';
+import type { ErrorMessage } from '@/components/display';
 
 type ReturnType = {
   isLoading: boolean;
+  errorMessage: ErrorMessage | null;
   announcements: Announcement[];
   ayatAndHadith: AyatAndHadith[];
   events: Event[];
@@ -32,6 +34,7 @@ type ReturnType = {
 
 export function useFetchDisplayData(): ReturnType {
   const [fetching, setFetching] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [ayatAndHadith, setAyatAndHadith] = useState<AyatAndHadith[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
@@ -83,19 +86,25 @@ export function useFetchDisplayData(): ReturnType {
   }, [userId]);
 
   const fetchPrayerTimes = useCallback(
-    async (prayerTimeSettings: PrayerTimes) => {
+    async (prayerTimeSettings: PrayerTimes | null, signal: AbortSignal) => {
       try {
         const { latitude, longitude } = masjidProfile || {};
 
         if (isNullOrUndefined(latitude) || isNullOrUndefined(longitude)) {
-          toast.error('Masjid profile is not set');
+          setErrorMessage({
+            title: 'Masjid profile is not set',
+            description: 'Please set your masjid profile to continue',
+          });
           return;
         }
 
         const { calculation_method: method, juristic_school: school } = prayerTimeSettings || {};
 
         if (isNullOrUndefined(method) || isNullOrUndefined(school)) {
-          toast.error('Prayer time settings are not set');
+          setErrorMessage({
+            title: 'Prayer time settings are not set',
+            description: 'Please set your prayer time settings to continue',
+          });
           return;
         }
 
@@ -105,8 +114,12 @@ export function useFetchDisplayData(): ReturnType {
           longitude,
           method,
           school,
+          signal,
         });
-        if (response?.data) setPrayerTimes(response.data);
+        if (response?.data) {
+          setPrayerTimes(response.data);
+          setPrayerTimeSettings(prayerTimeSettings);
+        }
       } catch (error) {
         console.error('Failed to fetch prayer times', error);
         toast.error('Failed to fetch prayer times');
@@ -116,44 +129,56 @@ export function useFetchDisplayData(): ReturnType {
   );
 
   useEffect(() => {
+    const abortController = new AbortController();
+    const signal = abortController.signal;
+
+    if (!userId) return;
+
     const req = async () => {
       setFetching(true);
+      setErrorMessage(null);
+
       try {
-        if (userId) {
-          const promises: Promise<void>[] = [];
-
-          const prayerTimes = await getPrayerTimeSettings(userId);
-          if (prayerTimes) {
-            setPrayerTimeSettings(prayerTimes);
-            promises.push(fetchPrayerTimes(prayerTimes));
-          }
-
-          const userSettings = await getSettings(userId);
-          if (userSettings) {
-            if (!userSettings?.modules?.length) return;
-            userSettings.modules.forEach(module => {
-              if (module?.enabled) {
-                if (module?.id === 'announcements') promises.push(fetchAnnouncements());
-                if (module?.id === 'ayat-and-hadith') promises.push(fetchAyatAndHadith());
-                if (module?.id === 'events') promises.push(fetchEvents());
-                if (module?.id === 'posts') promises.push(fetchPosts());
-              }
-            });
-          }
-          await Promise.all(promises);
+        const prayerTimes = await getPrayerTimeSettings(userId);
+        const promises: Promise<void>[] = [fetchPrayerTimes(prayerTimes, signal)];
+        const userSettings = await getSettings(userId);
+        if (!userSettings || !userSettings?.modules?.length) {
+          setErrorMessage({
+            title: 'User settings are not set',
+            description: 'Please set your user settings to continue',
+          });
+        } else {
+          userSettings.modules.forEach(module => {
+            if (module?.enabled) {
+              if (module?.id === 'announcements') promises.push(fetchAnnouncements());
+              if (module?.id === 'ayat-and-hadith') promises.push(fetchAyatAndHadith());
+              if (module?.id === 'events') promises.push(fetchEvents());
+              if (module?.id === 'posts') promises.push(fetchPosts());
+            }
+          });
         }
+        await Promise.all(promises);
       } catch (error) {
-        console.error('Failed to fetch data', error);
-        toast.error('Failed to fetch data');
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          console.log('Fetch aborted');
+        } else {
+          console.error('Error fetching data:', error);
+          toast.error('Failed to fetch data');
+        }
       } finally {
         setFetching(false);
       }
     };
     req();
+
+    return () => {
+      abortController.abort();
+    };
   }, [fetchAnnouncements, fetchAyatAndHadith, fetchEvents, fetchPosts, fetchPrayerTimes, userId]);
 
   return {
     isLoading: fetching,
+    errorMessage,
     announcements,
     ayatAndHadith,
     events,

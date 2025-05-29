@@ -1,18 +1,12 @@
 import { useFetchDisplayData } from '@/hooks';
+import Loading from '../loading-page';
+import { PrayerTimingDisplay, ErrorDisplay } from '@/components/display';
 
 export default function Display() {
-  const { isLoading, prayerTimes, prayerTimeSettings } = useFetchDisplayData();
+  const { isLoading, errorMessage, prayerTimes } = useFetchDisplayData();
 
-  if (isLoading) return <div>Loading...</div>;
-  console.log(prayerTimes);
-  console.log(prayerTimeSettings);
+  if (isLoading) return <Loading />;
+  if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
 
-  return (
-    <div>
-      <div>
-        <h1>Announcements</h1>
-        <div>dd</div>
-      </div>
-    </div>
-  );
+  return <PrayerTimingDisplay prayerTimes={prayerTimes} />;
 }

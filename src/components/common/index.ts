@@ -4,3 +4,4 @@ export * from './EmptyState';
 export * from './ActionButtons';
 export * from './DataTable';
 export * from './DraggableDataTable';
+export * from './Clock';
