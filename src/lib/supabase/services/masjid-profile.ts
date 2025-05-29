@@ -15,6 +15,11 @@ export async function getMasjidProfile(): Promise<MasjidProfile | null> {
   return profiles.length > 0 ? profiles[0] : null;
 }
 
+export async function getMasjidByCode(code: string): Promise<MasjidProfile | null> {
+  const profiles = await fetchByColumn<MasjidProfile>(SupabaseTables.MasjidProfiles, 'code', code);
+  return profiles.length > 0 ? profiles[0] : null;
+}
+
 export async function upsertMasjidProfile(
   profileData: MasjidProfileData,
   logoFile: File | null,

@@ -1,19 +1,20 @@
 export enum AuthRoutes {
   Login = '/login',
+  LoginWithCode = '/login-with-code',
   Register = '/register',
   ForgotPassword = '/forgot-password',
 }
 
 export enum AppRoutes {
-  Home = '/',
-  Profile = '/profile',
-  ResetPassword = '/reset-password',
-  UpdatePassword = '/update-password',
-  AyatAndHadith = '/ayat-and-hadith',
-  Announcements = '/announcements',
-  Events = '/events',
-  Posts = '/posts',
-  PrayerTimings = '/prayer-timings',
-  Settings = '/settings',
   Display = '/display',
+  Home = '/admin',
+  Profile = '/admin/profile',
+  ResetPassword = '/admin/reset-password',
+  UpdatePassword = '/admin/update-password',
+  AyatAndHadith = '/admin/ayat-and-hadith',
+  Announcements = '/admin/announcements',
+  Events = '/admin/events',
+  Posts = '/admin/posts',
+  PrayerTimings = '/admin/prayer-timings',
+  Settings = '/admin/settings',
 }

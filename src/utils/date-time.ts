@@ -132,6 +132,15 @@ export const formatDateTimePickerDate = (date: Date): string => {
 };
 
 /**
+ * Formats a date for display
+ * @param date Date object
+ * @returns Formatted date string (dd-MM-yyyy)
+ */
+export const formatDate = (date: Date): string => {
+  return format(date, 'dd-MM-yyyy');
+};
+
+/**
  * Time-related utility functions exported from date-fns
  */
 export { getHours, getMinutes, setHours, setMinutes };

@@ -109,6 +109,9 @@ export default function Login() {
               <Button type='submit' loading={isLoading} className='mt-2'>
                 {isLoading ? 'Signing in...' : 'Sign in'}
               </Button>
+              <Button type='button' variant='link'>
+                <Link to={AuthRoutes.LoginWithCode}>Login with code instead</Link>
+              </Button>
             </div>
           </form>
           <div className='text-center text-sm'>

@@ -11,13 +11,14 @@ import {
   getMaxOrderValue,
 } from '../helpers';
 
-export async function getAyatAndHadith(): Promise<AyatAndHadith[]> {
-  const user = await getCurrentUser();
+export async function getAyatAndHadith(userId?: string): Promise<AyatAndHadith[]> {
+  const user = userId ? { id: userId } : await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
 
   const conditions = [
     { column: 'user_id', value: user.id },
     { column: 'archived', value: false, isNull: true },
+    ...(userId ? [{ column: 'visible', value: true }] : []),
   ];
 
   const items = await fetchByMultipleConditions<AyatAndHadith>(
