@@ -98,7 +98,7 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
           </CardContent>
         </Card>
 
-        <MasjidInfo masjidProfile={masjidProfile} prayerTimes={prayerTimes} />
+        <MasjidInfo masjidProfile={masjidProfile} />
       </div>
     </div>
   );
