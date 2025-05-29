@@ -22,7 +22,7 @@ export default function Settings() {
       try {
         setIsLoading(true);
         const userSettings = await getOrCreateSettings();
-        setSettings(userSettings);
+        if (userSettings) setSettings(userSettings);
       } catch (error) {
         console.error('Error loading settings:', error);
         toast.error('Failed to load settings');
