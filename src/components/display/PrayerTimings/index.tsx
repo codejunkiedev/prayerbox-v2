@@ -3,7 +3,11 @@ import { formatTime, isFridayPrayer, PRAYER_NAMES } from '@/utils';
 import { useDisplayStore } from '@/store';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
 import { Clock } from '@/components/common';
-import { PrayerTimeRow, DateDisplay, BackgroundPatterns, MasjidInfo, JummaPrayersList } from './';
+import { BackgroundPatterns } from './BackgroundPatterns';
+import { DateDisplay } from './DateDisplay';
+import { PrayerTimeRow } from './PrayerTimeRow';
+import { JummaPrayersList } from './JummaPrayersList';
+import { MasjidInfo } from './MasjidInfo';
 
 interface PrayerTimingDisplayProps {
   prayerTimes: AlAdhanPrayerTimes | null;
