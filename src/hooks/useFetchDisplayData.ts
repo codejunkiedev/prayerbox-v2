@@ -109,7 +109,7 @@ export function useFetchDisplayData(): ReturnType {
         }
 
         const response = await fetchPrayerTimesForDate({
-          date: new Date(),
+          date: new Date('2025-05-30'),
           latitude,
           longitude,
           method,

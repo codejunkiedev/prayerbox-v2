@@ -41,7 +41,7 @@ export const getYearAndMonth = (date: Date): [number, number] => {
  */
 export const formatTime = (timeString: string): string => {
   try {
-    return format(parse(timeString, 'HH:mm', new Date()), 'h:mm a');
+    return format(parse(timeString, 'HH:mm', new Date()), 'hh:mm a');
   } catch {
     return timeString;
   }
