@@ -1,2 +1,2 @@
-export * from './PrayerTimingDisplay';
+export * from './PrayerTimings';
 export * from './ErrorDisplay';

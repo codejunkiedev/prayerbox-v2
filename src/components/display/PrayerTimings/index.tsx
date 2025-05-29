@@ -1,31 +1,8 @@
-import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
 import { Card, CardContent } from '@/components/ui';
 import { formatTime } from '@/utils';
 import { useDisplayStore } from '@/store';
-import { cn } from '@/lib/utils';
 import type { AlAdhanPrayerTimes } from '@/types';
-
-interface ClockProps {
-  className?: string;
-  showSeconds?: boolean;
-}
-
-function Clock({ className, showSeconds = false }: ClockProps) {
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const formatString = showSeconds ? 'h:mm:ss a' : 'h:mm a';
-
-  return <div className={cn('font-mono', className)}>{format(time, formatString)}</div>;
-}
+import { Clock } from '@/components/common';
 
 interface PrayerTimingDisplayProps {
   prayerTimes: AlAdhanPrayerTimes | null;
