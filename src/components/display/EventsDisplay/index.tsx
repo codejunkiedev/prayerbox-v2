@@ -1,6 +1,5 @@
-import { Card, CardContent } from '@/components/ui';
 import type { Event } from '@/types';
-import { Calendar, Clock, MapPin, User, Users, Mic } from 'lucide-react';
+import { Calendar, MapPin, User, Users, Mic } from 'lucide-react';
 import { format } from 'date-fns';
 import bgImage from '@/assets/backgrounds/03.jpeg';
 
@@ -20,61 +19,74 @@ export function EventsDisplay({ event }: EventsDisplayProps) {
       className='flex flex-col items-center justify-center min-h-screen w-full overflow-hidden relative bg-cover bg-center'
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className='absolute inset-0 bg-black/50 backdrop-blur-sm z-0'></div>
+      <div className='absolute inset-0 bg-black/60 backdrop-blur-sm z-0'></div>
 
-      <Card className='w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-card/95 backdrop-blur-sm z-10'>
-        <CardContent className='p-3 sm:p-4 md:p-6'>
+      {/* Date and Time display above the main container */}
+      <div className='flex justify-center items-center mb-6 z-10'>
+        <div className='flex items-center gap-3 bg-white/10 backdrop-blur-md py-3 px-5 rounded-full'>
+          <Calendar className='h-5 w-5 text-white' />
+          <span className='text-white font-medium'>
+            {formattedDate} at {formattedTime}
+          </span>
+        </div>
+      </div>
+
+      <div className='w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl z-10'>
+        <div className='p-5 sm:p-6 md:p-8'>
           <div className='flex flex-col'>
-            <h2 className='text-lg sm:text-xl font-semibold text-primary mb-4 text-center'>
-              {event.title}
-            </h2>
+            <div className='text-center mb-6'>
+              <h1 className='text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3'>
+                {event.title}
+              </h1>
+              <div className='h-1 w-20 bg-white/30 mx-auto rounded-full'></div>
+            </div>
 
-            <p className='text-foreground/90 text-sm sm:text-base mb-4 text-center'>
+            <p className='text-white/90 text-sm sm:text-base md:text-lg mb-6 text-center leading-relaxed'>
               {event.description}
             </p>
 
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm'>
-              <div className='flex items-center gap-2'>
-                <Calendar className='h-4 w-4 text-primary' />
-                <span>{formattedDate}</span>
+            <div className='bg-white/10 rounded-lg p-4 backdrop-blur-sm'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm md:text-base text-white'>
+                {event.location && (
+                  <div className='flex items-start justify-between gap-3'>
+                    <span className='rtl text-right'>{event.location}</span>
+                    <div className='bg-white/20 p-2 rounded-full'>
+                      <MapPin className='h-5 w-5 text-white' />
+                    </div>
+                  </div>
+                )}
+
+                {event.chief_guest && (
+                  <div className='flex items-start justify-between gap-3'>
+                    <span className='rtl text-right'>مہمان خصوصی: {event.chief_guest}</span>
+                    <div className='bg-white/20 p-2 rounded-full'>
+                      <User className='h-5 w-5 text-white' />
+                    </div>
+                  </div>
+                )}
+
+                {event.host && (
+                  <div className='flex items-start justify-between gap-3'>
+                    <span className='rtl text-right'>میزبان: {event.host}</span>
+                    <div className='bg-white/20 p-2 rounded-full'>
+                      <Users className='h-5 w-5 text-white' />
+                    </div>
+                  </div>
+                )}
+
+                {event.qari && (
+                  <div className='flex items-start justify-between gap-3'>
+                    <span className='rtl text-right'>قاری: {event.qari}</span>
+                    <div className='bg-white/20 p-2 rounded-full'>
+                      <Mic className='h-5 w-5 text-white' />
+                    </div>
+                  </div>
+                )}
               </div>
-
-              <div className='flex items-center gap-2'>
-                <Clock className='h-4 w-4 text-primary' />
-                <span>{formattedTime}</span>
-              </div>
-
-              {event.location && (
-                <div className='flex items-center gap-2'>
-                  <MapPin className='h-4 w-4 text-primary' />
-                  <span>{event.location}</span>
-                </div>
-              )}
-
-              {event.chief_guest && (
-                <div className='flex items-center gap-2'>
-                  <User className='h-4 w-4 text-primary' />
-                  <span>Chief Guest: {event.chief_guest}</span>
-                </div>
-              )}
-
-              {event.host && (
-                <div className='flex items-center gap-2'>
-                  <Users className='h-4 w-4 text-primary' />
-                  <span>Host: {event.host}</span>
-                </div>
-              )}
-
-              {event.qari && (
-                <div className='flex items-center gap-2'>
-                  <Mic className='h-4 w-4 text-primary' />
-                  <span>Qari: {event.qari}</span>
-                </div>
-              )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

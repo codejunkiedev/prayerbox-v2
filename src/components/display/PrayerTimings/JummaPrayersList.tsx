@@ -17,10 +17,12 @@ export function JummaPrayersList({ dhuhrTime, prayerTimeSettings }: JummaPrayers
     return (
       <>
         <div className='flex justify-between items-center'>
-          <div className='text-base xs:text-lg sm:text-xl font-medium'>{formatTime(dhuhrTime)}</div>
-          <div className='text-base xs:text-lg sm:text-xl font-semibold'>جمعة</div>
+          <div className='text-base xs:text-lg sm:text-xl font-medium text-white'>
+            {formatTime(dhuhrTime)}
+          </div>
+          <div className='text-base xs:text-lg sm:text-xl font-semibold text-white'>جمعة</div>
         </div>
-        <hr className='border-primary/10' />
+        <hr className='border-white/20' />
       </>
     );
   }

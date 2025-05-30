@@ -52,10 +52,10 @@ export function MasjidInfo({ masjidProfile }: MasjidInfoProps) {
 
   return (
     <div className='mt-2 sm:mt-4 text-center'>
-      <div className='text-sm xs:text-base sm:text-lg font-semibold'>
+      <div className='text-sm xs:text-base sm:text-lg font-semibold text-white'>
         {masjidProfile?.name || 'Masjid'}
       </div>
-      <div className='text-xs xs:text-sm text-muted-foreground'>
+      <div className='text-xs xs:text-sm text-white/80'>
         {isLoading ? 'Loading location...' : location || 'Location not set'}
       </div>
     </div>

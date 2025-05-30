@@ -1,4 +1,3 @@
-import { Card, CardContent } from '@/components/ui';
 import { formatTime, isFridayPrayer, PRAYER_NAMES } from '@/utils';
 import { useDisplayStore } from '@/store';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
@@ -29,17 +28,17 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
       style={{ backgroundImage: `url(${bgImage})` }}
     >
       <div className='absolute inset-0 bg-black/40 backdrop-blur-sm z-0'></div>
-      <div className='flex flex-col items-center justify-between min-h-screen w-full px-2 sm:px-4 py-2 sm:py-4 lg:py-6 z-10 overflow-y-auto'>
+      <div className='flex flex-col items-center justify-between min-h-screen w-full px-2 sm:px-4 py-2 sm:py-4 lg:py-6 z-10 overflow-y-auto text-white'>
         <div className='text-center mb-2 sm:mb-4 pt-2 sm:pt-4'>
           <Clock
-            className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-1 sm:mb-2'
+            className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-1 sm:mb-2'
             showSeconds={true}
           />
           <DateDisplay date={date} />
         </div>
 
-        <Card className='w-full max-w-[90%] xs:max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg bg-card/95 backdrop-blur-sm mb-2 sm:mb-4'>
-          <CardContent className='p-2 xs:p-3 sm:p-4 md:p-6'>
+        <div className='w-full max-w-[90%] xs:max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg z-10'>
+          <div className='p-2 xs:p-3 sm:p-4 md:p-6'>
             <div className='flex flex-col space-y-1 xs:space-y-2 sm:space-y-3 md:space-y-4'>
               <PrayerTimeRow
                 prayerName='fajr'
@@ -91,8 +90,8 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
                 showDivider={false}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         <MasjidInfo masjidProfile={masjidProfile} />
       </div>

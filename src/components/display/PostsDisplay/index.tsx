@@ -1,4 +1,3 @@
-import { Card, CardContent } from '@/components/ui';
 import type { Post } from '@/types';
 import bgImage from '@/assets/backgrounds/04.jpeg';
 
@@ -16,10 +15,10 @@ export function PostsDisplay({ post }: PostsDisplayProps) {
     >
       <div className='absolute inset-0 bg-black/50 backdrop-blur-sm z-0'></div>
 
-      <Card className='w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl bg-card/95 backdrop-blur-sm z-10'>
-        <CardContent className='p-3 sm:p-4 md:p-6'>
+      <div className='w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl z-10'>
+        <div className='p-3 sm:p-4 md:p-6'>
           <div className='flex flex-col'>
-            <h2 className='text-lg sm:text-xl font-semibold text-primary mb-4 text-center'>
+            <h2 className='text-lg sm:text-xl font-semibold text-white mb-4 text-center'>
               {post.title}
             </h2>
 
@@ -29,8 +28,8 @@ export function PostsDisplay({ post }: PostsDisplayProps) {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
