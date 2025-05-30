@@ -121,8 +121,12 @@ export function useFetchDisplayData(): ReturnType {
           setPrayerTimeSettings(prayerTimeSettings);
         }
       } catch (error) {
-        console.error('Failed to fetch prayer times', error);
-        toast.error('Failed to fetch prayer times');
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          console.log('Fetch aborted');
+        } else {
+          console.error('Failed to fetch prayer times', error);
+          toast.error('Failed to fetch prayer times');
+        }
       }
     },
     [masjidProfile]
@@ -130,9 +134,8 @@ export function useFetchDisplayData(): ReturnType {
 
   useEffect(() => {
     const abortController = new AbortController();
-    const signal = abortController.signal;
 
-    if (!userId) return;
+    if (!userId) return () => abortController.abort();
 
     const req = async () => {
       setFetching(true);
@@ -140,7 +143,7 @@ export function useFetchDisplayData(): ReturnType {
 
       try {
         const prayerTimes = await getPrayerTimeSettings(userId);
-        const promises: Promise<void>[] = [fetchPrayerTimes(prayerTimes, signal)];
+        const promises: Promise<void>[] = [fetchPrayerTimes(prayerTimes, abortController.signal)];
         const userSettings = await getSettings(userId);
         if (!userSettings || !userSettings?.modules?.length) {
           setErrorMessage({
@@ -159,12 +162,8 @@ export function useFetchDisplayData(): ReturnType {
         }
         await Promise.all(promises);
       } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          console.log('Fetch aborted');
-        } else {
-          console.error('Error fetching data:', error);
-          toast.error('Failed to fetch data');
-        }
+        console.error('Error fetching data:', error);
+        toast.error('Failed to fetch data');
       } finally {
         setFetching(false);
       }
