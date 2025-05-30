@@ -4,14 +4,14 @@ import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
 import { useTrigger } from '@/hooks';
-import { CalculationMethod, JuristicSchool } from '@/constants';
 import { fetchPrayerTimesForThisMonth } from '@/api';
-import { PageHeader } from '@/components/common/PageHeader';
+import { PageHeader } from '@/components/common/page-header';
 import {
   PrayerTimesTable,
   PrayerTimesLoading,
   PrayerTimesEmpty,
   LocationNotSet,
+  PrayerTimingsSettingsNotSet,
 } from '@/components/prayer-times';
 import { getCurrentDate } from '@/utils';
 
@@ -60,20 +60,21 @@ export default function PrayerTimings() {
     async function fetchPrayerTimes() {
       try {
         setIsFetchingTimes(true);
-        const savedSettings = await getPrayerTimeSettings();
-        if (savedSettings) setSavedSettings(savedSettings);
 
         if (!masjidCoordinates) return;
+
+        const savedSettings = await getPrayerTimeSettings();
+        if (!savedSettings) return;
+        setSavedSettings(savedSettings);
 
         const response = await fetchPrayerTimesForThisMonth({
           date: currentDate,
           latitude: masjidCoordinates.latitude,
           longitude: masjidCoordinates.longitude,
-          method: savedSettings?.calculation_method ?? CalculationMethod.Shia_Ithna_Ashari,
-          school: savedSettings?.juristic_school ?? JuristicSchool.Shafi,
+          method: savedSettings?.calculation_method,
+          school: savedSettings?.juristic_school,
           signal: abortController.signal,
         });
-
         setPrayerTimes(response.data);
         toast.success('Fetched prayer times successfully');
       } catch (error) {
@@ -100,7 +101,7 @@ export default function PrayerTimings() {
   };
 
   const renderContent = () => {
-    if (isFetchingCoordinates) {
+    if (isFetchingCoordinates || isFetchingTimes) {
       return <PrayerTimesLoading />;
     }
 
@@ -108,8 +109,8 @@ export default function PrayerTimings() {
       return <LocationNotSet />;
     }
 
-    if (isFetchingTimes) {
-      return <PrayerTimesLoading />;
+    if (!savedSettings) {
+      return <PrayerTimingsSettingsNotSet onConfigure={handleOpenModal} />;
     }
 
     if (prayerTimes && prayerTimes.length > 0) {

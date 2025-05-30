@@ -41,7 +41,7 @@ export const getYearAndMonth = (date: Date): [number, number] => {
  */
 export const formatTime = (timeString: string): string => {
   try {
-    return format(parse(timeString, 'HH:mm', new Date()), 'h:mm a');
+    return format(parse(timeString, 'HH:mm', new Date()), 'hh:mm a');
   } catch {
     return timeString;
   }
@@ -129,6 +129,15 @@ export const formatTimePickerTime = (date: Date): string => {
  */
 export const formatDateTimePickerDate = (date: Date): string => {
   return format(date, 'MM/dd/yyyy hh:mm a');
+};
+
+/**
+ * Formats a date for display
+ * @param date Date object
+ * @returns Formatted date string (dd-MM-yyyy)
+ */
+export const formatDate = (date: Date): string => {
+  return format(date, 'dd-MM-yyyy');
 };
 
 /**

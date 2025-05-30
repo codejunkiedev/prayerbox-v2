@@ -7,9 +7,9 @@ import {
   sortByDisplayOrderOrCreatedAt,
 } from '../helpers';
 
-export async function fetchSettings(): Promise<Settings | null> {
+export async function getSettings(userId?: string): Promise<Settings | null> {
   try {
-    const user = await getCurrentUser();
+    const user = userId ? { id: userId } : await getCurrentUser();
     if (!user) throw new Error('User not authenticated');
 
     const results = await fetchByColumn<Settings>(SupabaseTables.Settings, 'user_id', user.id);
@@ -32,10 +32,10 @@ export async function createDefaultSettings(): Promise<Settings> {
   if (!user) throw new Error('User not authenticated');
 
   const defaultModules: Module[] = [
-    { id: '1', name: 'Ayats & Hadiths', enabled: true, display_order: 1 },
-    { id: '2', name: 'Announcements', enabled: true, display_order: 2 },
-    { id: '3', name: 'Events', enabled: true, display_order: 3 },
-    { id: '4', name: 'Posts', enabled: true, display_order: 4 },
+    { id: 'ayat-and-hadith', name: 'Ayats & Hadiths', enabled: true, display_order: 1 },
+    { id: 'announcements', name: 'Announcements', enabled: true, display_order: 2 },
+    { id: 'events', name: 'Events', enabled: true, display_order: 3 },
+    { id: 'posts', name: 'Posts', enabled: true, display_order: 4 },
   ];
 
   const settingsData: Partial<Settings> = {
@@ -73,7 +73,7 @@ export async function updateSettings(modules: Module[]): Promise<Settings> {
 }
 
 export async function getOrCreateSettings(): Promise<Settings | null> {
-  const settings = await fetchSettings();
+  const settings = await getSettings();
   if (!settings) return await createDefaultSettings();
   return settings;
 }

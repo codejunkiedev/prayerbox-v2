@@ -94,7 +94,15 @@ export interface PrayerTimes extends Base {
   prayer_adjustments?: PrayerAdjustments;
 }
 
-export type Module = { id: string; name: string; enabled: boolean; display_order: number };
+export type ModuleId = 'ayat-and-hadith' | 'announcements' | 'events' | 'posts';
+export type ModuleName = 'Ayats & Hadiths' | 'Announcements' | 'Events' | 'Posts';
+
+export type Module = {
+  id: ModuleId;
+  name: ModuleName;
+  enabled: boolean;
+  display_order: number;
+};
 
 export interface Settings extends Base {
   modules: Module[];

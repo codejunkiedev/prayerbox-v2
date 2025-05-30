@@ -11,13 +11,14 @@ import {
   getMaxOrderValue,
 } from '../helpers';
 
-export async function getEvents(): Promise<Event[]> {
-  const user = await getCurrentUser();
+export async function getEvents(userId?: string): Promise<Event[]> {
+  const user = userId ? { id: userId } : await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
 
   const conditions = [
     { column: 'user_id', value: user.id },
     { column: 'archived', value: false, isNull: true },
+    ...(userId ? [{ column: 'visible', value: true }] : []),
   ];
 
   const items = await fetchByMultipleConditions<Event>(SupabaseTables.Events, conditions);

@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { DraggableDataTable } from '@/components/common/DraggableDataTable';
-import type { Column } from '@/components/common/DataTable';
+import { DraggableDataTable } from '@/components/common/draggable-data-table';
+import type { Column } from '@/components/common/data-table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { getOrCreateSettings, updateSettings } from '@/lib/supabase';
 import type { Module, Settings } from '@/types';
-import { TableSkeleton } from '@/components/skeletons/TableSkeleton';
+import { TableSkeleton } from '@/components/skeletons/table-skeleton';
 import { Button } from '@/components/ui/button';
 import { Pencil } from 'lucide-react';
 import { Link } from 'react-router';
@@ -22,7 +22,7 @@ export default function Settings() {
       try {
         setIsLoading(true);
         const userSettings = await getOrCreateSettings();
-        setSettings(userSettings);
+        if (userSettings) setSettings(userSettings);
       } catch (error) {
         console.error('Error loading settings:', error);
         toast.error('Failed to load settings');

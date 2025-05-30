@@ -2,8 +2,8 @@ import { SupabaseTables, type PrayerTimes } from '@/types';
 import type { PrayerTimingsData } from '../../zod';
 import { getCurrentUser, fetchByColumn, updateRecord, insertRecord } from '../helpers';
 
-export async function getPrayerTimeSettings(): Promise<PrayerTimes | null> {
-  const user = await getCurrentUser();
+export async function getPrayerTimeSettings(userId?: string): Promise<PrayerTimes | null> {
+  const user = userId ? { id: userId } : await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
 
   const prayerTimes = await fetchByColumn<PrayerTimes>(

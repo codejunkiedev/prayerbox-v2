@@ -20,6 +20,12 @@ export const loginFormSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginFormSchema>;
 
+export const loginWithCodeSchema = z.object({
+  code: z.string().min(1, 'Masjid code is required'),
+});
+
+export type LoginWithCodeData = z.infer<typeof loginWithCodeSchema>;
+
 export const forgotPasswordSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
 });

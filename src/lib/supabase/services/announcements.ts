@@ -11,13 +11,14 @@ import {
   getMaxOrderValue,
 } from '../helpers';
 
-export async function getAnnouncements(): Promise<Announcement[]> {
-  const user = await getCurrentUser();
+export async function getAnnouncements(userId?: string): Promise<Announcement[]> {
+  const user = userId ? { id: userId } : await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
 
   const conditions = [
     { column: 'user_id', value: user.id },
     { column: 'archived', value: false, isNull: true },
+    ...(userId ? [{ column: 'visible', value: true }] : []),
   ];
 
   const items = await fetchByMultipleConditions<Announcement>(
