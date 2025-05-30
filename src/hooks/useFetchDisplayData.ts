@@ -6,6 +6,7 @@ import type {
   Event,
   Post,
   PrayerTimes,
+  Settings,
 } from '@/types';
 import { useDisplayStore } from '@/store';
 import {
@@ -30,6 +31,7 @@ type ReturnType = {
   posts: Post[];
   prayerTimes: AlAdhanPrayerTimes | null;
   prayerTimeSettings: PrayerTimes | null;
+  userSettings: Settings | null;
 };
 
 export function useFetchDisplayData(): ReturnType {
@@ -41,6 +43,7 @@ export function useFetchDisplayData(): ReturnType {
   const [posts, setPosts] = useState<Post[]>([]);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes | null>(null);
   const [prayerTimeSettings, setPrayerTimeSettings] = useState<PrayerTimes | null>(null);
+  const [userSettings, setUserSettings] = useState<Settings | null>(null);
 
   const { masjidProfile } = useDisplayStore();
   const userId = masjidProfile?.user_id;
@@ -151,6 +154,7 @@ export function useFetchDisplayData(): ReturnType {
             description: 'Please set your user settings to continue',
           });
         } else {
+          setUserSettings(userSettings);
           userSettings.modules.forEach(module => {
             if (module?.enabled) {
               if (module?.id === 'announcements') promises.push(fetchAnnouncements());
@@ -184,5 +188,6 @@ export function useFetchDisplayData(): ReturnType {
     posts,
     prayerTimes,
     prayerTimeSettings,
+    userSettings,
   };
 }

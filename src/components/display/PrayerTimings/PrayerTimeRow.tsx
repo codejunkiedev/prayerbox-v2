@@ -19,10 +19,10 @@ export function PrayerTimeRow({
   return (
     <>
       <div className='flex justify-between items-center'>
-        <div className='text-lg sm:text-xl font-medium'>
+        <div className='text-base xs:text-lg sm:text-xl font-medium'>
           {getAdjustedPrayerTime(prayerName, originalTime, prayerTimeSettings)}
         </div>
-        <div className='text-lg sm:text-xl font-semibold'>{arabicName}</div>
+        <div className='text-base xs:text-lg sm:text-xl font-semibold'>{arabicName}</div>
       </div>
       {showDivider && <hr className='border-primary/10' />}
     </>

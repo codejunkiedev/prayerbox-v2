@@ -13,13 +13,12 @@ export function JummaPrayersList({ dhuhrTime, prayerTimeSettings }: JummaPrayers
     isPrayerAdjusted('jumma2', prayerTimeSettings) ||
     isPrayerAdjusted('jumma3', prayerTimeSettings);
 
-  // If no Jumma prayers are configured, show default Jumma
   if (!hasAnyJummaAdjustments) {
     return (
       <>
         <div className='flex justify-between items-center'>
-          <div className='text-lg sm:text-xl font-medium'>{formatTime(dhuhrTime)}</div>
-          <div className='text-lg sm:text-xl font-semibold'>جمعة</div>
+          <div className='text-base xs:text-lg sm:text-xl font-medium'>{formatTime(dhuhrTime)}</div>
+          <div className='text-base xs:text-lg sm:text-xl font-semibold'>جمعة</div>
         </div>
         <hr className='border-primary/10' />
       </>
@@ -28,7 +27,6 @@ export function JummaPrayersList({ dhuhrTime, prayerTimeSettings }: JummaPrayers
 
   return (
     <>
-      {/* Jumma 1 */}
       {isPrayerAdjusted('jumma1', prayerTimeSettings) && (
         <PrayerTimeRow
           prayerName='jumma1'
@@ -38,7 +36,6 @@ export function JummaPrayersList({ dhuhrTime, prayerTimeSettings }: JummaPrayers
         />
       )}
 
-      {/* Jumma 2 */}
       {isPrayerAdjusted('jumma2', prayerTimeSettings) && (
         <PrayerTimeRow
           prayerName='jumma2'
@@ -48,7 +45,6 @@ export function JummaPrayersList({ dhuhrTime, prayerTimeSettings }: JummaPrayers
         />
       )}
 
-      {/* Jumma 3 */}
       {isPrayerAdjusted('jumma3', prayerTimeSettings) && (
         <PrayerTimeRow
           prayerName='jumma3'

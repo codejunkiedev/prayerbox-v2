@@ -1,0 +1,44 @@
+/* Swiper Navigation Styles */
+.swiper-button-next,
+.swiper-button-prev {
+  color: hsl(var(--primary)) !important;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+  background: hsl(var(--primary)) !important;
+}
+
+.swiper-pagination {
+  position: fixed !important;
+  bottom: 20px !important;
+}
+
+/* Fullscreen Swiper Styles */
+.swiper {
+  height: 100vh;
+  width: 100vw;
+}
+
+.swiper-slide {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Make sure all slides take up the full screen */
+.swiper-slide > div {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

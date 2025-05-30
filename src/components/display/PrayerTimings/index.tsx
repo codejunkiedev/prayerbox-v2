@@ -3,7 +3,6 @@ import { formatTime, isFridayPrayer, PRAYER_NAMES } from '@/utils';
 import { useDisplayStore } from '@/store';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
 import { Clock } from '@/components/common';
-import { BackgroundPatterns } from './BackgroundPatterns';
 import { DateDisplay } from './DateDisplay';
 import { PrayerTimeRow } from './PrayerTimeRow';
 import { JummaPrayersList } from './JummaPrayersList';
@@ -17,7 +16,6 @@ interface PrayerTimingDisplayProps {
 export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerTimingDisplayProps) {
   const { masjidProfile } = useDisplayStore();
 
-  // Prayer times for today
   const timings = prayerTimes?.timings;
   const date = prayerTimes?.date;
   const isFriday = isFridayPrayer(date);
@@ -26,24 +24,18 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
 
   return (
     <div className='flex flex-col min-h-screen w-full bg-primary-foreground overflow-hidden relative'>
-      <BackgroundPatterns />
-
-      {/* Main content */}
-      <div className='flex flex-col items-center justify-center min-h-screen w-full px-2 sm:px-4 py-4 sm:py-6 lg:py-8 z-10'>
-        {/* Current time */}
-        <div className='text-center mb-4 sm:mb-6'>
+      <div className='flex flex-col items-center justify-between min-h-screen w-full px-2 sm:px-4 py-2 sm:py-4 lg:py-6 z-10 overflow-y-auto'>
+        <div className='text-center mb-2 sm:mb-4 pt-2 sm:pt-4'>
           <Clock
-            className='text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-primary mb-2'
+            className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-primary mb-1 sm:mb-2'
             showSeconds={true}
           />
           <DateDisplay date={date} />
         </div>
 
-        {/* Prayer times card */}
-        <Card className='w-full max-w-xs sm:max-w-sm md:max-w-md lg:max-w-2xl bg-card/95 backdrop-blur-sm'>
-          <CardContent className='p-3 sm:p-4 md:p-6'>
-            <div className='flex flex-col space-y-2 sm:space-y-3 md:space-y-4'>
-              {/* Fajr */}
+        <Card className='w-full max-w-[90%] xs:max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg bg-card/95 backdrop-blur-sm mb-2 sm:mb-4'>
+          <CardContent className='p-2 xs:p-3 sm:p-4 md:p-6'>
+            <div className='flex flex-col space-y-1 xs:space-y-2 sm:space-y-3 md:space-y-4'>
               <PrayerTimeRow
                 prayerName='fajr'
                 arabicName={PRAYER_NAMES.fajr}
@@ -51,7 +43,6 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
                 prayerTimeSettings={prayerTimeSettings}
               />
 
-              {/* Sunrise */}
               <PrayerTimeRow
                 prayerName='sunrise'
                 arabicName={PRAYER_NAMES.sunrise}
@@ -59,7 +50,6 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
                 prayerTimeSettings={prayerTimeSettings}
               />
 
-              {/* Dhuhr or Jumma prayers based on day */}
               {!isFriday ? (
                 <PrayerTimeRow
                   prayerName='dhuhr'
@@ -74,7 +64,6 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
                 />
               )}
 
-              {/* Asr */}
               <PrayerTimeRow
                 prayerName='asr'
                 arabicName={PRAYER_NAMES.asr}
@@ -82,7 +71,6 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
                 prayerTimeSettings={prayerTimeSettings}
               />
 
-              {/* Maghrib */}
               <PrayerTimeRow
                 prayerName='maghrib'
                 arabicName={PRAYER_NAMES.maghrib}
@@ -90,7 +78,6 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
                 prayerTimeSettings={prayerTimeSettings}
               />
 
-              {/* Isha */}
               <PrayerTimeRow
                 prayerName='isha'
                 arabicName={PRAYER_NAMES.isha}

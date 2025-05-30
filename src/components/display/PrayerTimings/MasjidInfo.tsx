@@ -51,9 +51,11 @@ export function MasjidInfo({ masjidProfile }: MasjidInfoProps) {
   }, [masjidProfile?.latitude, masjidProfile?.longitude]);
 
   return (
-    <div className='mt-4 sm:mt-6 text-center'>
-      <div className='text-base sm:text-lg font-semibold'>{masjidProfile?.name || 'Masjid'}</div>
-      <div className='text-xs sm:text-sm text-muted-foreground'>
+    <div className='mt-2 sm:mt-4 text-center'>
+      <div className='text-sm xs:text-base sm:text-lg font-semibold'>
+        {masjidProfile?.name || 'Masjid'}
+      </div>
+      <div className='text-xs xs:text-sm text-muted-foreground'>
         {isLoading ? 'Loading location...' : location || 'Location not set'}
       </div>
     </div>
