@@ -1,4 +1,4 @@
-import type { Announcement, AyatAndHadith, Event, ModuleId, Post, Settings } from '@/types';
+import type { ModuleId, Settings } from '@/types';
 import type { ReactNode } from 'react';
 
 /**
@@ -31,20 +31,6 @@ export function getModuleOrder(userSettings: Settings | null): Record<ModuleId, 
  */
 export function sortByDisplayOrder<T extends { display_order?: number }>(items: T[]): T[] {
   return [...items].sort((a, b) => (a.display_order || 999) - (b.display_order || 999));
-}
-
-/**
- * Checks if there is any additional content besides prayer times
- */
-export function hasAdditionalContent(
-  announcements: Announcement[],
-  ayatAndHadith: AyatAndHadith[],
-  events: Event[],
-  posts: Post[]
-): boolean {
-  return (
-    announcements.length > 0 || ayatAndHadith.length > 0 || events.length > 0 || posts.length > 0
-  );
 }
 
 /**

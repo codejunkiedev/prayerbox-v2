@@ -10,12 +10,7 @@ import {
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Keyboard } from 'swiper/modules';
-import {
-  getModuleOrder,
-  sortByDisplayOrder,
-  hasAdditionalContent,
-  createOrderedContentGroups,
-} from '@/utils/display';
+import { getModuleOrder, sortByDisplayOrder, createOrderedContentGroups } from '@/utils/display';
 import './display.css';
 
 export default function Display() {
@@ -33,16 +28,6 @@ export default function Display() {
 
   if (isLoading) return <Loading />;
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
-
-  const hasContent = hasAdditionalContent(announcements, ayatAndHadith, events, posts);
-
-  if (!hasContent) {
-    return (
-      <div className='h-screen w-full overflow-hidden'>
-        <PrayerTimingDisplay prayerTimes={prayerTimes} prayerTimeSettings={prayerTimeSettings} />
-      </div>
-    );
-  }
 
   const moduleOrder = getModuleOrder(userSettings);
 
@@ -97,14 +82,9 @@ export default function Display() {
         className='h-full w-full'
       >
         <SwiperSlide>
-          <div className='w-full h-full overflow-auto'>
-            <PrayerTimingDisplay
-              prayerTimes={prayerTimes}
-              prayerTimeSettings={prayerTimeSettings}
-            />
-          </div>
+          <PrayerTimingDisplay prayerTimes={prayerTimes} prayerTimeSettings={prayerTimeSettings} />
         </SwiperSlide>
-        {orderedContentGroups.flatMap(group => group.content)}
+        {orderedContentGroups.length > 0 && orderedContentGroups.flatMap(group => group.content)}
       </Swiper>
     </div>
   );

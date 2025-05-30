@@ -7,6 +7,7 @@ import { DateDisplay } from './DateDisplay';
 import { PrayerTimeRow } from './PrayerTimeRow';
 import { JummaPrayersList } from './JummaPrayersList';
 import { MasjidInfo } from './MasjidInfo';
+import bgImage from '@/assets/backgrounds/05.jpeg';
 
 interface PrayerTimingDisplayProps {
   prayerTimes: AlAdhanPrayerTimes | null;
@@ -23,7 +24,11 @@ export function PrayerTimingDisplay({ prayerTimes, prayerTimeSettings }: PrayerT
   if (!timings) return null;
 
   return (
-    <div className='flex flex-col min-h-screen w-full bg-primary-foreground overflow-hidden relative'>
+    <div
+      className='flex flex-col min-h-screen w-full overflow-hidden relative bg-cover bg-center'
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <div className='absolute inset-0 bg-black/40 backdrop-blur-sm z-0'></div>
       <div className='flex flex-col items-center justify-between min-h-screen w-full px-2 sm:px-4 py-2 sm:py-4 lg:py-6 z-10 overflow-y-auto'>
         <div className='text-center mb-2 sm:mb-4 pt-2 sm:pt-4'>
           <Clock
