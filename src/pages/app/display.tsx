@@ -78,7 +78,7 @@ export default function Display() {
         slidesPerView={1}
         keyboard={{ enabled: true, onlyInViewport: true }}
         navigation={false}
-        autoplay={{ delay: 10000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+        autoplay={{ delay: 2000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         className='h-full w-full'
       >
         <SwiperSlide>
