@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Outlet } from 'react-router';
-import Sidebar from './sidebar';
-import Header from './header';
+import Sidebar from './sidebar2';
+import Header from './header1';
 
 export default function AppLayout() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
