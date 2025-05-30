@@ -1,13 +1,13 @@
 import { formatTime, isFridayPrayer, PRAYER_NAMES } from '@/utils';
 import { useDisplayStore } from '@/store';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
-import { Clock } from '@/components/common';
 import { DateDisplay } from './date-display';
 import { PrayerTimeRow } from './prayer-time-row';
 import { JummaPrayersList } from './jumma-prayers-list';
 import { MasjidInfo } from './masjid-info';
 import bgImage from '@/assets/backgrounds/05.jpeg';
 import { motion } from 'framer-motion';
+import { Clock } from './clock';
 
 interface PrayerTimingDisplayProps {
   prayerTimes: AlAdhanPrayerTimes | null;

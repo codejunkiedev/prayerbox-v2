@@ -4,4 +4,3 @@ export * from './empty-state';
 export * from './action-buttons';
 export * from './data-table';
 export * from './draggable-data-table';
-export * from './clock';
