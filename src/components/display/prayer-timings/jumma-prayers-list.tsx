@@ -1,6 +1,6 @@
 import { formatTime, isPrayerAdjusted } from '@/utils';
 import type { PrayerTimes } from '@/types';
-import { PrayerTimeRow } from './PrayerTimeRow';
+import { PrayerTimeRow } from './prayer-time-row';
 
 interface JummaPrayersListProps {
   dhuhrTime: string;

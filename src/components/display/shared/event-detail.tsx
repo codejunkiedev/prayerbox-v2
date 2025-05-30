@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
-import { itemVariants } from './AnimationProvider';
+import { itemVariants } from './animation-provider';
 
 interface EventDetailProps {
   text: string;

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
 import { useTrigger } from '@/hooks';
 import { fetchPrayerTimesForThisMonth } from '@/api';
-import { PageHeader } from '@/components/common/PageHeader';
+import { PageHeader } from '@/components/common/page-header';
 import {
   PrayerTimesTable,
   PrayerTimesLoading,

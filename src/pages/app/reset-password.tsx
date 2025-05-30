@@ -8,7 +8,7 @@ import { updateUserPassword } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { AppRoutes } from '@/constants';
 import { resetPasswordSchema, type ResetPasswordData } from '@/lib/zod';
-import { AutoRedirectNotice } from '@/components/AutoRedirectNotice';
+import { AutoRedirectNotice } from '@/components/auto-redirect-notice';
 
 export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);

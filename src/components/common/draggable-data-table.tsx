@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import type { ReactNode } from 'react';
-import type { Column } from './DataTable';
+import type { Column } from './data-table';
 import {
   DndContext,
   closestCenter,

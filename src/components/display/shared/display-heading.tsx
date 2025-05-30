@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { itemVariants } from './AnimationProvider';
+import { itemVariants } from './animation-provider';
 
 interface DisplayHeadingProps {
   title: string;

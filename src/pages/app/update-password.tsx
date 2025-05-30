@@ -8,7 +8,7 @@ import { updateUserPasswordWithVerification, getCurrentUser } from '@/lib/supaba
 import { toast } from 'sonner';
 import { AppRoutes } from '@/constants';
 import { updatePasswordSchema, type UpdatePasswordData } from '@/lib/zod';
-import { AutoRedirectNotice } from '@/components/AutoRedirectNotice';
+import { AutoRedirectNotice } from '@/components/auto-redirect-notice';
 
 export default function UpdatePassword() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
