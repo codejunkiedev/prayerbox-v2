@@ -104,6 +104,12 @@ export type Module = {
   display_order: number;
 };
 
+export enum Theme {
+  Theme1 = 'theme-1',
+  Theme2 = 'theme-2',
+}
+
 export interface Settings extends Base {
   modules: Module[];
+  theme: Theme;
 }
