@@ -27,7 +27,7 @@ export function Theme1({
           </div>
 
           <div className='absolute left-1/2 top-10 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center'>
-            <span className='text-xl sm:text-2xl md:text-4xl lg:text-7xl xl:text-8xl 2xl:text-9xl font-bold text-yellow-400 tracking-wide'>
+            <span className='text-lg sm:text-xl md:text-3xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-yellow-400 tracking-wide'>
               {formatTimePickerTime(currentTime)}
             </span>
           </div>
@@ -54,7 +54,7 @@ export function Theme1({
 
         <div className='flex-1 flex items-center justify-center min-h-0'>
           <div className='p-0.5 sm:p-1 md:p-2 lg:p-6 xl:p-8 w-full max-w-[95%]'>
-            <div className='grid grid-cols-2 grid-rows-3 gap-1 sm:gap-2 md:gap-3 lg:gap-8 xl:gap-10 h-full'>
+            <div className='grid grid-cols-2 grid-rows-3 gap-0.5 sm:gap-1 md:gap-2 lg:gap-6 xl:gap-8 h-full'>
               {processedPrayerTimings.map((prayer, index) => {
                 const isLeftColumn = index % 2 === 0;
                 const timeParts = prayer.time.split(' ');
@@ -64,18 +64,18 @@ export function Theme1({
                 return (
                   <div
                     key={prayer.name}
-                    className={`flex items-center rounded-lg sm:rounded-xl lg:rounded-2xl border border-yellow-400 p-1 sm:p-2 md:p-4 lg:p-10 xl:p-12 gap-0.5 sm:gap-1 md:gap-2 lg:gap-6 xl:gap-8 min-h-0 ${
+                    className={`flex items-center rounded-md sm:rounded-lg md:rounded-xl lg:rounded-2xl border border-yellow-400 p-0.5 sm:p-1 md:p-2 lg:p-6 xl:p-8 gap-0.5 sm:gap-1 md:gap-2 lg:gap-4 xl:gap-6 min-h-0 ${
                       isLeftColumn ? 'flex-row' : 'flex-row-reverse'
                     }`}
                   >
-                    <div className='text-white text-xs sm:text-sm md:text-xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold flex-1 text-center'>
+                    <div className='text-white text-[8px] xs:text-xs sm:text-sm md:text-lg lg:text-3xl xl:text-4xl 2xl:text-5xl font-bold flex-1 text-center'>
                       {prayer.arabicName}
                     </div>
-                    <div className='text-yellow-400 flex-1 text-center flex items-baseline justify-center gap-0.5 sm:gap-1'>
-                      <span className='text-xs sm:text-sm md:text-xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-semibold'>
+                    <div className='text-yellow-400 flex-1 text-center flex items-baseline justify-center gap-0.5'>
+                      <span className='text-[8px] xs:text-xs sm:text-sm md:text-lg lg:text-3xl xl:text-4xl 2xl:text-5xl font-semibold'>
                         {timeNumber}
                       </span>
-                      <span className='text-xs sm:text-xs md:text-base lg:text-3xl xl:text-4xl 2xl:text-5xl font-medium'>
+                      <span className='text-[6px] xs:text-[8px] sm:text-xs md:text-sm lg:text-xl xl:text-2xl 2xl:text-3xl font-medium'>
                         {amPm}
                       </span>
                     </div>
