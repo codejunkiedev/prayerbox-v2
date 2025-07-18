@@ -82,7 +82,11 @@ export default function Display() {
         className='h-full w-full'
       >
         <SwiperSlide>
-          <PrayerTimingDisplay prayerTimes={prayerTimes} prayerTimeSettings={prayerTimeSettings} />
+          <PrayerTimingDisplay
+            prayerTimes={prayerTimes}
+            prayerTimeSettings={prayerTimeSettings}
+            userSettings={userSettings}
+          />
         </SwiperSlide>
         {orderedContentGroups.length > 0 && orderedContentGroups.flatMap(group => group.content)}
       </Swiper>
