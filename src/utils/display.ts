@@ -1,5 +1,12 @@
-import type { ModuleId, Settings } from '@/types';
+import type {
+  AlAdhanPrayerTimes,
+  ModuleId,
+  PrayerTimes,
+  ProcessedPrayerTiming,
+  Settings,
+} from '@/types';
 import type { ReactNode } from 'react';
+import { getAdjustedPrayerTime, isFridayPrayer, PRAYER_NAMES } from './prayer-time-adjustments';
 
 /**
  * Creates a module order map from user settings or defaults
@@ -78,4 +85,54 @@ export function createOrderedContentGroups(
  */
 export function getAyatHadithTitle(type: 'ayat' | 'hadith'): string {
   return type === 'ayat' ? 'Quranic Verse' : 'Hadith';
+}
+
+export function getProcessedPrayerTimings(
+  prayerTimes: AlAdhanPrayerTimes,
+  prayerTimeSettings: PrayerTimes
+): ProcessedPrayerTiming[] {
+  const timings = prayerTimes.timings;
+  const isJumma = isFridayPrayer(prayerTimes.date);
+
+  const processedTimings: ProcessedPrayerTiming[] = [
+    {
+      name: 'fajr',
+      time: getAdjustedPrayerTime('fajr', timings.Fajr, prayerTimeSettings),
+      arabicName: PRAYER_NAMES.fajr,
+    },
+    {
+      name: 'dhuhr',
+      time: getAdjustedPrayerTime('dhuhr', timings.Dhuhr, prayerTimeSettings),
+      arabicName: PRAYER_NAMES.dhuhr,
+    },
+    {
+      name: 'asr',
+      time: getAdjustedPrayerTime('asr', timings.Asr, prayerTimeSettings),
+      arabicName: PRAYER_NAMES.asr,
+    },
+    {
+      name: 'maghrib',
+      time: getAdjustedPrayerTime('maghrib', timings.Maghrib, prayerTimeSettings),
+      arabicName: PRAYER_NAMES.maghrib,
+    },
+    {
+      name: 'isha',
+      time: getAdjustedPrayerTime('isha', timings.Isha, prayerTimeSettings),
+      arabicName: PRAYER_NAMES.isha,
+    },
+  ];
+
+  // If it's Friday, add Jumma prayer after Dhuhr
+  if (isJumma && prayerTimeSettings.prayer_adjustments?.jumma1) {
+    const jummaTime = getAdjustedPrayerTime('jumma1', timings.Dhuhr, prayerTimeSettings);
+
+    // Insert Jumma after Dhuhr (at index 2)
+    processedTimings.splice(2, 0, {
+      name: 'jumma',
+      time: jummaTime,
+      arabicName: PRAYER_NAMES.jumma,
+    });
+  }
+
+  return processedTimings;
 }
