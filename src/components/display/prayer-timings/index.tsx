@@ -42,7 +42,7 @@ export function PrayerTimingDisplay({
   const getPage = () => {
     switch (selectedTheme) {
       case Theme.Theme1:
-        return <Theme2 {...themeProps} />;
+        return <Theme1 {...themeProps} />;
       case Theme.Theme2:
         return <Theme2 {...themeProps} />;
       default:
