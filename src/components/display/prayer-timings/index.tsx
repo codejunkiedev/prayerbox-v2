@@ -5,7 +5,7 @@ import {
   getProcessedPrayerTimings,
 } from '@/utils';
 import { Theme, type AlAdhanPrayerTimes, type PrayerTimes, type Settings } from '@/types';
-import { Theme1 } from './themes';
+import { Theme1, Theme2 } from './themes';
 import type { ThemeProps } from './themes/types';
 import { useCurrentTime } from '@/hooks';
 
@@ -42,7 +42,9 @@ export function PrayerTimingDisplay({
   const getPage = () => {
     switch (selectedTheme) {
       case Theme.Theme1:
-        return <Theme1 {...themeProps} />;
+        return <Theme2 {...themeProps} />;
+      case Theme.Theme2:
+        return <Theme2 {...themeProps} />;
       default:
         return <Theme1 {...themeProps} />;
     }
