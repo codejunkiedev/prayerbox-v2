@@ -1,3 +1,4 @@
+import type { AlAdhanPrayerTimes } from '@/types';
 import {
   getMonth,
   getYear,
@@ -138,6 +139,14 @@ export const formatDateTimePickerDate = (date: Date): string => {
  */
 export const formatDate = (date: Date): string => {
   return format(date, 'dd-MM-yyyy');
+};
+
+export const formatGregorianDate = (date: AlAdhanPrayerTimes['date']['gregorian']): string => {
+  return `${date.weekday.en}, ${date.day} ${date.month.en} ${date.year}`;
+};
+
+export const formatHijriDate = (date: AlAdhanPrayerTimes['date']['hijri']): string => {
+  return `${date.month.en} ${date.day}, ${date.year} ${date.designation.abbreviated}`;
 };
 
 /**

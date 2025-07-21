@@ -1,4 +1,4 @@
-import { SupabaseTables, type Settings, type Module } from '@/types';
+import { SupabaseTables, type Settings, type Module, Theme } from '@/types';
 import {
   getCurrentUser,
   insertRecord,
@@ -41,6 +41,7 @@ export async function createDefaultSettings(): Promise<Settings> {
   const settingsData: Partial<Settings> = {
     user_id: user.id,
     modules: defaultModules,
+    theme: Theme.Theme1,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -53,13 +54,14 @@ export async function createDefaultSettings(): Promise<Settings> {
   }
 }
 
-export async function updateSettings(modules: Module[]): Promise<Settings> {
+export async function updateSettings(modules: Module[], theme?: Theme): Promise<Settings> {
   const settings = await getOrCreateSettings();
   if (!settings) throw new Error('Failed to get or create settings');
 
   try {
     const updatedSettings = await updateRecord<Settings>(SupabaseTables.Settings, settings.id, {
       modules,
+      theme: theme !== undefined ? theme : settings.theme,
       updated_at: new Date().toISOString(),
     });
 
@@ -68,6 +70,23 @@ export async function updateSettings(modules: Module[]): Promise<Settings> {
     return updatedSettings;
   } catch (error) {
     console.error('Error in updateSettings:', error);
+    throw error;
+  }
+}
+
+export async function updateTheme(theme: Theme): Promise<Settings> {
+  const settings = await getOrCreateSettings();
+  if (!settings) throw new Error('Failed to get or create settings');
+
+  try {
+    const updatedSettings = await updateRecord<Settings>(SupabaseTables.Settings, settings.id, {
+      theme,
+      updated_at: new Date().toISOString(),
+    });
+    updatedSettings.modules = sortByDisplayOrderOrCreatedAt(updatedSettings.modules);
+    return updatedSettings;
+  } catch (error) {
+    console.error('Error in updateTheme:', error);
     throw error;
   }
 }
