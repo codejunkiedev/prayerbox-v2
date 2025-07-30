@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { fetchWeatherForecast, type WeatherForecast } from '@/api';
-import type { MasjidProfile } from '@/types';
+import { fetchWeatherForecast } from '@/api';
+import type { MasjidProfile, WeatherForecast } from '@/types';
 
 export function useWeatherData(masjidProfile: MasjidProfile | null) {
   const [weatherForecast, setWeatherForecast] = useState<WeatherForecast | null>(null);

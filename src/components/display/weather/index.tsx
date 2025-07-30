@@ -1,7 +1,7 @@
 import { DisplayContainer } from '../shared';
 import { AnimationProvider, itemVariants } from '../shared/animation-provider';
 import { motion } from 'framer-motion';
-import type { WeatherForecast } from '@/api';
+import type { WeatherForecast } from '@/types';
 import bgImage from '@/assets/backgrounds/05.jpeg';
 import { format } from 'date-fns';
 

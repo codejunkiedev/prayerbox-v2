@@ -6,10 +6,4 @@ export {
 
 export { reverseGeocode } from './geoapify';
 
-export {
-  fetchWeatherData,
-  fetchWeatherForecast,
-  type WeatherData,
-  type ForecastData,
-  type WeatherForecast,
-} from './openweather';
+export { fetchWeatherForecast } from './openweather';

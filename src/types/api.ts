@@ -112,3 +112,49 @@ export type GeoapifyResponse = {
   }>;
   query: { lat: number; lon: number; plus_code: string };
 };
+
+export type WeatherData = {
+  temperature: number;
+  feelsLike: number;
+  description: string;
+  icon: string;
+  humidity: number;
+  windSpeed: number;
+  cityName: string;
+};
+
+export type ForecastData = WeatherData & {
+  date: Date;
+  tempMin: number;
+  tempMax: number;
+};
+
+export type WeatherForecast = {
+  current: WeatherData;
+  forecast: ForecastData[];
+};
+
+export type OpenWeatherForecastResponse = {
+  city: {
+    name: string;
+  };
+  list: Array<{
+    dt: number;
+    main: {
+      temp: number;
+      feels_like: number;
+      temp_min: number;
+      temp_max: number;
+      humidity: number;
+    };
+    weather: Array<{
+      main: string;
+      description: string;
+      icon: string;
+    }>;
+    wind: {
+      speed: number;
+    };
+    dt_txt: string;
+  }>;
+};
