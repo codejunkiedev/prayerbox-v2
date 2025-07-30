@@ -158,14 +158,12 @@ function validateAspectRatio(aspectRatio: number, targetRatio: number, tolerance
   const is16by9 = Math.abs(aspectRatio - targetRatio) <= tolerance;
 
   if (!is16by9) {
-    const currentRatio = `${aspectRatio.toFixed(1)}:1`;
-    const expectedRatio = `${targetRatio.toFixed(1)}:1`;
-
+    const currentRatio = `${aspectRatio.toFixed(2)}:1`;
     const recommendation = generateAspectRatioRecommendation(aspectRatio, targetRatio);
 
     return {
       isValid: false,
-      error: `Only 16:9 aspect ratio images are accepted. Current: ${currentRatio}, Expected: ${expectedRatio}`,
+      error: `Only 16:9 aspect ratio images are accepted. Current ratio: ${currentRatio}`,
       recommendation,
     };
   }
