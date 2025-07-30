@@ -1,4 +1,4 @@
-import { useFetchDisplayData } from '@/hooks';
+import { useFetchDisplayData, useWeatherData } from '@/hooks';
 import Loading from '../loading-page';
 import {
   ErrorDisplay,
@@ -7,10 +7,12 @@ import {
   PostsDisplay,
   EventsDisplay,
   AyatHadithDisplay,
+  WeatherDisplay,
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Keyboard } from 'swiper/modules';
 import { getModuleOrder, sortByDisplayOrder, createOrderedContentGroups } from '@/utils/display';
+import { useDisplayStore } from '@/store';
 import './display.css';
 
 export default function Display() {
@@ -25,6 +27,9 @@ export default function Display() {
     posts,
     userSettings,
   } = useFetchDisplayData();
+
+  const { masjidProfile } = useDisplayStore();
+  const { weatherForecast } = useWeatherData(masjidProfile);
 
   if (isLoading) return <Loading />;
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
@@ -88,6 +93,11 @@ export default function Display() {
             userSettings={userSettings}
           />
         </SwiperSlide>
+        {weatherForecast && (
+          <SwiperSlide>
+            <WeatherDisplay weatherForecast={weatherForecast} />
+          </SwiperSlide>
+        )}
         {orderedContentGroups.length > 0 && orderedContentGroups.flatMap(group => group.content)}
       </Swiper>
     </div>
