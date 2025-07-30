@@ -24,3 +24,4 @@ export * from './radio-group';
 export * from './slider';
 export * from './map';
 export * from './switch';
+export * from './validation-feedback';

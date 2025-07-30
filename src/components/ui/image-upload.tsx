@@ -131,6 +131,9 @@ export function ImageUpload({
             <p className='text-xs text-gray-400 mt-1'>
               Supported formats: JPEG, PNG, GIF, WebP (Max: 5MB)
             </p>
+            <p className='text-xs text-gray-400 mt-1'>
+              <strong>16:9 aspect ratio only</strong> - Perfect for full-screen display
+            </p>
           </div>
         )}
       </div>
