@@ -13,7 +13,7 @@ import type {
 const ASPECT_RATIO_CONFIG: ValidationConfig = {
   ratio: 16 / 9, // 1.7777...
   name: '16:9',
-  tolerance: 0.02, // Tighter tolerance for precision
+  tolerance: 0, // Perfect ratio required
 } as const;
 
 const DIMENSION_LIMITS: DimensionLimits = {
