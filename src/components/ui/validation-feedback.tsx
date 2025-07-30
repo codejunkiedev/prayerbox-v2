@@ -44,7 +44,7 @@ function ValidationSuccessContent({ dimensions }: { dimensions?: string }) {
     <div className='flex items-start space-x-2'>
       <CheckIcon className='w-4 h-4 mt-0.5 text-green-600' />
       <div>
-        <p className='font-medium'>✓ Image validated for full-screen display</p>
+        <p className='font-medium'>Image validated for full-screen display</p>
         {dimensions && <p className='text-xs mt-1'>Dimensions: {dimensions}</p>}
       </div>
     </div>
@@ -62,7 +62,7 @@ function ValidationWarningContent({
     <div className='flex items-start space-x-2'>
       <WarningIcon className='w-4 h-4 mt-0.5 text-yellow-600' />
       <div>
-        <p className='font-medium'>⚠ Image may not display optimally</p>
+        <p className='font-medium'>Image may not display optimally</p>
         {dimensions && <p className='text-xs mt-1'>Current: {dimensions}</p>}
         {recommendation && <p className='text-xs mt-1'>{recommendation}</p>}
       </div>
