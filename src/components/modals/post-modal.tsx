@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Button,
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -10,9 +9,11 @@ import {
   Input,
   Label,
   ImageUpload,
+  ValidationFeedback,
 } from '@/components/ui';
 import { postSchema, type PostData } from '@/lib/zod';
 import { upsertPost } from '@/lib/supabase';
+import { useImageValidation } from '@/hooks/useImageValidation';
 import type { Post } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,9 +29,17 @@ type PostModalProps = {
 export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imageError, setImageError] = useState<string | null>(null);
-  const isEdit = !!initialData;
+
+  const {
+    imageFile,
+    imageError,
+    validationState,
+    isValidating,
+    handleImageChange,
+    resetValidation,
+  } = useImageValidation();
+
+  const isEdit = useMemo(() => !!initialData, [initialData]);
 
   const {
     register,
@@ -51,19 +60,44 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
 
   useEffect(() => {
     if (initialData?.image_url) {
-      setImageError(null);
+      resetValidation();
     }
-  }, [initialData]);
+  }, [initialData, resetValidation]);
 
-  const handleImageChange = (file: File | null) => {
-    setImageFile(file);
-    setImageError(file ? null : 'Image is required');
-  };
+  // Reset image state when modal is opened/closed or when switching between add/edit modes
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset when modal closes
+      resetValidation();
+    } else if (!initialData) {
+      // Reset when opening in add mode (no initial data)
+      resetValidation();
+    }
+  }, [isOpen, initialData, resetValidation]);
+
+  const handleClose = useCallback(() => {
+    // Reset form and image state when closing
+    reset();
+    resetValidation();
+    setError(null);
+    onClose();
+  }, [reset, resetValidation, onClose]);
 
   const onSubmit = async (data: PostData) => {
     try {
       if (!imageFile && !initialData?.image_url) {
-        setImageError('Image is required');
+        setError('Image is required');
+        return;
+      }
+
+      // Prevent submission if new image fails validation
+      if (imageFile && validationState && !validationState.isValid) {
+        setError('Please upload a valid image that can be properly displayed full-screen');
+        return;
+      }
+
+      if (imageError) {
+        setError(imageError);
         return;
       }
 
@@ -73,8 +107,8 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
       toast.success(`Post ${isEdit ? 'updated' : 'created'} successfully`);
 
       reset();
-      setImageFile(null);
-      setImageError(null);
+      resetValidation();
+      setError(null);
       onSuccess();
       onClose();
     } catch (error) {
@@ -87,7 +121,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={open => !open && handleClose()}>
       <DialogContent className='sm:max-w-[550px]'>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Post' : 'Add New Post'}</DialogTitle>
@@ -113,20 +147,35 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
 
           <div className='space-y-2'>
             <ImageUpload
-              label='Image'
+              label='Image (Full-Screen Display)'
               onChange={handleImageChange}
               value={initialData?.image_url}
               disabled={isSubmitting}
             />
+
+            {/* Image validation feedback */}
+            {(validationState || isValidating) && (
+              <ValidationFeedback
+                isValid={validationState?.isValid ?? false}
+                dimensions={validationState?.dimensions}
+                recommendation={validationState?.recommendation}
+                isLoading={isValidating}
+              />
+            )}
+
             {imageError && <p className='text-red-500 text-sm'>{imageError}</p>}
+
+            {/* Help text */}
+            <p className='text-xs text-gray-500'>
+              <strong>Strict requirement:</strong> Only 16:9 aspect ratio images accepted. Perfect
+              for full-screen display. Minimum HD quality: 1280×720px.
+            </p>
           </div>
 
           <DialogFooter>
-            <DialogClose asChild>
-              <Button type='button' variant='outline'>
-                Cancel
-              </Button>
-            </DialogClose>
+            <Button type='button' variant='outline' onClick={handleClose}>
+              Cancel
+            </Button>
             <Button type='submit' disabled={isSubmitting} loading={isSubmitting}>
               {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Add'}
             </Button>
