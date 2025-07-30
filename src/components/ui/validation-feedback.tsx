@@ -64,7 +64,9 @@ function ValidationWarningContent({
       <div>
         <p className='font-medium'>Image may not display optimally</p>
         {dimensions && <p className='text-xs mt-1'>Current: {dimensions}</p>}
-        {recommendation && <p className='text-xs mt-1'>{recommendation}</p>}
+        {recommendation && (
+          <p className='text-xs mt-1' dangerouslySetInnerHTML={{ __html: recommendation }} />
+        )}
       </div>
     </div>
   );
