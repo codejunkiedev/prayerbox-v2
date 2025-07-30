@@ -3,3 +3,4 @@ export * from './useAutoRedirect';
 export * from './useSidebarState';
 export * from './useFetchDisplayData';
 export * from './useCurrentTime';
+export * from './useWeatherData';

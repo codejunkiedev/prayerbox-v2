@@ -5,3 +5,5 @@ export {
 } from './aladhan';
 
 export { reverseGeocode } from './geoapify';
+
+export { fetchWeatherForecast } from './openweather';
