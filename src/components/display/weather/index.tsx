@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import type { WeatherForecast } from '@/types';
 import bgImage from '@/assets/backgrounds/05.jpeg';
 import { format } from 'date-fns';
+import { getWeatherIconWithTimeContext } from '@/utils/weatherIconMapping';
 
 interface WeatherDisplayProps {
   weatherForecast: WeatherForecast;
@@ -11,10 +12,6 @@ interface WeatherDisplayProps {
 
 export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
   const { current, forecast } = weatherForecast;
-
-  const getWeatherIcon = (iconCode: string, size: '2x' | '4x' = '4x') => {
-    return `https://openweathermap.org/img/wn/${iconCode}@${size}.png`;
-  };
 
   const formatDescription = (description: string) => {
     return description
@@ -39,9 +36,9 @@ export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
           <motion.div variants={itemVariants} className='flex flex-col items-center mb-12 w-full'>
             <div className='flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16'>
               <img
-                src={getWeatherIcon(current.icon)}
+                src={getWeatherIconWithTimeContext(current.conditionId, current.icon)}
                 alt={current.description}
-                className='w-48 h-48 md:w-56 md:h-56 drop-shadow-2xl'
+                className='w-48 h-48 md:w-56 md:h-56 drop-shadow-2xl animate-pulse'
               />
               <div className='text-center space-y-4'>
                 <div className='text-8xl md:text-9xl font-bold text-white drop-shadow-lg'>
@@ -88,7 +85,7 @@ export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
                         {getDayName(day.date)}
                       </div>
                       <img
-                        src={getWeatherIcon(day.icon, '2x')}
+                        src={getWeatherIconWithTimeContext(day.conditionId, day.icon)}
                         alt={day.description}
                         className='w-20 h-20 md:w-24 md:h-24 drop-shadow-lg'
                       />
