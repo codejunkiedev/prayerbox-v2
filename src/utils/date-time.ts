@@ -141,12 +141,34 @@ export const formatDate = (date: Date): string => {
   return format(date, 'dd-MM-yyyy');
 };
 
+/**
+ * Formats a gregorian date
+ * @param date AlAdhanPrayerTimes['date']['gregorian']
+ * @returns Formatted gregorian date string (weekday, day month year)
+ */
 export const formatGregorianDate = (date: AlAdhanPrayerTimes['date']['gregorian']): string => {
   return `${date.weekday.en}, ${date.day} ${date.month.en} ${date.year}`;
 };
 
+/**
+ * Formats a hijri date
+ * @param date AlAdhanPrayerTimes['date']['hijri']
+ * @returns Formatted hijri date string (month day, year designation)
+ */
 export const formatHijriDate = (date: AlAdhanPrayerTimes['date']['hijri']): string => {
   return `${date.month.en} ${date.day}, ${date.year} ${date.designation.abbreviated}`;
+};
+
+/**
+ * Formats a time string
+ * @param time Time string in hh:mm a format
+ * @returns Formatted time string (timeNumber, amPm)
+ */
+export const formatTimeNumber = (time: string): { timeNumber: string; amPm: string } => {
+  const timeParts = time.split(' ');
+  const timeNumber = timeParts[0]?.startsWith('0') ? timeParts[0]?.substring(1) : timeParts[0];
+  const amPm = timeParts[1];
+  return { timeNumber, amPm };
 };
 
 /**

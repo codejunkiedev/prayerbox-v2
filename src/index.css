@@ -2,6 +2,35 @@
 @import 'tw-animate-css';
 @import 'leaflet/dist/leaflet.css';
 
+/* Font imports */
+@font-face {
+  font-family: 'DS-Digital';
+  src: url('./assets/fonts/DS-DIGI.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Barlow';
+  src: url('./assets/fonts/Barlow-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Barlow';
+  src: url('./assets/fonts/Barlow-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Barlow';
+  src: url('./assets/fonts/Barlow-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -149,4 +178,31 @@
 
 .animation-delay-700 {
   animation-delay: 700ms;
+}
+
+/* Digital font styles */
+.digital-font {
+  font-family: 'Courier New', 'Monaco', 'Lucida Console', monospace;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* DS Digi font for prayer times */
+.ds-digi-font {
+  font-family: 'DS-Digital', 'Courier New', 'Monaco', 'Lucida Console', monospace;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+/* Barlow font for AM/PM */
+.barlow-medium {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 500;
+}
+
+/* Barlow Regular font */
+.barlow-regular {
+  font-family: 'Barlow', sans-serif;
+  font-weight: 400;
 }
