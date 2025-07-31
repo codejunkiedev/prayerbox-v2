@@ -1,6 +1,6 @@
 import { formatTimePickerTime } from '@/utils';
 import type { ThemeProps } from './types';
-import theme2Background from '@/assets/themes/backgrounds/theme-2.jpg';
+import theme2Background from '@/assets/themes/theme-2/background.jpg';
 
 export function Theme2({
   gregorianDate,
