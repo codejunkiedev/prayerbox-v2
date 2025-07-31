@@ -8,12 +8,14 @@ import {
   EventsDisplay,
   AyatHadithDisplay,
   WeatherDisplay,
+  LogoutDisplay,
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Keyboard } from 'swiper/modules';
 import { getModuleOrder, sortByDisplayOrder, createOrderedContentGroups } from '@/utils/display';
 import { useDisplayStore } from '@/store';
 import './display.css';
+import { isDev } from '@/utils/env';
 
 export default function Display() {
   const {
@@ -99,6 +101,11 @@ export default function Display() {
           </SwiperSlide>
         )}
         {orderedContentGroups.length > 0 && orderedContentGroups.flatMap(group => group.content)}
+        {isDev && (
+          <SwiperSlide>
+            <LogoutDisplay />
+          </SwiperSlide>
+        )}
       </Swiper>
     </div>
   );

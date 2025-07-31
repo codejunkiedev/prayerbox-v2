@@ -5,4 +5,5 @@ export type DisplayStore = {
   setLoggedIn: (loggedIn: boolean) => void;
   masjidProfile: MasjidProfile | null;
   setMasjidProfile: (masjidProfile: MasjidProfile | null) => void;
+  signOut: () => void;
 };

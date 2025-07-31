@@ -5,3 +5,4 @@ export * from './posts';
 export * from './events';
 export * from './ayat-hadith';
 export * from './weather';
+export * from './logout';
