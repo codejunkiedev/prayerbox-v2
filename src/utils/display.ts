@@ -128,7 +128,7 @@ export function getProcessedPrayerTimings(
 
     // Insert Jumma after Dhuhr (at index 2)
     processedTimings.splice(2, 0, {
-      name: 'jumma',
+      name: 'jumma1',
       time: jummaTime,
       arabicName: PRAYER_NAMES.jumma,
     });

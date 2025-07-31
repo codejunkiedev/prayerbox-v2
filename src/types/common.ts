@@ -19,7 +19,7 @@ export interface PrayerAdjustments {
 }
 
 export interface ProcessedPrayerTiming {
-  name: string;
+  name: keyof PrayerAdjustments;
   time: string;
   arabicName: string;
 }
