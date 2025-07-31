@@ -170,6 +170,17 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
               <strong>Strict requirement:</strong> Only 16:9 aspect ratio images accepted. Perfect
               for full-screen display. Minimum HD quality: 1280×720px.
             </p>
+            <p className='text-xs text-gray-500 mt-1'>
+              Need to resize your image? Try{' '}
+              <a
+                href='https://imageresizer.com/'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-blue-600 hover:underline'
+              >
+                imageresizer.com
+              </a>
+            </p>
           </div>
 
           <DialogFooter>
