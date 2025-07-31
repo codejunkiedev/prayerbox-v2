@@ -29,10 +29,6 @@ const COMMON_RESOLUTIONS = {
   UHD_4K: '3840×2160',
 } as const;
 
-// Link to Photopea editor
-const EDITOR_LINK =
-  'You can edit your image at <a href="https://www.photopea.com" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 hover:text-blue-800">Photopea</a> (free online editor).';
-
 /**
  * Validates if an image file is suitable for full-screen display
  * @param file - The image file to validate
@@ -117,7 +113,7 @@ function validateDimensions(dimensions: ImageDimensions): ImageValidationResult 
       isValid: false,
       error: `Image resolution too low. Minimum required: ${COMMON_RESOLUTIONS.HD}`,
       dimensions,
-      recommendation: `Please use HD quality or higher for optimal full-screen display. ${EDITOR_LINK}`,
+      recommendation: 'Please use HD quality or higher for optimal full-screen display.',
       quality: 'minimum',
     };
   }
@@ -128,7 +124,8 @@ function validateDimensions(dimensions: ImageDimensions): ImageValidationResult 
       isValid: false,
       error: `Image resolution too high. Maximum allowed: ${COMMON_RESOLUTIONS.UHD_4K}`,
       dimensions,
-      recommendation: `Please resize or compress the image to reduce file size and improve loading performance. ${EDITOR_LINK}`,
+      recommendation:
+        'Please resize or compress the image to reduce file size and improve loading performance.',
       quality: 'excellent',
     };
   }
@@ -149,7 +146,7 @@ function validateDimensions(dimensions: ImageDimensions): ImageValidationResult 
   return {
     isValid: true,
     dimensions,
-    recommendation: `Perfect ${name} aspect ratio confirmed.${recommendation ? ` ${recommendation}` : ''}`,
+    recommendation: `✓ Perfect ${name} aspect ratio confirmed.${recommendation ? ` ${recommendation}` : ''}`,
     quality,
   };
 }
@@ -179,14 +176,14 @@ function validateAspectRatio(aspectRatio: number, targetRatio: number, tolerance
  */
 function generateAspectRatioRecommendation(aspectRatio: number, targetRatio: number): string {
   if (aspectRatio <= 1.0) {
-    return `Please use a landscape image and crop it to 16:9 ratio (width should be 1.78× the height). ${EDITOR_LINK}`;
+    return 'Please use a landscape image and crop it to 16:9 ratio (width should be 1.78× the height).';
   }
 
   if (aspectRatio < targetRatio) {
-    return `Image is too narrow. Please crop to make it wider or use a 16:9 aspect ratio image. ${EDITOR_LINK}`;
+    return 'Image is too narrow. Please crop to make it wider or use a 16:9 aspect ratio image.';
   }
 
-  return `Image is too wide. Please crop to make it less wide or use a 16:9 aspect ratio image. ${EDITOR_LINK}`;
+  return 'Image is too wide. Please crop to make it less wide or use a 16:9 aspect ratio image.';
 }
 
 /**
