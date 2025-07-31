@@ -118,6 +118,7 @@ export type WeatherData = {
   feelsLike: number;
   description: string;
   icon: string;
+  conditionId: number;
   humidity: number;
   windSpeed: number;
   cityName: string;
@@ -148,6 +149,7 @@ export type OpenWeatherForecastResponse = {
       humidity: number;
     };
     weather: Array<{
+      id: number;
       main: string;
       description: string;
       icon: string;

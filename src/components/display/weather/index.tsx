@@ -4,6 +4,9 @@ import { motion } from 'framer-motion';
 import type { WeatherForecast } from '@/types';
 import bgImage from '@/assets/backgrounds/05.jpeg';
 import { format } from 'date-fns';
+import { getWeatherIconWithTimeContext } from '@/utils/weatherIconMapping';
+import raindropIcon from '@/assets/icons/weather/raindrop.svg';
+import windIcon from '@/assets/icons/weather/wind.svg';
 
 interface WeatherDisplayProps {
   weatherForecast: WeatherForecast;
@@ -11,10 +14,6 @@ interface WeatherDisplayProps {
 
 export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
   const { current, forecast } = weatherForecast;
-
-  const getWeatherIcon = (iconCode: string, size: '2x' | '4x' = '4x') => {
-    return `https://openweathermap.org/img/wn/${iconCode}@${size}.png`;
-  };
 
   const formatDescription = (description: string) => {
     return description
@@ -39,9 +38,9 @@ export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
           <motion.div variants={itemVariants} className='flex flex-col items-center mb-12 w-full'>
             <div className='flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16'>
               <img
-                src={getWeatherIcon(current.icon)}
+                src={getWeatherIconWithTimeContext(current.conditionId, current.icon)}
                 alt={current.description}
-                className='w-48 h-48 md:w-56 md:h-56 drop-shadow-2xl'
+                className='w-48 h-48 md:w-56 md:h-56 drop-shadow-2xl animate-pulse'
               />
               <div className='text-center space-y-4'>
                 <div className='text-8xl md:text-9xl font-bold text-white drop-shadow-lg'>
@@ -56,14 +55,22 @@ export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
               </div>
               <div className='flex flex-row md:flex-col gap-8 text-white mt-8 md:mt-0'>
                 <div className='flex items-center gap-5 bg-black/40 backdrop-blur-md rounded-xl px-8 py-6 shadow-lg'>
-                  <span className='text-4xl drop-shadow-md'>💧</span>
+                  <img
+                    src={raindropIcon}
+                    alt='Humidity'
+                    className='w-14 h-14 md:w-16 md:h-16 drop-shadow-md'
+                  />
                   <div>
                     <div className='text-lg text-white font-medium'>Humidity</div>
                     <div className='text-3xl font-bold text-white'>{current.humidity}%</div>
                   </div>
                 </div>
                 <div className='flex items-center gap-5 bg-black/40 backdrop-blur-md rounded-xl px-8 py-6 shadow-lg'>
-                  <span className='text-4xl drop-shadow-md'>💨</span>
+                  <img
+                    src={windIcon}
+                    alt='Wind'
+                    className='w-14 h-14 md:w-16 md:h-16 drop-shadow-md'
+                  />
                   <div>
                     <div className='text-lg text-white font-medium'>Wind</div>
                     <div className='text-3xl font-bold text-white'>{current.windSpeed} km/h</div>
@@ -88,7 +95,7 @@ export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
                         {getDayName(day.date)}
                       </div>
                       <img
-                        src={getWeatherIcon(day.icon, '2x')}
+                        src={getWeatherIconWithTimeContext(day.conditionId, day.icon)}
                         alt={day.description}
                         className='w-20 h-20 md:w-24 md:h-24 drop-shadow-lg'
                       />
