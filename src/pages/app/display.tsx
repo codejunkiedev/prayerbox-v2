@@ -31,9 +31,9 @@ export default function Display() {
   } = useFetchDisplayData();
 
   const { masjidProfile } = useDisplayStore();
-  const { weatherForecast } = useWeatherData(masjidProfile);
+  const { weatherForecast, isLoading: isWeatherLoading } = useWeatherData(masjidProfile);
 
-  if (isLoading) return <Loading />;
+  if (isLoading || isWeatherLoading) return <Loading />;
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
 
   const moduleOrder = getModuleOrder(userSettings);
