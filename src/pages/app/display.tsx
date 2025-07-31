@@ -1,4 +1,4 @@
-import { useFetchDisplayData, useWeatherData } from '@/hooks';
+import { useFetchDisplayData, usePrayerTimings, useWeatherData } from '@/hooks';
 import Loading from '../loading-page';
 import {
   ErrorDisplay,
@@ -18,23 +18,22 @@ import './display.css';
 import { isDev } from '@/utils/env';
 
 export default function Display() {
+  const { isLoading, errorMessage, announcements, ayatAndHadith, events, posts, userSettings } =
+    useFetchDisplayData();
+
   const {
-    isLoading,
-    errorMessage,
+    isLoading: isPrayerTimingsLoading,
+    errorMessage: prayerTimingsError,
     prayerTimes,
     prayerTimeSettings,
-    announcements,
-    ayatAndHadith,
-    events,
-    posts,
-    userSettings,
-  } = useFetchDisplayData();
+  } = usePrayerTimings();
 
   const { masjidProfile } = useDisplayStore();
   const { weatherForecast, isLoading: isWeatherLoading } = useWeatherData(masjidProfile);
 
-  if (isLoading || isWeatherLoading) return <Loading />;
+  if (isLoading || isPrayerTimingsLoading || isWeatherLoading) return <Loading />;
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
+  if (prayerTimingsError) return <ErrorDisplay errorMessage={prayerTimingsError} />;
 
   const moduleOrder = getModuleOrder(userSettings);
 
