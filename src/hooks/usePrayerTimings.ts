@@ -60,7 +60,7 @@ export function usePrayerTimings(): ReturnType {
         }
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') {
-          console.log('Fetch aborted');
+          console.log('Prayer times fetch aborted');
         } else {
           console.error('Failed to fetch prayer times', error);
           toast.error('Failed to fetch prayer times');

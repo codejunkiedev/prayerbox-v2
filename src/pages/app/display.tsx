@@ -13,7 +13,6 @@ import {
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Keyboard } from 'swiper/modules';
 import { getModuleOrder, sortByDisplayOrder, createOrderedContentGroups } from '@/utils/display';
-import { useDisplayStore } from '@/store';
 import './display.css';
 import { isDev } from '@/utils/env';
 
@@ -28,12 +27,16 @@ export default function Display() {
     prayerTimeSettings,
   } = usePrayerTimings();
 
-  const { masjidProfile } = useDisplayStore();
-  const { weatherForecast, isLoading: isWeatherLoading } = useWeatherData(masjidProfile);
+  const {
+    weatherForecast,
+    isLoading: isWeatherLoading,
+    errorMessage: weatherErrorMessage,
+  } = useWeatherData();
 
   if (isLoading || isPrayerTimingsLoading || isWeatherLoading) return <Loading />;
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
   if (prayerTimingsError) return <ErrorDisplay errorMessage={prayerTimingsError} />;
+  if (weatherErrorMessage) return <ErrorDisplay errorMessage={weatherErrorMessage} />;
 
   const moduleOrder = getModuleOrder(userSettings);
 

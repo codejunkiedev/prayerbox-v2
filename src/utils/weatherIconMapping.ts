@@ -166,7 +166,6 @@ export function getWeatherIcon(iconCode: string): string {
 }
 
 export function getWeatherIconWithTimeContext(conditionId: number, iconCode: string): string {
-  console.log('getWeatherIconWithTimeContext', conditionId, iconCode);
   const isDay = iconCode.endsWith('d');
 
   // Handle specific conditions that need day/night variations
