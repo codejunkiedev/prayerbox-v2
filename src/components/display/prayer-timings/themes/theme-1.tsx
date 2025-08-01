@@ -24,45 +24,36 @@ export function Theme1({
       className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-end overflow-hidden'
       style={{ backgroundImage: `url(${theme1Background})` }}
     >
-      <div className='w-[90vw] h-full flex flex-col px-24 py-12'>
+      <div className='w-[90vw] h-full flex flex-col px-[5vw] py-[2.5vh]'>
         {/* Header Section */}
-        <div className='flex flex-row items-center justify-between mb-8'>
-          <div className='flex flex-col items-start text-white gap-2'>
-            <span className='text-2xl md:text-3xl lg:text-4xl barlow-regular'>{gregorianDate}</span>
-            <span className='text-2xl md:text-3xl lg:text-4xl barlow-regular'>{hijriDate}</span>
+        <div className='flex flex-row items-center justify-between'>
+          <div className='flex flex-col items-start text-white gap-[0.5vh]'>
+            <span className='text-[2vw] barlow-regular'>{gregorianDate}</span>
+            <span className='text-[2vw] barlow-regular'>{hijriDate}</span>
           </div>
 
-          <div className='flex items-baseline gap-2'>
-            <span
-              className='text-7xl md:text-8xl lg:text-9xl xl:text-[10rem] font-bold ds-digi-font italic'
-              style={{ color: '#E0B05C' }}
-            >
+          <div className='flex items-baseline gap-[0.5vw]'>
+            <span className='text-[8vw] font-bold ds-digi-font italic' style={{ color: '#E0B05C' }}>
               {timeNumber}
             </span>
             <span
-              className='text-4xl md:text-5xl lg:text-6xl ds-digi-font italic relative top-4 md:top-5 lg:top-6'
+              className='text-[3vw] ds-digi-font italic relative top-[1.5vh]'
               style={{ color: '#E0B05C' }}
             >
               {amPm}
             </span>
           </div>
 
-          <div className='flex flex-col items-end text-white gap-2'>
+          <div className='flex flex-col items-end text-white gap-[0.5vh]'>
             <div className='text-right'>
-              <span className='text-xl md:text-2xl lg:text-3xl barlow-regular'>Sunrise: </span>
-              <span
-                className='text-xl md:text-2xl lg:text-3xl barlow-medium'
-                style={{ color: '#E0B05C' }}
-              >
+              <span className='text-[1.6vw] barlow-regular'>Sunrise: </span>
+              <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
                 {sunrise}
               </span>
             </div>
             <div className='text-right'>
-              <span className='text-xl md:text-2xl lg:text-3xl barlow-regular'>Sunset: </span>
-              <span
-                className='text-xl md:text-2xl lg:text-3xl barlow-medium'
-                style={{ color: '#E0B05C' }}
-              >
+              <span className='text-[1.6vw] barlow-regular'>Sunset: </span>
+              <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
                 {sunset}
               </span>
             </div>
@@ -157,24 +148,24 @@ export function PrayerTimingCard({
   return (
     <div
       className={`relative flex items-center justify-center ${className}`}
-      style={{ width: '670px', height: '268px' }}
+      style={{ width: '35vw', height: '25vh' }}
     >
       <img
         src={cardImage}
         alt={prayerName}
         className='absolute inset-0 object-contain'
-        style={{ width: '670px', height: '268px' }}
+        style={{ width: '100%', height: '100%' }}
       />
       <div
         className={`absolute inset-0 flex items-center ${
-          isLeftColumn ? 'justify-end pr-16 lg:pr-20' : 'justify-start pl-16 lg:pl-20'
+          isLeftColumn ? 'justify-end pr-[4vw]' : 'justify-start pl-[4vw]'
         }`}
       >
-        <div className='flex items-baseline gap-1 lg:gap-2'>
-          <span className='text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white drop-shadow-2xl ds-digi-font'>
+        <div className='flex items-baseline gap-[0.3vw]'>
+          <span className='text-[4vw] font-bold text-white drop-shadow-2xl ds-digi-font'>
             {timeNumber}
           </span>
-          <span className='text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl text-white drop-shadow-2xl barlow-medium relative top-3 lg:top-4 barlow-medium'>
+          <span className='text-[2.5vw] text-white drop-shadow-2xl barlow-medium relative top-[1vh] barlow-medium'>
             {amPm}
           </span>
         </div>
