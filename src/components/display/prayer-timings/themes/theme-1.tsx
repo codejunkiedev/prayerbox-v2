@@ -62,9 +62,9 @@ export function Theme1({
 
         {/* Prayer Timings Grid */}
         <div className='flex-1 flex items-center justify-between'>
-          <div className='grid grid-cols-2 w-[90%] mx-auto'>
+          <div className='grid grid-cols-2 mx-auto w-full h-full gap-x-[1vw]'>
             {/* Left Column */}
-            <div className='flex flex-col'>
+            <div className='flex flex-col items-end justify-start'>
               <PrayerTimingCard
                 prayerName='dhuhr'
                 processedPrayerTimings={processedPrayerTimings}
@@ -83,7 +83,7 @@ export function Theme1({
             </div>
 
             {/* Right Column */}
-            <div className='flex flex-col'>
+            <div className='flex flex-col items-start justify-start'>
               <PrayerTimingCard
                 prayerName='fajr'
                 processedPrayerTimings={processedPrayerTimings}
