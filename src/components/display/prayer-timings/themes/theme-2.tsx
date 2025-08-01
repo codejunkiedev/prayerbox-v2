@@ -1,6 +1,14 @@
-import { formatTimePickerTime } from '@/utils';
+import { formatTimeNumber, formatTimePickerTime } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
+import borderSvg from '@/assets/themes/theme-2/border.svg';
+import fajrCard from '@/assets/themes/theme-2/fajr.png';
+import duhrCard from '@/assets/themes/theme-2/duhr.png';
+import asarCard from '@/assets/themes/theme-2/asar.png';
+import maghribCard from '@/assets/themes/theme-2/maghrib.png';
+import ishaCard from '@/assets/themes/theme-2/isha.png';
+import jummaCard from '@/assets/themes/theme-2/jumma.png';
+import type { PrayerAdjustments, ProcessedPrayerTiming } from '@/types';
 
 export function Theme2({
   gregorianDate,
@@ -10,67 +18,144 @@ export function Theme2({
   currentTime,
   processedPrayerTimings,
 }: ThemeProps) {
+  const { timeNumber, amPm } = formatTimeNumber(formatTimePickerTime(currentTime));
+
   return (
     <div
-      className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-start overflow-hidden'
+      className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center overflow-hidden'
       style={{ backgroundImage: `url(${theme2Background})` }}
     >
-      <div className='w-full sm:w-11/12 md:w-5/6 lg:w-4/5 xl:w-7/8 h-full flex flex-col lg:flex-row gap-2 sm:gap-3 md:gap-4 lg:gap-6 xl:gap-8 p-2 sm:p-3 md:p-4 lg:p-6 xl:p-8'>
-        <div className='flex flex-col items-center justify-between w-full lg:w-3/4 xl:w-2/3 py-2 sm:py-4 md:py-6 lg:py-8 xl:py-10'>
-          <div className='flex flex-col sm:flex-row items-center justify-between w-full mb-4 sm:mb-0'>
-            <div className='flex flex-row sm:flex-col items-center justify-center text-white space-x-4 sm:space-x-0 sm:space-y-2 md:space-y-3 lg:space-y-4 mb-4 sm:mb-0'>
-              <div
-                className='text-center rounded-2xl sm:rounded-3xl px-2 py-1 sm:px-3 sm:py-2 md:px-4 md:py-2'
-                style={{ boxShadow: '0 0 0 1px rgb(250 204 21), 0 0 0 2px rgb(251 191 36)' }}
-              >
-                <span className='text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium'>
-                  Sunrise: {sunrise}
-                </span>
-              </div>
-              <div
-                className='text-center rounded-2xl sm:rounded-3xl px-2 py-1 sm:px-3 sm:py-2 md:px-4 md:py-2'
-                style={{ boxShadow: '0 0 0 1px rgb(250 204 21), 0 0 0 2px rgb(251 191 36)' }}
-              >
-                <span className='text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium'>
-                  Sunset: {sunset}
-                </span>
-              </div>
-            </div>
-            <div>
-              <div className='flex flex-col items-center justify-center text-white space-y-1'>
-                <span className='text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-center'>
-                  {gregorianDate}
-                </span>
-                <span className='text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl font-medium text-center'>
-                  {hijriDate}
-                </span>
-              </div>
-            </div>
-          </div>
-          <div className='grid grid-cols-2 grid-rows-3 gap-1 sm:gap-2 md:gap-3 lg:gap-4 xl:gap-6 w-full'>
-            {processedPrayerTimings.map(prayer => (
-              <div
-                key={prayer.name}
-                className='flex flex-row items-center justify-between text-white px-1 py-1 sm:px-2 sm:py-2 md:px-3 md:py-3 lg:px-4 lg:py-4 xl:px-6 xl:py-6 border border-white/30 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl'
-              >
-                <div className='flex flex-col items-center'>
-                  <span className='text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl font-medium'>
-                    {prayer.time.split(' ')[0]}
-                  </span>
-                  <span className='text-xs sm:text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-xl font-medium'>
-                    {prayer.time.split(' ')[1]}
+      <div className='w-full h-full flex flex-row'>
+        {/* Left side - Prayer content */}
+        <div className='w-[65vw] h-full flex flex-col px-[2.5vw]'>
+          {/* Header Section */}
+          <div className='flex flex-row items-center justify-between py-[3vh]'>
+            <div className='flex flex-col items-start justify-start text-white gap-[1vh]'>
+              <div className='relative text-left w-[24vw]'>
+                <img
+                  src={borderSvg}
+                  alt='border'
+                  className='absolute inset-0 w-full h-full object-contain'
+                />
+                <div className='relative px-4 py-2 flex items-center justify-center gap-[0.5vw]'>
+                  <span className='text-[2vw] clash-display-semibold text-white'>Sunrise:</span>
+                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                    {sunrise}
                   </span>
                 </div>
-                <span className='text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl font-semibold'>
-                  {prayer.arabicName}
-                </span>
               </div>
-            ))}
+              <div className='relative text-left w-[24vw]'>
+                <img
+                  src={borderSvg}
+                  alt='border'
+                  className='absolute inset-0 w-full h-full object-contain'
+                />
+                <div className='relative px-4 py-2 flex items-center justify-center gap-[0.5vw]'>
+                  <span className='text-[2vw] clash-display-semibold text-white'>Sunset: </span>
+                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                    {sunset}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className='flex flex-col items-center text-white gap-[0.5vh]'>
+              <span className='text-[1.8vw] eurostile-bold text-center'>{gregorianDate}</span>
+              <span className='text-[1.8vw] eurostile-bold text-center'>{hijriDate}</span>
+            </div>
+          </div>
+
+          {/* Prayer Timings Grid */}
+          <div className='flex-1 flex items-center justify-center'>
+            <div className='grid grid-cols-2 grid-rows-3 gap-x-[2vw] w-full max-w-[70vw]'>
+              <Theme2PrayerCard prayerName='fajr' processedPrayerTimings={processedPrayerTimings} />
+              <Theme2PrayerCard
+                prayerName='dhuhr'
+                processedPrayerTimings={processedPrayerTimings}
+              />
+              <Theme2PrayerCard prayerName='asr' processedPrayerTimings={processedPrayerTimings} />
+              <Theme2PrayerCard
+                prayerName='maghrib'
+                processedPrayerTimings={processedPrayerTimings}
+              />
+              <Theme2PrayerCard prayerName='isha' processedPrayerTimings={processedPrayerTimings} />
+              <Theme2PrayerCard
+                prayerName='jumma1'
+                processedPrayerTimings={processedPrayerTimings}
+              />
+            </div>
           </div>
         </div>
-        <div className='flex flex-row items-center justify-center w-full lg:w-1/4 xl:w-1/3 py-4 lg:py-0'>
-          <span className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-white text-center tracking-wide drop-shadow-2xl'>
-            {formatTimePickerTime(currentTime)}
+
+        {/* Right side - Current Time */}
+        <div className='w-[20vw] h-full flex items-center justify-center'>
+          <div className='flex flex-col items-center justify-center'>
+            <span className='text-[8vw] text-white drop-shadow-lg clash-display-bold leading-none'>
+              {timeNumber}
+            </span>
+            <span className='text-[4vw] text-white drop-shadow-lg clash-display-medium lowercase leading-none'>
+              {amPm}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface Theme2PrayerCardProps {
+  prayerName: keyof PrayerAdjustments;
+  processedPrayerTimings: ProcessedPrayerTiming[];
+  className?: string;
+}
+
+const getTheme2PrayerCardImage = (prayerName: keyof PrayerAdjustments) => {
+  switch (prayerName) {
+    case 'fajr':
+      return fajrCard;
+    case 'dhuhr':
+      return duhrCard;
+    case 'asr':
+      return asarCard;
+    case 'maghrib':
+      return maghribCard;
+    case 'isha':
+      return ishaCard;
+    case 'jumma1':
+      return jummaCard;
+    default:
+      return fajrCard;
+  }
+};
+
+export function Theme2PrayerCard({
+  prayerName,
+  processedPrayerTimings,
+  className = '',
+}: Theme2PrayerCardProps) {
+  const cardImage = getTheme2PrayerCardImage(prayerName);
+
+  const prayerTime = processedPrayerTimings.find(prayer => prayer.name === prayerName)?.time || '';
+  const { timeNumber, amPm } = formatTimeNumber(prayerTime);
+
+  return (
+    <div
+      className={`relative flex items-center justify-center ${className}`}
+      style={{ width: '30vw', height: '24vh' }}
+    >
+      <img
+        src={cardImage}
+        alt={prayerName}
+        className='absolute inset-0 object-contain'
+        style={{ width: '100%', height: '100%' }}
+      />
+      <div className='absolute inset-0 flex items-center justify-start pl-[5vw] top-[2.5vh]'>
+        <div className='flex flex-col items-start'>
+          <span className='text-[4vw] text-white drop-shadow-2xl clash-grotesk-semibold leading-none'>
+            {timeNumber}
+          </span>
+          <span className='text-[2vw] text-white drop-shadow-2xl self-center clash-grotesk-semibold lowercase leading-none'>
+            {amPm}
           </span>
         </div>
       </div>

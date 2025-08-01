@@ -16,8 +16,8 @@ export function ThemeSection({ settings, onSettingsChange }: ThemeSectionProps) 
   const [selectedTheme, setSelectedTheme] = useState<Theme | undefined>(settings?.theme);
 
   const themeImageMap: Record<Theme, string> = {
-    [Theme.Theme1]: new URL('@/assets/themes/backgrounds/theme-1.jpg', import.meta.url).href,
-    [Theme.Theme2]: new URL('@/assets/themes/backgrounds/theme-2.jpg', import.meta.url).href,
+    [Theme.Theme1]: new URL('@/assets/themes/theme-1/background.jpg', import.meta.url).href,
+    [Theme.Theme2]: new URL('@/assets/themes/theme-2/background.jpg', import.meta.url).href,
   };
 
   const themeOptions = Object.values(Theme);
