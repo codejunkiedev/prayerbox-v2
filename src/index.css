@@ -31,6 +31,27 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'ClashDisplay';
+  src: url('./assets/fonts/ClashDisplay-Variable.ttf') format('truetype-variations');
+  font-weight: 200 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'ClashGrotesk';
+  src: url('./assets/fonts/ClashGrotesk-Variable.ttf') format('truetype-variations');
+  font-weight: 200 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Eurostile';
+  src: url('./assets/fonts/Eurostile-Bold Regular.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -205,4 +226,60 @@
 .barlow-regular {
   font-family: 'Barlow', sans-serif;
   font-weight: 400;
+}
+
+/* ClashDisplay font utilities */
+.clash-display {
+  font-family: 'ClashDisplay', sans-serif;
+}
+
+.clash-display-light {
+  font-family: 'ClashDisplay', sans-serif;
+  font-weight: 300;
+}
+
+.clash-display-medium {
+  font-family: 'ClashDisplay', sans-serif;
+  font-weight: 500;
+}
+
+.clash-display-semibold {
+  font-family: 'ClashDisplay', sans-serif;
+  font-weight: 600;
+}
+
+.clash-display-bold {
+  font-family: 'ClashDisplay', sans-serif;
+  font-weight: 700;
+}
+
+/* ClashGrotesk font utilities */
+.clash-grotesk {
+  font-family: 'ClashGrotesk', sans-serif;
+}
+
+.clash-grotesk-light {
+  font-family: 'ClashGrotesk', sans-serif;
+  font-weight: 300;
+}
+
+.clash-grotesk-medium {
+  font-family: 'ClashGrotesk', sans-serif;
+  font-weight: 500;
+}
+
+.clash-grotesk-semibold {
+  font-family: 'ClashGrotesk', sans-serif;
+  font-weight: 600;
+}
+
+.clash-grotesk-bold {
+  font-family: 'ClashGrotesk', sans-serif;
+  font-weight: 700;
+}
+
+/* Eurostile font utilities */
+.eurostile-bold {
+  font-family: 'Eurostile', sans-serif;
+  font-weight: 700;
 }
