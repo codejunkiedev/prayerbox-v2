@@ -24,7 +24,7 @@ export function Theme1({
       className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-end overflow-hidden'
       style={{ backgroundImage: `url(${theme1Background})` }}
     >
-      <div className='w-[90vw] h-full flex flex-col px-[5vw] py-[2.5vh]'>
+      <div className='w-[90vw] h-full flex flex-col px-[5vw]'>
         {/* Header Section */}
         <div className='flex flex-row items-center justify-between'>
           <div className='flex flex-col items-start text-white gap-[0.5vh]'>
