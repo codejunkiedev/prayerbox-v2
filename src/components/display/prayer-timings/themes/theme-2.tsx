@@ -1,6 +1,7 @@
 import { formatTimeNumber, formatTimePickerTime } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
+import borderSvg from '@/assets/themes/theme-2/border.svg';
 import fajrCard from '@/assets/themes/theme-2/fajr.png';
 import duhrCard from '@/assets/themes/theme-2/duhr.png';
 import asarCard from '@/assets/themes/theme-2/asar.png';
@@ -29,26 +30,44 @@ export function Theme2({
         <div className='w-[65vw] h-full flex flex-col px-[2.5vw]'>
           {/* Header Section */}
           <div className='flex flex-row items-center justify-between py-[3vh]'>
-            <div className='flex flex-col items-start text-white gap-[0.5vh]'>
-              <span className='text-[1.8vw] font-medium'>{gregorianDate}</span>
-              <span className='text-[1.8vw] font-medium'>{hijriDate}</span>
+            <div className='flex flex-col items-start justify-start text-white gap-[1vh]'>
+              <div className='relative text-left w-[24vw]'>
+                <img
+                  src={borderSvg}
+                  alt='border'
+                  className='absolute inset-0 w-full h-full object-contain'
+                />
+                <div className='relative px-4 py-2 flex items-center justify-center gap-[0.5vw]'>
+                  <span className='text-[2vw] clash-display-semibold text-white'>Sunrise:</span>
+                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                    {sunrise}
+                  </span>
+                </div>
+              </div>
+              <div className='relative text-left w-[24vw]'>
+                <img
+                  src={borderSvg}
+                  alt='border'
+                  className='absolute inset-0 w-full h-full object-contain'
+                />
+                <div className='relative px-4 py-2 flex items-center justify-center gap-[0.5vw]'>
+                  <span className='text-[2vw] clash-display-semibold text-white'>Sunset: </span>
+                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                    {sunset}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className='flex flex-col items-end text-white gap-[0.5vh]'>
-              <div className='text-right'>
-                <span className='text-[1.4vw] font-medium'>Sunrise: </span>
-                <span className='text-[1.4vw] font-semibold text-yellow-400'>{sunrise}</span>
-              </div>
-              <div className='text-right'>
-                <span className='text-[1.4vw] font-medium'>Sunset: </span>
-                <span className='text-[1.4vw] font-semibold text-yellow-400'>{sunset}</span>
-              </div>
+            <div className='flex flex-col items-center text-white gap-[0.5vh]'>
+              <span className='text-[1.8vw] eurostile-bold text-center'>{gregorianDate}</span>
+              <span className='text-[1.8vw] eurostile-bold text-center'>{hijriDate}</span>
             </div>
           </div>
 
           {/* Prayer Timings Grid */}
           <div className='flex-1 flex items-center justify-center'>
-            <div className='grid grid-cols-2 grid-rows-3 gap-[2vw] w-full max-w-[70vw]'>
+            <div className='grid grid-cols-2 grid-rows-3 gap-x-[2vw] w-full max-w-[70vw]'>
               <Theme2PrayerCard prayerName='fajr' processedPrayerTimings={processedPrayerTimings} />
               <Theme2PrayerCard
                 prayerName='dhuhr'
@@ -71,10 +90,10 @@ export function Theme2({
         {/* Right side - Current Time */}
         <div className='w-[20vw] h-full flex items-center justify-center'>
           <div className='flex flex-col items-center justify-center'>
-            <span className='text-[10vw] text-white drop-shadow-lg clash-display-bold leading-none'>
+            <span className='text-[8vw] text-white drop-shadow-lg clash-display-bold leading-none'>
               {timeNumber}
             </span>
-            <span className='text-[5vw] text-white drop-shadow-lg clash-display-medium lowercase leading-none'>
+            <span className='text-[4vw] text-white drop-shadow-lg clash-display-medium lowercase leading-none'>
               {amPm}
             </span>
           </div>
@@ -132,10 +151,10 @@ export function Theme2PrayerCard({
       />
       <div className='absolute inset-0 flex items-center justify-start pl-[5vw] top-[2.5vh]'>
         <div className='flex flex-col items-start'>
-          <span className='text-[4vw] text-white drop-shadow-2xl clash-grotesk-bold leading-none'>
+          <span className='text-[4vw] text-white drop-shadow-2xl clash-grotesk-semibold leading-none'>
             {timeNumber}
           </span>
-          <span className='text-[2vw] text-white drop-shadow-2xl self-center clash-grotesk-medium lowercase leading-none'>
+          <span className='text-[2vw] text-white drop-shadow-2xl self-center clash-grotesk-semibold lowercase leading-none'>
             {amPm}
           </span>
         </div>
