@@ -3,15 +3,38 @@ import type { ReactNode } from 'react';
 
 interface DisplayContainerProps {
   children: ReactNode;
-  backgroundImage: string;
+  backgroundImage?: string;
+  backgroundVideo?: string;
 }
 
-export function DisplayContainer({ children, backgroundImage }: DisplayContainerProps) {
+export function DisplayContainer({
+  children,
+  backgroundImage,
+  backgroundVideo,
+}: DisplayContainerProps) {
   return (
-    <div
-      className='flex flex-col items-center justify-center min-h-screen w-full overflow-hidden relative bg-cover bg-center'
-      style={{ backgroundImage: `url(${backgroundImage})` }}
-    >
+    <div className='flex flex-col items-center justify-center min-h-screen w-full overflow-hidden relative'>
+      {/* Video Background */}
+      {backgroundVideo && (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className='absolute inset-0 w-full h-full object-cover z-[-2]'
+        >
+          <source src={backgroundVideo} type='video/mp4' />
+        </video>
+      )}
+
+      {/* Image Background (fallback) */}
+      {backgroundImage && !backgroundVideo && (
+        <div
+          className='absolute inset-0 w-full h-full bg-cover bg-center z-[-2]'
+          style={{ backgroundImage: `url(${backgroundImage})` }}
+        />
+      )}
+
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

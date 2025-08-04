@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import type { WeatherForecast } from '@/types';
 import bgImage from '@/assets/backgrounds/05.jpeg';
 import { format } from 'date-fns';
-import { getWeatherIconWithTimeContext } from '@/utils';
+import { getWeatherIconWithTimeContext, getWeatherBackgroundVideo } from '@/utils';
 import raindropIcon from '@/assets/icons/weather/raindrop.svg';
 import windIcon from '@/assets/icons/weather/wind.svg';
 
@@ -26,8 +26,13 @@ export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
     return format(date, 'EEE');
   };
 
+  // Get the appropriate background video based on current weather conditions
+  const getBackgroundVideo = () => {
+    return getWeatherBackgroundVideo(current.conditionId, current.icon);
+  };
+
   return (
-    <DisplayContainer backgroundImage={bgImage}>
+    <DisplayContainer backgroundVideo={getBackgroundVideo()} backgroundImage={bgImage}>
       <AnimationProvider>
         <div className='flex flex-col items-center justify-center w-full h-full px-[5vw] py-[2.5vh]'>
           <motion.div variants={itemVariants} className='text-white text-center mb-[3vh]'>
@@ -96,11 +101,7 @@ export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
                       key={index}
                       variants={itemVariants}
                       className='flex flex-col items-center justify-between bg-black/40 backdrop-blur-md rounded-2xl hover:bg-black/50 transition-colors shadow-lg'
-                      style={{
-                        padding: '1.5vh 1vw',
-                        width: '12vw',
-                        height: '25vh',
-                      }}
+                      style={{ padding: '1.5vh 1vw', width: '12vw' }}
                     >
                       <div className='text-white font-bold text-[1.3vw] drop-shadow-md'>
                         {getDayName(day.date)}

@@ -4,4 +4,5 @@ export * from './date-time';
 export * from './prayer-time-adjustments';
 export * from './display';
 export * from './weather-icon-mapping';
+export * from './weather-background-mapping';
 export * from './weather';
