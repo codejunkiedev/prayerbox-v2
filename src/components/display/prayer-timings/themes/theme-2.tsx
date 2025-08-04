@@ -60,8 +60,8 @@ export function Theme2({
             </div>
 
             <div className='flex flex-col items-center text-white gap-[0.5vh]'>
-              <span className='text-[1.8vw] eurostile-bold text-center'>{gregorianDate}</span>
-              <span className='text-[1.8vw] eurostile-bold text-center'>{hijriDate}</span>
+              <span className='text-[1.8vw] font-bold text-center'>{gregorianDate}</span>
+              <span className='text-[1.8vw] font-bold text-center'>{hijriDate}</span>
             </div>
           </div>
 

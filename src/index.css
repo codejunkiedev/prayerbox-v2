@@ -45,13 +45,6 @@
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'Eurostile';
-  src: url('./assets/fonts/Eurostile-Bold Regular.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -275,11 +268,5 @@
 
 .clash-grotesk-bold {
   font-family: 'ClashGrotesk', sans-serif;
-  font-weight: 700;
-}
-
-/* Eurostile font utilities */
-.eurostile-bold {
-  font-family: 'Eurostile', sans-serif;
   font-weight: 700;
 }

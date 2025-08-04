@@ -24,7 +24,6 @@ module.exports = {
         barlow: ['Barlow', 'sans-serif'],
         'clash-display': ['ClashDisplay', 'sans-serif'],
         'clash-grotesk': ['ClashGrotesk', 'sans-serif'],
-        eurostile: ['Eurostile', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
