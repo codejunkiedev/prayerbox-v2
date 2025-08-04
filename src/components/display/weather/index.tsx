@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import type { WeatherForecast } from '@/types';
 import bgImage from '@/assets/backgrounds/05.jpeg';
 import { format } from 'date-fns';
-import { getWeatherIconWithTimeContext } from '@/utils/weatherIconMapping';
+import { getWeatherIconWithTimeContext } from '@/utils';
 import raindropIcon from '@/assets/icons/weather/raindrop.svg';
 import windIcon from '@/assets/icons/weather/wind.svg';
 

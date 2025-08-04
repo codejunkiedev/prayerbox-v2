@@ -3,8 +3,7 @@ import { fetchWeatherForecast } from '@/api';
 import type { WeatherForecast } from '@/types';
 import type { ErrorMessage } from '@/components/display';
 import { useDisplayStore } from '@/store';
-import { parseOpenWeatherForecast } from '@/utils/weather';
-import { isNullOrUndefined } from '@/utils';
+import { parseOpenWeatherForecast, isNullOrUndefined } from '@/utils';
 
 export function useWeatherData() {
   const [weatherForecast, setWeatherForecast] = useState<WeatherForecast | null>(null);

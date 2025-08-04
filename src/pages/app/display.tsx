@@ -12,9 +12,8 @@ import {
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade, Keyboard } from 'swiper/modules';
-import { getModuleOrder, sortByDisplayOrder, createOrderedContentGroups } from '@/utils/display';
+import { getModuleOrder, sortByDisplayOrder, createOrderedContentGroups, isDev } from '@/utils';
 import './display.css';
-import { isDev } from '@/utils/env';
 
 export default function Display() {
   const { isLoading, errorMessage, announcements, ayatAndHadith, events, posts, userSettings } =
