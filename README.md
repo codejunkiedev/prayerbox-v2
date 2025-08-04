@@ -1,54 +1,92 @@
-# React + TypeScript + Vite
+# PrayerBox v2
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive prayer times application built with React, TypeScript, and Vite. This application provides prayer timings, weather information, announcements, events, and Islamic content management for mosques and Islamic centers.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Prayer Timings**: Accurate prayer times with location-based calculations
+- **Weather Integration**: Real-time weather information display
+- **Content Management**: Manage announcements, events, posts, and Islamic content
+- **Themes**: Multiple customizable display themes
+- **Location Services**: GPS and manual location selection
+- **Display Mode**: Dedicated display view for mosque screens
+- **Authentication**: Secure user authentication with Supabase
+- **Responsive Design**: Works on desktop and mobile devices
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS with custom themes
+- **UI Components**: Radix UI primitives
+- **Backend**: Supabase (Authentication, Database, Storage)
+- **Maps**: Leaflet with React-Leaflet
+- **Animations**: Framer Motion
+- **State Management**: Zustand
+- **Form Handling**: React Hook Form with Zod validation
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
+## Getting Started
+
+### Prerequisites
+
+- Node.js (version 18 or higher)
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd prayerbox-v2
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Install dependencies:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-});
+```bash
+npm install
 ```
+
+3. Set up environment variables:
+   Create a `.env.local` file in the root directory and add your Supabase configuration.
+
+4. Start the development server:
+
+```bash
+npm run dev
+```
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+- `npm run format:check` - Check code formatting
+
+## Project Structure
+
+```
+src/
+├── components/         # Reusable UI components
+├── pages/              # Application pages
+├── hooks/              # Custom React hooks
+├── lib/                # Utility libraries and Supabase client
+├── store/              # State management
+├── types/              # TypeScript type definitions
+├── utils/              # Utility functions
+├── assets/             # Static assets (images, fonts, themes)
+└── constants/          # Application constants
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is private and proprietary.
