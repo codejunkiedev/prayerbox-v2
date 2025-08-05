@@ -1,4 +1,6 @@
-export { default as Login } from './login';
-export { default as Register } from './register';
-export { default as ForgotPassword } from './forgot-password';
-export { default as LoginWithCode } from './login-with-code';
+import { lazy } from 'react';
+
+export const Login = lazy(() => import('./login'));
+export const Register = lazy(() => import('./register'));
+export const ForgotPassword = lazy(() => import('./forgot-password'));
+export const LoginWithCode = lazy(() => import('./login-with-code'));

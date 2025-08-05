@@ -1,11 +1,13 @@
-export { default as Home } from './home';
-export { default as Profile } from './profile';
-export { default as ResetPassword } from './reset-password';
-export { default as UpdatePassword } from './update-password';
-export { default as AyatAndHadith } from './ayat-and-hadith';
-export { default as Announcements } from './announcements';
-export { default as Events } from './events';
-export { default as Posts } from './posts';
-export { default as PrayerTimings } from './prayer-timings';
-export { default as Settings } from './settings';
-export { default as Display } from './display';
+import { lazy } from 'react';
+
+export const Home = lazy(() => import('./home'));
+export const Profile = lazy(() => import('./profile'));
+export const ResetPassword = lazy(() => import('./reset-password'));
+export const UpdatePassword = lazy(() => import('./update-password'));
+export const AyatAndHadith = lazy(() => import('./ayat-and-hadith'));
+export const Announcements = lazy(() => import('./announcements'));
+export const Events = lazy(() => import('./events'));
+export const Posts = lazy(() => import('./posts'));
+export const PrayerTimings = lazy(() => import('./prayer-timings'));
+export const Settings = lazy(() => import('./settings'));
+export const Display = lazy(() => import('./display'));
