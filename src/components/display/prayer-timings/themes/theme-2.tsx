@@ -1,14 +1,8 @@
-import { formatTimeNumber, formatTimePickerTime } from '@/utils';
+import { formatTimeNumber, formatTimePickerTime, getPrayerCardImage } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
 import borderSvg from '@/assets/themes/theme-2/border.svg';
-import fajrCard from '@/assets/themes/theme-2/fajr.png';
-import duhrCard from '@/assets/themes/theme-2/duhr.png';
-import asarCard from '@/assets/themes/theme-2/asar.png';
-import maghribCard from '@/assets/themes/theme-2/maghrib.png';
-import ishaCard from '@/assets/themes/theme-2/isha.png';
-import jummaCard from '@/assets/themes/theme-2/jumma.png';
-import type { PrayerAdjustments, ProcessedPrayerTiming } from '@/types';
+import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
 import { useTextTransition } from '@/hooks';
 
 export function Theme2({
@@ -119,31 +113,12 @@ interface Theme2PrayerCardProps {
   className?: string;
 }
 
-const getTheme2PrayerCardImage = (prayerName: keyof PrayerAdjustments) => {
-  switch (prayerName) {
-    case 'fajr':
-      return fajrCard;
-    case 'dhuhr':
-      return duhrCard;
-    case 'asr':
-      return asarCard;
-    case 'maghrib':
-      return maghribCard;
-    case 'isha':
-      return ishaCard;
-    case 'jumma1':
-      return jummaCard;
-    default:
-      return fajrCard;
-  }
-};
-
 export function Theme2PrayerCard({
   prayerNames,
   processedPrayerTimings,
   className = '',
 }: Theme2PrayerCardProps) {
-  const cardImage = getTheme2PrayerCardImage(prayerNames[0]);
+  const cardImage = getPrayerCardImage(prayerNames[0], Theme.Theme2);
 
   const { currentTime, isAnimating, prayerTimes } = useTextTransition({
     prayerNames,

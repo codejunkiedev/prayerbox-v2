@@ -11,7 +11,7 @@ interface UseTextTransitionProps {
 export function useTextTransition({
   prayerNames,
   processedPrayerTimings,
-  transitionInterval = 5000,
+  transitionInterval = 3000,
   animationDuration = 300,
 }: UseTextTransitionProps) {
   const [currentTimeIndex, setCurrentTimeIndex] = useState(0);
