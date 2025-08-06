@@ -86,7 +86,7 @@ export default function Display() {
         slidesPerView={1}
         keyboard={{ enabled: true, onlyInViewport: true }}
         navigation={false}
-        autoplay={{ delay: 2000, disableOnInteraction: false, pauseOnMouseEnter: true }}
+        autoplay={{ delay: 9000, disableOnInteraction: false, pauseOnMouseEnter: true }}
         loop={true}
         className='h-full w-full'
       >
