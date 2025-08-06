@@ -6,7 +6,7 @@ import type {
   Settings,
 } from '@/types';
 import type { ReactNode } from 'react';
-import { getAdjustedPrayerTime, isFridayPrayer, PRAYER_NAMES } from './prayer-time-adjustments';
+import { getAdjustedPrayerTime, PRAYER_NAMES } from './prayer-time-adjustments';
 
 /**
  * Creates a module order map from user settings or defaults
@@ -92,8 +92,6 @@ export function getProcessedPrayerTimings(
   prayerTimeSettings: PrayerTimes
 ): ProcessedPrayerTiming[] {
   const timings = prayerTimes.timings;
-  const isJumma = isFridayPrayer(prayerTimes.date);
-
   const processedTimings: ProcessedPrayerTiming[] = [
     {
       name: 'fajr',
@@ -120,19 +118,21 @@ export function getProcessedPrayerTimings(
       time: getAdjustedPrayerTime('isha', timings.Isha, prayerTimeSettings),
       arabicName: PRAYER_NAMES.isha,
     },
-  ];
-
-  // If it's Friday, add Jumma prayer after Dhuhr
-  if (isJumma && prayerTimeSettings.prayer_adjustments?.jumma1) {
-    const jummaTime = getAdjustedPrayerTime('jumma1', timings.Dhuhr, prayerTimeSettings);
-
-    // Insert Jumma after Dhuhr (at index 2)
-    processedTimings.splice(2, 0, {
+    {
       name: 'jumma1',
-      time: jummaTime,
+      time: getAdjustedPrayerTime('jumma1', timings.Dhuhr, prayerTimeSettings),
       arabicName: PRAYER_NAMES.jumma,
-    });
-  }
-
+    },
+    {
+      name: 'jumma2',
+      time: getAdjustedPrayerTime('jumma2', timings.Dhuhr, prayerTimeSettings),
+      arabicName: PRAYER_NAMES.jumma,
+    },
+    {
+      name: 'jumma3',
+      time: getAdjustedPrayerTime('jumma3', timings.Dhuhr, prayerTimeSettings),
+      arabicName: PRAYER_NAMES.jumma,
+    },
+  ];
   return processedTimings;
 }

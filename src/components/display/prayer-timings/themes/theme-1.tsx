@@ -8,6 +8,7 @@ import maghribCard from '@/assets/themes/theme-1/maghrib.png';
 import ishaCard from '@/assets/themes/theme-1/isha.png';
 import jummaCard from '@/assets/themes/theme-1/jumma.png';
 import type { PrayerAdjustments, ProcessedPrayerTiming } from '@/types';
+import { useTextTransition } from '@/hooks';
 
 export function Theme1({
   gregorianDate,
@@ -66,17 +67,17 @@ export function Theme1({
             {/* Left Column */}
             <div className='flex flex-col items-end justify-start'>
               <PrayerTimingCard
-                prayerName='dhuhr'
+                prayerNames={['dhuhr']}
                 processedPrayerTimings={processedPrayerTimings}
                 position='left'
               />
               <PrayerTimingCard
-                prayerName='maghrib'
+                prayerNames={['maghrib']}
                 processedPrayerTimings={processedPrayerTimings}
                 position='left'
               />
               <PrayerTimingCard
-                prayerName='jumma1'
+                prayerNames={['jumma1', 'jumma2', 'jumma3']}
                 processedPrayerTimings={processedPrayerTimings}
                 position='left'
               />
@@ -85,17 +86,17 @@ export function Theme1({
             {/* Right Column */}
             <div className='flex flex-col items-start justify-start'>
               <PrayerTimingCard
-                prayerName='fajr'
+                prayerNames={['fajr']}
                 processedPrayerTimings={processedPrayerTimings}
                 position='right'
               />
               <PrayerTimingCard
-                prayerName='asr'
+                prayerNames={['asr']}
                 processedPrayerTimings={processedPrayerTimings}
                 position='right'
               />
               <PrayerTimingCard
-                prayerName='isha'
+                prayerNames={['isha']}
                 processedPrayerTimings={processedPrayerTimings}
                 position='right'
               />
@@ -108,7 +109,7 @@ export function Theme1({
 }
 
 interface PrayerTimingCardProps {
-  prayerName: keyof PrayerAdjustments;
+  prayerNames: (keyof PrayerAdjustments)[];
   processedPrayerTimings: ProcessedPrayerTiming[];
   position: 'left' | 'right';
   className?: string;
@@ -134,16 +135,22 @@ const getPrayerCardImage = (prayerName: keyof PrayerAdjustments) => {
 };
 
 export function PrayerTimingCard({
-  prayerName,
+  prayerNames,
   processedPrayerTimings,
   position,
   className = '',
 }: PrayerTimingCardProps) {
-  const cardImage = getPrayerCardImage(prayerName);
+  const cardImage = getPrayerCardImage(prayerNames[0]);
   const isLeftColumn = position === 'left';
 
-  const prayerTime = processedPrayerTimings.find(prayer => prayer.name === prayerName)?.time || '';
-  const { timeNumber, amPm } = formatTimeNumber(prayerTime);
+  const { currentTime, isAnimating, prayerTimes } = useTextTransition({
+    prayerNames,
+    processedPrayerTimings,
+  });
+
+  if (!prayerTimes.length) return null;
+
+  const { timeNumber, amPm } = formatTimeNumber(currentTime);
 
   return (
     <div
@@ -152,7 +159,7 @@ export function PrayerTimingCard({
     >
       <img
         src={cardImage}
-        alt={prayerName}
+        alt={prayerNames.join(', ')}
         className='absolute inset-0 object-contain'
         style={{ width: '100%', height: '100%' }}
       />
@@ -161,7 +168,11 @@ export function PrayerTimingCard({
           isLeftColumn ? 'justify-end pr-[4vw]' : 'justify-start pl-[4vw]'
         }`}
       >
-        <div className='flex items-baseline gap-[0.3vw]'>
+        <div
+          className={`flex items-baseline gap-[0.3vw] transition-all duration-300 ${
+            isAnimating ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
+          }`}
+        >
           <span className='text-[4vw] font-bold text-white drop-shadow-2xl ds-digi-font'>
             {timeNumber}
           </span>
