@@ -5,3 +5,4 @@ export * from './useFetchDisplayData';
 export * from './usePrayerTimings';
 export * from './useCurrentTime';
 export * from './useWeatherData';
+export * from './useTextTransition';

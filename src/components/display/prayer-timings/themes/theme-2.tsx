@@ -1,14 +1,9 @@
-import { formatTimeNumber, formatTimePickerTime } from '@/utils';
+import { formatTimeNumber, formatTimePickerTime, getPrayerCardImage } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
 import borderSvg from '@/assets/themes/theme-2/border.svg';
-import fajrCard from '@/assets/themes/theme-2/fajr.png';
-import duhrCard from '@/assets/themes/theme-2/duhr.png';
-import asarCard from '@/assets/themes/theme-2/asar.png';
-import maghribCard from '@/assets/themes/theme-2/maghrib.png';
-import ishaCard from '@/assets/themes/theme-2/isha.png';
-import jummaCard from '@/assets/themes/theme-2/jumma.png';
-import type { PrayerAdjustments, ProcessedPrayerTiming } from '@/types';
+import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
+import { useTextTransition } from '@/hooks';
 
 export function Theme2({
   gregorianDate,
@@ -68,19 +63,28 @@ export function Theme2({
           {/* Prayer Timings Grid */}
           <div className='flex-1 flex items-center justify-center'>
             <div className='grid grid-cols-2 grid-rows-3 gap-x-[2vw] w-full max-w-[70vw]'>
-              <Theme2PrayerCard prayerName='fajr' processedPrayerTimings={processedPrayerTimings} />
               <Theme2PrayerCard
-                prayerName='dhuhr'
+                prayerNames={['fajr']}
                 processedPrayerTimings={processedPrayerTimings}
               />
-              <Theme2PrayerCard prayerName='asr' processedPrayerTimings={processedPrayerTimings} />
               <Theme2PrayerCard
-                prayerName='maghrib'
+                prayerNames={['dhuhr']}
                 processedPrayerTimings={processedPrayerTimings}
               />
-              <Theme2PrayerCard prayerName='isha' processedPrayerTimings={processedPrayerTimings} />
               <Theme2PrayerCard
-                prayerName='jumma1'
+                prayerNames={['asr']}
+                processedPrayerTimings={processedPrayerTimings}
+              />
+              <Theme2PrayerCard
+                prayerNames={['maghrib']}
+                processedPrayerTimings={processedPrayerTimings}
+              />
+              <Theme2PrayerCard
+                prayerNames={['isha']}
+                processedPrayerTimings={processedPrayerTimings}
+              />
+              <Theme2PrayerCard
+                prayerNames={['jumma1', 'jumma2', 'jumma3']}
                 processedPrayerTimings={processedPrayerTimings}
               />
             </div>
@@ -104,39 +108,26 @@ export function Theme2({
 }
 
 interface Theme2PrayerCardProps {
-  prayerName: keyof PrayerAdjustments;
+  prayerNames: (keyof PrayerAdjustments)[];
   processedPrayerTimings: ProcessedPrayerTiming[];
   className?: string;
 }
 
-const getTheme2PrayerCardImage = (prayerName: keyof PrayerAdjustments) => {
-  switch (prayerName) {
-    case 'fajr':
-      return fajrCard;
-    case 'dhuhr':
-      return duhrCard;
-    case 'asr':
-      return asarCard;
-    case 'maghrib':
-      return maghribCard;
-    case 'isha':
-      return ishaCard;
-    case 'jumma1':
-      return jummaCard;
-    default:
-      return fajrCard;
-  }
-};
-
 export function Theme2PrayerCard({
-  prayerName,
+  prayerNames,
   processedPrayerTimings,
   className = '',
 }: Theme2PrayerCardProps) {
-  const cardImage = getTheme2PrayerCardImage(prayerName);
+  const cardImage = getPrayerCardImage(prayerNames[0], Theme.Theme2);
 
-  const prayerTime = processedPrayerTimings.find(prayer => prayer.name === prayerName)?.time || '';
-  const { timeNumber, amPm } = formatTimeNumber(prayerTime);
+  const { currentTime, isAnimating, prayerTimes } = useTextTransition({
+    prayerNames,
+    processedPrayerTimings,
+  });
+
+  if (!prayerTimes.length) return null;
+
+  const { timeNumber, amPm } = formatTimeNumber(currentTime);
 
   return (
     <div
@@ -145,12 +136,16 @@ export function Theme2PrayerCard({
     >
       <img
         src={cardImage}
-        alt={prayerName}
+        alt={prayerNames.join(', ')}
         className='absolute inset-0 object-contain'
         style={{ width: '100%', height: '100%' }}
       />
       <div className='absolute inset-0 flex items-center justify-start pl-[5vw] top-[2.5vh]'>
-        <div className='flex flex-col items-start'>
+        <div
+          className={`flex flex-col items-start transition-all duration-300 ${
+            isAnimating ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
+          }`}
+        >
           <span className='text-[4vw] text-white drop-shadow-2xl clash-grotesk-semibold leading-none'>
             {timeNumber}
           </span>
