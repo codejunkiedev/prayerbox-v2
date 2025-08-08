@@ -1,4 +1,5 @@
 import { formatTimeNumber, formatTimePickerTime, getPrayerCardImage } from '@/utils';
+import { getFilteredJummaPrayerNames } from '@/utils/prayer-time-adjustments';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
 import borderSvg from '@/assets/themes/theme-2/border.svg';
@@ -12,6 +13,7 @@ export function Theme2({
   sunset,
   currentTime,
   processedPrayerTimings,
+  prayerTimeSettings,
 }: ThemeProps) {
   const { timeNumber, amPm } = formatTimeNumber(formatTimePickerTime(currentTime));
 
@@ -84,7 +86,7 @@ export function Theme2({
                 processedPrayerTimings={processedPrayerTimings}
               />
               <Theme2PrayerCard
-                prayerNames={['jumma1', 'jumma2', 'jumma3']}
+                prayerNames={getFilteredJummaPrayerNames(prayerTimeSettings)}
                 processedPrayerTimings={processedPrayerTimings}
               />
             </div>

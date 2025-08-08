@@ -119,3 +119,20 @@ export const getAdjustmentLabel = (
 
   return label;
 };
+
+/**
+ * Gets filtered Jumma prayer names based on adjustments
+ * @param prayerTimeSettings Prayer time settings
+ * @returns Array of Jumma prayer names that have adjustments, or ['jumma1'] if none
+ */
+export const getFilteredJummaPrayerNames = (
+  prayerTimeSettings: PrayerTimes | null
+): (keyof PrayerAdjustments)[] => {
+  const jummaVariants: (keyof PrayerAdjustments)[] = ['jumma1', 'jumma2', 'jumma3'];
+  const adjustedJummaVariants = jummaVariants.filter(variant =>
+    isPrayerAdjusted(variant, prayerTimeSettings)
+  );
+
+  // If no adjustments exist for any Jumma variant, return only jumma1 (which equals dhuhr)
+  return adjustedJummaVariants.length > 0 ? adjustedJummaVariants : ['jumma1'];
+};
