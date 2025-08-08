@@ -37,6 +37,7 @@ export function PrayerTimingDisplay({
     sunset: formatTime(timings?.Sunset || ''),
     currentTime,
     processedPrayerTimings,
+    prayerTimeSettings,
   };
 
   const getPage = () => {
