@@ -23,6 +23,8 @@ export const useAdjustedHijriDate = (
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     const fetchAdjustedDate = async () => {
       if (!userSettings) return;
 
@@ -34,7 +36,13 @@ export const useAdjustedHijriDate = (
         const offset = userSettings.hijri_offset || 0;
 
         const targetDate = addOrSubtractDays(baseDate, offset);
-        const response = await fetchHijriDate({ date: targetDate, method: calculationMethod });
+        const response = await fetchHijriDate({
+          date: targetDate,
+          method: calculationMethod,
+          signal: abortController.signal,
+        });
+
+        if (abortController.signal.aborted) return;
 
         if (response.data?.hijri) {
           const hijriData = response.data.hijri;
@@ -42,14 +50,23 @@ export const useAdjustedHijriDate = (
           setAdjustedHijriDate(adjustedDate);
         }
       } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
         console.error('Error fetching adjusted Hijri date:', error);
         setAdjustedHijriDate('');
       } finally {
-        setIsLoading(false);
+        if (!abortController.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchAdjustedDate();
+
+    return () => {
+      abortController.abort();
+    };
   }, [baseDate, userSettings]);
 
   return { adjustedHijriDate, isLoading };
