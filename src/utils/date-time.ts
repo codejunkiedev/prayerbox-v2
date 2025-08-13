@@ -10,6 +10,8 @@ import {
   getMinutes,
   setHours,
   setMinutes,
+  addDays,
+  subDays,
 } from 'date-fns';
 
 /**
@@ -169,6 +171,18 @@ export const formatTimeNumber = (time: string): { timeNumber: string; amPm: stri
   const timeNumber = timeParts[0]?.startsWith('0') ? timeParts[0]?.substring(1) : timeParts[0];
   const amPm = timeParts[1];
   return { timeNumber, amPm };
+};
+
+/**
+ * Adds or subtracts days from a date
+ * @param date Date object
+ * @param offset Number of days to add or subtract (can be negative)
+ * @returns Date object with the days added or subtracted
+ */
+export const addOrSubtractDays = (date: Date, offset: number): Date => {
+  if (offset === 0) return date;
+  if (offset > 0) return addDays(date, offset);
+  return subDays(date, Math.abs(offset));
 };
 
 /**

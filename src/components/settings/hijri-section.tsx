@@ -17,6 +17,7 @@ import { fetchHijriDate } from '@/api/aladhan';
 import { HijriCalculationMethod } from '@/constants';
 import { updateHijriSettings } from '@/lib/supabase';
 import type { Settings } from '@/types';
+import { addOrSubtractDays } from '@/utils';
 
 interface HijriSectionProps {
   settings: Settings | null;
@@ -44,10 +45,9 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
     try {
       setIsLoadingHijriDate(true);
 
-      // Calculate the target date (today + offset)
+      // Calculate the target date (today + offset) using date-fns
       const today = new Date();
-      const targetDate = new Date(today);
-      targetDate.setDate(today.getDate() + selectedOffset);
+      const targetDate = addOrSubtractDays(today, selectedOffset);
 
       // Make a single API call for the target date
       const response = await fetchHijriDate({
