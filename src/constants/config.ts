@@ -28,3 +28,9 @@ export enum JuristicSchool {
   Shafi = 0,
   Hanafi = 1,
 }
+
+export enum HijriCalculationMethod {
+  High_Judicial_Council_of_Saudi_Arabia = 'HJCoSA',
+  Umm_al_Qura = 'UAQ',
+  Diyanet_İşleri_Başkanlığı = 'DIYANET',
+}

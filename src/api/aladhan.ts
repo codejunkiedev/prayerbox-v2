@@ -1,4 +1,5 @@
-import type { AlAdhanPrayerTimes } from '@/types';
+import type { HijriCalculationMethod } from '@/constants';
+import type { AlAdhanHijriDate, AlAdhanPrayerTimes } from '@/types';
 import { formatDate, getYearAndMonth } from '@/utils';
 
 const AlAdhanBaseUrl = 'https://api.aladhan.com/v1';
@@ -47,9 +48,9 @@ export const fetchPrayerTimesForThisMonth = async ({
 };
 
 /**
- * Fetches prayer times for a specific date
- * @param payload Object containing date, coordinates, method, school, and optional AbortSignal
- * @returns Promise resolving to prayer times for the specified date
+ * Fetches the current Hijri date
+ * @param payload Object containing date, method, and optional AbortSignal
+ * @returns Promise resolving to the current Hijri date
  * @throws Error if request fails
  */
 export const fetchPrayerTimesForDate = async ({
@@ -71,5 +72,33 @@ export const fetchPrayerTimesForDate = async ({
 
   const response = await fetch(url, { signal });
   if (!response.ok) throw new Error('Failed to fetch prayer times');
+  return response.json();
+};
+
+export interface HijriDatePayload {
+  date: Date;
+  method: HijriCalculationMethod;
+  signal?: AbortSignal;
+}
+
+/**
+ * Converts a Gregorian date to a Hijri date
+ * @param payload Object containing date, method, and optional AbortSignal
+ * @returns Promise resolving to Hijri date for the specified date
+ * @throws Error if request fails
+ */
+export const fetchHijriDate = async ({
+  date,
+  method,
+  signal,
+}: HijriDatePayload): Promise<ApiResponse<AlAdhanHijriDate>> => {
+  const dateString = formatDate(date);
+
+  const url = new URL(`${AlAdhanBaseUrl}/gToH/${dateString}`);
+
+  url.searchParams.set('calendarMethod', method);
+
+  const response = await fetch(url, { signal });
+  if (!response.ok) throw new Error('Failed to fetch Hijri date');
   return response.json();
 };
