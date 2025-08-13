@@ -7,6 +7,11 @@ import {
   sortByDisplayOrderOrCreatedAt,
 } from '../helpers';
 
+/**
+ * Gets user settings including modules configuration
+ * @param userId Optional user ID, if not provided uses current authenticated user
+ * @returns Promise resolving to settings object or null if not found
+ */
 export async function getSettings(userId?: string): Promise<Settings | null> {
   try {
     const user = userId ? { id: userId } : await getCurrentUser();

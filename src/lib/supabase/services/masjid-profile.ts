@@ -3,6 +3,10 @@ import type { MasjidProfileData } from '../../zod';
 import { getCurrentUser, uploadFile, fetchByColumn, updateRecord, insertRecord } from '../helpers';
 import { generateMasjidCode } from '@/utils';
 
+/**
+ * Gets the masjid profile for the current authenticated user
+ * @returns Promise resolving to masjid profile or null if not found
+ */
 export async function getMasjidProfile(): Promise<MasjidProfile | null> {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
@@ -15,11 +19,23 @@ export async function getMasjidProfile(): Promise<MasjidProfile | null> {
   return profiles.length > 0 ? profiles[0] : null;
 }
 
+/**
+ * Gets a masjid profile by its unique code
+ * @param code The masjid code to search for
+ * @returns Promise resolving to masjid profile or null if not found
+ */
 export async function getMasjidByCode(code: string): Promise<MasjidProfile | null> {
   const profiles = await fetchByColumn<MasjidProfile>(SupabaseTables.MasjidProfiles, 'code', code);
   return profiles.length > 0 ? profiles[0] : null;
 }
 
+/**
+ * Creates or updates a masjid profile with optional logo upload
+ * @param profileData The profile data to save
+ * @param logoFile Optional logo file to upload
+ * @param shouldRemoveLogo Whether to remove the existing logo
+ * @returns Promise resolving to the created/updated profile
+ */
 export async function upsertMasjidProfile(
   profileData: MasjidProfileData,
   logoFile: File | null,
