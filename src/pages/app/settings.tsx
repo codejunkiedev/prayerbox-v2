@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getOrCreateSettings } from '@/lib/supabase';
 import type { Settings } from '@/types';
-import { ThemeSection, ModulesSection } from '@/components/settings';
+import { ThemeSection, ModulesSection, HijriSection } from '@/components/settings';
 import { toast } from 'sonner';
 
 export default function Settings() {
@@ -28,6 +28,7 @@ export default function Settings() {
     <div className='container mx-auto py-8 space-y-6'>
       <ModulesSection settings={settings} onSettingsChange={setSettings} isLoading={isLoading} />
       <ThemeSection settings={settings} onSettingsChange={setSettings} />
+      <HijriSection settings={settings} onSettingsChange={setSettings} />
     </div>
   );
 }

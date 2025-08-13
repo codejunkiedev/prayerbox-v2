@@ -1,4 +1,5 @@
 import type { Module, PrayerAdjustments, Theme } from './common';
+import type { HijriCalculationMethod } from '@/constants';
 
 export enum SupabaseTables {
   MasjidProfiles = 'masjid_profiles',
@@ -79,4 +80,6 @@ export interface PrayerTimes extends Base {
 export interface Settings extends Base {
   modules: Module[];
   theme: Theme;
+  hijri_calculation_method?: HijriCalculationMethod;
+  hijri_offset?: number;
 }
