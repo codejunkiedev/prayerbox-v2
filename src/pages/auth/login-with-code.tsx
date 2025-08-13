@@ -5,7 +5,7 @@ import { Button, Input, Label, ErrorBox } from '@/components/ui';
 import { cn } from '@/utils';
 import { loginWithCodeSchema, type LoginWithCodeData } from '@/lib/zod';
 import { Link } from 'react-router';
-import { getMasjidByCode } from '@/lib/supabase/services/masjid-profile';
+import { getMasjidByCode } from '@/lib/supabase';
 import { AuthRoutes } from '@/constants';
 import { useDisplayStore } from '@/store';
 
