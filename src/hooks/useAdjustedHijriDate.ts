@@ -15,10 +15,7 @@ interface ReturnType {
  * @param baseDate Base date to calculate from (default: today)
  * @returns {adjustedHijriDate, isLoading} Adjusted Hijri date and loading state
  */
-export const useAdjustedHijriDate = (
-  userSettings: Settings | null,
-  baseDate = new Date()
-): ReturnType => {
+export const useAdjustedHijriDate = (userSettings: Settings | null): ReturnType => {
   const [adjustedHijriDate, setAdjustedHijriDate] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,8 +31,7 @@ export const useAdjustedHijriDate = (
         const calculationMethod =
           userSettings.hijri_calculation_method || HijriCalculationMethod.Umm_al_Qura;
         const offset = userSettings.hijri_offset || 0;
-
-        const targetDate = addOrSubtractDays(baseDate, offset);
+        const targetDate = addOrSubtractDays(new Date(), offset);
         const response = await fetchHijriDate({
           date: targetDate,
           method: calculationMethod,
@@ -67,7 +63,7 @@ export const useAdjustedHijriDate = (
     return () => {
       abortController.abort();
     };
-  }, [baseDate, userSettings]);
+  }, [userSettings]);
 
   return { adjustedHijriDate, isLoading };
 };
