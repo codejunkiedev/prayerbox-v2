@@ -12,6 +12,9 @@ interface WeatherDisplayProps {
   weatherForecast: WeatherForecast;
 }
 
+/**
+ * Displays current weather conditions and forecast with animated background video and weather icons
+ */
 export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
   const { current, forecast } = weatherForecast;
 

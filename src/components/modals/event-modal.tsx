@@ -26,6 +26,9 @@ interface EventModalProps {
   initialData?: Event;
 }
 
+/**
+ * Modal component for creating and editing events with details like title, date, location, and participants
+ */
 export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

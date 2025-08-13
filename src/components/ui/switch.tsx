@@ -3,6 +3,9 @@ import * as SwitchPrimitives from '@radix-ui/react-switch';
 
 import { cn } from '@/utils';
 
+/**
+ * Toggle switch component for boolean on/off states
+ */
 const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>

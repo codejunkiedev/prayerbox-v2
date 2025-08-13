@@ -6,6 +6,9 @@ import borderSvg from '@/assets/themes/theme-2/border.svg';
 import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
 import { useTextTransition } from '@/hooks';
 
+/**
+ * Prayer timing display component with Theme 2 layout - displays timings in a grid with decorative elements
+ */
 export function Theme2({
   gregorianDate,
   hijriDate,
@@ -115,6 +118,9 @@ interface Theme2PrayerCardProps {
   className?: string;
 }
 
+/**
+ * Individual prayer timing card component for Theme 2 with image background and styled time display
+ */
 export function Theme2PrayerCard({
   prayerNames,
   processedPrayerTimings,

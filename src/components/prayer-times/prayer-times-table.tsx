@@ -28,6 +28,9 @@ type JummaPrayer = 'jumma1' | 'jumma2' | 'jumma3';
 
 const currentDay = getCurrentDay();
 
+/**
+ * Renders a comprehensive prayer times table with monthly data, adjustments, and special Jumma timings
+ */
 export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTableProps) {
   const isJummaAdjusted = (jumma: JummaPrayer): boolean => {
     return isPrayerAdjusted(jumma, savedSettings);

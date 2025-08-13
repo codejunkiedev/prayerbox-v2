@@ -18,13 +18,22 @@ interface HeaderProps {
   isScrolled?: boolean;
 }
 
+/**
+ * Application header component with menu toggle, branding, and user dropdown menu
+ */
 export default function Header({ onMenuClick, isScrolled = false }: HeaderProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
+  /**
+   * Opens the sign out confirmation dialog
+   */
   const openSignOutDialog = () => {
     setShowSignOutDialog(true);
   };
 
+  /**
+   * Closes the sign out confirmation dialog
+   */
   const closeSignOutDialog = () => {
     setShowSignOutDialog(false);
   };

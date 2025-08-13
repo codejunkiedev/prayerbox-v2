@@ -11,6 +11,9 @@ import {
   TableRow,
 } from '@/components/ui';
 
+/**
+ * Displays a loading skeleton for the prayer times table while data is being fetched
+ */
 export function PrayerTimesLoading() {
   const daysInMonth = Array.from({ length: 30 }, (_, i) => i + 1);
 

@@ -17,6 +17,9 @@ interface DateTimePickerProps {
   disabled?: boolean;
 }
 
+/**
+ * A comprehensive date and time picker with calendar and time selection controls
+ */
 export function DateTimePicker({ date, setDate, disabled }: DateTimePickerProps) {
   function handleDateSelect(selectedDate: Date | undefined) {
     if (selectedDate) {

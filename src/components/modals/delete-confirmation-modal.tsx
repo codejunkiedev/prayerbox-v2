@@ -18,6 +18,9 @@ interface DeleteConfirmationModalProps {
   itemSubtitle?: string;
 }
 
+/**
+ * Modal component that displays a confirmation dialog for delete operations with item details and loading state
+ */
 export function DeleteConfirmationModal({
   isOpen,
   onClose,

@@ -13,6 +13,9 @@ export interface ImageUploadProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   className?: string;
 }
 
+/**
+ * A drag-and-drop image upload component with preview and validation
+ */
 export function ImageUpload({
   onChange,
   value,

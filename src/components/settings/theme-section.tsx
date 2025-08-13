@@ -11,6 +11,11 @@ interface ThemeSectionProps {
   onSettingsChange: (settings: Settings) => void;
 }
 
+/**
+ * Component that allows users to select and preview different background themes
+ * for the prayer timings screen. Changes are automatically saved when a theme
+ * is selected.
+ */
 export function ThemeSection({ settings, onSettingsChange }: ThemeSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<Theme | undefined>(settings?.theme);
@@ -28,6 +33,9 @@ export function ThemeSection({ settings, onSettingsChange }: ThemeSectionProps) 
     }
   }, [settings]);
 
+  /**
+   * Handles theme selection and updates the settings in the database
+   */
   const handleThemeSelect = async (theme: Theme) => {
     if (!settings) return;
     try {

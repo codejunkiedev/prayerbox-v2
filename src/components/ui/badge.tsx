@@ -23,6 +23,9 @@ const badgeVariants = cva(
   }
 );
 
+/**
+ * Badge component with multiple variants for displaying status, labels, or categories
+ */
 function Badge({
   className,
   variant,

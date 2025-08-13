@@ -5,6 +5,9 @@ import * as SliderPrimitive from '@radix-ui/react-slider';
 
 import { cn } from '@/utils';
 
+/**
+ * Interactive range slider component for selecting numeric values
+ */
 const Slider = React.forwardRef<
   React.ElementRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>

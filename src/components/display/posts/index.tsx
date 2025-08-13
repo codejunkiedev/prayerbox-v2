@@ -6,6 +6,9 @@ interface PostsDisplayProps {
   post: Post;
 }
 
+/**
+ * Displays a post image in full screen with hover animations
+ */
 export function PostsDisplay({ post }: PostsDisplayProps) {
   if (!post || !post.image_url) return null;
 

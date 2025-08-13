@@ -2,6 +2,10 @@ import * as React from 'react';
 
 import { cn } from '@/utils';
 
+/**
+ * Input component with consistent styling and accessibility features
+ * Supports all native input types and props
+ */
 function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   return (
     <input

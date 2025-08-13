@@ -3,6 +3,11 @@ import { Outlet } from 'react-router';
 import Sidebar from './sidebar';
 import Header from './header';
 
+/**
+ * Main application layout component providing the structure for authenticated pages
+ * Includes responsive sidebar navigation, header, and content area
+ * Handles mobile sidebar state and keyboard navigation
+ */
 export default function AppLayout() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);

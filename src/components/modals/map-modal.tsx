@@ -18,6 +18,9 @@ type MapModalProps = {
   coordinates: { latitude: number; longitude: number } | null;
 };
 
+/**
+ * Modal component that displays an interactive map for selecting masjid location coordinates
+ */
 export function MapModal({ isOpen, onClose, onCoordinatesSelect, coordinates }: MapModalProps) {
   const handleSave = () => {
     if (coordinates) {

@@ -8,6 +8,11 @@ interface AutoRedirectNoticeProps {
   buttonLabel?: string;
 }
 
+/**
+ * Auto-redirect notice component showing countdown and immediate redirect option
+ * Displays success message with automatic redirect functionality
+ * @param props Component props containing redirect destination, timing, and display text
+ */
 export function AutoRedirectNotice({
   to,
   delaySeconds = 5,

@@ -2,6 +2,9 @@ import { Button } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { Link } from 'react-router';
 
+/**
+ * Displays a message prompting users to set their masjid location with a link to the profile page
+ */
 export function LocationNotSet() {
   return (
     <div className='text-center py-8'>

@@ -44,6 +44,9 @@ type SortableRowProps<T> = {
   children?: ReactNode;
 };
 
+/**
+ * A sortable table row component that can be dragged and reordered within a table
+ */
 function SortableRow<T>({
   item,
   index,
@@ -90,6 +93,9 @@ function SortableRow<T>({
   );
 }
 
+/**
+ * A data table component with drag-and-drop functionality for reordering rows
+ */
 export function DraggableDataTable<T>({
   columns,
   data,

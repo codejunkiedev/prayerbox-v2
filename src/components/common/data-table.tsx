@@ -19,6 +19,9 @@ type DataTableProps<T> = {
   rowNumberWidth?: string;
 };
 
+/**
+ * A generic data table component that displays tabular data with configurable columns and optional actions
+ */
 export function DataTable<T>({
   columns,
   data,

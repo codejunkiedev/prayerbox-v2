@@ -4,6 +4,9 @@ import { DayPicker } from 'react-day-picker';
 import { cn } from '@/utils';
 import { buttonVariants } from '@/components/ui';
 
+/**
+ * A customizable calendar component with navigation controls and date selection
+ */
 function Calendar({
   className,
   classNames,

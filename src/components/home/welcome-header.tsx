@@ -3,6 +3,10 @@ export type WelcomeHeaderProps = {
   subtitle: string;
 };
 
+/**
+ * Welcome header component displaying title and subtitle on dashboard
+ * @param props Component props containing title and subtitle
+ */
 export function WelcomeHeader({ title, subtitle }: WelcomeHeaderProps) {
   return (
     <div className='mb-8'>

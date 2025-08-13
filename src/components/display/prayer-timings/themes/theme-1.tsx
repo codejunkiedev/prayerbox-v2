@@ -5,6 +5,9 @@ import theme1Background from '@/assets/themes/theme-1/background.jpg';
 import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
 import { useTextTransition } from '@/hooks';
 
+/**
+ * Prayer timing display component with Theme 1 layout - displays timings in cards with digital clock styling
+ */
 export function Theme1({
   gregorianDate,
   hijriDate,
@@ -111,6 +114,9 @@ interface PrayerTimingCardProps {
   className?: string;
 }
 
+/**
+ * Individual prayer timing card component for Theme 1 with image background and digital time display
+ */
 export function PrayerTimingCard({
   prayerNames,
   processedPrayerTimings,

@@ -9,6 +9,10 @@ export type QuickActionButtonProps = {
   path: string;
 };
 
+/**
+ * Quick action button component providing navigation shortcuts on dashboard
+ * @param props Component props containing title, description, optional icon, and navigation path
+ */
 export function QuickActionButton({ title, description, icon, path }: QuickActionButtonProps) {
   return (
     <Link to={path} className='block'>

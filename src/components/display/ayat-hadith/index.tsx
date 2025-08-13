@@ -13,6 +13,9 @@ interface AyatHadithDisplayProps {
   item: AyatAndHadith;
 }
 
+/**
+ * Displays Quranic verses or Hadith with Arabic text, translation, and reference
+ */
 export function AyatHadithDisplay({ item }: AyatHadithDisplayProps) {
   if (!item) return null;
 

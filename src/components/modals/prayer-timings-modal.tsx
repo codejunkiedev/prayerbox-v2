@@ -60,6 +60,9 @@ const PRAYER_NAMES: PrayerName[] = [
   'isha',
 ];
 
+/**
+ * Modal component for configuring prayer time settings including calculation methods, juristic schools, and individual prayer adjustments
+ */
 export function PrayerTimingsModal({
   isOpen,
   onClose,

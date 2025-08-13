@@ -16,6 +16,9 @@ interface SignOutModalProps {
   onClose: () => void;
 }
 
+/**
+ * Modal component that confirms user sign out with loading state and error handling
+ */
 export function SignOutModal({ isOpen, onClose }: SignOutModalProps) {
   const [signingOut, setSigningOut] = useState(false);
   const [error, setError] = useState<string | null>(null);

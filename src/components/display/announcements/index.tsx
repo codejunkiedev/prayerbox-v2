@@ -13,6 +13,9 @@ interface AnnouncementsDisplayProps {
   announcements: Announcement[];
 }
 
+/**
+ * Displays announcements in a card layout with animation and background image
+ */
 export function AnnouncementsDisplay({ announcements }: AnnouncementsDisplayProps) {
   if (!announcements.length) return null;
 

@@ -14,6 +14,11 @@ type PageHeaderProps = {
   isReorderingEnabled?: boolean;
 };
 
+/**
+ * Page header component with title, description, and optional action buttons
+ * Supports add, settings, and reordering functionality
+ * @param props Component props containing header content and button configurations
+ */
 export function PageHeader({
   title,
   description,

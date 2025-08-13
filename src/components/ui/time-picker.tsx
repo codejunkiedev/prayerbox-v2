@@ -17,6 +17,9 @@ interface TimePickerProps {
   minuteInterval?: number;
 }
 
+/**
+ * Time selection component with hour, minute, and AM/PM controls
+ */
 export function TimePicker({ time, setTime, disabled, minuteInterval = 5 }: TimePickerProps) {
   function handleTimeChange(type: 'hour' | 'minute' | 'ampm', value: string) {
     const currentTime = time || new Date();

@@ -10,6 +10,11 @@ type EmptyStateProps = {
   onActionClick?: () => void;
 };
 
+/**
+ * Empty state component displaying a message when no data is available
+ * Includes optional action button for creating new content
+ * @param props Component props containing icon, title, description, and optional action
+ */
 export function EmptyState({
   icon,
   title,

@@ -13,6 +13,10 @@ interface State {
   errorInfo: ErrorInfo | null;
 }
 
+/**
+ * Error boundary component that catches and displays React errors gracefully
+ * Provides fallback UI and optional error details for debugging
+ */
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);

@@ -3,14 +3,23 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { cn } from '@/utils';
 
+/**
+ * Root container for popover functionality with trigger and content
+ */
 function Popover({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Root>) {
   return <PopoverPrimitive.Root data-slot='popover' {...props} />;
 }
 
+/**
+ * Button or element that opens the popover when clicked or hovered
+ */
 function PopoverTrigger({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {
   return <PopoverPrimitive.Trigger data-slot='popover-trigger' {...props} />;
 }
 
+/**
+ * The content container for popover with positioning and animations
+ */
 function PopoverContent({
   className,
   align = 'center',
@@ -33,6 +42,9 @@ function PopoverContent({
   );
 }
 
+/**
+ * Reference element for positioning the popover content
+ */
 function PopoverAnchor({ ...props }: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
   return <PopoverPrimitive.Anchor data-slot='popover-anchor' {...props} />;
 }

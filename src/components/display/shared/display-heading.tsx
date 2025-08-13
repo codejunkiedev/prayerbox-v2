@@ -7,6 +7,9 @@ interface DisplayHeadingProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
+/**
+ * Animated heading component with customizable size and underline width for display screens
+ */
 export function DisplayHeading({ title, underlineWidth = 'md', size = 'md' }: DisplayHeadingProps) {
   // Underline width classes
   const underlineWidthClasses = {

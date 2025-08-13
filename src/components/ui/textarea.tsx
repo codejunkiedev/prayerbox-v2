@@ -2,6 +2,9 @@ import * as React from 'react';
 
 import { cn } from '@/utils';
 
+/**
+ * Textarea component with consistent styling and auto-resizing capabilities
+ */
 function Textarea({ className, ...props }: React.ComponentProps<'textarea'>) {
   return (
     <textarea

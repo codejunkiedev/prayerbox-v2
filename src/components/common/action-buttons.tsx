@@ -7,6 +7,9 @@ type ActionButtonsProps = {
   centered?: boolean;
 };
 
+/**
+ * Renders a pair of action buttons for editing and deleting items with icons
+ */
 export function ActionButtons({ onEdit, onDelete, centered = true }: ActionButtonsProps) {
   return (
     <div className={`flex ${centered ? 'justify-center' : ''} space-x-1`}>

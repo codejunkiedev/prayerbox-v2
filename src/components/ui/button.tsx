@@ -33,6 +33,10 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * Button component with multiple variants and sizes, built on Radix UI primitives
+ * Supports loading state, asChild composition, and accessibility features
+ */
 function Button({
   className,
   variant,
