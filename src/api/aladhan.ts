@@ -18,6 +18,12 @@ export interface PrayerTimesPayload {
   signal?: AbortSignal;
 }
 
+/**
+ * Fetches prayer times for the entire month containing the given date
+ * @param payload Object containing date, coordinates, method, school, and optional AbortSignal
+ * @returns Promise resolving to array of prayer times for the month
+ * @throws Error if request fails
+ */
 export const fetchPrayerTimesForThisMonth = async ({
   date,
   latitude,
@@ -40,6 +46,12 @@ export const fetchPrayerTimesForThisMonth = async ({
   return response.json();
 };
 
+/**
+ * Fetches prayer times for a specific date
+ * @param payload Object containing date, coordinates, method, school, and optional AbortSignal
+ * @returns Promise resolving to prayer times for the specified date
+ * @throws Error if request fails
+ */
 export const fetchPrayerTimesForDate = async ({
   date,
   latitude,

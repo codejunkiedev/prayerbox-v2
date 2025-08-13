@@ -8,6 +8,12 @@ type ReverseGeocodePayload = {
   signal?: AbortSignal;
 };
 
+/**
+ * Performs reverse geocoding to get location information from coordinates
+ * @param payload Object containing latitude, longitude, and optional AbortSignal
+ * @returns Promise resolving to Geoapify response with location details
+ * @throws Error if API key is missing or request fails
+ */
 export const reverseGeocode = async ({
   latitude,
   longitude,
