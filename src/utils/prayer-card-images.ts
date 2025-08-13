@@ -43,6 +43,12 @@ const themeImageMaps = {
   [Theme.Theme2]: theme2Images,
 } as const;
 
+/**
+ * Gets the prayer card image based on prayer name and theme
+ * @param prayerName Name of the prayer (e.g., 'fajr', 'dhuhr', 'jumma1')
+ * @param theme Theme to use for the image
+ * @returns Path to the prayer card image, fallback to fajr image if not found
+ */
 export function getPrayerCardImage(prayerName: keyof PrayerAdjustments, theme: Theme): string {
   const imageMap = themeImageMaps[theme];
   // @ts-expect-error - prayerName is a valid key of the imageMap

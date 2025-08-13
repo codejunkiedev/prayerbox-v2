@@ -10,6 +10,8 @@ import { getAdjustedPrayerTime, PRAYER_NAMES } from './prayer-time-adjustments';
 
 /**
  * Creates a module order map from user settings or defaults
+ * @param userSettings User settings containing module configuration
+ * @returns Object mapping module IDs to their display order
  */
 export function getModuleOrder(userSettings: Settings | null): Record<ModuleId, number> {
   const defaultOrder: Record<ModuleId, number> = {
@@ -35,13 +37,21 @@ export function getModuleOrder(userSettings: Settings | null): Record<ModuleId, 
 
 /**
  * Sort items by their display_order property
+ * @param items Array of items with optional display_order property
+ * @returns Sorted array of items by display_order (ascending)
  */
 export function sortByDisplayOrder<T extends { display_order?: number }>(items: T[]): T[] {
   return [...items].sort((a, b) => (a.display_order || 999) - (b.display_order || 999));
 }
 
 /**
- * Group and order content for display
+ * Group and order content for display based on module order
+ * @param moduleOrder Module order mapping
+ * @param announcementSlides Array of announcement slide components
+ * @param ayatHadithSlides Array of ayat/hadith slide components
+ * @param eventSlides Array of event slide components
+ * @param postSlides Array of post slide components
+ * @returns Ordered array of content groups with non-empty content
  */
 export function createOrderedContentGroups(
   moduleOrder: Record<ModuleId, number>,
@@ -82,11 +92,19 @@ export function createOrderedContentGroups(
 
 /**
  * Gets the appropriate title for an AyatAndHadith item
+ * @param type Type of content ('ayat' or 'hadith')
+ * @returns Display title for the content type
  */
 export function getAyatHadithTitle(type: 'ayat' | 'hadith'): string {
   return type === 'ayat' ? 'Quranic Verse' : 'Hadith';
 }
 
+/**
+ * Processes prayer times with adjustments and returns formatted timing data
+ * @param prayerTimes Raw prayer times from Al-Adhan API
+ * @param prayerTimeSettings Prayer time settings with adjustments
+ * @returns Array of processed prayer timings with names, times, and Arabic names
+ */
 export function getProcessedPrayerTimings(
   prayerTimes: AlAdhanPrayerTimes,
   prayerTimeSettings: PrayerTimes
