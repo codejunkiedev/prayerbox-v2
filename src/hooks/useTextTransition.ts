@@ -8,6 +8,12 @@ interface UseTextTransitionProps {
   animationDuration?: number;
 }
 
+/**
+ * Custom hook to manage text transitions for Jumma prayer times
+ * Cycles through multiple prayer times with smooth transitions
+ * @param props Configuration object with prayer names, timings, and animation settings
+ * @returns Object containing current time, animation state, and transition info
+ */
 export function useTextTransition({
   prayerNames,
   processedPrayerTimings,
