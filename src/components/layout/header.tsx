@@ -11,7 +11,7 @@ import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';
 import { useState } from 'react';
 import { SignOutModal } from '@/components/modals';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 interface HeaderProps {
   onMenuClick: () => void;

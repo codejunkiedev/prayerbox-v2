@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { validateImageForFullScreen, getImageDescription } from '@/lib/image-validation';
+import { validateImageForFullScreen, getImageDescription } from '@/utils';
 import type {
   ImageValidationResult,
   ValidationState,

@@ -1,15 +1,3 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-/**
- * Combines class names using clsx and tailwind-merge
- * @param inputs Class values to combine
- * @returns Combined and merged class string
- */
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
 /**
  * Calculates password strength based on various criteria
  * @param password The password to evaluate

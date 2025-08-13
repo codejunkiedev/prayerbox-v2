@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Label, ErrorBox } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { forgotPasswordSchema, type ForgotPasswordData } from '@/lib/zod';
 import { Link } from 'react-router';
 import { resetPasswordForEmail } from '@/lib/supabase';

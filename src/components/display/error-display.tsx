@@ -1,6 +1,6 @@
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { motion } from 'framer-motion';
 import bgImage from '@/assets/backgrounds/06.jpeg';
 

@@ -1,4 +1,4 @@
-import { calculatePasswordStrength, getPasswordStrengthLabel } from '@/lib/utils';
+import { calculatePasswordStrength, getPasswordStrengthLabel } from '@/utils';
 
 interface PasswordStrengthMeterProps {
   password: string;

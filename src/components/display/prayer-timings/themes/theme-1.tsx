@@ -1,5 +1,5 @@
 import { formatTimeNumber, formatTimePickerTime, getPrayerCardImage } from '@/utils';
-import { getFilteredJummaPrayerNames } from '@/utils/prayer-time-adjustments';
+import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme1Background from '@/assets/themes/theme-1/background.jpg';
 import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';

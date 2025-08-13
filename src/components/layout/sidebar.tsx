@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { useSidebarState } from '@/hooks';
 
 interface SidebarProps {
