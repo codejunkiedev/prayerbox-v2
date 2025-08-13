@@ -58,9 +58,6 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
       if (response.data?.hijri) {
         const hijriData = response.data.hijri;
         const displayDate = `${hijriData.day} ${hijriData.month.en}, ${hijriData.year}`;
-
-        // Note: displayDate now represents the actual date (today + offset)
-
         setCurrentHijriDate(displayDate);
       }
     } catch (error) {

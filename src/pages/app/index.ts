@@ -10,4 +10,7 @@ export const Events = lazy(() => import('./events'));
 export const Posts = lazy(() => import('./posts'));
 export const PrayerTimings = lazy(() => import('./prayer-timings'));
 export const Settings = lazy(() => import('./settings'));
+export const SettingsModules = lazy(() => import('./settings/modules'));
+export const SettingsThemes = lazy(() => import('./settings/themes'));
+export const SettingsHijri = lazy(() => import('./settings/hijri'));
 export const Display = lazy(() => import('./display'));
