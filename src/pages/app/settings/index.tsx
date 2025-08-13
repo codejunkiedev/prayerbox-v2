@@ -30,18 +30,18 @@ const settingsModules = [
 
 export default function SettingsIndex() {
   return (
-    <div className='container mx-auto py-8 space-y-6'>
+    <div className='container mx-auto py-6 space-y-4'>
       <PageHeader
         title='Settings'
         description='Configure your application preferences and display settings'
       />
 
-      <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+      <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
         {settingsModules.map(module => {
           const Icon = module.icon;
           return (
             <Link key={module.title} to={module.route} className='block'>
-              <Card className='h-full hover:shadow-md transition-shadow cursor-pointer'>
+              <Card className='h-full hover:shadow-md transition-shadow cursor-pointer gap-4'>
                 <CardHeader>
                   <div className='flex items-center gap-3'>
                     <Icon className={`h-8 w-8 ${module.color}`} />
