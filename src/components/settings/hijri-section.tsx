@@ -172,9 +172,11 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
           </div>
         </div>
 
-        <Button onClick={handleSave} disabled={isSaving} className='w-full'>
-          {isSaving ? 'Saving...' : 'Save Settings'}
-        </Button>
+        <div className='flex justify-end'>
+          <Button onClick={handleSave} disabled={isSaving} loading={isSaving}>
+            {isSaving ? 'Saving...' : 'Save Settings'}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
