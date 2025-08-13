@@ -21,6 +21,11 @@ type ReturnType = {
   userSettings: Settings | null;
 };
 
+/**
+ * Custom hook to fetch and manage display data for the application
+ * Fetches announcements, ayat & hadith, events, posts based on user settings
+ * @returns Object containing loading state, error messages, and fetched data
+ */
 export function useFetchDisplayData(): ReturnType {
   const [fetching, setFetching] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);

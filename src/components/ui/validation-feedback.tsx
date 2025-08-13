@@ -1,6 +1,9 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import type { ValidationFeedbackProps } from '@/types/validation';
 
+/**
+ * Visual feedback component displaying image validation results with status indicators
+ */
 export function ValidationFeedback({
   isValid,
   dimensions,
@@ -39,6 +42,9 @@ export function ValidationFeedback({
   );
 }
 
+/**
+ * Success state content showing valid image confirmation with dimensions
+ */
 function ValidationSuccessContent({ dimensions }: { dimensions?: string }) {
   return (
     <div className='flex items-start space-x-2'>
@@ -51,6 +57,9 @@ function ValidationSuccessContent({ dimensions }: { dimensions?: string }) {
   );
 }
 
+/**
+ * Warning state content showing validation issues and recommendations
+ */
 function ValidationWarningContent({
   dimensions,
   recommendation,
@@ -70,6 +79,9 @@ function ValidationWarningContent({
   );
 }
 
+/**
+ * Check mark icon for success state
+ */
 function CheckIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill='currentColor' viewBox='0 0 20 20'>
@@ -82,6 +94,9 @@ function CheckIcon({ className }: { className?: string }) {
   );
 }
 
+/**
+ * Warning triangle icon for validation issues
+ */
 function WarningIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill='currentColor' viewBox='0 0 20 20'>

@@ -24,6 +24,9 @@ type AnnouncementModalProps = {
   initialData?: Announcement;
 };
 
+/**
+ * Modal component for creating and editing announcement descriptions with form validation
+ */
 export function AnnouncementModal({
   isOpen,
   onClose,

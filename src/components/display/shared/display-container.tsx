@@ -7,6 +7,9 @@ interface DisplayContainerProps {
   backgroundVideo?: string;
 }
 
+/**
+ * Full-screen container component with optional background image or video and gradient overlay
+ */
 export function DisplayContainer({
   children,
   backgroundImage,

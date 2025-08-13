@@ -1,11 +1,16 @@
 import { useState, useCallback } from 'react';
-import { validateImageForFullScreen, getImageDescription } from '@/lib/image-validation';
+import { validateImageForFullScreen, getImageDescription } from '@/utils';
 import type {
   ImageValidationResult,
   ValidationState,
   UseImageValidationReturn,
 } from '@/types/validation';
 
+/**
+ * Custom hook for validating images for full-screen display
+ * Validates image dimensions, format, and provides feedback on suitability
+ * @returns Object containing validation state, handlers, and utility functions
+ */
 export function useImageValidation(): UseImageValidationReturn {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);

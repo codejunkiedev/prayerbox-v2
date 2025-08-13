@@ -1,9 +1,12 @@
 import * as React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { DayPicker } from 'react-day-picker';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { buttonVariants } from '@/components/ui';
 
+/**
+ * A customizable calendar component with navigation controls and date selection
+ */
 function Calendar({
   className,
   classNames,

@@ -6,6 +6,10 @@ type ErrorAlertProps = {
   onClose?: () => void;
 };
 
+/**
+ * Error alert component displaying error messages with optional close button
+ * @param props Component props containing error message and optional close handler
+ */
 export function ErrorAlert({ message, onClose }: ErrorAlertProps) {
   if (!message) return null;
 

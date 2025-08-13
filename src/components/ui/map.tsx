@@ -14,6 +14,9 @@ interface LocationMarkerProps {
   position: L.LatLng | null;
 }
 
+/**
+ * Interactive marker component that handles map clicks and displays current location
+ */
 const LocationMarker: React.FC<LocationMarkerProps> = ({ onPositionChange, position }) => {
   useMapEvents({ click: e => onPositionChange(e.latlng) });
 
@@ -34,6 +37,9 @@ interface CoordinatesDisplayProps {
   position: L.LatLng | null;
 }
 
+/**
+ * Floating display showing the current latitude and longitude coordinates
+ */
 const CoordinatesDisplay: React.FC<CoordinatesDisplayProps> = ({ position }) => {
   if (!position) return null;
 
@@ -55,6 +61,9 @@ interface LocateMeButtonProps {
   errorMessage?: string;
 }
 
+/**
+ * Button component for triggering geolocation with status indicators
+ */
 const LocateMeButton: React.FC<LocateMeButtonProps> = ({ onLocate, status, errorMessage }) => {
   let buttonColor = 'text-gray-700';
   let ButtonIcon = Locate;
@@ -98,6 +107,9 @@ interface MapProps {
   coordinates?: { latitude: number; longitude: number } | null;
 }
 
+/**
+ * Interactive map component with location selection and geolocation features
+ */
 export function Map({ onCoordinatesChange, coordinates }: MapProps) {
   const [currentPosition, setCurrentPosition] = useState<L.LatLng | null>(
     coordinates ? L.latLng(coordinates.latitude, coordinates.longitude) : null

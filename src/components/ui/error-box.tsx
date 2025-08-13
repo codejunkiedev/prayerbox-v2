@@ -1,11 +1,14 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 interface ErrorBoxProps {
   message: string;
   className?: string;
 }
 
+/**
+ * A styled error message display component with red alert styling
+ */
 export const ErrorBox: React.FC<ErrorBoxProps> = ({ message, className }) => {
   if (!message) return null;
   return (

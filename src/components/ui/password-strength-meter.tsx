@@ -1,9 +1,12 @@
-import { calculatePasswordStrength, getPasswordStrengthLabel } from '@/lib/utils';
+import { calculatePasswordStrength, getPasswordStrengthLabel } from '@/utils';
 
 interface PasswordStrengthMeterProps {
   password: string;
 }
 
+/**
+ * Visual indicator showing password strength with progress bar and label
+ */
 export function PasswordStrengthMeter({ password }: PasswordStrengthMeterProps) {
   const strength = calculatePasswordStrength(password);
   const { label, color } = getPasswordStrengthLabel(strength);

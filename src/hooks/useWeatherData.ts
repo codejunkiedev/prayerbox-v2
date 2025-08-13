@@ -5,6 +5,12 @@ import type { ErrorMessage } from '@/components/display';
 import { useDisplayStore } from '@/store';
 import { parseOpenWeatherForecast, isNullOrUndefined } from '@/utils';
 
+/**
+ * Custom hook to fetch and manage weather data
+ * Fetches weather forecast based on masjid location coordinates
+ * Automatically refreshes data every 30 minutes
+ * @returns Object containing weather forecast, loading state, and error messages
+ */
 export function useWeatherData() {
   const [weatherForecast, setWeatherForecast] = useState<WeatherForecast | null>(null);
   const [isLoading, setIsLoading] = useState(false);

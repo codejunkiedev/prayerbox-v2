@@ -1,6 +1,6 @@
 import { AlertTriangle, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { motion } from 'framer-motion';
 import bgImage from '@/assets/backgrounds/06.jpeg';
 
@@ -11,6 +11,11 @@ interface ErrorDisplayProps {
   className?: string;
 }
 
+/**
+ * Error display component for the main display screen
+ * Shows error messages with a styled background and refresh option
+ * @param props Component props containing error message and optional styling
+ */
 export function ErrorDisplay({ errorMessage, className }: ErrorDisplayProps) {
   if (!errorMessage) return null;
 

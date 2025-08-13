@@ -11,6 +11,10 @@ export type ModuleCardProps = {
   color: string;
 };
 
+/**
+ * Module card component displaying a clickable card for navigating to different modules
+ * @param props Component props containing title, description, icon, navigation path, and color
+ */
 export function ModuleCard({ title, description, icon, path, color }: ModuleCardProps) {
   return (
     <Card className={`overflow-hidden border h-full flex flex-col ${color}`}>

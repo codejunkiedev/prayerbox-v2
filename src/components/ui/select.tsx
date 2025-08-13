@@ -2,20 +2,32 @@ import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
+/**
+ * Select component built on Radix UI primitives
+ */
 function Select({ ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {
   return <SelectPrimitive.Root data-slot='select' {...props} />;
 }
 
+/**
+ * Select group component for grouping select items
+ */
 function SelectGroup({ ...props }: React.ComponentProps<typeof SelectPrimitive.Group>) {
   return <SelectPrimitive.Group data-slot='select-group' {...props} />;
 }
 
+/**
+ * Select value component for displaying the selected value
+ */
 function SelectValue({ ...props }: React.ComponentProps<typeof SelectPrimitive.Value>) {
   return <SelectPrimitive.Value data-slot='select-value' {...props} />;
 }
 
+/**
+ * Select trigger component with size variants
+ */
 function SelectTrigger({
   className,
   size = 'default',

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Label, ErrorBox, PasswordStrengthMeter } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { updateUserPasswordWithVerification, getCurrentUser } from '@/lib/supabase';
 import { toast } from 'sonner';

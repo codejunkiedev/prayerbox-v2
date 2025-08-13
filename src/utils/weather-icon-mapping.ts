@@ -161,10 +161,22 @@ export const weatherConditionMap: WeatherConditionMap = {
   804: overcast, // overcast clouds: 85-100%
 };
 
+/**
+ * Gets the weather icon based on OpenWeather icon code
+ * @param iconCode OpenWeather icon code (e.g., '01d', '02n')
+ * @returns Path to the appropriate weather icon
+ */
 export function getWeatherIcon(iconCode: string): string {
   return weatherIconMap[iconCode] || notAvailable;
 }
 
+/**
+ * Gets the weather icon with day/night context based on condition ID and icon code
+ * Provides more specific icon selection than the basic icon code mapping
+ * @param conditionId OpenWeather condition ID (200-800+)
+ * @param iconCode OpenWeather icon code containing day/night context
+ * @returns Path to the most appropriate weather icon
+ */
 export function getWeatherIconWithTimeContext(conditionId: number, iconCode: string): string {
   const isDay = iconCode.endsWith('d');
 

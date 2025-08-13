@@ -4,6 +4,9 @@ interface PrayerTimingsSettingsNotSetProps {
   onConfigure: () => void;
 }
 
+/**
+ * Displays a message prompting users to configure their prayer time settings
+ */
 export function PrayerTimingsSettingsNotSet({ onConfigure }: PrayerTimingsSettingsNotSetProps) {
   return (
     <div className='text-center py-8'>

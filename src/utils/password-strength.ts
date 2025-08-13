@@ -1,10 +1,8 @@
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
+/**
+ * Calculates password strength based on various criteria
+ * @param password The password to evaluate
+ * @returns Strength score from 0 to 5
+ */
 export function calculatePasswordStrength(password: string): number {
   if (!password) return 0;
 
@@ -21,6 +19,11 @@ export function calculatePasswordStrength(password: string): number {
   return Math.min(5, score);
 }
 
+/**
+ * Gets the label and color for a password strength score
+ * @param score The password strength score (0-5)
+ * @returns Object containing label text and color class
+ */
 export function getPasswordStrengthLabel(score: number): { label: string; color: string } {
   switch (score) {
     case 0:

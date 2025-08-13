@@ -24,9 +24,17 @@ interface ModulesSectionProps {
   isLoading: boolean;
 }
 
+/**
+ * Component that manages application module settings, allowing users to reorder modules
+ * via drag-and-drop and toggle module visibility. Includes navigation links to manage
+ * individual module content.
+ */
 export function ModulesSection({ settings, onSettingsChange, isLoading }: ModulesSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
 
+  /**
+   * Maps module names to their corresponding application routes
+   */
   const getModuleRoute = (moduleName: string): string => {
     switch (moduleName) {
       case 'Ayats & Hadiths':
@@ -76,6 +84,9 @@ export function ModulesSection({ settings, onSettingsChange, isLoading }: Module
     },
   ];
 
+  /**
+   * Updates the display order of modules when they are reordered via drag-and-drop
+   */
   const handleOrderChange = async (items: Module[]) => {
     if (!settings) return;
     try {
@@ -92,6 +103,9 @@ export function ModulesSection({ settings, onSettingsChange, isLoading }: Module
     }
   };
 
+  /**
+   * Toggles the visibility of a module and saves the change to the database
+   */
   const handleToggleModule = async (id: string, enabled: boolean) => {
     if (!settings) return;
     try {

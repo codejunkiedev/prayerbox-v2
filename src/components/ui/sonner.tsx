@@ -1,6 +1,9 @@
 import { useTheme } from 'next-themes';
 import { Toaster as Sonner, type ToasterProps } from 'sonner';
 
+/**
+ * Theme-aware toast notification provider with custom styling
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = 'system' } = useTheme();
 

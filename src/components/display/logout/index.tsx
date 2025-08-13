@@ -5,6 +5,9 @@ import { AnimationProvider, itemVariants } from '../shared/animation-provider';
 import { motion } from 'framer-motion';
 import bgImage from '@/assets/backgrounds/06.jpeg';
 
+/**
+ * Displays a development mode logout interface with administrative controls
+ */
 export function LogoutDisplay() {
   const { signOut } = useDisplayStore();
 

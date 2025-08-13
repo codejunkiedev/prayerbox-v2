@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { useSidebarState } from '@/hooks';
 
 interface SidebarProps {
@@ -20,10 +20,16 @@ interface SidebarProps {
   isMobile?: boolean;
 }
 
+/**
+ * Navigation sidebar component with collapsible functionality and responsive design
+ */
 export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const [collapsed, toggleSidebar] = useSidebarState(false);
   const location = useLocation();
 
+  /**
+   * Determines if a navigation item is currently active based on the current pathname
+   */
   const isActive = (path: string) => {
     return location.pathname === path;
   };

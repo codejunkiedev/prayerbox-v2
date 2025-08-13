@@ -3,10 +3,13 @@
 import * as React from 'react';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 const Tabs = TabsPrimitive.Root;
 
+/**
+ * Container for tab triggers with background styling
+ */
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -22,6 +25,9 @@ const TabsList = React.forwardRef<
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;
 
+/**
+ * Clickable tab button with active state styling
+ */
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
@@ -37,6 +43,9 @@ const TabsTrigger = React.forwardRef<
 ));
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
 
+/**
+ * Content panel that displays when corresponding tab is active
+ */
 const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>

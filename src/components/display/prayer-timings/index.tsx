@@ -15,6 +15,9 @@ interface PrayerTimingDisplayProps {
   userSettings: Settings | null;
 }
 
+/**
+ * Displays prayer timings using different themes based on user settings
+ */
 export function PrayerTimingDisplay({
   prayerTimes,
   prayerTimeSettings,

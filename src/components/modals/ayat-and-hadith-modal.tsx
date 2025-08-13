@@ -30,6 +30,9 @@ interface AyatAndHadithModalProps {
   initialData?: AyatAndHadith;
 }
 
+/**
+ * Modal component for creating and editing Ayat or Hadith entries with text, translation, and reference fields
+ */
 export function AyatAndHadithModal({
   isOpen,
   onClose,

@@ -26,6 +26,9 @@ type PostModalProps = {
   initialData?: Post;
 };
 
+/**
+ * Modal component for creating and editing posts with title and image upload with 16:9 aspect ratio validation
+ */
 export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

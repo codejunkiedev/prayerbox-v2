@@ -6,6 +6,12 @@ type WeatherForecastPayload = {
   signal: AbortSignal;
 };
 
+/**
+ * Fetches 5-day weather forecast from OpenWeather API
+ * @param payload Object containing latitude, longitude, and AbortSignal
+ * @returns Promise resolving to OpenWeather forecast response with 5-day forecast data
+ * @throws Error if API key is missing or request fails
+ */
 export const fetchWeatherForecast = async ({
   lat,
   lon,

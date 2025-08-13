@@ -14,6 +14,11 @@ type ReturnType = {
   prayerTimeSettings: PrayerTimes | null;
 };
 
+/**
+ * Custom hook to fetch and manage prayer times and settings
+ * Fetches prayer time settings from database and prayer times from Al-Adhan API
+ * @returns Object containing loading state, error messages, prayer times, and settings
+ */
 export function usePrayerTimings(): ReturnType {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);

@@ -16,6 +16,11 @@ type TableSkeletonProps = {
   rowNumberWidth?: string;
 };
 
+/**
+ * A skeleton loading component that renders a table structure with placeholder content
+ * while data is being loaded. Supports customizable columns, row count, optional actions,
+ * and row numbering.
+ */
 export function TableSkeleton({
   columns,
   rows = 5,

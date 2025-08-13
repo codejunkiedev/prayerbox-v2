@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 import { Label } from './label';
 import { VALID_IMAGE_TYPES, MAX_FILE_SIZE } from '@/lib/zod';
 
@@ -13,6 +13,9 @@ export interface ImageUploadProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   className?: string;
 }
 
+/**
+ * A drag-and-drop image upload component with preview and validation
+ */
 export function ImageUpload({
   onChange,
   value,

@@ -7,6 +7,9 @@ interface DisplayCardProps {
   padding?: 'small' | 'medium' | 'large';
 }
 
+/**
+ * A reusable card component with glass morphism effect, configurable width and padding, and pulsing shadow animation
+ */
 export function DisplayCard({ children, width = 'md', padding = 'medium' }: DisplayCardProps) {
   // Width classes based on the width prop
   const widthClasses = {

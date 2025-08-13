@@ -16,6 +16,9 @@ interface EventsDisplayProps {
   event: Event;
 }
 
+/**
+ * Displays event information including title, description, date, time, and details like location, host, and guests
+ */
 export function EventsDisplay({ event }: EventsDisplayProps) {
   if (!event) return null;
 

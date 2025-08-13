@@ -4,6 +4,9 @@ interface PrayerTimesEmptyProps {
   onConfigure: () => void;
 }
 
+/**
+ * Displays an empty state with instructions to configure prayer times settings
+ */
 export function PrayerTimesEmpty({ onConfigure }: PrayerTimesEmptyProps) {
   return (
     <div className='text-center py-8'>

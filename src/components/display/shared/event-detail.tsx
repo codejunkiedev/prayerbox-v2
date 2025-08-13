@@ -7,6 +7,9 @@ interface EventDetailProps {
   icon: LucideIcon;
 }
 
+/**
+ * Displays event detail information with an icon and hover animations for interactive presentation
+ */
 export function EventDetail({ text, icon: Icon }: EventDetailProps) {
   return (
     <motion.div

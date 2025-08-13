@@ -11,20 +11,29 @@ import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';
 import { useState } from 'react';
 import { SignOutModal } from '@/components/modals';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 interface HeaderProps {
   onMenuClick: () => void;
   isScrolled?: boolean;
 }
 
+/**
+ * Application header component with menu toggle, branding, and user dropdown menu
+ */
 export default function Header({ onMenuClick, isScrolled = false }: HeaderProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
+  /**
+   * Opens the sign out confirmation dialog
+   */
   const openSignOutDialog = () => {
     setShowSignOutDialog(true);
   };
 
+  /**
+   * Closes the sign out confirmation dialog
+   */
   const closeSignOutDialog = () => {
     setShowSignOutDialog(false);
   };
