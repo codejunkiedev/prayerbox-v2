@@ -7,7 +7,8 @@ import {
 import { Theme, type AlAdhanPrayerTimes, type PrayerTimes, type Settings } from '@/types';
 import { Theme1, Theme2 } from './themes';
 import type { ThemeProps } from './themes/types';
-import { useCurrentTime } from '@/hooks';
+import { useCurrentTime, useAdjustedHijriDate } from '@/hooks';
+import { HijriCalculationMethod } from '@/constants';
 
 interface PrayerTimingDisplayProps {
   prayerTimes: AlAdhanPrayerTimes | null;
@@ -25,6 +26,11 @@ export function PrayerTimingDisplay({
 }: PrayerTimingDisplayProps) {
   const { currentTime } = useCurrentTime();
 
+  const { adjustedHijriDate } = useAdjustedHijriDate({
+    calculationMethod: userSettings?.hijri_calculation_method || HijriCalculationMethod.Umm_al_Qura,
+    offset: userSettings?.hijri_offset || 0,
+  });
+
   if (!prayerTimes || !userSettings || !prayerTimeSettings) return null;
 
   const timings = prayerTimes?.timings;
@@ -35,7 +41,7 @@ export function PrayerTimingDisplay({
 
   const themeProps: ThemeProps = {
     gregorianDate: formatGregorianDate(date?.gregorian),
-    hijriDate: formatHijriDate(date?.hijri),
+    hijriDate: adjustedHijriDate || formatHijriDate(date?.hijri),
     sunrise: formatTime(timings?.Sunrise || ''),
     sunset: formatTime(timings?.Sunset || ''),
     currentTime,

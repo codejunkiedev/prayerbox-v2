@@ -52,7 +52,7 @@ export function usePrayerTimings(): ReturnType {
         }
 
         const response = await fetchPrayerTimesForDate({
-          date: new Date('2025-05-30'),
+          date: new Date(),
           latitude,
           longitude,
           method,

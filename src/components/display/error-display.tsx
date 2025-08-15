@@ -1,8 +1,10 @@
-import { AlertTriangle, RefreshCcw } from 'lucide-react';
+import { AlertTriangle, RefreshCcw, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils';
 import { motion } from 'framer-motion';
 import bgImage from '@/assets/backgrounds/06.jpeg';
+import { useDisplayStore } from '@/store';
+import { useState } from 'react';
 
 export type ErrorMessage = { title: string; description: string };
 
@@ -17,6 +19,21 @@ interface ErrorDisplayProps {
  * @param props Component props containing error message and optional styling
  */
 export function ErrorDisplay({ errorMessage, className }: ErrorDisplayProps) {
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const { signOut } = useDisplayStore();
+
+  const handleSignOut = () => {
+    try {
+      setIsSigningOut(true);
+      signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+
   if (!errorMessage) return null;
 
   return (
@@ -97,6 +114,7 @@ export function ErrorDisplay({ errorMessage, className }: ErrorDisplayProps) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
+              className='flex gap-4 flex-col sm:flex-row'
             >
               <Button
                 onClick={() => window.location.reload()}
@@ -111,6 +129,15 @@ export function ErrorDisplay({ errorMessage, className }: ErrorDisplayProps) {
                   <RefreshCcw className='w-4 h-4' />
                 </motion.div>
                 Try Again
+              </Button>
+              <Button
+                onClick={handleSignOut}
+                variant='destructive'
+                className='mt-2 hover:bg-red-600/80'
+                disabled={isSigningOut}
+              >
+                <LogOut className='w-4 h-4 mr-2' />
+                {isSigningOut ? 'Signing Out...' : 'Sign Out'}
               </Button>
             </motion.div>
           </motion.div>

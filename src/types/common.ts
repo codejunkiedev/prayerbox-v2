@@ -38,3 +38,25 @@ export enum Theme {
   Theme1 = 'theme-1',
   Theme2 = 'theme-2',
 }
+
+export type WeatherData = {
+  temperature: number;
+  feelsLike: number;
+  description: string;
+  icon: string;
+  conditionId: number;
+  humidity: number;
+  windSpeed: number;
+  cityName: string;
+};
+
+export type ForecastData = WeatherData & {
+  date: Date;
+  tempMin: number;
+  tempMax: number;
+};
+
+export type WeatherForecast = {
+  current: WeatherData;
+  forecast: ForecastData[];
+};

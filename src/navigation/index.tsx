@@ -16,6 +16,9 @@ import {
   Register,
   ResetPassword,
   Settings,
+  SettingsModules,
+  SettingsThemes,
+  SettingsHijri,
   UpdatePassword,
   PrayerTimings,
   Display,
@@ -85,6 +88,9 @@ export default function Navigation() {
             <Route path={AppRoutes.Posts} element={<Posts />} />
             <Route path={AppRoutes.PrayerTimings} element={<PrayerTimings />} />
             <Route path={AppRoutes.Settings} element={<Settings />} />
+            <Route path={AppRoutes.SettingsModules} element={<SettingsModules />} />
+            <Route path={AppRoutes.SettingsThemes} element={<SettingsThemes />} />
+            <Route path={AppRoutes.SettingsHijri} element={<SettingsHijri />} />
           </Route>
 
           {/* Display routes - require authentication */}

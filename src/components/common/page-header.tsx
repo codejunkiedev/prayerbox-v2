@@ -37,7 +37,7 @@ export function PageHeader({
     <Card>
       <CardHeader>
         <div className='flex justify-between items-center'>
-          <div>
+          <div className='space-y-1'>
             <CardTitle>{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
