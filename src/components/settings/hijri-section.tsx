@@ -71,12 +71,14 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
   };
 
   const handleMethodChange = (value: HijriCalculationMethod) => {
+    if (value === selectedMethod) return;
     setSelectedMethod(value);
     handleAutoSave(value, selectedOffset);
   };
 
   const handleOffsetChange = (value: string) => {
     const offset = parseInt(value);
+    if (offset === selectedOffset) return;
     setSelectedOffset(offset);
     handleAutoSave(selectedMethod, offset);
   };

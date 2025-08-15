@@ -41,6 +41,8 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
    */
   const handleThemeSelect = async (theme: Theme) => {
     if (!settings) return;
+    if (theme === selectedTheme) return;
+
     try {
       setIsSaving(true);
       setSelectedTheme(theme);

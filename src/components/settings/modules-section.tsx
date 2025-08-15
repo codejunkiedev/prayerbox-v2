@@ -89,6 +89,10 @@ export function ModulesSection({ settings, onSettingsChange, isLoading }: Module
    */
   const handleOrderChange = async (items: Module[]) => {
     if (!settings) return;
+
+    const isInOrder = items.every((item, index) => item.display_order === index + 1);
+    if (isInOrder) return;
+
     try {
       setIsSaving(true);
       const updatedModules = items.map((item, index) => ({ ...item, display_order: index + 1 }));
@@ -108,6 +112,10 @@ export function ModulesSection({ settings, onSettingsChange, isLoading }: Module
    */
   const handleToggleModule = async (id: string, enabled: boolean) => {
     if (!settings) return;
+
+    const currentModule = settings.modules.find(module => module.id === id);
+    if (currentModule?.enabled === enabled) return;
+
     try {
       setIsSaving(true);
       const updatedModules = settings.modules.map(module =>
