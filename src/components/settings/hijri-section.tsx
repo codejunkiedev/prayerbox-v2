@@ -21,16 +21,17 @@ import type { Settings } from '@/types';
 interface HijriSectionProps {
   settings: Settings | null;
   onSettingsChange: (settings: Settings) => void;
+  isLoading: boolean;
 }
 
-export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) {
+export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState<HijriCalculationMethod>(
     settings?.hijri_calculation_method || HijriCalculationMethod.Umm_al_Qura
   );
   const [selectedOffset, setSelectedOffset] = useState<number>(settings?.hijri_offset || 0);
 
-  const { adjustedHijriDate, isLoading } = useAdjustedHijriDate({
+  const { adjustedHijriDate, isLoading: isLoadingAdjustedHijriDate } = useAdjustedHijriDate({
     calculationMethod: selectedMethod,
     offset: selectedOffset,
   });
@@ -44,13 +45,15 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
   ];
 
   useEffect(() => {
+    if (isLoading) return;
+
     if (settings?.hijri_calculation_method) {
       setSelectedMethod(settings.hijri_calculation_method);
     }
     if (settings?.hijri_offset !== undefined) {
       setSelectedOffset(settings.hijri_offset);
     }
-  }, [settings]);
+  }, [settings, isLoading]);
 
   const handleSave = async () => {
     if (!settings) return;
@@ -68,6 +71,8 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
     }
   };
 
+  if (isLoading) return <div className='animate-pulse bg-gray-200 rounded-lg h-48'></div>;
+
   return (
     <Card>
       <CardHeader>
@@ -84,7 +89,7 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
               Current Hijri Date
             </label>
             <div className='p-3 bg-gray-50 rounded-lg border'>
-              {isLoading ? (
+              {isLoadingAdjustedHijriDate ? (
                 <div className='text-gray-500 flex items-center gap-2'>
                   <div className='animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full'></div>
                   Calculating...

@@ -20,11 +20,7 @@ export default function ThemesSettings() {
         </Link>
       </div>
       <PageHeader title='Theme Settings' description='Configure display themes and appearance' />
-      {isLoading ? (
-        <div className='animate-pulse bg-gray-200 rounded-lg h-48'></div>
-      ) : (
-        <ThemeSection settings={settings} onSettingsChange={setSettings} />
-      )}
+      <ThemeSection settings={settings} onSettingsChange={setSettings} isLoading={isLoading} />
     </div>
   );
 }

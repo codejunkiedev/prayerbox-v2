@@ -23,11 +23,7 @@ export default function HijriSettings() {
         title='Hijri Settings'
         description='Configure Hijri calendar calculation method and adjustments'
       />
-      {isLoading ? (
-        <div className='animate-pulse bg-gray-200 rounded-lg h-48'></div>
-      ) : (
-        <HijriSection settings={settings} onSettingsChange={setSettings} />
-      )}
+      <HijriSection settings={settings} onSettingsChange={setSettings} isLoading={isLoading} />
     </div>
   );
 }

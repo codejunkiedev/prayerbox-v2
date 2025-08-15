@@ -28,7 +28,7 @@ const settingsModules = [
   },
 ];
 
-export default function SettingsIndex() {
+export default function Settings() {
   return (
     <div className='container mx-auto py-6 space-y-4'>
       <PageHeader

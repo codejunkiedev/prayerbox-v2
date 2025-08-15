@@ -9,6 +9,7 @@ import { Theme } from '@/types';
 interface ThemeSectionProps {
   settings: Settings | null;
   onSettingsChange: (settings: Settings) => void;
+  isLoading: boolean;
 }
 
 /**
@@ -16,7 +17,7 @@ interface ThemeSectionProps {
  * for the prayer timings screen. Changes are automatically saved when a theme
  * is selected.
  */
-export function ThemeSection({ settings, onSettingsChange }: ThemeSectionProps) {
+export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<Theme | undefined>(settings?.theme);
 
@@ -28,10 +29,12 @@ export function ThemeSection({ settings, onSettingsChange }: ThemeSectionProps) 
   const themeOptions = Object.values(Theme);
 
   useEffect(() => {
+    if (isLoading) return;
+
     if (settings?.theme) {
       setSelectedTheme(settings.theme);
     }
-  }, [settings]);
+  }, [settings, isLoading]);
 
   /**
    * Handles theme selection and updates the settings in the database
@@ -51,6 +54,8 @@ export function ThemeSection({ settings, onSettingsChange }: ThemeSectionProps) 
       setIsSaving(false);
     }
   };
+
+  if (isLoading) return <div className='animate-pulse bg-gray-200 rounded-lg h-48'></div>;
 
   return (
     <Card>
