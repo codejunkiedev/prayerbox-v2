@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router';
+import { NavLink, useLocation } from 'react-router';
 import {
   ChevronLeft,
   Home,
@@ -28,10 +28,17 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const location = useLocation();
 
   /**
-   * Determines if a navigation item is currently active based on the current pathname
+   * Determines if a navigation item should be active
+   * Handles child route matching for parent nav items
    */
-  const isActive = (path: string) => {
-    return location.pathname === path;
+  const isNavItemActive = (path: string) => {
+    // For home route, only exact match to avoid matching other admin routes
+    if (path === AppRoutes.Home) {
+      return location.pathname === path;
+    }
+
+    // For other routes, check if current path matches exactly or is a child route
+    return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
   const navItems = [
@@ -136,40 +143,44 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
         {/* Navigation */}
         <nav className='flex-1 overflow-y-auto py-4'>
           <ul className={cn('space-y-1', collapsed && !isMobile ? 'px-2' : 'px-3')}>
-            {navItems.map(item => (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={cn(
-                    'flex items-center rounded-md px-3 py-2.5 transition-all',
-                    isActive(item.path)
-                      ? 'bg-slate-700/70 text-white shadow-sm'
-                      : 'text-slate-300 hover:bg-slate-700/40 hover:text-white',
-                    collapsed && !isMobile ? 'justify-center px-2' : 'space-x-3'
-                  )}
-                  onClick={isMobile ? onClose : undefined}
-                  title={collapsed && !isMobile ? item.label : undefined}
-                >
-                  <span
+            {navItems.map(item => {
+              const isActive = isNavItemActive(item.path);
+
+              return (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
                     className={cn(
-                      'transition-transform duration-200 flex-shrink-0',
-                      isActive(item.path) ? 'text-emerald-400 scale-110' : '',
-                      collapsed && !isMobile && isActive(item.path) ? 'scale-125' : ''
+                      'flex items-center rounded-md px-3 py-2.5 transition-all',
+                      isActive
+                        ? 'bg-slate-700/70 text-white shadow-sm'
+                        : 'text-slate-300 hover:bg-slate-700/40 hover:text-white',
+                      collapsed && !isMobile ? 'justify-center px-2' : 'space-x-3'
                     )}
+                    onClick={isMobile ? onClose : undefined}
+                    title={collapsed && !isMobile ? item.label : undefined}
                   >
-                    {item.icon}
-                  </span>
-                  <div
-                    className={cn(
-                      'transition-all duration-300 overflow-hidden',
-                      collapsed && !isMobile ? 'w-0 opacity-0' : 'w-auto opacity-100'
-                    )}
-                  >
-                    <span className='font-medium whitespace-nowrap'>{item.label}</span>
-                  </div>
-                </Link>
-              </li>
-            ))}
+                    <span
+                      className={cn(
+                        'transition-transform duration-200 flex-shrink-0',
+                        isActive ? 'text-emerald-400 scale-110' : '',
+                        collapsed && !isMobile && isActive ? 'scale-125' : ''
+                      )}
+                    >
+                      {item.icon}
+                    </span>
+                    <div
+                      className={cn(
+                        'transition-all duration-300 overflow-hidden',
+                        collapsed && !isMobile ? 'w-0 opacity-0' : 'w-auto opacity-100'
+                      )}
+                    >
+                      <span className='font-medium whitespace-nowrap'>{item.label}</span>
+                    </div>
+                  </NavLink>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 
