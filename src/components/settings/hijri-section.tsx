@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
   Card,
@@ -13,11 +13,10 @@ import {
   SelectItem,
   SelectValue,
 } from '@/components/ui';
-import { fetchHijriDate } from '@/api/aladhan';
 import { HijriCalculationMethod } from '@/constants';
 import { updateHijriSettings } from '@/lib/supabase';
+import { useAdjustedHijriDate } from '@/hooks';
 import type { Settings } from '@/types';
-import { addOrSubtractDays } from '@/utils';
 
 interface HijriSectionProps {
   settings: Settings | null;
@@ -26,12 +25,16 @@ interface HijriSectionProps {
 
 export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoadingHijriDate, setIsLoadingHijriDate] = useState(false);
-  const [currentHijriDate, setCurrentHijriDate] = useState<string>('');
   const [selectedMethod, setSelectedMethod] = useState<HijriCalculationMethod>(
     settings?.hijri_calculation_method || HijriCalculationMethod.Umm_al_Qura
   );
   const [selectedOffset, setSelectedOffset] = useState<number>(settings?.hijri_offset || 0);
+
+  const { adjustedHijriDate, isLoading } = useAdjustedHijriDate({
+    ...settings,
+    hijri_calculation_method: selectedMethod,
+    hijri_offset: selectedOffset,
+  } as Settings);
 
   const offsetOptions = [
     { value: -2, label: '-2 days' },
@@ -41,33 +44,6 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
     { value: 2, label: '+2 days' },
   ];
 
-  const fetchHijriDateWithOffset = useCallback(async () => {
-    try {
-      setIsLoadingHijriDate(true);
-
-      // Calculate the target date (today + offset) using date-fns
-      const today = new Date();
-      const targetDate = addOrSubtractDays(today, selectedOffset);
-
-      // Make a single API call for the target date
-      const response = await fetchHijriDate({
-        date: targetDate,
-        method: selectedMethod,
-      });
-
-      if (response.data?.hijri) {
-        const hijriData = response.data.hijri;
-        const displayDate = `${hijriData.day} ${hijriData.month.en}, ${hijriData.year}`;
-        setCurrentHijriDate(displayDate);
-      }
-    } catch (error) {
-      console.error('Error fetching Hijri date:', error);
-      toast.error('Failed to fetch current Hijri date');
-    } finally {
-      setIsLoadingHijriDate(false);
-    }
-  }, [selectedMethod, selectedOffset]);
-
   useEffect(() => {
     if (settings?.hijri_calculation_method) {
       setSelectedMethod(settings.hijri_calculation_method);
@@ -76,10 +52,6 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
       setSelectedOffset(settings.hijri_offset);
     }
   }, [settings]);
-
-  useEffect(() => {
-    fetchHijriDateWithOffset();
-  }, [fetchHijriDateWithOffset]);
 
   const handleSave = async () => {
     if (!settings) return;
@@ -113,14 +85,14 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
               Current Hijri Date
             </label>
             <div className='p-3 bg-gray-50 rounded-lg border'>
-              {isLoadingHijriDate ? (
+              {isLoading ? (
                 <div className='text-gray-500 flex items-center gap-2'>
                   <div className='animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full'></div>
                   Calculating...
                 </div>
               ) : (
                 <div className='font-semibold text-gray-900'>
-                  {currentHijriDate || 'Unable to fetch date'}
+                  {adjustedHijriDate || 'Unable to fetch date'}
                 </div>
               )}
             </div>
