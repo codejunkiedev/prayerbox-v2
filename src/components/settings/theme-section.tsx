@@ -67,36 +67,47 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className='flex flex-row gap-4'>
-          {themeOptions.map(theme => {
-            const themeKey = theme as Theme;
-            const themeName = themeKey.replace(/-/g, ' ');
-            return (
-              <button
-                key={themeKey}
-                className={clsx(
-                  'border-2 rounded-lg overflow-hidden p-1 transition-all',
-                  selectedTheme === themeKey
-                    ? 'border-blue-500 ring-2 ring-blue-300'
-                    : 'border-gray-200',
-                  isSaving && 'opacity-50 pointer-events-none'
-                )}
-                onClick={() => handleThemeSelect(themeKey)}
-                disabled={isSaving}
-                type='button'
-                aria-label={`Select ${themeName}`}
-              >
-                <img
-                  src={themeImageMap[themeKey]}
-                  alt={themeName}
-                  className='w-32 h-20 object-cover'
-                />
-                <div className='mt-2 text-center text-xs font-medium text-gray-700 truncate w-32 capitalize'>
-                  {themeName}
-                </div>
-              </button>
-            );
-          })}
+        <div className='space-y-4'>
+          <div className='flex flex-row gap-4'>
+            {themeOptions.map(theme => {
+              const themeKey = theme as Theme;
+              const themeName = themeKey.replace(/-/g, ' ');
+              return (
+                <button
+                  key={themeKey}
+                  className={clsx(
+                    'border-2 rounded-lg overflow-hidden p-1 transition-all',
+                    selectedTheme === themeKey
+                      ? 'border-blue-500 ring-2 ring-blue-300'
+                      : 'border-gray-200',
+                    isSaving && 'opacity-50 pointer-events-none'
+                  )}
+                  onClick={() => handleThemeSelect(themeKey)}
+                  disabled={isSaving}
+                  type='button'
+                  aria-label={`Select ${themeName}`}
+                >
+                  <img
+                    src={themeImageMap[themeKey]}
+                    alt={themeName}
+                    className='w-32 h-20 object-cover'
+                  />
+                  <div className='mt-2 text-center text-xs font-medium text-gray-700 truncate w-32 capitalize'>
+                    {themeName}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {isSaving && (
+            <div className='flex items-center justify-center py-2'>
+              <div className='flex items-center gap-2 text-sm text-gray-600'>
+                <div className='animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full'></div>
+                Saving theme...
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -136,7 +136,7 @@ export function ModulesSection({ settings, onSettingsChange, isLoading }: Module
           content.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className='space-y-4'>
         {isLoading ? (
           <TableSkeleton columns={columns} rows={4} showActions={false} showRowNumbers={true} />
         ) : (
@@ -148,6 +148,15 @@ export function ModulesSection({ settings, onSettingsChange, isLoading }: Module
             onOrderChange={handleOrderChange}
             isDraggable={!isSaving}
           />
+        )}
+
+        {isSaving && (
+          <div className='flex items-center justify-center py-2'>
+            <div className='flex items-center gap-2 text-sm text-gray-600'>
+              <div className='animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full'></div>
+              Saving settings...
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
