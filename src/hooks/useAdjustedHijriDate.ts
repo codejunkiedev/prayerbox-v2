@@ -1,9 +1,19 @@
 import { useEffect, useState } from 'react';
 import { addOrSubtractDays, formatHijriDate } from '@/utils';
-import type { Settings } from '@/types';
 import { HijriCalculationMethod } from '@/constants';
 import { fetchHijriDate } from '@/api/aladhan';
 
+/**
+ * Props for the useAdjustedHijriDate hook
+ */
+interface Props {
+  calculationMethod: HijriCalculationMethod;
+  offset: number;
+}
+
+/**
+ * Return type for the useAdjustedHijriDate hook
+ */
 interface ReturnType {
   adjustedHijriDate: string;
   isLoading: boolean;
@@ -11,11 +21,14 @@ interface ReturnType {
 
 /**
  * Custom hook to handle adjusted Hijri date
- * @param userSettings User settings
- * @param baseDate Base date to calculate from (default: today)
+ * @param calculationMethod Hijri calculation method
+ * @param offset Hijri offset
  * @returns {adjustedHijriDate, isLoading} Adjusted Hijri date and loading state
  */
-export const useAdjustedHijriDate = (userSettings: Settings | null): ReturnType => {
+export const useAdjustedHijriDate = ({
+  calculationMethod = HijriCalculationMethod.Umm_al_Qura,
+  offset = 0,
+}: Props): ReturnType => {
   const [adjustedHijriDate, setAdjustedHijriDate] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -23,14 +36,9 @@ export const useAdjustedHijriDate = (userSettings: Settings | null): ReturnType 
     const abortController = new AbortController();
 
     const fetchAdjustedDate = async () => {
-      if (!userSettings) return;
-
       setIsLoading(true);
 
       try {
-        const calculationMethod =
-          userSettings.hijri_calculation_method || HijriCalculationMethod.Umm_al_Qura;
-        const offset = userSettings.hijri_offset || 0;
         const targetDate = addOrSubtractDays(new Date(), offset);
         const response = await fetchHijriDate({
           date: targetDate,
@@ -63,7 +71,7 @@ export const useAdjustedHijriDate = (userSettings: Settings | null): ReturnType 
     return () => {
       abortController.abort();
     };
-  }, [userSettings]);
+  }, [calculationMethod, offset]);
 
   return { adjustedHijriDate, isLoading };
 };

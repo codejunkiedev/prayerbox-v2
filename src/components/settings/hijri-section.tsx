@@ -31,10 +31,9 @@ export function HijriSection({ settings, onSettingsChange }: HijriSectionProps) 
   const [selectedOffset, setSelectedOffset] = useState<number>(settings?.hijri_offset || 0);
 
   const { adjustedHijriDate, isLoading } = useAdjustedHijriDate({
-    ...settings,
-    hijri_calculation_method: selectedMethod,
-    hijri_offset: selectedOffset,
-  } as Settings);
+    calculationMethod: selectedMethod,
+    offset: selectedOffset,
+  });
 
   const offsetOptions = [
     { value: -2, label: '-2 days' },
