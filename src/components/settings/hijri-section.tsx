@@ -6,7 +6,6 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  Button,
   Select,
   SelectTrigger,
   SelectContent,
@@ -55,12 +54,12 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
     }
   }, [settings, isLoading]);
 
-  const handleSave = async () => {
+  const handleAutoSave = async (method: HijriCalculationMethod, offset: number) => {
     if (!settings) return;
 
     try {
       setIsSaving(true);
-      const updatedSettings = await updateHijriSettings(selectedMethod, selectedOffset);
+      const updatedSettings = await updateHijriSettings(method, offset);
       onSettingsChange(updatedSettings);
       toast.success('Hijri settings updated successfully');
     } catch (error) {
@@ -69,6 +68,17 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleMethodChange = (value: HijriCalculationMethod) => {
+    setSelectedMethod(value);
+    handleAutoSave(value, selectedOffset);
+  };
+
+  const handleOffsetChange = (value: string) => {
+    const offset = parseInt(value);
+    setSelectedOffset(offset);
+    handleAutoSave(selectedMethod, offset);
   };
 
   if (isLoading) return <div className='animate-pulse bg-gray-200 rounded-lg h-48'></div>;
@@ -107,10 +117,7 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
               <label className='block text-sm font-medium text-gray-700 mb-2'>
                 Calculation Method
               </label>
-              <Select
-                value={selectedMethod}
-                onValueChange={(value: HijriCalculationMethod) => setSelectedMethod(value)}
-              >
+              <Select value={selectedMethod} onValueChange={handleMethodChange} disabled={isSaving}>
                 <SelectTrigger className='w-full'>
                   <SelectValue />
                 </SelectTrigger>
@@ -128,7 +135,8 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
               <label className='block text-sm font-medium text-gray-700 mb-2'>Date Offset</label>
               <Select
                 value={selectedOffset.toString()}
-                onValueChange={(value: string) => setSelectedOffset(parseInt(value))}
+                onValueChange={handleOffsetChange}
+                disabled={isSaving}
               >
                 <SelectTrigger className='w-full'>
                   <SelectValue />
@@ -145,11 +153,14 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
           </div>
         </div>
 
-        <div className='flex justify-end'>
-          <Button onClick={handleSave} disabled={isSaving} loading={isSaving}>
-            {isSaving ? 'Saving...' : 'Save Settings'}
-          </Button>
-        </div>
+        {isSaving && (
+          <div className='flex items-center justify-center py-2'>
+            <div className='flex items-center gap-2 text-sm text-gray-600'>
+              <div className='animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full'></div>
+              Saving settings...
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
