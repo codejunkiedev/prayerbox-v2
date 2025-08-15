@@ -181,8 +181,8 @@ export const formatTimeNumber = (time: string): { timeNumber: string; amPm: stri
  */
 export const addOrSubtractDays = (date: Date, offset: number): Date => {
   if (offset === 0) return date;
-  if (offset > 0) return addDays(date, offset);
-  return subDays(date, Math.abs(offset));
+  else if (offset > 0) return addDays(date, offset);
+  else return subDays(date, Math.abs(offset));
 };
 
 /**
