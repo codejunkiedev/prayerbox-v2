@@ -81,7 +81,7 @@ export function AnnouncementModal({
 
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 pt-4'>
           {error && (
-            <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4'>
+            <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded mb-4'>
               {error}
             </div>
           )}
@@ -91,11 +91,11 @@ export function AnnouncementModal({
             <Textarea
               id='description'
               placeholder='Enter announcement details here...'
-              className={`resize-none h-40 ${errors.description ? 'border-red-500' : ''}`}
+              className={`resize-none h-40 ${errors.description ? 'border-destructive' : ''}`}
               {...register('description')}
             />
             {errors.description && (
-              <p className='text-red-500 text-sm'>{errors.description.message}</p>
+              <p className='text-destructive text-sm'>{errors.description.message}</p>
             )}
           </div>
 

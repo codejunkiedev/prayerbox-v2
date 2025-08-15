@@ -6,6 +6,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  ThemeToggle,
 } from '@/components/ui';
 import { Link } from 'react-router';
 import { AppRoutes } from '@/constants';
@@ -41,7 +42,7 @@ export default function Header({ onMenuClick, isScrolled = false }: HeaderProps)
   return (
     <header
       className={cn(
-        'bg-white h-16 flex items-center px-4 sticky top-0 z-30 transition-all duration-200',
+        'bg-background h-16 flex items-center px-4 sticky top-0 z-30 transition-all duration-200 border-b',
         isScrolled ? 'shadow-md' : 'shadow-sm'
       )}
     >
@@ -49,15 +50,16 @@ export default function Header({ onMenuClick, isScrolled = false }: HeaderProps)
         <Menu size={20} />
       </Button>
 
-      <h1 className='text-xl font-semibold md:ml-1 text-slate-800'>PrayerBox</h1>
+      <h1 className='text-xl font-semibold md:ml-1 text-foreground'>PrayerBox</h1>
 
       <div className='ml-auto flex items-center space-x-2'>
+        <ThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant='ghost'
               size='icon'
-              className='text-slate-600 hover:bg-slate-100 rounded-full'
+              className='text-muted-foreground hover:bg-accent rounded-full'
             >
               <UserRound size={20} />
             </Button>

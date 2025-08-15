@@ -83,7 +83,7 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
     handleAutoSave(selectedMethod, offset);
   };
 
-  if (isLoading) return <div className='animate-pulse bg-gray-200 rounded-lg h-48'></div>;
+  if (isLoading) return <div className='animate-pulse bg-muted rounded-lg h-48'></div>;
 
   return (
     <Card>
@@ -97,17 +97,17 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
       <CardContent className='space-y-6'>
         <div className='space-y-4'>
           <div>
-            <label className='block text-sm font-medium text-gray-700 mb-2'>
+            <label className='block text-sm font-medium text-foreground mb-2'>
               Current Hijri Date
             </label>
-            <div className='p-3 bg-gray-50 rounded-lg border'>
+            <div className='p-3 bg-muted rounded-lg border'>
               {isLoadingAdjustedHijriDate ? (
-                <div className='text-gray-500 flex items-center gap-2'>
-                  <div className='animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full'></div>
+                <div className='text-muted-foreground flex items-center gap-2'>
+                  <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
                   Calculating...
                 </div>
               ) : (
-                <div className='font-semibold text-gray-900'>
+                <div className='font-semibold text-foreground'>
                   {adjustedHijriDate || 'Unable to fetch date'}
                 </div>
               )}
@@ -116,7 +116,7 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
 
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-foreground mb-2'>
                 Calculation Method
               </label>
               <Select value={selectedMethod} onValueChange={handleMethodChange} disabled={isSaving}>
@@ -134,7 +134,7 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
             </div>
 
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>Date Offset</label>
+              <label className='block text-sm font-medium text-foreground mb-2'>Date Offset</label>
               <Select
                 value={selectedOffset.toString()}
                 onValueChange={handleOffsetChange}
@@ -157,8 +157,8 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
 
         {isSaving && (
           <div className='flex items-center justify-center py-2'>
-            <div className='flex items-center gap-2 text-sm text-gray-600'>
-              <div className='animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full'></div>
+            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
               Saving settings...
             </div>
           </div>

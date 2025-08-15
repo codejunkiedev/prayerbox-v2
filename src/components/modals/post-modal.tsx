@@ -132,7 +132,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
 
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 pt-4'>
           {error && (
-            <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4'>
+            <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded mb-4'>
               {error}
             </div>
           )}
@@ -142,10 +142,10 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
             <Input
               id='title'
               placeholder='Enter post title'
-              className={errors.title ? 'border-red-500' : ''}
+              className={errors.title ? 'border-destructive' : ''}
               {...register('title')}
             />
-            {errors.title && <p className='text-red-500 text-sm'>{errors.title.message}</p>}
+            {errors.title && <p className='text-destructive text-sm'>{errors.title.message}</p>}
           </div>
 
           <div className='space-y-2'>
@@ -166,20 +166,20 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
               />
             )}
 
-            {imageError && <p className='text-red-500 text-sm'>{imageError}</p>}
+            {imageError && <p className='text-destructive text-sm'>{imageError}</p>}
 
             {/* Help text */}
-            <p className='text-xs text-gray-500'>
+            <p className='text-xs text-muted-foreground'>
               <strong>Strict requirement:</strong> Only 16:9 aspect ratio images accepted. Perfect
               for full-screen display. Minimum HD quality: 1280×720px.
             </p>
-            <p className='text-xs text-gray-500 mt-1'>
+            <p className='text-xs text-muted-foreground mt-1'>
               Need to resize your image? Try{' '}
               <a
                 href='https://imageresizer.com/'
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-blue-600 hover:underline'
+                className='text-primary hover:underline'
               >
                 imageresizer.com
               </a>

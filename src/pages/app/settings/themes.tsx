@@ -20,6 +20,7 @@ export default function ThemesSettings() {
         </Link>
       </div>
       <PageHeader title='Theme Settings' description='Configure display themes and appearance' />
+
       <ThemeSection settings={settings} onSettingsChange={setSettings} isLoading={isLoading} />
     </div>
   );
