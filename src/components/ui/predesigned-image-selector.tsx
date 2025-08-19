@@ -1,19 +1,24 @@
 import { CheckCircle } from 'lucide-react';
 
-// Import images
-import childrenImg from '@/assets/community-posts/01-children.jpg';
-import keepCleanImg from '@/assets/community-posts/02-keep-clean.jpg';
-import preventWasteImg from '@/assets/community-posts/03-prevent-waste.jpg';
-import keepSilenceImg from '@/assets/community-posts/04-keep-silence.jpg';
-import properParkingImg from '@/assets/community-posts/05-proper-parking.jpg';
+const imageModules = import.meta.glob('@/assets/community-posts/*.{jpg,jpeg,png,webp}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
 
-const PREDESIGNED_IMAGES = [
-  { id: '01-children', src: childrenImg, alt: 'Children Community Post' },
-  { id: '02-keep-clean', src: keepCleanImg, alt: 'Keep Clean Post' },
-  { id: '03-prevent-waste', src: preventWasteImg, alt: 'Prevent Waste Post' },
-  { id: '04-keep-silence', src: keepSilenceImg, alt: 'Keep Silence Post' },
-  { id: '05-proper-parking', src: properParkingImg, alt: 'Proper Parking Post' },
-];
+const PREDESIGNED_IMAGES = Object.entries(imageModules)
+  .map(([path, src]) => {
+    const filename = path.split('/').pop()?.split('.')[0] || '';
+
+    const altText =
+      filename
+        .replace(/^\d+-/, '')
+        .replace(/-/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase()) + ' Post';
+
+    return { id: filename, src: src as string, alt: altText };
+  })
+  .sort((a, b) => a.id.localeCompare(b.id));
 
 type PredesignedImageSelectorProps = {
   selectedImage: string | null;
