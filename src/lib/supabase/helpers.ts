@@ -386,21 +386,24 @@ export async function updateRecordsOrder(
   items: Array<{ id: string; display_order: number }>,
   userId: string
 ): Promise<boolean> {
-  // Prepare updates for each item
-  const updates = items.map(item => ({
-    id: item.id,
-    display_order: item.display_order,
-    updated_at: new Date().toISOString(),
-    user_id: userId,
-  }));
+  // Update each record individually to avoid upsert issues with required fields
+  const updatePromises = items.map(async item => {
+    const { error } = await supabase
+      .from(table)
+      .update({
+        display_order: item.display_order,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', item.id)
+      .eq('user_id', userId); // Additional security check
 
-  // Update all records in a single transaction
-  const { error } = await supabase.from(table).upsert(updates);
+    if (error) {
+      throw handleSupabaseError(error, `Error updating record ${item.id} order in ${table}`);
+    }
+  });
 
-  if (error) {
-    throw handleSupabaseError(error, `Error updating record order in ${table}`);
-  }
-
+  // Wait for all updates to complete
+  await Promise.all(updatePromises);
   return true;
 }
 
