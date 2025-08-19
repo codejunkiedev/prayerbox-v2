@@ -41,9 +41,9 @@ export function DeleteConfirmationModal({
         </DialogHeader>
 
         {(itemTitle || itemSubtitle) && (
-          <div className='mt-2 p-4 bg-gray-50 rounded border border-gray-200'>
-            {itemTitle && <p className='font-medium'>{itemTitle}</p>}
-            {itemSubtitle && <p className='text-sm text-gray-600 mt-1'>{itemSubtitle}</p>}
+          <div className='mt-2 p-4 bg-muted rounded border'>
+            {itemTitle && <p className='font-medium text-foreground'>{itemTitle}</p>}
+            {itemSubtitle && <p className='text-sm text-muted-foreground mt-1'>{itemSubtitle}</p>}
           </div>
         )}
 

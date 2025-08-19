@@ -286,7 +286,9 @@ export function PrayerTimingsModal({
                   </SelectContent>
                 </Select>
                 {errors.calculation_method && (
-                  <p className='text-red-500 text-sm mt-1'>{errors.calculation_method.message}</p>
+                  <p className='text-destructive text-sm mt-1'>
+                    {errors.calculation_method.message}
+                  </p>
                 )}
               </div>
 
@@ -307,7 +309,7 @@ export function PrayerTimingsModal({
                   </SelectContent>
                 </Select>
                 {errors.juristic_school && (
-                  <p className='text-red-500 text-sm mt-1'>{errors.juristic_school.message}</p>
+                  <p className='text-destructive text-sm mt-1'>{errors.juristic_school.message}</p>
                 )}
               </div>
 

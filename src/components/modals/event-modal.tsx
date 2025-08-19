@@ -115,7 +115,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
 
         <form onSubmit={handleSubmit(onSubmit)} className='space-y-6 pt-4'>
           {error && (
-            <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded'>
+            <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded'>
               {error}
             </div>
           )}
@@ -128,10 +128,10 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
               <Input
                 id='title'
                 placeholder='Enter event title'
-                className={errors.title ? 'border-red-500' : ''}
+                className={errors.title ? 'border-destructive' : ''}
                 {...register('title')}
               />
-              {errors.title && <p className='text-red-500 text-sm'>{errors.title.message}</p>}
+              {errors.title && <p className='text-destructive text-sm'>{errors.title.message}</p>}
             </div>
 
             <div className='space-y-2'>
@@ -139,11 +139,11 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
               <Textarea
                 id='description'
                 placeholder='Enter event description'
-                className={`resize-none h-24 ${errors.description ? 'border-red-500' : ''}`}
+                className={`resize-none h-24 ${errors.description ? 'border-destructive' : ''}`}
                 {...register('description')}
               />
               {errors.description && (
-                <p className='text-red-500 text-sm'>{errors.description.message}</p>
+                <p className='text-destructive text-sm'>{errors.description.message}</p>
               )}
             </div>
 
@@ -152,7 +152,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
                 <Label htmlFor='date_time'>Date & Time</Label>
                 <DateTimePicker date={dateTime} setDate={setDateTime} disabled={isSubmitting} />
                 {errors.date_time && (
-                  <p className='text-red-500 text-sm'>{errors.date_time.message}</p>
+                  <p className='text-destructive text-sm'>{errors.date_time.message}</p>
                 )}
               </div>
 
@@ -161,11 +161,11 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
                 <Input
                   id='location'
                   placeholder='Enter event location'
-                  className={errors.location ? 'border-red-500' : ''}
+                  className={errors.location ? 'border-destructive' : ''}
                   {...register('location')}
                 />
                 {errors.location && (
-                  <p className='text-red-500 text-sm'>{errors.location.message}</p>
+                  <p className='text-destructive text-sm'>{errors.location.message}</p>
                 )}
               </div>
             </div>
@@ -182,11 +182,11 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
                 <Input
                   id='chief_guest'
                   placeholder='Enter chief guest name'
-                  className={errors.chief_guest ? 'border-red-500' : ''}
+                  className={errors.chief_guest ? 'border-destructive' : ''}
                   {...register('chief_guest')}
                 />
                 {errors.chief_guest && (
-                  <p className='text-red-500 text-sm'>{errors.chief_guest.message}</p>
+                  <p className='text-destructive text-sm'>{errors.chief_guest.message}</p>
                 )}
               </div>
 
@@ -195,10 +195,10 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
                 <Input
                   id='host'
                   placeholder='Enter host name (optional)'
-                  className={errors.host ? 'border-red-500' : ''}
+                  className={errors.host ? 'border-destructive' : ''}
                   {...register('host')}
                 />
-                {errors.host && <p className='text-red-500 text-sm'>{errors.host.message}</p>}
+                {errors.host && <p className='text-destructive text-sm'>{errors.host.message}</p>}
               </div>
             </div>
 
@@ -208,10 +208,10 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
                 <Input
                   id='qari'
                   placeholder='Enter qari name'
-                  className={errors.qari ? 'border-red-500' : ''}
+                  className={errors.qari ? 'border-destructive' : ''}
                   {...register('qari')}
                 />
-                {errors.qari && <p className='text-red-500 text-sm'>{errors.qari.message}</p>}
+                {errors.qari && <p className='text-destructive text-sm'>{errors.qari.message}</p>}
               </div>
 
               <div className='space-y-2'>
@@ -219,11 +219,11 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
                 <Input
                   id='naat_khawn'
                   placeholder='Enter naat khawn name'
-                  className={errors.naat_khawn ? 'border-red-500' : ''}
+                  className={errors.naat_khawn ? 'border-destructive' : ''}
                   {...register('naat_khawn')}
                 />
                 {errors.naat_khawn && (
-                  <p className='text-red-500 text-sm'>{errors.naat_khawn.message}</p>
+                  <p className='text-destructive text-sm'>{errors.naat_khawn.message}</p>
                 )}
               </div>
 
@@ -232,11 +232,11 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
                 <Input
                   id='karm_farma'
                   placeholder='Enter karm farma name'
-                  className={errors.karm_farma ? 'border-red-500' : ''}
+                  className={errors.karm_farma ? 'border-destructive' : ''}
                   {...register('karm_farma')}
                 />
                 {errors.karm_farma && (
-                  <p className='text-red-500 text-sm'>{errors.karm_farma.message}</p>
+                  <p className='text-destructive text-sm'>{errors.karm_farma.message}</p>
                 )}
               </div>
             </div>

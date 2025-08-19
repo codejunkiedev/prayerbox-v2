@@ -57,15 +57,15 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
     }
   };
 
-  if (isLoading) return <div className='animate-pulse bg-gray-200 rounded-lg h-48'></div>;
+  if (isLoading) return <div className='animate-pulse bg-muted rounded-lg h-48'></div>;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Prayer Timings Theme</CardTitle>
+        <CardTitle>Prayer Timings Display Theme</CardTitle>
         <CardDescription>
-          Select a background theme for the prayer timings screen of the app. Your choice will be
-          saved automatically.
+          Select a background theme for the prayer timings display screen. This only affects the
+          public display view that shows prayer times. Your choice will be saved automatically.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -80,8 +80,8 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
                   className={clsx(
                     'border-2 rounded-lg overflow-hidden p-1 transition-all',
                     selectedTheme === themeKey
-                      ? 'border-blue-500 ring-2 ring-blue-300'
-                      : 'border-gray-200',
+                      ? 'border-primary ring-2 ring-primary/20'
+                      : 'border-border',
                     isSaving && 'opacity-50 pointer-events-none'
                   )}
                   onClick={() => handleThemeSelect(themeKey)}
@@ -94,7 +94,7 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
                     alt={themeName}
                     className='w-32 h-20 object-cover'
                   />
-                  <div className='mt-2 text-center text-xs font-medium text-gray-700 truncate w-32 capitalize'>
+                  <div className='mt-2 text-center text-xs font-medium text-foreground truncate w-32 capitalize'>
                     {themeName}
                   </div>
                 </button>
@@ -104,8 +104,8 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
 
           {isSaving && (
             <div className='flex items-center justify-center py-2'>
-              <div className='flex items-center gap-2 text-sm text-gray-600'>
-                <div className='animate-spin h-4 w-4 border-2 border-gray-300 border-t-gray-600 rounded-full'></div>
+              <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+                <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
                 Saving theme...
               </div>
             </div>

@@ -61,7 +61,7 @@ export default function AppLayout() {
   }, []);
 
   return (
-    <div className='flex h-screen bg-slate-50'>
+    <div className='flex h-screen bg-background'>
       {/* Desktop sidebar */}
       <div className='hidden md:block relative z-10'>
         <Sidebar />
@@ -89,7 +89,7 @@ export default function AppLayout() {
       <div className='flex flex-col flex-1 overflow-hidden'>
         <Header onMenuClick={toggleMobileSidebar} isScrolled={isScrolled} />
 
-        <main className='flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-slate-50 transition-all duration-300'>
+        <main className='flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-background transition-all duration-300'>
           <div className='max-w-7xl mx-auto'>
             <Outlet />
           </div>
