@@ -164,11 +164,11 @@ export default function Posts() {
               </div>
             </PopoverTrigger>
             <PopoverContent className='p-0 w-80'>
-              <div className='relative aspect-square w-full overflow-hidden'>
+              <div className='relative w-full overflow-hidden'>
                 <img
                   src={value as string}
                   alt='Post enlarged'
-                  className='w-full h-full object-cover'
+                  className='w-full h-auto object-contain'
                 />
               </div>
             </PopoverContent>

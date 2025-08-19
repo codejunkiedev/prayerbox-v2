@@ -14,6 +14,11 @@ export enum SupabaseTables {
 export enum SupabaseBuckets {
   MasjidLogos = 'masjid-logos',
   MasjidPosts = 'masjid-posts',
+  Assets = 'assets',
+}
+
+export enum SupabaseFolders {
+  PredesignedPosts = 'predesigned-posts',
 }
 
 interface Base {
