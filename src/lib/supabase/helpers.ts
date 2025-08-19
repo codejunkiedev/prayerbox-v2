@@ -1,6 +1,7 @@
 import { AppRoutes } from '@/constants';
 import supabase from './index';
 import { PostgrestError, type Session } from '@supabase/supabase-js';
+import type { SupabaseBuckets, SupabaseFolders } from '@/types';
 
 /**
  * Helper to subscribe to auth changes
@@ -167,6 +168,37 @@ export async function fetchByMultipleConditions<T>(
 }
 
 /**
+ * Lists files from a Supabase storage bucket
+ * @param bucket The storage bucket name
+ * @param folder Optional folder path within the bucket
+ * @returns Array of file objects with name and public URL
+ */
+export async function listFiles(
+  bucket: SupabaseBuckets,
+  folder?: SupabaseFolders
+): Promise<Array<{ name: string; url: string }>> {
+  const { data, error } = await supabase.storage
+    .from(bucket)
+    .list(folder || '', { limit: 100, offset: 0 });
+
+  if (error) {
+    console.error(`Error listing files from ${bucket}:`, error);
+    throw new Error(`Error listing files from ${bucket}: ${error.message}`);
+  }
+
+  // Filter out folders and get public URLs for files
+  const files = data?.filter(item => item.name && !item.name.includes('/')) || [];
+
+  const filesWithUrls = files.map(file => {
+    const filePath = folder ? `${folder}/${file.name}` : file.name;
+    const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(filePath);
+    return { name: file.name, url: urlData.publicUrl };
+  });
+
+  return filesWithUrls;
+}
+
+/**
  * Helper to upload a file to Supabase storage
  * @param bucket The storage bucket name
  * @param file The file to upload
@@ -177,10 +209,9 @@ export async function uploadFile(bucket: string, file: File, path?: string): Pro
   const fileExt = file.name.split('.').pop();
   const fileName = path || `${Date.now()}.${fileExt}`;
 
-  const { error } = await supabase.storage.from(bucket).upload(fileName, file, {
-    cacheControl: '3600',
-    upsert: true,
-  });
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(fileName, file, { cacheControl: '3600', upsert: true });
 
   if (error) {
     console.error(`Error uploading file to ${bucket}:`, error);
