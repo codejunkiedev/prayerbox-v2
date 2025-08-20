@@ -81,5 +81,64 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate')],
+  plugins: [
+    require('tailwindcss-animate'),
+    function ({ addUtilities }) {
+      const scrollbarUtilities = {
+        '.scrollbar-thin': {
+          'scrollbar-width': 'thin',
+          'scrollbar-color': 'hsl(var(--border)) transparent',
+          '&::-webkit-scrollbar': {
+            width: '6px',
+            height: '6px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'transparent',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'hsl(var(--border))',
+            borderRadius: '3px',
+            transition: 'all 0.2s ease',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background: 'hsl(var(--muted-foreground))',
+          },
+        },
+        '.scrollbar-none': {
+          'scrollbar-width': 'none',
+          '-ms-overflow-style': 'none',
+          '&::-webkit-scrollbar': {
+            display: 'none',
+          },
+        },
+        '.scrollbar-custom': {
+          'scrollbar-width': 'thin',
+          'scrollbar-color': 'hsl(var(--primary) / 0.7) hsl(var(--muted) / 0.3)',
+          '&::-webkit-scrollbar': {
+            width: '10px',
+            height: '10px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'hsl(var(--muted) / 0.3)',
+            borderRadius: '6px',
+            margin: '2px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background:
+              'linear-gradient(135deg, hsl(var(--primary) / 0.6) 0%, hsl(var(--primary) / 0.8) 100%)',
+            borderRadius: '6px',
+            border: '1px solid hsl(var(--border))',
+            transition: 'all 0.3s ease',
+          },
+          '&::-webkit-scrollbar-thumb:hover': {
+            background:
+              'linear-gradient(135deg, hsl(var(--primary) / 0.8) 0%, hsl(var(--primary)) 100%)',
+            transform: 'scale(1.05)',
+            boxShadow: '0 2px 8px hsl(var(--primary) / 0.3)',
+          },
+        },
+      };
+      addUtilities(scrollbarUtilities);
+    },
+  ],
 };

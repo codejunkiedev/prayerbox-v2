@@ -40,7 +40,7 @@ export function MapModal({ isOpen, onClose, onCoordinatesSelect, coordinates }: 
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[800px] max-h-[90vh] overflow-auto'>
+      <DialogContent className='sm:max-w-[800px] max-h-[90vh] overflow-auto scrollbar-custom'>
         <DialogHeader>
           <DialogTitle>Select Masjid Location</DialogTitle>
         </DialogHeader>

@@ -108,7 +108,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[850px] max-h-[90vh] overflow-y-auto'>
+      <DialogContent className='sm:max-w-[850px] max-h-[90vh] overflow-y-auto scrollbar-custom'>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Event' : 'Add New Event'}</DialogTitle>
         </DialogHeader>

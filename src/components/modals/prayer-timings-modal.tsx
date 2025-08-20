@@ -257,7 +257,7 @@ export function PrayerTimingsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[500px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto'>
+      <DialogContent className='sm:max-w-[500px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto scrollbar-custom'>
         <DialogHeader>
           <DialogTitle>Prayer Times Settings</DialogTitle>
         </DialogHeader>
