@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { X, Image } from 'lucide-react';
 import { cn } from '@/utils';
 import { Label } from './label';
 import { VALID_IMAGE_TYPES, MAX_FILE_SIZE } from '@/lib/zod';
@@ -90,42 +91,14 @@ export function ImageUpload({
                 className='absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600'
                 aria-label='Remove image'
               >
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  width='16'
-                  height='16'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                >
-                  <path d='M18 6L6 18'></path>
-                  <path d='M6 6l12 12'></path>
-                </svg>
+                <X size={16} />
               </button>
             )}
           </div>
         ) : (
           <div className='py-4'>
             <div className='flex justify-center mb-2'>
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                className='text-gray-400'
-              >
-                <rect width='18' height='18' x='3' y='3' rx='2' ry='2' />
-                <circle cx='9' cy='9' r='2' />
-                <path d='m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21' />
-              </svg>
+              <Image size={24} className='text-gray-400' />
             </div>
             <p className='text-sm text-gray-600 mb-1'>
               {isDragActive ? 'Drop the image here' : 'Drag & drop an image here'}
