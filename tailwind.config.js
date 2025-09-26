@@ -13,11 +13,15 @@ module.exports = {
       padding: '2rem',
       screens: {
         '2xl': '1400px',
+        '3xl': '3000px',
+        '4xl': '4000px',
       },
     },
     extend: {
       screens: {
         xs: '480px',
+        '3xl': '3000px',
+        '4xl': '4000px',
       },
       fontFamily: {
         'ds-digital': ['DS-Digital', 'Courier New', 'Monaco', 'Lucida Console', 'monospace'],
