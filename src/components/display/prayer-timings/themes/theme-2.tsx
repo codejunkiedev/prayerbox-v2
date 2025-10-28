@@ -96,9 +96,7 @@ export function Theme2({
         </div>
 
         {/* Right side - Current Time */}
-        <div className='w-[20vw] h-full flex items-center justify-center'>
-          <CurrentTime currentTime={currentTime} variant={Theme.Theme2} />
-        </div>
+        <CurrentTime currentTime={currentTime} variant={Theme.Theme2} />
       </div>
     </div>
   );

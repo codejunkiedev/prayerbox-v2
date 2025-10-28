@@ -56,12 +56,17 @@ export function CurrentTime({
       return (
         <React.Fragment>
           <style>{animationStyle}</style>
-          <div className={`flex flex-col items-center justify-center ${className}`}>
-            <span className='text-[8vw] text-white drop-shadow-lg clash-display-bold leading-none'>
-              {hours}
-              <span className='blink-colon'>:</span>
-              {minutes}
-            </span>
+          <div className='w-[20vw] h-full flex items-center justify-center'>
+            <div className='flex flex-col items-center justify-center'>
+              <span className='text-[8vw] text-white drop-shadow-lg clash-display-bold leading-none'>
+                {hours}
+                <span className='blink-colon'>:</span>
+                {minutes}
+              </span>
+              <span className='text-[4vw] text-white drop-shadow-lg clash-display-medium lowercase leading-none'>
+                {amPm}
+              </span>
+            </div>
           </div>
         </React.Fragment>
       );
