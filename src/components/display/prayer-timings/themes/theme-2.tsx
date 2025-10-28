@@ -1,10 +1,11 @@
-import { formatTimeNumber, formatTimePickerTime, getPrayerCardImage } from '@/utils';
+import { formatTimeNumber, getPrayerCardImage } from '@/utils';
 import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
 import borderSvg from '@/assets/themes/theme-2/border.svg';
 import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
 import { useTextTransition } from '@/hooks';
+import { CurrentTime } from '@/components/display/shared';
 
 /**
  * Prayer timing display component with Theme 2 layout - displays timings in a grid with decorative elements
@@ -18,8 +19,6 @@ export function Theme2({
   processedPrayerTimings,
   prayerTimeSettings,
 }: ThemeProps) {
-  const { timeNumber, amPm } = formatTimeNumber(formatTimePickerTime(currentTime));
-
   return (
     <div
       className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center overflow-hidden'
@@ -98,14 +97,7 @@ export function Theme2({
 
         {/* Right side - Current Time */}
         <div className='w-[20vw] h-full flex items-center justify-center'>
-          <div className='flex flex-col items-center justify-center'>
-            <span className='text-[8vw] text-white drop-shadow-lg clash-display-bold leading-none'>
-              {timeNumber}
-            </span>
-            <span className='text-[4vw] text-white drop-shadow-lg clash-display-medium lowercase leading-none'>
-              {amPm}
-            </span>
-          </div>
+          <CurrentTime currentTime={currentTime} variant={Theme.Theme2} />
         </div>
       </div>
     </div>

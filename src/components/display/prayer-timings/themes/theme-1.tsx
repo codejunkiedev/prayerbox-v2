@@ -1,9 +1,10 @@
-import { formatTimeNumber, formatTimePickerTime, getPrayerCardImage } from '@/utils';
+import { formatTimeNumber, getPrayerCardImage } from '@/utils';
 import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme1Background from '@/assets/themes/theme-1/background.jpg';
 import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
 import { useTextTransition } from '@/hooks';
+import { CurrentTime } from '@/components/display/shared';
 
 /**
  * Prayer timing display component with Theme 1 layout - displays timings in cards with digital clock styling
@@ -17,8 +18,6 @@ export function Theme1({
   processedPrayerTimings,
   prayerTimeSettings,
 }: ThemeProps) {
-  const { timeNumber, amPm } = formatTimeNumber(formatTimePickerTime(currentTime));
-
   return (
     <div
       className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-end overflow-hidden'
@@ -32,17 +31,7 @@ export function Theme1({
             <span className='text-[2vw] barlow-regular'>{hijriDate}</span>
           </div>
 
-          <div className='flex items-baseline gap-[0.5vw]'>
-            <span className='text-[8vw] font-bold ds-digi-font italic' style={{ color: '#E0B05C' }}>
-              {timeNumber}
-            </span>
-            <span
-              className='text-[3vw] ds-digi-font italic relative top-[1.5vh]'
-              style={{ color: '#E0B05C' }}
-            >
-              {amPm}
-            </span>
-          </div>
+          <CurrentTime currentTime={currentTime} variant={Theme.Theme1} />
 
           <div className='flex flex-col items-end text-white gap-[0.5vh]'>
             <div className='text-right'>
