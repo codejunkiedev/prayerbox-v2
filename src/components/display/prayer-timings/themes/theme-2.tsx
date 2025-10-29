@@ -1,4 +1,4 @@
-import { formatTimeNumber, getPrayerCardImage } from '@/utils';
+import { cn, formatTimeNumber, getPrayerCardImage, getTimeBeforeNextPrayer } from '@/utils';
 import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
@@ -6,6 +6,7 @@ import borderSvg from '@/assets/themes/theme-2/border.svg';
 import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
 import { useTextTransition } from '@/hooks';
 import { CurrentTime } from '@/components/display/shared';
+import { useMemo } from 'react';
 
 /**
  * Prayer timing display component with Theme 2 layout - displays timings in a grid with decorative elements
@@ -19,6 +20,10 @@ export function Theme2({
   processedPrayerTimings,
   prayerTimeSettings,
 }: ThemeProps) {
+  const nextPrayer = useMemo(() => {
+    return getTimeBeforeNextPrayer(processedPrayerTimings);
+  }, [processedPrayerTimings]);
+
   return (
     <div
       className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center overflow-hidden'
@@ -56,6 +61,23 @@ export function Theme2({
                   </span>
                 </div>
               </div>
+              {nextPrayer && (
+                <div className='relative text-left w-[24vw]'>
+                  <img
+                    src={borderSvg}
+                    alt='border'
+                    className='absolute inset-0 w-full h-full object-contain'
+                  />
+                  <div className='relative px-4 py-2 flex items-center justify-center gap-[0.5vw]'>
+                    <span className='text-[2vw] clash-display-semibold text-white capitalize'>
+                      {nextPrayer?.name} starts in:{' '}
+                    </span>
+                    <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                      {nextPrayer?.timeBefore}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className='flex flex-col items-center text-white gap-[0.5vh]'>
@@ -90,6 +112,7 @@ export function Theme2({
               <Theme2PrayerCard
                 prayerNames={getFilteredJummaPrayerNames(prayerTimeSettings)}
                 processedPrayerTimings={processedPrayerTimings}
+                highlight
               />
             </div>
           </div>
@@ -106,6 +129,7 @@ interface Theme2PrayerCardProps {
   prayerNames: (keyof PrayerAdjustments)[];
   processedPrayerTimings: ProcessedPrayerTiming[];
   className?: string;
+  highlight?: boolean;
 }
 
 /**
@@ -115,6 +139,7 @@ export function Theme2PrayerCard({
   prayerNames,
   processedPrayerTimings,
   className = '',
+  highlight = false,
 }: Theme2PrayerCardProps) {
   const cardImage = getPrayerCardImage(prayerNames[0], Theme.Theme2);
 
@@ -140,9 +165,11 @@ export function Theme2PrayerCard({
       />
       <div className='absolute inset-0 flex items-center justify-start pl-[5vw] top-[2.5vh]'>
         <div
-          className={`flex flex-col items-start transition-all duration-300 ${
+          className={cn(
+            `flex flex-col items-start transition-all duration-300 px-6 py-1`,
+            highlight ? 'bg-amber-600 rounded-full' : '',
             isAnimating ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
-          }`}
+          )}
         >
           <span className='text-[4vw] text-white drop-shadow-2xl clash-grotesk-semibold leading-none'>
             {timeNumber}

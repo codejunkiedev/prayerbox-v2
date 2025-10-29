@@ -1,6 +1,7 @@
 import { formatTime, addTimeMinutes } from './date-time';
-import type { PrayerAdjustments, PrayerTimes } from '@/types';
+import type { PrayerAdjustments, PrayerTimes, ProcessedPrayerTiming } from '@/types';
 import type { AlAdhanPrayerTimes } from '@/types';
+import { differenceInMinutes } from 'date-fns';
 
 type PrayerName = keyof PrayerAdjustments;
 
@@ -135,4 +136,27 @@ export const getFilteredJummaPrayerNames = (
 
   // If no adjustments exist for any Jumma variant, return only jumma1 (which equals dhuhr)
   return adjustedJummaVariants.length > 0 ? adjustedJummaVariants : ['jumma1'];
+};
+
+/**
+ * Gets the time before the next prayer
+ * @param prayerTimes Prayer times
+ * @returns Time before the next prayer
+ */
+export const getTimeBeforeNextPrayer = (
+  prayerTimes: ProcessedPrayerTiming[]
+): { timeBefore: string; name: keyof PrayerAdjustments } | null => {
+  const currentTime = new Date();
+  const nextPrayerTime = prayerTimes.find(
+    prayer => new Date(`${currentTime.toDateString()} ${prayer.time}`) > currentTime
+  );
+  if (!nextPrayerTime) return null;
+  const difference = differenceInMinutes(
+    new Date(`${currentTime.toDateString()} ${nextPrayerTime.time}`),
+    currentTime
+  );
+  const hours = Math.floor(difference / 60);
+  const minutes = difference % 60;
+  const formattedTime = `${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
+  return { timeBefore: formattedTime, name: nextPrayerTime.name };
 };
