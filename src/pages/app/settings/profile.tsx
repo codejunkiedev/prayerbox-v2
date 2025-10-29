@@ -19,7 +19,7 @@ import {
 } from '@/lib/zod';
 import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Copy, MapPin, ArrowLeft } from 'lucide-react';
+import { Copy, MapPin, ArrowLeft, X } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { MapModal } from '@/components/modals';
 import { PageHeader } from '@/components/common';
@@ -283,20 +283,7 @@ export default function Profile() {
                         className='absolute top-0 right-0 bg-black bg-opacity-50 text-white p-1 rounded-bl-md hover:bg-opacity-70'
                         aria-label='Remove logo'
                       >
-                        <svg
-                          xmlns='http://www.w3.org/2000/svg'
-                          width='16'
-                          height='16'
-                          viewBox='0 0 24 24'
-                          fill='none'
-                          stroke='currentColor'
-                          strokeWidth='2'
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                        >
-                          <line x1='18' y1='6' x2='6' y2='18'></line>
-                          <line x1='6' y1='6' x2='18' y2='18'></line>
-                        </svg>
+                        <X size={16} />
                       </button>
                       <img
                         src={previewLogo}
