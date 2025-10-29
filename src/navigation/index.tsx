@@ -12,10 +12,10 @@ import {
   Loading,
   Login,
   Posts,
-  Profile,
   Register,
   ResetPassword,
   Settings,
+  SettingsProfile,
   SettingsModules,
   SettingsThemes,
   SettingsHijri,
@@ -79,7 +79,6 @@ export default function Navigation() {
           {/* Admin routes with layout - require authentication */}
           <Route element={isLoggedInWithEmail ? <AppLayout /> : <Navigate to={AuthRoutes.Login} />}>
             <Route path={AppRoutes.Home} element={<Home />} />
-            <Route path={AppRoutes.Profile} element={<Profile />} />
             <Route path={AppRoutes.ResetPassword} element={<ResetPassword />} />
             <Route path={AppRoutes.UpdatePassword} element={<UpdatePassword />} />
             <Route path={AppRoutes.AyatAndHadith} element={<AyatAndHadith />} />
@@ -88,6 +87,7 @@ export default function Navigation() {
             <Route path={AppRoutes.Posts} element={<Posts />} />
             <Route path={AppRoutes.PrayerTimings} element={<PrayerTimings />} />
             <Route path={AppRoutes.Settings} element={<Settings />} />
+            <Route path={AppRoutes.SettingsProfile} element={<SettingsProfile />} />
             <Route path={AppRoutes.SettingsModules} element={<SettingsModules />} />
             <Route path={AppRoutes.SettingsThemes} element={<SettingsThemes />} />
             <Route path={AppRoutes.SettingsHijri} element={<SettingsHijri />} />

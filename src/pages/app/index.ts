@@ -1,7 +1,6 @@
 import { lazy } from 'react';
 
 export const Home = lazy(() => import('./home'));
-export const Profile = lazy(() => import('./profile'));
 export const ResetPassword = lazy(() => import('./reset-password'));
 export const UpdatePassword = lazy(() => import('./update-password'));
 export const AyatAndHadith = lazy(() => import('./ayat-and-hadith'));
@@ -13,4 +12,5 @@ export const Settings = lazy(() => import('./settings'));
 export const SettingsModules = lazy(() => import('./settings/modules'));
 export const SettingsThemes = lazy(() => import('./settings/themes'));
 export const SettingsHijri = lazy(() => import('./settings/hijri'));
+export const SettingsProfile = lazy(() => import('./settings/profile'));
 export const Display = lazy(() => import('./display'));
