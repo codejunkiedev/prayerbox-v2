@@ -1,10 +1,11 @@
-import { formatTimeNumber, getPrayerCardImage } from '@/utils';
+import { cn, formatTimeNumber, getPrayerCardImage, getTimeBeforeNextPrayer } from '@/utils';
 import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme1Background from '@/assets/themes/theme-1/background.jpg';
 import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
 import { useTextTransition } from '@/hooks';
 import { CurrentTime } from '@/components/display/shared';
+import { useMemo } from 'react';
 
 /**
  * Prayer timing display component with Theme 1 layout - displays timings in cards with digital clock styling
@@ -18,6 +19,10 @@ export function Theme1({
   processedPrayerTimings,
   prayerTimeSettings,
 }: ThemeProps) {
+  const nextPrayer = useMemo(() => {
+    return getTimeBeforeNextPrayer(processedPrayerTimings);
+  }, [processedPrayerTimings]);
+
   return (
     <div
       className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-end overflow-hidden'
@@ -46,6 +51,16 @@ export function Theme1({
                 {sunset}
               </span>
             </div>
+            {nextPrayer && (
+              <div className='text-right'>
+                <span className='text-[1.6vw] barlow-regular capitalize'>
+                  {nextPrayer?.name} starts in:{' '}
+                </span>
+                <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
+                  {nextPrayer?.timeBefore}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -68,6 +83,7 @@ export function Theme1({
                 prayerNames={getFilteredJummaPrayerNames(prayerTimeSettings)}
                 processedPrayerTimings={processedPrayerTimings}
                 position='left'
+                highlight
               />
             </div>
 
@@ -101,6 +117,7 @@ interface PrayerTimingCardProps {
   processedPrayerTimings: ProcessedPrayerTiming[];
   position: 'left' | 'right';
   className?: string;
+  highlight?: boolean;
 }
 
 /**
@@ -111,6 +128,7 @@ export function PrayerTimingCard({
   processedPrayerTimings,
   position,
   className = '',
+  highlight = false,
 }: PrayerTimingCardProps) {
   const cardImage = getPrayerCardImage(prayerNames[0], Theme.Theme1);
   const isLeftColumn = position === 'left';
@@ -141,9 +159,11 @@ export function PrayerTimingCard({
         }`}
       >
         <div
-          className={`flex items-baseline gap-[0.3vw] transition-all duration-300 ${
+          className={cn(
+            `flex items-baseline gap-[0.3vw] transition-all duration-300 px-6 py-1`,
+            highlight ? 'bg-amber-600 rounded-full' : '',
             isAnimating ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
-          }`}
+          )}
         >
           <span className='text-[4vw] font-bold text-white drop-shadow-2xl ds-digi-font'>
             {timeNumber}

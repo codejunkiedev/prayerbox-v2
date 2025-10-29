@@ -9,7 +9,7 @@ export function LocationNotSet() {
   return (
     <div className='text-center py-8'>
       <p className='text-lg mb-4'>Please set your masjid location in the profile page</p>
-      <Link to={AppRoutes.Profile}>
+      <Link to={AppRoutes.SettingsProfile}>
         <Button variant='default'>Go to Profile</Button>
       </Link>
     </div>

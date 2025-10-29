@@ -104,19 +104,8 @@ export async function validateImageForFullScreen(file: File): Promise<ImageValid
  */
 function validateDimensions(dimensions: ImageDimensions): ImageValidationResult {
   const { width, height, aspectRatio } = dimensions;
-  const { min, recommended, max } = DIMENSION_LIMITS;
+  const { recommended, max } = DIMENSION_LIMITS;
   const { ratio, tolerance, name } = ASPECT_RATIO_CONFIG;
-
-  // Check minimum dimensions
-  if (width < min.width || height < min.height) {
-    return {
-      isValid: false,
-      error: `Image resolution too low. Minimum required: ${COMMON_RESOLUTIONS.HD}`,
-      dimensions,
-      recommendation: 'Please use HD quality or higher for optimal full-screen display.',
-      quality: 'minimum',
-    };
-  }
 
   // Check maximum dimensions
   if (width > max.width || height > max.height) {
