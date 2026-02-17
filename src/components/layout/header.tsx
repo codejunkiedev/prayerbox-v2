@@ -65,12 +65,6 @@ export default function Header({ onMenuClick, isScrolled = false }: HeaderProps)
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end' className='w-56'>
-            <Link to={AppRoutes.Profile}>
-              <DropdownMenuItem className='cursor-pointer'>
-                <UserRound className='mr-2 h-4 w-4' />
-                <span>Profile</span>
-              </DropdownMenuItem>
-            </Link>
             <Link to={AppRoutes.UpdatePassword}>
               <DropdownMenuItem className='cursor-pointer'>
                 <RectangleEllipsis className='mr-2 h-4 w-4' />

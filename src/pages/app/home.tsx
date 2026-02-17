@@ -44,7 +44,7 @@ export default function Home() {
       title: 'Update Profile',
       description: 'Manage your masjid information',
       icon: <User className='h-5 w-5' />,
-      path: AppRoutes.Profile,
+      path: AppRoutes.SettingsProfile,
     },
     {
       title: 'Settings',

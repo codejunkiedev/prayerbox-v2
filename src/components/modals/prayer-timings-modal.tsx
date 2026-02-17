@@ -349,7 +349,7 @@ export function PrayerTimingsModal({
                   {masjidCoordinates
                     ? 'To update these coordinates, please visit the'
                     : 'To set these coordinates, please visit the'}{' '}
-                  <Link to={AppRoutes.Profile} className='text-primary hover:underline'>
+                  <Link to={AppRoutes.SettingsProfile} className='text-primary hover:underline'>
                     Profile page
                   </Link>
                   .

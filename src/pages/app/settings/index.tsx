@@ -1,10 +1,17 @@
 import { Link } from 'react-router';
-import { Palette, Calendar, Grid } from 'lucide-react';
+import { Palette, Calendar, Grid, UserRound } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
 
 const settingsModules = [
+  {
+    title: 'Profile',
+    description: 'Manage masjid profile, logo, and location',
+    icon: UserRound,
+    route: AppRoutes.SettingsProfile,
+    color: 'text-orange-600',
+  },
   {
     title: 'Modules',
     description: 'Configure display modules, their order, and visibility',

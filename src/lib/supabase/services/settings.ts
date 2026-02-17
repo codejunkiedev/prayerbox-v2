@@ -123,6 +123,13 @@ export async function updateHijriSettings(
 
 export async function getOrCreateSettings(): Promise<Settings | null> {
   const settings = await getSettings();
-  if (!settings) return await createDefaultSettings();
-  return settings;
+  if (settings) return settings;
+
+  try {
+    return await createDefaultSettings();
+  } catch {
+    // If insert fails due to unique constraint (race condition from concurrent calls),
+    // the record was already created — just fetch it.
+    return await getSettings();
+  }
 }
