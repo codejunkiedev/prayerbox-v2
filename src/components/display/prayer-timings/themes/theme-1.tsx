@@ -83,7 +83,6 @@ export function Theme1({
                 prayerNames={getFilteredJummaPrayerNames(prayerTimeSettings)}
                 processedPrayerTimings={processedPrayerTimings}
                 position='left'
-                highlight
               />
             </div>
 

@@ -112,7 +112,6 @@ export function Theme2({
               <Theme2PrayerCard
                 prayerNames={getFilteredJummaPrayerNames(prayerTimeSettings)}
                 processedPrayerTimings={processedPrayerTimings}
-                highlight
               />
             </div>
           </div>
