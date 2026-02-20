@@ -304,7 +304,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
               {/* Help text */}
               <p className='text-xs text-muted-foreground'>
                 <strong>Strict requirement:</strong> Only 16:9 aspect ratio images accepted. Perfect
-                for full-screen display.
+                for full-screen display. Max file size: 5MB.
               </p>
               <p className='text-xs text-muted-foreground mt-1'>
                 Need to resize your image? Try{' '}
