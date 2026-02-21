@@ -26,3 +26,15 @@ export const isNullOrUndefined = <T>(value: T | null | undefined): value is null
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+/**
+ * Formats a dropzone file rejection error message to be more user-friendly
+ * Converts byte values to MB in file size error messages
+ */
+export function formatFileRejectionError(message: string): string {
+  return message.replace(
+    /File is larger than (\d+) bytes/,
+    (_, bytes) =>
+      `File is larger than ${(Number(bytes) / (1024 * 1024)).toFixed(0)}MB. Please use resizer tool to reduce the file size.`
+  );
+}
