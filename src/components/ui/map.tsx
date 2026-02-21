@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { MapPin, Locate, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { MapPin, Locate, Check, AlertCircle, Loader2, Search, X } from 'lucide-react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { toast } from 'sonner';
+import { useLocationSearch } from '@/hooks';
 
 const API_KEY = import.meta.env.VITE_GEOAPIFY_API_KEY;
 const TILE_URL = `https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${API_KEY}`;
@@ -102,6 +103,86 @@ const LocateMeButton: React.FC<LocateMeButtonProps> = ({ onLocate, status, error
   );
 };
 
+interface LocationSearchProps {
+  onSelect: (lat: number, lng: number) => void;
+}
+
+/**
+ * Search overlay for finding locations by area name
+ */
+const LocationSearch: React.FC<LocationSearchProps> = ({ onSelect }) => {
+  const { query, results, isSearching, isOpen, setIsOpen, handleQueryChange, clearSearch } =
+    useLocationSearch();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [setIsOpen]);
+
+  const handleSelect = (lat: number, lng: number) => {
+    onSelect(lat, lng);
+    clearSearch();
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      className='absolute top-4 left-1/2 -translate-x-1/2 w-64'
+      style={{ zIndex: 1000 }}
+    >
+      <div className='relative'>
+        <Search
+          size={14}
+          className='absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none'
+        />
+        <input
+          type='text'
+          value={query}
+          onChange={e => handleQueryChange(e.target.value)}
+          placeholder='Search area...'
+          className='w-full pl-8 pr-8 py-2 text-xs bg-white/80 backdrop-blur-sm rounded shadow-sm border-none outline-none focus:bg-white focus:ring-1 focus:ring-teal-500 transition-colors'
+        />
+        {(query || isSearching) && (
+          <button
+            onClick={clearSearch}
+            className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600'
+          >
+            {isSearching ? <Loader2 size={14} className='animate-spin' /> : <X size={14} />}
+          </button>
+        )}
+      </div>
+
+      {isOpen && results.length > 0 && (
+        <ul className='mt-1 bg-white/95 backdrop-blur-sm rounded shadow-md max-h-48 overflow-y-auto'>
+          {results.map(feature => (
+            <li key={feature.properties.place_id}>
+              <button
+                onClick={() =>
+                  handleSelect(feature.geometry.coordinates[1], feature.geometry.coordinates[0])
+                }
+                className='w-full text-left px-3 py-2 text-xs hover:bg-teal-50 transition-colors cursor-pointer'
+              >
+                <span className='font-medium text-gray-800 block truncate'>
+                  {feature.properties.address_line1}
+                </span>
+                <span className='text-gray-500 block truncate'>
+                  {feature.properties.address_line2}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 interface MapProps {
   onCoordinatesChange?: (latitude: number, longitude: number) => void;
   coordinates?: { latitude: number; longitude: number } | null;
@@ -152,6 +233,22 @@ export function Map({ onCoordinatesChange, coordinates }: MapProps) {
       onCoordinatesChange(coords.lat, coords.lng);
     }
   };
+
+  const handleSearchSelect = useCallback(
+    (lat: number, lng: number) => {
+      const newPosition = L.latLng(lat, lng);
+      setCurrentPosition(newPosition);
+
+      if (mapRef.current) {
+        mapRef.current.setView(newPosition, 16);
+      }
+
+      if (onCoordinatesChange) {
+        onCoordinatesChange(lat, lng);
+      }
+    },
+    [onCoordinatesChange]
+  );
 
   const mapCenter = currentPosition || L.latLng(33.69, 73.03);
   const zoom = currentPosition && coordinates ? 18 : 15;
@@ -234,6 +331,7 @@ export function Map({ onCoordinatesChange, coordinates }: MapProps) {
         <LocationMarker onPositionChange={handlePositionChange} position={currentPosition} />
       </MapContainer>
 
+      <LocationSearch onSelect={handleSearchSelect} />
       <CoordinatesDisplay position={currentPosition} />
       <LocateMeButton
         onLocate={handleLocateMe}

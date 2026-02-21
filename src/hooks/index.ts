@@ -8,3 +8,4 @@ export * from './useWeatherData';
 export * from './useTextTransition';
 export * from './useAdjustedHijriDate';
 export * from './useSettings';
+export * from './useLocationSearch';
