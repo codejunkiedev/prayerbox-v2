@@ -10,12 +10,16 @@ export default defineConfig({
     react(),
     tailwindcss(),
     legacy({
-      targets: ['chrome >= 49', 'android >= 7'],
+      targets: ['defaults', 'chrome >= 49', 'android >= 5', 'not IE 11'],
+      polyfills: true, // Auto-inject core-js polyfills
+      modernPolyfills: true,
+      renderLegacyChunks: true,
       additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
     }),
   ],
   build: {
     target: 'es2015',
+    minify: 'terser', // Better for older browsers than esbuild
   },
   resolve: {
     alias: {
