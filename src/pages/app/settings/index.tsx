@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Palette, Calendar, Grid, UserRound } from 'lucide-react';
+import { Palette, Calendar, Grid, UserRound, Shield } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
@@ -32,6 +32,13 @@ const settingsModules = [
     icon: Calendar,
     route: AppRoutes.SettingsHijri,
     color: 'text-green-600',
+  },
+  {
+    title: 'Account',
+    description: 'Manage your email address and password',
+    icon: Shield,
+    route: AppRoutes.SettingsAccount,
+    color: 'text-red-600',
   },
 ];
 

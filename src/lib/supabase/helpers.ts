@@ -304,6 +304,22 @@ export async function updateUserPasswordWithVerification(
 }
 
 /**
+ * Helper to update the user's email address
+ * Supabase sends a confirmation link to the new email
+ * @param newEmail The new email address
+ */
+export async function updateUserEmail(newEmail: string) {
+  const { error } = await supabase.auth.updateUser({ email: newEmail });
+
+  if (error) {
+    console.error('Error updating user email:', error);
+    throw error;
+  }
+
+  return true;
+}
+
+/**
  * Helper to reset the user's password
  * @param email User's email
  */

@@ -1,15 +1,12 @@
-import { Menu, LogOut, UserRound, RectangleEllipsis } from 'lucide-react';
+import { Menu, LogOut, UserRound } from 'lucide-react';
 import {
   Button,
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   ThemeToggle,
 } from '@/components/ui';
-import { Link } from 'react-router';
-import { AppRoutes } from '@/constants';
 import { useState } from 'react';
 import { SignOutModal } from '@/components/modals';
 import { cn } from '@/utils';
@@ -65,13 +62,6 @@ export default function Header({ onMenuClick, isScrolled = false }: HeaderProps)
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end' className='w-56'>
-            <Link to={AppRoutes.UpdatePassword}>
-              <DropdownMenuItem className='cursor-pointer'>
-                <RectangleEllipsis className='mr-2 h-4 w-4' />
-                <span>Update Password</span>
-              </DropdownMenuItem>
-            </Link>
-            <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={openSignOutDialog}
               className='cursor-pointer text-red-600 focus:text-red-600'

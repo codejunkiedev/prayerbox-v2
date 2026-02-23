@@ -9,7 +9,6 @@ export enum AppRoutes {
   Display = '/',
   Home = '/admin',
   ResetPassword = '/admin/reset-password',
-  UpdatePassword = '/admin/update-password',
   AyatAndHadith = '/admin/ayat-and-hadith',
   Announcements = '/admin/announcements',
   Events = '/admin/events',
@@ -20,4 +19,5 @@ export enum AppRoutes {
   SettingsModules = '/admin/settings/modules',
   SettingsThemes = '/admin/settings/themes',
   SettingsHijri = '/admin/settings/hijri-adjustment',
+  SettingsAccount = '/admin/settings/account',
 }

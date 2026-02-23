@@ -19,7 +19,7 @@ import {
   SettingsModules,
   SettingsThemes,
   SettingsHijri,
-  UpdatePassword,
+  SettingsAccount,
   PrayerTimings,
   Display,
   LoginWithCode,
@@ -80,7 +80,7 @@ export default function Navigation() {
           <Route element={isLoggedInWithEmail ? <AppLayout /> : <Navigate to={AuthRoutes.Login} />}>
             <Route path={AppRoutes.Home} element={<Home />} />
             <Route path={AppRoutes.ResetPassword} element={<ResetPassword />} />
-            <Route path={AppRoutes.UpdatePassword} element={<UpdatePassword />} />
+            <Route path={AppRoutes.SettingsAccount} element={<SettingsAccount />} />
             <Route path={AppRoutes.AyatAndHadith} element={<AyatAndHadith />} />
             <Route path={AppRoutes.Announcements} element={<Announcements />} />
             <Route path={AppRoutes.Events} element={<Events />} />

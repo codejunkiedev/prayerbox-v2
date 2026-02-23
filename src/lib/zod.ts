@@ -57,6 +57,12 @@ export const updatePasswordSchema = z
 
 export type UpdatePasswordData = z.infer<typeof updatePasswordSchema>;
 
+export const changeEmailSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+});
+
+export type ChangeEmailData = z.infer<typeof changeEmailSchema>;
+
 export const masjidProfileSchema = z.object({
   name: z.string().min(1, 'Masjid name is required'),
   area: z.string().min(1, 'Area is required'),
