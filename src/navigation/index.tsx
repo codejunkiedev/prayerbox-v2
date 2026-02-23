@@ -22,6 +22,7 @@ import {
   SettingsAccount,
   PrayerTimings,
   Display,
+  DisplayLogout,
   LoginWithCode,
 } from '@/pages';
 import { useDisplayStore } from '@/store';
@@ -98,6 +99,7 @@ export default function Navigation() {
             element={isLoggedInWithCode ? <Outlet /> : <Navigate to={AuthRoutes.LoginWithCode} />}
           >
             <Route path={AppRoutes.Display} element={<Display />} />
+            <Route path={AppRoutes.DisplayLogout} element={<DisplayLogout />} />
           </Route>
 
           <Route path={'*'} element={<Navigate to={route} />} />

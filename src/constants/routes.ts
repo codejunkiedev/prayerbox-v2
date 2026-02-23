@@ -7,6 +7,7 @@ export enum AuthRoutes {
 
 export enum AppRoutes {
   Display = '/',
+  DisplayLogout = '/logout',
   Home = '/admin',
   ResetPassword = '/admin/reset-password',
   AyatAndHadith = '/admin/ayat-and-hadith',
