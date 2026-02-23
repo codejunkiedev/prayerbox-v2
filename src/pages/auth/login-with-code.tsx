@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Label, ErrorBox } from '@/components/ui';
 import { cn } from '@/utils';
 import { loginWithCodeSchema, type LoginWithCodeData } from '@/lib/zod';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { getMasjidByCode } from '@/lib/supabase';
 import { AuthRoutes } from '@/constants';
 import { useDisplayStore } from '@/store';
@@ -12,6 +12,8 @@ import { useDisplayStore } from '@/store';
 export default function LoginWithCode() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [searchParams] = useSearchParams();
+  const hasAutoLoginAttempted = useRef(false);
 
   const { setLoggedIn, setMasjidProfile } = useDisplayStore();
 
@@ -24,26 +26,41 @@ export default function LoginWithCode() {
     defaultValues: { code: '' },
   });
 
-  const onSubmit = async (data: LoginWithCodeData) => {
-    try {
-      setIsLoading(true);
-      setErrorMessage('');
+  const loginWithCode = useCallback(
+    async (code: string) => {
+      try {
+        setIsLoading(true);
+        setErrorMessage('');
 
-      const masjid = await getMasjidByCode(data.code);
+        const masjid = await getMasjidByCode(code);
 
-      if (!masjid) {
-        setErrorMessage('Invalid masjid code. Please check and try again.');
-        return;
+        if (!masjid) {
+          setErrorMessage('Invalid masjid code. Please check and try again.');
+          return;
+        }
+
+        setMasjidProfile(masjid);
+        setLoggedIn(true);
+      } catch (err) {
+        console.error('Error during login with code:', err);
+        setErrorMessage(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [setLoggedIn, setMasjidProfile]
+  );
 
-      setMasjidProfile(masjid);
-      setLoggedIn(true);
-    } catch (err) {
-      console.error('Error during login with code:', err);
-      setErrorMessage(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    const code = searchParams.get('code');
+    if (code && !hasAutoLoginAttempted.current) {
+      hasAutoLoginAttempted.current = true;
+      loginWithCode(code);
     }
+  }, [searchParams, loginWithCode]);
+
+  const onSubmit = async (data: LoginWithCodeData) => {
+    await loginWithCode(data.code);
   };
 
   const handleInputChange = () => {

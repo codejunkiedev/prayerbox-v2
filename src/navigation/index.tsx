@@ -33,8 +33,7 @@ export default function Navigation() {
 
   const { loggedIn: isLoggedInWithCode } = useDisplayStore();
 
-  const isLoggedIn = isLoggedInWithCode || isLoggedInWithEmail || false;
-  const route = isLoggedInWithCode ? AppRoutes.Display : AppRoutes.Home;
+  const route = isLoggedInWithEmail ? AppRoutes.Home : AppRoutes.Display;
 
   useEffect(() => {
     const checkUser = async () => {
@@ -69,12 +68,16 @@ export default function Navigation() {
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
         <Routes>
-          {/* Auth routes - only accessible when logged out */}
-          <Route element={isLoggedIn ? <Navigate to={route} /> : <Outlet />}>
+          {/* Email auth routes - only accessible when not logged in with email */}
+          <Route element={isLoggedInWithEmail ? <Navigate to={AppRoutes.Home} /> : <Outlet />}>
             <Route path={AuthRoutes.Login} element={<Login />} />
-            <Route path={AuthRoutes.LoginWithCode} element={<LoginWithCode />} />
             <Route path={AuthRoutes.Register} element={<Register />} />
             <Route path={AuthRoutes.ForgotPassword} element={<ForgotPassword />} />
+          </Route>
+
+          {/* Code auth route - only accessible when not logged in with code */}
+          <Route element={isLoggedInWithCode ? <Navigate to={AppRoutes.Display} /> : <Outlet />}>
+            <Route path={AuthRoutes.LoginWithCode} element={<LoginWithCode />} />
           </Route>
 
           {/* Admin routes with layout - require authentication */}
