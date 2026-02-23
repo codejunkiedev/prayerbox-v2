@@ -64,6 +64,7 @@ export async function upsertMasjidProfile(
     latitude: profileData.latitude || null,
     longitude: profileData.longitude || null,
     name: profileData.name,
+    area: profileData.area,
     code: existingProfile?.code || generateMasjidCode(),
   };
 

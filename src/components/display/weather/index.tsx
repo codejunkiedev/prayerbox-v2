@@ -10,12 +10,13 @@ import windIcon from '@/assets/icons/weather/wind.svg';
 
 interface WeatherDisplayProps {
   weatherForecast: WeatherForecast;
+  area?: string;
 }
 
 /**
  * Displays current weather conditions and forecast with animated background video and weather icons
  */
-export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
+export function WeatherDisplay({ weatherForecast, area }: WeatherDisplayProps) {
   const { current, forecast } = weatherForecast;
 
   const formatDescription = (description: string) => {
@@ -38,9 +39,11 @@ export function WeatherDisplay({ weatherForecast }: WeatherDisplayProps) {
     <DisplayContainer backgroundVideo={getBackgroundVideo()} backgroundImage={bgImage}>
       <AnimationProvider>
         <div className='flex flex-col items-center justify-center w-full h-full px-[5vw] py-[2.5vh]'>
-          {/* <motion.div variants={itemVariants} className='text-white text-center mb-[3vh]'>
-            <h3 className='text-[3.5vw] font-bold drop-shadow-lg'>{current.cityName}</h3>
-          </motion.div> */}
+          {area && (
+            <motion.div variants={itemVariants} className='text-white text-center mb-[3vh]'>
+              <h3 className='text-[3.5vw] font-bold drop-shadow-lg'>{area}</h3>
+            </motion.div>
+          )}
 
           {/* Today's Weather - Prominent Display */}
           <motion.div

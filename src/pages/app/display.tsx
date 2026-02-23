@@ -1,4 +1,5 @@
 import { useFetchDisplayData, usePrayerTimings, useWeatherData } from '@/hooks';
+import { useDisplayStore } from '@/store';
 import Loading from '../loading-page';
 import {
   ErrorDisplay,
@@ -31,6 +32,8 @@ export default function Display() {
     isLoading: isWeatherLoading,
     errorMessage: weatherErrorMessage,
   } = useWeatherData();
+
+  const { masjidProfile } = useDisplayStore();
 
   if (isLoading || isPrayerTimingsLoading || isWeatherLoading) return <Loading />;
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
@@ -99,7 +102,7 @@ export default function Display() {
         </SwiperSlide>
         {weatherForecast && (
           <SwiperSlide>
-            <WeatherDisplay weatherForecast={weatherForecast} />
+            <WeatherDisplay weatherForecast={weatherForecast} area={masjidProfile?.area} />
           </SwiperSlide>
         )}
         {orderedContentGroups.length > 0 && orderedContentGroups.flatMap(group => group.content)}

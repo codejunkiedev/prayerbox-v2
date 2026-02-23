@@ -1,0 +1,1 @@
+ALTER TABLE masjid_profiles ADD COLUMN area TEXT NOT NULL DEFAULT '';

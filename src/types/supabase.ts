@@ -32,6 +32,7 @@ export interface MasjidProfile extends Base {
   code: string;
   logo_url: string;
   name: string;
+  area: string;
   latitude: number | null;
   longitude: number | null;
 }

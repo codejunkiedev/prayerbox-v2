@@ -47,7 +47,7 @@ export default function Profile() {
     watch,
   } = useForm<MasjidProfileData>({
     resolver: zodResolver(masjidProfileSchema),
-    defaultValues: { name: '', latitude: 0, longitude: 0 },
+    defaultValues: { name: '', area: '', latitude: 0, longitude: 0 },
   });
 
   const latitude = watch('latitude');
@@ -63,6 +63,7 @@ export default function Profile() {
         if (profile) {
           reset({
             name: profile.name,
+            area: profile.area || '',
             latitude: profile.latitude || 0,
             longitude: profile.longitude || 0,
           });
@@ -226,35 +227,52 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className='space-y-2'>
-                <label htmlFor='location' className='block text-sm font-medium text-foreground'>
-                  Masjid Location
-                </label>
-                <div className='flex gap-2'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <label htmlFor='area' className='block text-sm font-medium text-foreground'>
+                    Area
+                  </label>
                   <Input
-                    id='location'
-                    placeholder='Select location on map'
-                    readOnly
-                    value={
-                      coordinates
-                        ? `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`
-                        : ''
-                    }
-                    className='bg-muted cursor-not-allowed flex-1'
+                    id='area'
+                    {...register('area')}
+                    placeholder='e.g. Gulshan-e-Iqbal, Karachi'
+                    className={errors.area ? 'border-red-500' : ''}
                   />
-                  <Button
-                    type='button'
-                    variant='outline'
-                    onClick={() => setIsMapModalOpen(true)}
-                    className='flex items-center gap-2'
-                  >
-                    <MapPin size={16} />
-                    {coordinates ? 'Change Location' : 'Set Location'}
-                  </Button>
+                  {errors.area && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.area.message}</p>
+                  )}
                 </div>
-                {(errors.latitude || errors.longitude) && (
-                  <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
-                )}
+
+                <div className='space-y-2'>
+                  <label htmlFor='location' className='block text-sm font-medium text-foreground'>
+                    Masjid Location
+                  </label>
+                  <div className='flex gap-2'>
+                    <Input
+                      id='location'
+                      placeholder='Select location on map'
+                      readOnly
+                      value={
+                        coordinates
+                          ? `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`
+                          : ''
+                      }
+                      className='bg-muted cursor-not-allowed flex-1'
+                    />
+                    <Button
+                      type='button'
+                      variant='outline'
+                      onClick={() => setIsMapModalOpen(true)}
+                      className='flex items-center gap-2'
+                    >
+                      <MapPin size={16} />
+                      {coordinates ? 'Change Location' : 'Set Location'}
+                    </Button>
+                  </div>
+                  {(errors.latitude || errors.longitude) && (
+                    <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
+                  )}
+                </div>
               </div>
 
               <div className='space-y-2'>
