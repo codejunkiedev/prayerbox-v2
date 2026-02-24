@@ -30,7 +30,7 @@ export function Theme1({
     >
       <div className='w-[90vw] h-full flex flex-col px-[5vw]'>
         {/* Header Section */}
-        <div className='flex flex-row items-center justify-between'>
+        <div className='flex-shrink-0 flex flex-row items-center justify-between'>
           <div className='flex flex-col items-start text-white gap-[0.5vh]'>
             <span className='text-[2vw] barlow-regular'>{gregorianDate}</span>
             <span className='text-[2vw] barlow-regular'>{hijriDate}</span>
@@ -65,10 +65,10 @@ export function Theme1({
         </div>
 
         {/* Prayer Timings Grid */}
-        <div className='flex-1 flex items-center justify-between'>
+        <div className='flex-1 flex items-center justify-between min-h-0'>
           <div className='grid grid-cols-2 mx-auto w-full h-full gap-x-[1vw]'>
             {/* Left Column */}
-            <div className='flex flex-col items-end justify-start'>
+            <div className='flex flex-col items-end justify-evenly h-full'>
               <PrayerTimingCard
                 prayerNames={['dhuhr']}
                 processedPrayerTimings={processedPrayerTimings}
@@ -87,7 +87,7 @@ export function Theme1({
             </div>
 
             {/* Right Column */}
-            <div className='flex flex-col items-start justify-start'>
+            <div className='flex flex-col items-start justify-evenly h-full'>
               <PrayerTimingCard
                 prayerNames={['fajr']}
                 processedPrayerTimings={processedPrayerTimings}

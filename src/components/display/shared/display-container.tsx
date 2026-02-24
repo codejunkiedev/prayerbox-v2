@@ -16,7 +16,7 @@ export function DisplayContainer({
   backgroundVideo,
 }: DisplayContainerProps) {
   return (
-    <div className='flex flex-col items-center justify-center min-h-screen w-full overflow-hidden relative'>
+    <div className='flex flex-col items-center justify-center h-screen w-full overflow-hidden relative'>
       {/* Video Background */}
       {backgroundVideo && (
         <video
