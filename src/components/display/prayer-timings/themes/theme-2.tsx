@@ -33,7 +33,7 @@ export function Theme2({
         {/* Left side - Prayer content */}
         <div className='w-[65vw] h-full flex flex-col px-[2.5vw]'>
           {/* Header Section */}
-          <div className='flex flex-row items-center justify-between py-[3vh]'>
+          <div className='flex-shrink-0 flex flex-row items-center justify-between py-[3vh]'>
             <div className='flex flex-col items-start justify-start text-white gap-[1vh]'>
               <div className='relative text-left w-[24vw]'>
                 <img
@@ -87,8 +87,8 @@ export function Theme2({
           </div>
 
           {/* Prayer Timings Grid */}
-          <div className='flex-1 flex items-center justify-center'>
-            <div className='grid grid-cols-2 grid-rows-3 gap-x-[2vw] w-full max-w-[70vw]'>
+          <div className='flex-1 flex items-center justify-center min-h-0'>
+            <div className='grid grid-cols-2 grid-rows-3 gap-x-[2vw] w-full max-w-[70vw] h-full'>
               <Theme2PrayerCard
                 prayerNames={['fajr']}
                 processedPrayerTimings={processedPrayerTimings}

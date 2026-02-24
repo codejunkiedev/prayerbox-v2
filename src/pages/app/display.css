@@ -1,22 +1,30 @@
 @import 'swiper/css';
 @import 'swiper/css/effect-fade';
 
-/* Swiper container */
+/* Swiper container - use dvh with vh fallback for TV browser compatibility */
 .swiper {
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
-  max-height: -webkit-fill-available; /* iOS viewport fix */
+  max-height: -webkit-fill-available;
 }
 
-/* Swiper slide */
+/* Swiper slide - never scroll, content must fit viewport */
 .swiper-slide {
   height: 100vh;
+  height: 100dvh;
   width: 100vw;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow-y: auto; /* Allow scrolling within slides if content overflows */
-  max-height: -webkit-fill-available; /* iOS viewport fix */
+  overflow: hidden;
+  max-height: -webkit-fill-available;
+}
+
+/* Ensure slide children fill the slide */
+.swiper-slide > div {
+  width: 100%;
+  height: 100%;
 }
 
 /* Fade effect enhancement */
