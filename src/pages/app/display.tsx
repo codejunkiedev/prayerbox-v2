@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useFetchDisplayData, usePrayerTimings, useWeatherData } from '@/hooks';
 import { useDisplayStore } from '@/store';
 import Loading from '../loading-page';
@@ -12,11 +13,16 @@ import {
   LogoutDisplay,
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, EffectFade, Keyboard } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
+import { EffectFade, Keyboard } from 'swiper/modules';
 import { getModuleOrder, sortByDisplayOrder, createOrderedContentGroups, isDev } from '@/utils';
 import './display.css';
 
+const SLIDE_DELAY = 9000;
+
 export default function Display() {
+  const swiperRef = useRef<SwiperType | null>(null);
+
   const { isLoading, errorMessage, announcements, ayatAndHadith, events, posts, userSettings } =
     useFetchDisplayData();
 
@@ -34,6 +40,20 @@ export default function Display() {
   } = useWeatherData();
 
   const { masjidProfile } = useDisplayStore();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const swiper = swiperRef.current;
+      if (!swiper) return;
+      if (swiper.activeIndex >= swiper.slides.length - 1) {
+        swiper.slideTo(0);
+      } else {
+        swiper.slideNext();
+      }
+    }, SLIDE_DELAY);
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (isLoading || isPrayerTimingsLoading || isWeatherLoading) return <Loading />;
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
@@ -82,15 +102,17 @@ export default function Display() {
   return (
     <div className='h-screen w-full overflow-hidden'>
       <Swiper
-        modules={[Autoplay, EffectFade, Keyboard]}
+        onSwiper={swiper => {
+          swiperRef.current = swiper;
+        }}
+        modules={[EffectFade, Keyboard]}
         effect='fade'
         fadeEffect={{ crossFade: true }}
         spaceBetween={0}
         slidesPerView={1}
+        speed={800}
         keyboard={{ enabled: true, onlyInViewport: true }}
         navigation={false}
-        autoplay={{ delay: 9000, disableOnInteraction: false, pauseOnMouseEnter: true }}
-        loop={true}
         className='h-full w-full'
       >
         <SwiperSlide>
