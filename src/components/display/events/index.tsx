@@ -28,7 +28,7 @@ export function EventsDisplay({ event }: EventsDisplayProps) {
     <DisplayContainer backgroundImage={bgImage}>
       {/* Date and Time display above the main container */}
       <div className='flex justify-center items-center mb-6 z-10 animate-fade-in-down animation-delay-200'>
-        <div className='flex items-center gap-3 bg-white/10 backdrop-blur-md py-3 px-5 rounded-full transition-transform duration-200 hover:scale-105'>
+        <div className='flex items-center gap-3 bg-white/10 backdrop-blur-md py-3 px-5 rounded-full'>
           <Calendar className='h-5 w-5 text-white' />
           <span className='text-white font-medium'>
             {formattedDate} at {formattedTime}

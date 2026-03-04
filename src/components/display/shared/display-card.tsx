@@ -7,7 +7,7 @@ interface DisplayCardProps {
 }
 
 /**
- * A reusable card component with glass morphism effect, configurable width and padding, and pulsing shadow animation
+ * A reusable card component with glass morphism effect, configurable width and padding
  */
 export function DisplayCard({ children, width = 'md', padding = 'medium' }: DisplayCardProps) {
   // Width classes based on the width prop
@@ -29,7 +29,7 @@ export function DisplayCard({ children, width = 'md', padding = 'medium' }: Disp
   return (
     <div className={`${widthClasses[width]} z-10 animate-fade-in-up-slow animation-delay-200`}>
       <div
-        className={`${paddingClasses[padding]} bg-black/30 backdrop-blur-md rounded-xl border border-white/10 animate-pulse-shadow`}
+        className={`${paddingClasses[padding]} bg-black/30 backdrop-blur-md rounded-xl border border-white/10`}
       >
         {children}
       </div>

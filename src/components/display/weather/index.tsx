@@ -46,7 +46,7 @@ export function WeatherDisplay({ weatherForecast, area }: WeatherDisplayProps) {
                 src={getWeatherIconWithTimeContext(current.conditionId, current.icon)}
                 alt={current.description}
                 style={{ width: '12vw', height: '12vw' }}
-                className='drop-shadow-2xl animate-pulse'
+                className='drop-shadow-2xl'
               />
               <div className='text-center'>
                 <div className='text-[6vw] font-bold text-white drop-shadow-lg mb-[1vh]'>
@@ -96,7 +96,7 @@ export function WeatherDisplay({ weatherForecast, area }: WeatherDisplayProps) {
                   {forecast.map((day, index) => (
                     <div
                       key={index}
-                      className='flex flex-col items-center justify-between bg-black/40 backdrop-blur-md rounded-2xl hover:bg-black/50 transition-colors shadow-lg animate-fade-in-up'
+                      className='flex flex-col items-center justify-between bg-black/40 backdrop-blur-md rounded-2xl shadow-lg animate-fade-in-up'
                       style={{
                         padding: '1.5vh 1vw',
                         width: '12vw',

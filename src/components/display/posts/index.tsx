@@ -6,7 +6,7 @@ interface PostsDisplayProps {
 }
 
 /**
- * Displays a post image in full screen with hover animations
+ * Displays a post image in full screen
  */
 export function PostsDisplay({ post }: PostsDisplayProps) {
   if (!post || !post.image_url) return null;
@@ -15,11 +15,7 @@ export function PostsDisplay({ post }: PostsDisplayProps) {
     <div className='w-full h-screen overflow-hidden'>
       <AnimationProvider>
         <div className='w-full h-full stagger-item animate-fade-in-up'>
-          <img
-            src={post.image_url}
-            alt={post.title}
-            className='w-full h-full object-cover transition-transform duration-800 hover:scale-[1.02]'
-          />
+          <img src={post.image_url} alt={post.title} className='w-full h-full object-cover' />
         </div>
       </AnimationProvider>
     </div>
