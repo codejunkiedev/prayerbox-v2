@@ -44,8 +44,8 @@ export function EventsDisplay({ event }: EventsDisplayProps) {
             {event.description}
           </p>
 
-          <div className='bg-white/10 rounded-lg p-4 backdrop-blur-sm stagger-item animate-fade-in-up'>
-            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm md:text-base text-white'>
+          <div className='w-full stagger-item animate-fade-in-up'>
+            <div className='grid grid-cols-2 gap-x-8 gap-y-4'>
               {event.location && <EventDetail text={event.location} icon={MapPin} />}
 
               {event.chief_guest && (

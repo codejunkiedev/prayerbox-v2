@@ -10,11 +10,11 @@ interface EventDetailProps {
  */
 export function EventDetail({ text, icon: Icon }: EventDetailProps) {
   return (
-    <div className='flex items-start justify-between gap-3 stagger-item animate-fade-in-up'>
-      <span className='rtl text-right'>{text}</span>
-      <div className='bg-white/20 p-2 rounded-full'>
-        <Icon className='h-5 w-5 text-white' />
+    <div className='flex items-center gap-4 stagger-item animate-fade-in-up'>
+      <div className='bg-white/15 p-3 rounded-xl shrink-0'>
+        <Icon className='h-6 w-6 text-white' />
       </div>
+      <span className='rtl text-right text-white text-lg font-medium leading-snug'>{text}</span>
     </div>
   );
 }
