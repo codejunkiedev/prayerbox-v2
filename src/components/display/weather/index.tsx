@@ -1,9 +1,9 @@
 import { DisplayContainer } from '../shared';
 import { AnimationProvider } from '../shared/animation-provider';
 import type { WeatherForecast } from '@/types';
-import bgImage from '@/assets/backgrounds/05.jpeg';
+import bgImage from '@/assets/backgrounds/04.jpeg';
 import { format } from 'date-fns';
-import { getWeatherIconWithTimeContext, getWeatherBackgroundVideo } from '@/utils';
+import { getWeatherIconWithTimeContext } from '@/utils';
 import raindropIcon from '@/assets/icons/weather/raindrop.svg';
 import windIcon from '@/assets/icons/weather/wind.svg';
 
@@ -29,13 +29,8 @@ export function WeatherDisplay({ weatherForecast, area }: WeatherDisplayProps) {
     return format(date, 'EEE');
   };
 
-  // Get the appropriate background video based on current weather conditions
-  const getBackgroundVideo = () => {
-    return getWeatherBackgroundVideo(current.conditionId, current.icon);
-  };
-
   return (
-    <DisplayContainer backgroundVideo={getBackgroundVideo()} backgroundImage={bgImage}>
+    <DisplayContainer backgroundImage={bgImage}>
       <AnimationProvider>
         <div className='flex flex-col items-center justify-center w-full h-full px-[5vw] py-[2.5vh]'>
           {area && (
