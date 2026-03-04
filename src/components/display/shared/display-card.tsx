@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
 interface DisplayCardProps {
@@ -28,25 +27,12 @@ export function DisplayCard({ children, width = 'md', padding = 'medium' }: Disp
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, delay: 0.2 }}
-      className={`${widthClasses[width]} z-10`}
-    >
-      <motion.div
-        animate={{
-          boxShadow: [
-            '0 0 10px 0px rgba(255, 255, 255, 0.1)',
-            '0 0 20px 3px rgba(255, 255, 255, 0.2)',
-            '0 0 10px 0px rgba(255, 255, 255, 0.1)',
-          ],
-        }}
-        transition={{ duration: 3, repeat: Infinity }}
-        className={`${paddingClasses[padding]} bg-black/30 backdrop-blur-md rounded-xl border border-white/10`}
+    <div className={`${widthClasses[width]} z-10 animate-fade-in-up-slow animation-delay-200`}>
+      <div
+        className={`${paddingClasses[padding]} bg-black/30 backdrop-blur-md rounded-xl border border-white/10 animate-pulse-shadow`}
       >
         {children}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }

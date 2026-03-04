@@ -1,6 +1,3 @@
-import { motion } from 'framer-motion';
-import { itemVariants } from './animation-provider';
-
 interface DisplayHeadingProps {
   title: string;
   underlineWidth?: 'sm' | 'md' | 'lg';
@@ -26,19 +23,11 @@ export function DisplayHeading({ title, underlineWidth = 'md', size = 'md' }: Di
   };
 
   return (
-    <motion.div
-      variants={itemVariants}
-      className='text-center mb-6 2xl:mb-8 [@media(min-width:3000px)]:mb-12 [@media(min-width:4000px)]:mb-16'
-    >
-      <motion.h2 className={`${headingSizeClasses[size]} font-bold text-white text-center`}>
-        {title}
-      </motion.h2>
-      <motion.div
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        className={`h-1 [@media(min-width:3000px)]:h-1.5 [@media(min-width:4000px)]:h-2 ${underlineWidthClasses[underlineWidth]} bg-white/30 mx-auto rounded-full mt-2 lg:mt-4 xl:mt-6 2xl:mt-8 [@media(min-width:3000px)]:mt-12 [@media(min-width:4000px)]:mt-16`}
-      ></motion.div>
-    </motion.div>
+    <div className='text-center mb-6 2xl:mb-8 [@media(min-width:3000px)]:mb-12 [@media(min-width:4000px)]:mb-16 stagger-item animate-fade-in-up'>
+      <h2 className={`${headingSizeClasses[size]} font-bold text-white text-center`}>{title}</h2>
+      <div
+        className={`h-1 [@media(min-width:3000px)]:h-1.5 [@media(min-width:4000px)]:h-2 ${underlineWidthClasses[underlineWidth]} bg-white/30 mx-auto rounded-full mt-2 lg:mt-4 xl:mt-6 2xl:mt-8 [@media(min-width:3000px)]:mt-12 [@media(min-width:4000px)]:mt-16 animate-scale-x-in origin-left`}
+      ></div>
+    </div>
   );
 }

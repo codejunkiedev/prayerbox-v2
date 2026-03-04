@@ -1,6 +1,5 @@
 import type { Post } from '@/types';
-import { motion } from 'framer-motion';
-import { AnimationProvider, itemVariants } from '../shared';
+import { AnimationProvider } from '../shared';
 
 interface PostsDisplayProps {
   post: Post;
@@ -15,15 +14,13 @@ export function PostsDisplay({ post }: PostsDisplayProps) {
   return (
     <div className='w-full h-screen overflow-hidden'>
       <AnimationProvider>
-        <motion.div variants={itemVariants} className='w-full h-full'>
-          <motion.img
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.8 }}
+        <div className='w-full h-full stagger-item animate-fade-in-up'>
+          <img
             src={post.image_url}
             alt={post.title}
-            className='w-full h-full object-cover'
+            className='w-full h-full object-cover transition-transform duration-800 hover:scale-[1.02]'
           />
-        </motion.div>
+        </div>
       </AnimationProvider>
     </div>
   );

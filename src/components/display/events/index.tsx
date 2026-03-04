@@ -2,14 +2,12 @@ import type { Event } from '@/types';
 import { Calendar, MapPin, User, Users, Mic } from 'lucide-react';
 import { format } from 'date-fns';
 import bgImage from '@/assets/backgrounds/03.jpeg';
-import { motion } from 'framer-motion';
 import {
   AnimationProvider,
   DisplayContainer,
   DisplayCard,
   DisplayHeading,
   EventDetail,
-  itemVariants,
 } from '../shared';
 
 interface EventsDisplayProps {
@@ -29,38 +27,24 @@ export function EventsDisplay({ event }: EventsDisplayProps) {
   return (
     <DisplayContainer backgroundImage={bgImage}>
       {/* Date and Time display above the main container */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className='flex justify-center items-center mb-6 z-10'
-      >
-        <motion.div
-          whileHover={{ scale: 1.05 }}
-          className='flex items-center gap-3 bg-white/10 backdrop-blur-md py-3 px-5 rounded-full'
-        >
+      <div className='flex justify-center items-center mb-6 z-10 animate-fade-in-down animation-delay-200'>
+        <div className='flex items-center gap-3 bg-white/10 backdrop-blur-md py-3 px-5 rounded-full transition-transform duration-200 hover:scale-105'>
           <Calendar className='h-5 w-5 text-white' />
           <span className='text-white font-medium'>
             {formattedDate} at {formattedTime}
           </span>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       <DisplayCard>
         <AnimationProvider>
           <DisplayHeading title={event.title} />
 
-          <motion.p
-            variants={itemVariants}
-            className='text-white/90 text-sm sm:text-base md:text-lg mb-6 text-center leading-relaxed'
-          >
+          <p className='text-white/90 text-sm sm:text-base md:text-lg mb-6 text-center leading-relaxed stagger-item animate-fade-in-up'>
             {event.description}
-          </motion.p>
+          </p>
 
-          <motion.div
-            variants={itemVariants}
-            className='bg-white/10 rounded-lg p-4 backdrop-blur-sm'
-          >
+          <div className='bg-white/10 rounded-lg p-4 backdrop-blur-sm stagger-item animate-fade-in-up'>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm md:text-base text-white'>
               {event.location && <EventDetail text={event.location} icon={MapPin} />}
 
@@ -72,7 +56,7 @@ export function EventsDisplay({ event }: EventsDisplayProps) {
 
               {event.qari && <EventDetail text={`قاری: ${event.qari}`} icon={Mic} />}
             </div>
-          </motion.div>
+          </div>
         </AnimationProvider>
       </DisplayCard>
     </DisplayContainer>

@@ -1,6 +1,5 @@
 import { DisplayContainer } from '../shared';
-import { AnimationProvider, itemVariants } from '../shared/animation-provider';
-import { motion } from 'framer-motion';
+import { AnimationProvider } from '../shared/animation-provider';
 import type { WeatherForecast } from '@/types';
 import bgImage from '@/assets/backgrounds/05.jpeg';
 import { format } from 'date-fns';
@@ -40,16 +39,13 @@ export function WeatherDisplay({ weatherForecast, area }: WeatherDisplayProps) {
       <AnimationProvider>
         <div className='flex flex-col items-center justify-center w-full h-full px-[5vw] py-[2.5vh]'>
           {area && (
-            <motion.div variants={itemVariants} className='text-white text-center mb-[3vh]'>
+            <div className='text-white text-center mb-[3vh] stagger-item animate-fade-in-up'>
               <h3 className='text-[3.5vw] font-bold drop-shadow-lg'>{area}</h3>
-            </motion.div>
+            </div>
           )}
 
           {/* Today's Weather - Prominent Display */}
-          <motion.div
-            variants={itemVariants}
-            className='flex flex-col items-center mb-[6vh] w-full'
-          >
+          <div className='flex flex-col items-center mb-[6vh] w-full stagger-item animate-fade-in-up'>
             <div className='flex flex-row items-center justify-center gap-[8vw]'>
               <img
                 src={getWeatherIconWithTimeContext(current.conditionId, current.icon)}
@@ -95,19 +91,22 @@ export function WeatherDisplay({ weatherForecast, area }: WeatherDisplayProps) {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Weather Forecast */}
-          <motion.div variants={itemVariants} className='w-full flex flex-col items-center'>
+          <div className='w-full flex flex-col items-center stagger-item animate-fade-in-up'>
             {forecast.length > 0 ? (
               <div className='w-full flex justify-center'>
                 <div className='flex gap-[2vw]'>
                   {forecast.map((day, index) => (
-                    <motion.div
+                    <div
                       key={index}
-                      variants={itemVariants}
-                      className='flex flex-col items-center justify-between bg-black/40 backdrop-blur-md rounded-2xl hover:bg-black/50 transition-colors shadow-lg'
-                      style={{ padding: '1.5vh 1vw', width: '12vw' }}
+                      className='flex flex-col items-center justify-between bg-black/40 backdrop-blur-md rounded-2xl hover:bg-black/50 transition-colors shadow-lg animate-fade-in-up'
+                      style={{
+                        padding: '1.5vh 1vw',
+                        width: '12vw',
+                        animationDelay: `${0.3 + index * 0.1}s`,
+                      }}
                     >
                       <div className='text-white font-bold text-[1.3vw] drop-shadow-md'>
                         {getDayName(day.date)}
@@ -132,14 +131,14 @@ export function WeatherDisplay({ weatherForecast, area }: WeatherDisplayProps) {
                       >
                         {formatDescription(day.description).split(' ').slice(0, 2).join(' ')}
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </div>
             ) : (
               <div className='text-white/70 text-[2vw]'>Forecast data unavailable</div>
             )}
-          </motion.div>
+          </div>
         </div>
       </AnimationProvider>
     </DisplayContainer>

@@ -1,13 +1,6 @@
 import type { Announcement } from '@/types';
 import bgImage from '@/assets/backgrounds/01.jpeg';
-import { motion } from 'framer-motion';
-import {
-  AnimationProvider,
-  DisplayContainer,
-  DisplayCard,
-  DisplayHeading,
-  itemVariants,
-} from '../shared';
+import { AnimationProvider, DisplayContainer, DisplayCard, DisplayHeading } from '../shared';
 
 interface AnnouncementsDisplayProps {
   announcements: Announcement[];
@@ -45,16 +38,13 @@ export function AnnouncementsDisplay({ announcements }: AnnouncementsDisplayProp
         <AnimationProvider>
           <DisplayHeading title='اعلان' />
 
-          <motion.div
-            variants={itemVariants}
-            className='min-h-[150px] 2xl:min-h-[200px] [@media(min-width:3000px)]:min-h-[184px] [@media(min-width:4000px)]:min-h-[204px] flex items-center justify-center'
-          >
-            <motion.p
+          <div className='min-h-[150px] 2xl:min-h-[200px] [@media(min-width:3000px)]:min-h-[184px] [@media(min-width:4000px)]:min-h-[204px] flex items-center justify-center stagger-item animate-fade-in-up'>
+            <p
               className={`text-white ${getDynamicFontClass(announcement.description.length)} text-center leading-relaxed`}
             >
               {announcement.description}
-            </motion.p>
-          </motion.div>
+            </p>
+          </div>
         </AnimationProvider>
       </DisplayCard>
     </DisplayContainer>
