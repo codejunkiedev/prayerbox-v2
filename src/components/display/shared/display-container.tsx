@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import type { ReactNode } from 'react';
 
 interface DisplayContainerProps {
@@ -38,12 +37,7 @@ export function DisplayContainer({
         />
       )}
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
-        className='absolute inset-0 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-sm z-0'
-      ></motion.div>
+      <div className='absolute inset-0 bg-gradient-to-b from-black/60 to-black/40 backdrop-blur-sm z-0 animate-fade-in'></div>
 
       {children}
     </div>

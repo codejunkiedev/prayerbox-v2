@@ -1,6 +1,4 @@
-import { motion } from 'framer-motion';
 import type { LucideIcon } from 'lucide-react';
-import { itemVariants } from './animation-provider';
 
 interface EventDetailProps {
   text: string;
@@ -8,19 +6,15 @@ interface EventDetailProps {
 }
 
 /**
- * Displays event detail information with an icon and hover animations for interactive presentation
+ * Displays event detail information with an icon
  */
 export function EventDetail({ text, icon: Icon }: EventDetailProps) {
   return (
-    <motion.div
-      variants={itemVariants}
-      whileHover={{ x: 5 }}
-      className='flex items-start justify-between gap-3'
-    >
-      <span className='rtl text-right'>{text}</span>
-      <motion.div whileHover={{ scale: 1.2, rotate: 15 }} className='bg-white/20 p-2 rounded-full'>
-        <Icon className='h-5 w-5 text-white' />
-      </motion.div>
-    </motion.div>
+    <div className='flex items-center gap-4 stagger-item animate-fade-in-up'>
+      <div className='bg-white/15 p-3 rounded-xl shrink-0'>
+        <Icon className='h-6 w-6 text-white' />
+      </div>
+      <span className='rtl text-right text-white text-lg font-medium leading-snug'>{text}</span>
+    </div>
   );
 }
