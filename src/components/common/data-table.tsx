@@ -39,6 +39,7 @@ type DataTableProps<T> = {
   isDraggable?: boolean;
   onOrderChange?: (items: T[]) => void;
   rowClassName?: (item: T) => string;
+  onRowClick?: (item: T) => void;
 };
 
 function SortableRow<T>({
@@ -113,6 +114,7 @@ export function DataTable<T>({
   isDraggable = false,
   onOrderChange,
   rowClassName,
+  onRowClick,
 }: DataTableProps<T>) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -198,7 +200,8 @@ export function DataTable<T>({
           {data.map((item, index) => (
             <TableRow
               key={String(item[keyField])}
-              className={`hover:bg-muted/30 ${rowClassName ? rowClassName(item) : ''}`}
+              className={`hover:bg-muted/30 ${rowClassName ? rowClassName(item) : ''} ${onRowClick ? 'cursor-pointer' : ''}`}
+              onClick={() => onRowClick?.(item)}
             >
               {showRowNumbers && (
                 <TableCell className='text-muted-foreground'>{index + 1}</TableCell>
@@ -210,7 +213,9 @@ export function DataTable<T>({
                     : (item[column.key as keyof T] as ReactNode)}
                 </TableCell>
               ))}
-              {renderActions && <TableCell>{renderActions(item)}</TableCell>}
+              {renderActions && (
+                <TableCell onClick={e => e.stopPropagation()}>{renderActions(item)}</TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
