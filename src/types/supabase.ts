@@ -9,6 +9,8 @@ export enum SupabaseTables {
   Posts = 'posts',
   PrayerTimes = 'prayer_times',
   Settings = 'settings',
+  DisplayScreens = 'display_screens',
+  ScreenContent = 'screen_content',
 }
 
 export enum SupabaseBuckets {
@@ -29,12 +31,30 @@ interface Base {
 }
 
 export interface MasjidProfile extends Base {
-  code: string;
   logo_url: string;
   name: string;
   area: string;
   latitude: number | null;
   longitude: number | null;
+}
+
+export type ScreenOrientation = 'landscape' | 'portrait' | 'mobile';
+export type ScreenContentType = 'ayat_and_hadith' | 'announcements' | 'events' | 'posts';
+
+export interface DisplayScreen extends Base {
+  name: string;
+  code: string;
+  orientation: ScreenOrientation;
+  show_prayer_times: boolean;
+  show_weather: boolean;
+}
+
+export interface ScreenContent {
+  id: string;
+  screen_id: string;
+  content_id: string;
+  content_type: ScreenContentType;
+  created_at: string;
 }
 
 export interface AyatAndHadith extends Base {

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getPosts, deletePost } from '@/lib/supabase';
 import type { Post } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
-import { PostModal, DeleteConfirmationModal } from '@/components/modals';
+import { PostModal, DeleteConfirmationModal, ScreenAssignmentModal } from '@/components/modals';
 import {
   PageHeader,
   ErrorAlert,
@@ -25,6 +25,7 @@ export default function Posts() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Post | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [screenAssignItem, setScreenAssignItem] = useState<Post | null>(null);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -162,6 +163,7 @@ export default function Posts() {
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
+              onScreens={() => setScreenAssignItem(item)}
             />
           )}
         />
@@ -182,6 +184,16 @@ export default function Posts() {
         itemType='post'
         itemTitle={itemToDelete?.title}
       />
+
+      {screenAssignItem && (
+        <ScreenAssignmentModal
+          isOpen={!!screenAssignItem}
+          onClose={() => setScreenAssignItem(null)}
+          contentId={screenAssignItem.id}
+          contentType='posts'
+          contentLabel={screenAssignItem.title}
+        />
+      )}
     </div>
   );
 }

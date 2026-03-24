@@ -39,7 +39,10 @@ export default function Display() {
     errorMessage: weatherErrorMessage,
   } = useWeatherData();
 
-  const { masjidProfile } = useDisplayStore();
+  const { masjidProfile, displayScreen } = useDisplayStore();
+
+  const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
+  const showWeather = displayScreen?.show_weather ?? true;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -107,14 +110,16 @@ export default function Display() {
         navigation={false}
         className='h-full w-full'
       >
-        <SwiperSlide>
-          <PrayerTimingDisplay
-            prayerTimes={prayerTimes}
-            prayerTimeSettings={prayerTimeSettings}
-            userSettings={userSettings}
-          />
-        </SwiperSlide>
-        {weatherForecast && (
+        {showPrayerTimes && (
+          <SwiperSlide>
+            <PrayerTimingDisplay
+              prayerTimes={prayerTimes}
+              prayerTimeSettings={prayerTimeSettings}
+              userSettings={userSettings}
+            />
+          </SwiperSlide>
+        )}
+        {showWeather && weatherForecast && (
           <SwiperSlide>
             <WeatherDisplay weatherForecast={weatherForecast} area={masjidProfile?.area} />
           </SwiperSlide>

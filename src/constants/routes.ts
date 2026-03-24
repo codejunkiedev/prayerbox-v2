@@ -15,6 +15,7 @@ export enum AppRoutes {
   Events = '/admin/events',
   Posts = '/admin/posts',
   PrayerTimings = '/admin/prayer-timings',
+  Screens = '/admin/screens',
   Settings = '/admin/settings',
   SettingsProfile = '/admin/settings/profile',
   SettingsModules = '/admin/settings/modules',

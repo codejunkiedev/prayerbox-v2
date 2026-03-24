@@ -15,7 +15,9 @@ export const useDisplayStore = create<DisplayStore>()(
       setLoggedIn: loggedIn => set({ loggedIn }),
       masjidProfile: null,
       setMasjidProfile: masjidProfile => set({ masjidProfile }),
-      signOut: () => set({ loggedIn: false, masjidProfile: null }),
+      displayScreen: null,
+      setDisplayScreen: displayScreen => set({ displayScreen }),
+      signOut: () => set({ loggedIn: false, masjidProfile: null, displayScreen: null }),
     }),
     { name: StorageKeys.Display, storage }
   )

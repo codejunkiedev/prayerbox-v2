@@ -1,15 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Announcement, AyatAndHadith, Event, Post, Settings } from '@/types';
 import { useDisplayStore } from '@/store';
-import {
-  getAnnouncements,
-  getAyatAndHadith,
-  getEvents,
-  getPosts,
-  getSettings,
-} from '@/lib/supabase';
+import { getSettings, getScreenContent } from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { ErrorMessage } from '@/components/display';
+import supabase from '@/lib/supabase/index';
 
 type ReturnType = {
   isLoading: boolean;
@@ -22,9 +17,7 @@ type ReturnType = {
 };
 
 /**
- * Custom hook to fetch and manage display data for the application
- * Fetches announcements, ayat & hadith, events, posts
- * @returns Object containing loading state, error messages, and fetched data
+ * Custom hook to fetch display data filtered by screen content assignments
  */
 export function useFetchDisplayData(): ReturnType {
   const [fetching, setFetching] = useState<boolean>(false);
@@ -35,74 +28,65 @@ export function useFetchDisplayData(): ReturnType {
   const [posts, setPosts] = useState<Post[]>([]);
   const [userSettings, setUserSettings] = useState<Settings | null>(null);
 
-  const { masjidProfile } = useDisplayStore();
+  const { masjidProfile, displayScreen } = useDisplayStore();
   const userId = masjidProfile?.user_id;
+  const screenId = displayScreen?.id;
 
-  const fetchAnnouncements = useCallback(async () => {
-    try {
-      const announcements = await getAnnouncements(userId);
-      if (announcements?.length) setAnnouncements(announcements);
-    } catch (error) {
-      console.error('Failed to fetch announcements', error);
-      toast.error('Failed to fetch announcements');
-    }
-  }, [userId]);
-
-  const fetchAyatAndHadith = useCallback(async () => {
-    try {
-      const ayatAndHadith = await getAyatAndHadith(userId);
-      if (ayatAndHadith?.length) setAyatAndHadith(ayatAndHadith);
-    } catch (error) {
-      console.error('Failed to fetch ayat and hadith', error);
-      toast.error('Failed to fetch ayat and hadith');
-    }
-  }, [userId]);
-
-  const fetchEvents = useCallback(async () => {
-    try {
-      const events = await getEvents(userId);
-      if (events?.length) setEvents(events);
-    } catch (error) {
-      console.error('Failed to fetch events', error);
-      toast.error('Failed to fetch events');
-    }
-  }, [userId]);
-
-  const fetchPosts = useCallback(async () => {
-    try {
-      const posts = await getPosts(userId);
-      if (posts?.length) setPosts(posts);
-    } catch (error) {
-      console.error('Failed to fetch posts', error);
-      toast.error('Failed to fetch posts');
-    }
-  }, [userId]);
+  const fetchContentByIds = useCallback(async <T>(table: string, ids: string[]): Promise<T[]> => {
+    if (ids.length === 0) return [];
+    const { data, error } = await supabase
+      .from(table)
+      .select('*')
+      .in('id', ids)
+      .eq('archived', false);
+    if (error) throw error;
+    return data as T[];
+  }, []);
 
   useEffect(() => {
     const abortController = new AbortController();
 
-    if (!userId) return () => abortController.abort();
+    if (!userId || !screenId) return () => abortController.abort();
 
     const req = async () => {
       setFetching(true);
       setErrorMessage(null);
 
       try {
-        const userSettings = await getSettings(userId);
-        if (!userSettings) {
+        const [settings, screenContentRows] = await Promise.all([
+          getSettings(userId),
+          getScreenContent(screenId),
+        ]);
+
+        if (!settings) {
           setErrorMessage({
             title: 'User settings are not set',
             description: 'Please set your user settings to continue',
           });
-        } else {
-          setUserSettings(userSettings);
-          await Promise.all([
-            fetchAnnouncements(),
-            fetchAyatAndHadith(),
-            fetchEvents(),
-            fetchPosts(),
-          ]);
+          return;
         }
+
+        setUserSettings(settings);
+
+        // Group content IDs by type
+        const idsByType: Record<string, string[]> = {};
+        for (const row of screenContentRows) {
+          if (!idsByType[row.content_type]) idsByType[row.content_type] = [];
+          idsByType[row.content_type].push(row.content_id);
+        }
+
+        const [fetchedAnnouncements, fetchedAyatAndHadith, fetchedEvents, fetchedPosts] =
+          await Promise.all([
+            fetchContentByIds<Announcement>('announcements', idsByType['announcements'] || []),
+            fetchContentByIds<AyatAndHadith>('ayat_and_hadith', idsByType['ayat_and_hadith'] || []),
+            fetchContentByIds<Event>('events', idsByType['events'] || []),
+            fetchContentByIds<Post>('posts', idsByType['posts'] || []),
+          ]);
+
+        setAnnouncements(fetchedAnnouncements);
+        setAyatAndHadith(fetchedAyatAndHadith);
+        setEvents(fetchedEvents);
+        setPosts(fetchedPosts);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to fetch data');
@@ -115,7 +99,7 @@ export function useFetchDisplayData(): ReturnType {
     return () => {
       abortController.abort();
     };
-  }, [fetchAnnouncements, fetchAyatAndHadith, fetchEvents, fetchPosts, userId]);
+  }, [userId, screenId, fetchContentByIds]);
 
   return {
     isLoading: fetching,

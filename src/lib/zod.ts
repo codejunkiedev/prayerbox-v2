@@ -21,7 +21,7 @@ export const loginFormSchema = z.object({
 export type LoginFormData = z.infer<typeof loginFormSchema>;
 
 export const loginWithCodeSchema = z.object({
-  code: z.string().min(1, 'Masjid code is required'),
+  code: z.string().min(1, 'Screen code is required'),
 });
 
 export type LoginWithCodeData = z.infer<typeof loginWithCodeSchema>;
@@ -137,3 +137,12 @@ export const prayerTimingsFormSchema = z.object({
 });
 
 export type PrayerTimingsData = z.infer<typeof prayerTimingsFormSchema>;
+
+export const screenSchema = z.object({
+  name: z.string().min(1, 'Screen name is required'),
+  orientation: z.enum(['landscape', 'portrait', 'mobile']),
+  show_prayer_times: z.boolean(),
+  show_weather: z.boolean(),
+});
+
+export type ScreenData = z.infer<typeof screenSchema>;

@@ -5,7 +5,7 @@ import { twMerge } from 'tailwind-merge';
  * Generates a random masjid code
  * @returns A 7-character random string for use as a masjid identifier
  */
-export const generateMasjidCode = () => {
+export const generateScreenCode = () => {
   return Math.random().toString(36).substring(2, 9);
 };
 

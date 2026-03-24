@@ -5,3 +5,4 @@ export * from './events';
 export * from './posts';
 export * from './prayer-times';
 export * from './settings';
+export * from './screens';

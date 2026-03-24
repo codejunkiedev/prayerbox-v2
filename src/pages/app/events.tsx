@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getEvents, deleteEvent } from '@/lib/supabase';
 import type { Event } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
-import { EventModal, DeleteConfirmationModal } from '@/components/modals';
+import { EventModal, DeleteConfirmationModal, ScreenAssignmentModal } from '@/components/modals';
 import {
   PageHeader,
   ErrorAlert,
@@ -25,6 +25,7 @@ export default function Events() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Event | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [screenAssignItem, setScreenAssignItem] = useState<Event | null>(null);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -153,6 +154,7 @@ export default function Events() {
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
+              onScreens={() => setScreenAssignItem(item)}
             />
           )}
         />
@@ -174,6 +176,16 @@ export default function Events() {
         itemTitle={itemToDelete?.title}
         itemSubtitle={itemToDelete?.date_time ? formatDateWithTime(itemToDelete.date_time) : ''}
       />
+
+      {screenAssignItem && (
+        <ScreenAssignmentModal
+          isOpen={!!screenAssignItem}
+          onClose={() => setScreenAssignItem(null)}
+          contentId={screenAssignItem.id}
+          contentType='events'
+          contentLabel={screenAssignItem.title}
+        />
+      )}
     </div>
   );
 }

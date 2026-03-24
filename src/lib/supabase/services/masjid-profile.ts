@@ -1,7 +1,6 @@
 import { SupabaseBuckets, SupabaseTables, type MasjidProfile } from '@/types';
 import type { MasjidProfileData } from '../../zod';
 import { getCurrentUser, uploadFile, fetchByColumn, updateRecord, insertRecord } from '../helpers';
-import { generateMasjidCode } from '@/utils';
 
 /**
  * Gets the masjid profile for the current authenticated user
@@ -20,12 +19,16 @@ export async function getMasjidProfile(): Promise<MasjidProfile | null> {
 }
 
 /**
- * Gets a masjid profile by its unique code
- * @param code The masjid code to search for
+ * Gets a masjid profile by user ID
+ * @param userId The user ID to search for
  * @returns Promise resolving to masjid profile or null if not found
  */
-export async function getMasjidByCode(code: string): Promise<MasjidProfile | null> {
-  const profiles = await fetchByColumn<MasjidProfile>(SupabaseTables.MasjidProfiles, 'code', code);
+export async function getMasjidProfileByUserId(userId: string): Promise<MasjidProfile | null> {
+  const profiles = await fetchByColumn<MasjidProfile>(
+    SupabaseTables.MasjidProfiles,
+    'user_id',
+    userId
+  );
   return profiles.length > 0 ? profiles[0] : null;
 }
 
@@ -65,7 +68,6 @@ export async function upsertMasjidProfile(
     longitude: profileData.longitude || null,
     name: profileData.name,
     area: profileData.area,
-    code: existingProfile?.code || generateMasjidCode(),
   };
 
   if (logoUrl) profileToUpsert.logo_url = logoUrl;

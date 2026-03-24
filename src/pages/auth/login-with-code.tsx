@@ -5,7 +5,7 @@ import { Button, Input, Label, ErrorBox } from '@/components/ui';
 import { cn } from '@/utils';
 import { loginWithCodeSchema, type LoginWithCodeData } from '@/lib/zod';
 import { Link, useSearchParams } from 'react-router';
-import { getMasjidByCode } from '@/lib/supabase';
+import { getScreenByCode, getMasjidProfileByUserId } from '@/lib/supabase';
 import { AuthRoutes } from '@/constants';
 import { useDisplayStore } from '@/store';
 
@@ -15,7 +15,7 @@ export default function LoginWithCode() {
   const [searchParams] = useSearchParams();
   const hasAutoLoginAttempted = useRef(false);
 
-  const { setLoggedIn, setMasjidProfile } = useDisplayStore();
+  const { setLoggedIn, setMasjidProfile, setDisplayScreen } = useDisplayStore();
 
   const {
     register,
@@ -32,14 +32,17 @@ export default function LoginWithCode() {
         setIsLoading(true);
         setErrorMessage('');
 
-        const masjid = await getMasjidByCode(code);
+        const screen = await getScreenByCode(code);
 
-        if (!masjid) {
-          setErrorMessage('Invalid masjid code. Please check and try again.');
+        if (!screen) {
+          setErrorMessage('Invalid screen code. Please check and try again.');
           return;
         }
 
-        setMasjidProfile(masjid);
+        const masjidProfile = await getMasjidProfileByUserId(screen.user_id);
+
+        setDisplayScreen(screen);
+        setMasjidProfile(masjidProfile);
         setLoggedIn(true);
       } catch (err) {
         console.error('Error during login with code:', err);
@@ -48,7 +51,7 @@ export default function LoginWithCode() {
         setIsLoading(false);
       }
     },
-    [setLoggedIn, setMasjidProfile]
+    [setLoggedIn, setMasjidProfile, setDisplayScreen]
   );
 
   useEffect(() => {
@@ -72,21 +75,21 @@ export default function LoginWithCode() {
       <div className='mx-auto flex w-full flex-col justify-center space-y-4 sm:space-y-6 sm:w-[350px]'>
         <div className='flex flex-col space-y-2 text-center'>
           <h1 className='text-xl sm:text-2xl font-semibold tracking-tight'>
-            Login with Masjid Code
+            Login with Screen Code
           </h1>
-          <p className='text-sm text-muted-foreground'>Enter the masjid code to view the display</p>
+          <p className='text-sm text-muted-foreground'>Enter the screen code to view the display</p>
         </div>
         <div className='grid gap-4 sm:gap-6'>
           {errorMessage && <ErrorBox message={errorMessage} />}
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className='grid gap-3 sm:gap-4'>
               <div className='grid gap-1 sm:gap-2'>
-                <Label htmlFor='code'>Masjid Code</Label>
+                <Label htmlFor='code'>Screen Code</Label>
                 <Input
                   id='code'
                   type='text'
                   className={cn(errors.code && 'border-red-500')}
-                  placeholder='Enter masjid code'
+                  placeholder='Enter screen code'
                   {...register('code', { onChange: handleInputChange })}
                 />
                 {errors.code && <p className='text-xs text-red-500 mt-1'>{errors.code.message}</p>}

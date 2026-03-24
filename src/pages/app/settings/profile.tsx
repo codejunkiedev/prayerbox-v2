@@ -19,7 +19,7 @@ import {
 } from '@/lib/zod';
 import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase';
 import { toast } from 'sonner';
-import { Copy, MapPin, ArrowLeft, X } from 'lucide-react';
+import { MapPin, ArrowLeft, X } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { MapModal } from '@/components/modals';
 import { PageHeader } from '@/components/common';
@@ -30,8 +30,6 @@ export default function Profile() {
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [masjidCode, setMasjidCode] = useState<string>('');
-  const [isCopied, setIsCopied] = useState(false);
   const [logoRemoved, setLogoRemoved] = useState(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
@@ -67,7 +65,6 @@ export default function Profile() {
             latitude: profile.latitude || 0,
             longitude: profile.longitude || 0,
           });
-          setMasjidCode(profile.code);
 
           if (profile.logo_url) {
             setPreviewLogo(profile.logo_url);
@@ -86,18 +83,6 @@ export default function Profile() {
 
     fetchProfile();
   }, [reset, trigger]);
-
-  const handleCopyCode = async () => {
-    try {
-      await navigator.clipboard.writeText(masjidCode);
-      setIsCopied(true);
-      toast.success('Masjid code copied to clipboard');
-      setTimeout(() => setIsCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy code:', error);
-      toast.error('Failed to copy code');
-    }
-  };
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -180,37 +165,7 @@ export default function Profile() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
-              <div
-                className={`grid gap-4 ${masjidCode ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}
-              >
-                {masjidCode && (
-                  <div className='space-y-2'>
-                    <label className='block text-sm font-medium text-foreground'>Masjid Code</label>
-                    <div className='flex relative'>
-                      <Input
-                        id='code'
-                        value={masjidCode}
-                        readOnly
-                        className='bg-muted cursor-not-allowed pr-10'
-                      />
-                      <Button
-                        type='button'
-                        variant='ghost'
-                        size='icon'
-                        onClick={handleCopyCode}
-                        className='absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8'
-                        title='Copy masjid code'
-                      >
-                        <Copy size={16} className={isCopied ? 'text-green-500' : ''} />
-                        <span className='sr-only'>Copy masjid code</span>
-                      </Button>
-                    </div>
-                    <p className='text-sm text-muted-foreground'>
-                      This code was automatically generated and cannot be changed.
-                    </p>
-                  </div>
-                )}
-
+              <div className='grid gap-4 grid-cols-1'>
                 <div className='space-y-2'>
                   <label htmlFor='name' className='block text-sm font-medium text-foreground'>
                     Masjid Name
