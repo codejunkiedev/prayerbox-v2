@@ -1,47 +1,50 @@
-import { useCallback, useEffect, useState } from 'react';
-import type { Announcement, AyatAndHadith, Event, Post, Settings } from '@/types';
+import { useEffect, useState } from 'react';
+import {
+  type Announcement,
+  type AyatAndHadith,
+  type Event,
+  type Post,
+  type Settings,
+  type ScreenContentType,
+} from '@/types';
 import { useDisplayStore } from '@/store';
-import { getSettings, getScreenContent } from '@/lib/supabase';
+import { getSettings, getVisibleScreenContent, fetchContentByTableAndIds } from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { ErrorMessage } from '@/components/display';
-import supabase from '@/lib/supabase/index';
+
+export type DisplayContentItem = {
+  contentType: ScreenContentType;
+  displayOrder: number;
+  data: Announcement | AyatAndHadith | Event | Post;
+};
 
 type ReturnType = {
   isLoading: boolean;
   errorMessage: ErrorMessage | null;
-  announcements: Announcement[];
-  ayatAndHadith: AyatAndHadith[];
-  events: Event[];
-  posts: Post[];
+  orderedContent: DisplayContentItem[];
   userSettings: Settings | null;
 };
 
+const TABLE_MAP: Record<string, string> = {
+  announcements: 'announcements',
+  ayat_and_hadith: 'ayat_and_hadith',
+  events: 'events',
+  posts: 'posts',
+};
+
 /**
- * Custom hook to fetch display data filtered by screen content assignments
+ * Custom hook to fetch display data filtered by screen content assignments.
+ * Only fetches visible content, ordered by display_order.
  */
 export function useFetchDisplayData(): ReturnType {
   const [fetching, setFetching] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
-  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [ayatAndHadith, setAyatAndHadith] = useState<AyatAndHadith[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [orderedContent, setOrderedContent] = useState<DisplayContentItem[]>([]);
   const [userSettings, setUserSettings] = useState<Settings | null>(null);
 
   const { masjidProfile, displayScreen } = useDisplayStore();
   const userId = masjidProfile?.user_id;
   const screenId = displayScreen?.id;
-
-  const fetchContentByIds = useCallback(async <T>(table: string, ids: string[]): Promise<T[]> => {
-    if (ids.length === 0) return [];
-    const { data, error } = await supabase
-      .from(table)
-      .select('*')
-      .in('id', ids)
-      .eq('archived', false);
-    if (error) throw error;
-    return data as T[];
-  }, []);
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -55,7 +58,7 @@ export function useFetchDisplayData(): ReturnType {
       try {
         const [settings, screenContentRows] = await Promise.all([
           getSettings(userId),
-          getScreenContent(screenId),
+          getVisibleScreenContent(screenId),
         ]);
 
         if (!settings) {
@@ -75,18 +78,42 @@ export function useFetchDisplayData(): ReturnType {
           idsByType[row.content_type].push(row.content_id);
         }
 
-        const [fetchedAnnouncements, fetchedAyatAndHadith, fetchedEvents, fetchedPosts] =
-          await Promise.all([
-            fetchContentByIds<Announcement>('announcements', idsByType['announcements'] || []),
-            fetchContentByIds<AyatAndHadith>('ayat_and_hadith', idsByType['ayat_and_hadith'] || []),
-            fetchContentByIds<Event>('events', idsByType['events'] || []),
-            fetchContentByIds<Post>('posts', idsByType['posts'] || []),
-          ]);
+        type ContentRecord = (Announcement | AyatAndHadith | Event | Post) & { id: string };
 
-        setAnnouncements(fetchedAnnouncements);
-        setAyatAndHadith(fetchedAyatAndHadith);
-        setEvents(fetchedEvents);
-        setPosts(fetchedPosts);
+        // Fetch all content in parallel
+        const fetchResults = await Promise.all(
+          Object.entries(idsByType).map(async ([type, ids]) => {
+            const data = await fetchContentByTableAndIds<ContentRecord>(TABLE_MAP[type], ids);
+            const dataMap = new Map<string, ContentRecord>();
+            for (const item of data) {
+              dataMap.set(item.id, item);
+            }
+            return { type, dataMap };
+          })
+        );
+
+        // Build a lookup: contentId -> fetched data
+        const contentDataMap = new Map<string, ContentRecord>();
+        for (const { dataMap } of fetchResults) {
+          for (const [id, data] of dataMap) {
+            contentDataMap.set(id, data);
+          }
+        }
+
+        // Build ordered content list following screen_content display_order
+        const items: DisplayContentItem[] = [];
+        for (const row of screenContentRows) {
+          const found = contentDataMap.get(row.content_id);
+          if (found) {
+            items.push({
+              contentType: row.content_type as ScreenContentType,
+              displayOrder: row.display_order,
+              data: found,
+            });
+          }
+        }
+
+        setOrderedContent(items);
       } catch (error) {
         console.error('Error fetching data:', error);
         toast.error('Failed to fetch data');
@@ -99,15 +126,12 @@ export function useFetchDisplayData(): ReturnType {
     return () => {
       abortController.abort();
     };
-  }, [userId, screenId, fetchContentByIds]);
+  }, [userId, screenId]);
 
   return {
     isLoading: fetching,
     errorMessage,
-    announcements,
-    ayatAndHadith,
-    events,
-    posts,
+    orderedContent,
     userSettings,
   };
 }

@@ -54,6 +54,8 @@ export interface ScreenContent {
   screen_id: string;
   content_id: string;
   content_type: ScreenContentType;
+  display_order: number;
+  visible: boolean;
   created_at: string;
 }
 

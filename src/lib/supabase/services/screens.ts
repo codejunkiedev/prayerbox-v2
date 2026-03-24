@@ -16,6 +16,11 @@ export async function getScreens(): Promise<DisplayScreen[]> {
   return await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'user_id', user.id);
 }
 
+export async function getScreenById(id: string): Promise<DisplayScreen | null> {
+  const screens = await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'id', id);
+  return screens.length > 0 ? screens[0] : null;
+}
+
 export async function getScreenByCode(code: string): Promise<DisplayScreen | null> {
   const screens = await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'code', code);
   return screens.length > 0 ? screens[0] : null;
@@ -64,7 +69,113 @@ export async function deleteScreen(id: string): Promise<boolean> {
 }
 
 export async function getScreenContent(screenId: string): Promise<ScreenContent[]> {
-  return await fetchByColumn<ScreenContent>(SupabaseTables.ScreenContent, 'screen_id', screenId);
+  const { data, error } = await supabase
+    .from(SupabaseTables.ScreenContent)
+    .select('*')
+    .eq('screen_id', screenId)
+    .order('display_order', { ascending: true });
+
+  if (error) throw error;
+  return data as ScreenContent[];
+}
+
+export async function getVisibleScreenContent(screenId: string): Promise<ScreenContent[]> {
+  const { data, error } = await supabase
+    .from(SupabaseTables.ScreenContent)
+    .select('*')
+    .eq('screen_id', screenId)
+    .eq('visible', true)
+    .order('display_order', { ascending: true });
+
+  if (error) throw error;
+  return data as ScreenContent[];
+}
+
+export async function fetchContentByTableAndIds<T>(table: string, ids: string[]): Promise<T[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await supabase
+    .from(table)
+    .select('*')
+    .in('id', ids)
+    .eq('archived', false);
+  if (error) throw error;
+  return (data || []) as T[];
+}
+
+export type ScreenContentWithDetails = ScreenContent & {
+  title: string;
+  description: string;
+};
+
+export async function getScreenContentWithDetails(
+  screenId: string
+): Promise<ScreenContentWithDetails[]> {
+  const rows = await getScreenContent(screenId);
+  if (rows.length === 0) return [];
+
+  // Group content IDs by type
+  const idsByType: Record<string, string[]> = {};
+  for (const row of rows) {
+    if (!idsByType[row.content_type]) idsByType[row.content_type] = [];
+    idsByType[row.content_type].push(row.content_id);
+  }
+
+  // Batch fetch from each table
+  const contentMap = new Map<string, { title: string; description: string }>();
+
+  const fetchFromTable = async (
+    table: string,
+    ids: string[],
+    titleKey: string,
+    descKey: string
+  ) => {
+    if (ids.length === 0) return;
+    const { data, error } = await supabase.from(table).select('*').in('id', ids);
+    if (error) throw error;
+    for (const item of data || []) {
+      contentMap.set(item.id, {
+        title: item[titleKey] || '',
+        description: item[descKey] || '',
+      });
+    }
+  };
+
+  await Promise.all([
+    fetchFromTable('ayat_and_hadith', idsByType['ayat_and_hadith'] || [], 'reference', 'text'),
+    fetchFromTable('announcements', idsByType['announcements'] || [], 'description', 'description'),
+    fetchFromTable('events', idsByType['events'] || [], 'title', 'description'),
+    fetchFromTable('posts', idsByType['posts'] || [], 'title', 'title'),
+  ]);
+
+  return rows.map(row => ({
+    ...row,
+    title: contentMap.get(row.content_id)?.title || 'Unknown',
+    description: contentMap.get(row.content_id)?.description || '',
+  }));
+}
+
+export async function updateScreenContentOrder(
+  items: Array<{ id: string; display_order: number }>
+): Promise<void> {
+  const updates = items.map(item =>
+    supabase
+      .from(SupabaseTables.ScreenContent)
+      .update({ display_order: item.display_order })
+      .eq('id', item.id)
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find(r => r.error);
+  if (failed?.error) throw failed.error;
+}
+
+export async function toggleScreenContentVisibility(id: string, visible: boolean): Promise<void> {
+  const { error } = await supabase
+    .from(SupabaseTables.ScreenContent)
+    .update({ visible })
+    .eq('id', id);
+
+  if (error) throw error;
 }
 
 export async function getScreensForContent(
@@ -86,24 +197,58 @@ export async function bulkUpdateScreenAssignments(
   contentType: ScreenContentType,
   screenIds: string[]
 ): Promise<void> {
-  // Delete all existing assignments for this content item
-  const { error: deleteError } = await supabase
+  // Get existing assignments to preserve order of kept items
+  const { data: existing, error: fetchError } = await supabase
     .from(SupabaseTables.ScreenContent)
-    .delete()
+    .select('*')
     .eq('content_id', contentId)
     .eq('content_type', contentType);
 
-  if (deleteError) throw deleteError;
+  if (fetchError) throw fetchError;
 
-  // Insert new assignments
-  if (screenIds.length > 0) {
-    const rows = screenIds.map(screenId => ({
-      screen_id: screenId,
-      content_id: contentId,
-      content_type: contentType,
-    }));
+  const existingScreenIds = new Set((existing || []).map(r => r.screen_id));
+  const newScreenIds = screenIds.filter(id => !existingScreenIds.has(id));
+  const removedScreenIds = [...existingScreenIds].filter(id => !screenIds.includes(id));
 
-    const { error: insertError } = await supabase.from(SupabaseTables.ScreenContent).insert(rows);
+  // Delete removed assignments
+  if (removedScreenIds.length > 0) {
+    const { error: deleteError } = await supabase
+      .from(SupabaseTables.ScreenContent)
+      .delete()
+      .eq('content_id', contentId)
+      .eq('content_type', contentType)
+      .in('screen_id', removedScreenIds);
+
+    if (deleteError) throw deleteError;
+  }
+
+  // Insert new assignments with auto-incrementing display_order
+  if (newScreenIds.length > 0) {
+    // For each new screen, get the max display_order for that screen
+    const inserts = await Promise.all(
+      newScreenIds.map(async screenId => {
+        const { data: maxRow } = await supabase
+          .from(SupabaseTables.ScreenContent)
+          .select('display_order')
+          .eq('screen_id', screenId)
+          .order('display_order', { ascending: false })
+          .limit(1);
+
+        const maxOrder = maxRow && maxRow.length > 0 ? maxRow[0].display_order : 0;
+
+        return {
+          screen_id: screenId,
+          content_id: contentId,
+          content_type: contentType,
+          display_order: maxOrder + 1,
+          visible: true,
+        };
+      })
+    );
+
+    const { error: insertError } = await supabase
+      .from(SupabaseTables.ScreenContent)
+      .insert(inserts);
 
     if (insertError) throw insertError;
   }

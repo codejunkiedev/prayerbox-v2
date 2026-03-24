@@ -12,7 +12,8 @@ import {
   DataTable,
   type Column,
 } from '@/components/common';
-import { Monitor, Copy, Check } from 'lucide-react';
+import { Monitor, Copy, Check, Eye } from 'lucide-react';
+import { Link } from 'react-router';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
 
@@ -192,10 +193,18 @@ export default function Screens() {
           showRowNumbers={true}
           actionsWidth='w-[10%]'
           renderActions={item => (
-            <ActionButtons
-              onEdit={() => handleEdit(item)}
-              onDelete={() => handleDeleteClick(item)}
-            />
+            <div className='flex justify-center space-x-1'>
+              <Link to={`/admin/screens/${item.id}`}>
+                <Button variant='ghost' size='sm' title='View content' className='hover:bg-muted'>
+                  <Eye className='h-4 w-4' />
+                </Button>
+              </Link>
+              <ActionButtons
+                onEdit={() => handleEdit(item)}
+                onDelete={() => handleDeleteClick(item)}
+                centered={false}
+              />
+            </div>
           )}
         />
       )}
