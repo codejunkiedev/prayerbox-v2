@@ -18,6 +18,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
           '--normal-border': 'var(--border)',
         } as React.CSSProperties
       }
+      toastOptions={{
+        style: {
+          padding: '12px 16px',
+          gap: '8px',
+        },
+      }}
       {...props}
     />
   );

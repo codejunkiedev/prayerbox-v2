@@ -13,5 +13,7 @@ export const SettingsModules = lazy(() => import('./settings/modules'));
 export const SettingsThemes = lazy(() => import('./settings/themes'));
 export const SettingsHijri = lazy(() => import('./settings/hijri'));
 export const SettingsProfile = lazy(() => import('./settings/profile'));
+export const Screens = lazy(() => import('./screens'));
+export const ScreenDetail = lazy(() => import('./screen-detail'));
 export const Display = lazy(() => import('./display'));
 export const DisplayLogout = lazy(() => import('./display-logout'));

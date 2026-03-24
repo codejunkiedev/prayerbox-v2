@@ -3,7 +3,11 @@ import { getAyatAndHadith, deleteAyatAndHadith } from '@/lib/supabase';
 import type { AyatAndHadith } from '@/types';
 import { Badge } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
-import { AyatAndHadithModal, DeleteConfirmationModal } from '@/components/modals';
+import {
+  AyatAndHadithModal,
+  DeleteConfirmationModal,
+  ScreenAssignmentModal,
+} from '@/components/modals';
 import {
   PageHeader,
   ErrorAlert,
@@ -25,6 +29,7 @@ export default function AyatAndHadithPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<AyatAndHadith | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [screenAssignItem, setScreenAssignItem] = useState<AyatAndHadith | null>(null);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -166,6 +171,7 @@ export default function AyatAndHadithPage() {
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
+              onScreens={() => setScreenAssignItem(item)}
               centered={false}
             />
           )}
@@ -188,6 +194,16 @@ export default function AyatAndHadithPage() {
         itemTitle={itemToDelete?.text}
         itemSubtitle={itemToDelete?.reference}
       />
+
+      {screenAssignItem && (
+        <ScreenAssignmentModal
+          isOpen={!!screenAssignItem}
+          onClose={() => setScreenAssignItem(null)}
+          contentId={screenAssignItem.id}
+          contentType='ayat_and_hadith'
+          contentLabel={screenAssignItem.text}
+        />
+      )}
     </div>
   );
 }

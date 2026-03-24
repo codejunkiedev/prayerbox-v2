@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import { getAnnouncements, deleteAnnouncement } from '@/lib/supabase';
 import type { Announcement } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
-import { AnnouncementModal, DeleteConfirmationModal } from '@/components/modals';
+import {
+  AnnouncementModal,
+  DeleteConfirmationModal,
+  ScreenAssignmentModal,
+} from '@/components/modals';
 import {
   PageHeader,
   ErrorAlert,
@@ -24,6 +28,7 @@ export default function Announcements() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Announcement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [screenAssignItem, setScreenAssignItem] = useState<Announcement | null>(null);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -131,6 +136,7 @@ export default function Announcements() {
             <ActionButtons
               onEdit={() => handleEdit(item)}
               onDelete={() => handleDeleteClick(item)}
+              onScreens={() => setScreenAssignItem(item)}
             />
           )}
         />
@@ -151,6 +157,16 @@ export default function Announcements() {
         itemType='announcement'
         itemTitle={itemToDelete?.description}
       />
+
+      {screenAssignItem && (
+        <ScreenAssignmentModal
+          isOpen={!!screenAssignItem}
+          onClose={() => setScreenAssignItem(null)}
+          contentId={screenAssignItem.id}
+          contentType='announcements'
+          contentLabel={screenAssignItem.description}
+        />
+      )}
     </div>
   );
 }

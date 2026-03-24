@@ -16,6 +16,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { EffectFade, Keyboard } from 'swiper/modules';
 import { isDev } from '@/utils';
+import type { Announcement, AyatAndHadith, Event, Post } from '@/types';
 import './display.css';
 
 const SLIDE_DELAY = 9000;
@@ -23,8 +24,7 @@ const SLIDE_DELAY = 9000;
 export default function Display() {
   const swiperRef = useRef<SwiperType | null>(null);
 
-  const { isLoading, errorMessage, announcements, ayatAndHadith, events, posts, userSettings } =
-    useFetchDisplayData();
+  const { isLoading, errorMessage, orderedContent, userSettings } = useFetchDisplayData();
 
   const {
     isLoading: isPrayerTimingsLoading,
@@ -39,7 +39,10 @@ export default function Display() {
     errorMessage: weatherErrorMessage,
   } = useWeatherData();
 
-  const { masjidProfile } = useDisplayStore();
+  const { masjidProfile, displayScreen } = useDisplayStore();
+
+  const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
+  const showWeather = displayScreen?.show_weather ?? true;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -60,36 +63,36 @@ export default function Display() {
   if (prayerTimingsError) return <ErrorDisplay errorMessage={prayerTimingsError} />;
   if (weatherErrorMessage) return <ErrorDisplay errorMessage={weatherErrorMessage} />;
 
-  const announcementSlides = announcements.map((announcement, index) => (
-    <SwiperSlide key={`announcement-${announcement.id || index}`}>
-      <AnnouncementsDisplay announcements={[announcement]} />
-    </SwiperSlide>
-  ));
-
-  const ayatHadithSlides = ayatAndHadith.map((item, index) => (
-    <SwiperSlide key={`ayat-hadith-${item.id || index}`}>
-      <AyatHadithDisplay item={item} />
-    </SwiperSlide>
-  ));
-
-  const eventSlides = events.map((event, index) => (
-    <SwiperSlide key={`event-${event.id || index}`}>
-      <EventsDisplay event={event} />
-    </SwiperSlide>
-  ));
-
-  const postSlides = posts.map((post, index) => (
-    <SwiperSlide key={`post-${post.id || index}`}>
-      <PostsDisplay post={post} />
-    </SwiperSlide>
-  ));
-
-  const allContentSlides = [
-    ...announcementSlides,
-    ...ayatHadithSlides,
-    ...eventSlides,
-    ...postSlides,
-  ];
+  const contentSlides = orderedContent.map((item, index) => {
+    switch (item.contentType) {
+      case 'announcements':
+        return (
+          <SwiperSlide key={`content-${index}`}>
+            <AnnouncementsDisplay announcements={[item.data as Announcement]} />
+          </SwiperSlide>
+        );
+      case 'ayat_and_hadith':
+        return (
+          <SwiperSlide key={`content-${index}`}>
+            <AyatHadithDisplay item={item.data as AyatAndHadith} />
+          </SwiperSlide>
+        );
+      case 'events':
+        return (
+          <SwiperSlide key={`content-${index}`}>
+            <EventsDisplay event={item.data as Event} />
+          </SwiperSlide>
+        );
+      case 'posts':
+        return (
+          <SwiperSlide key={`content-${index}`}>
+            <PostsDisplay post={item.data as Post} />
+          </SwiperSlide>
+        );
+      default:
+        return null;
+    }
+  });
 
   return (
     <div className='h-screen w-full overflow-hidden'>
@@ -107,19 +110,21 @@ export default function Display() {
         navigation={false}
         className='h-full w-full'
       >
-        <SwiperSlide>
-          <PrayerTimingDisplay
-            prayerTimes={prayerTimes}
-            prayerTimeSettings={prayerTimeSettings}
-            userSettings={userSettings}
-          />
-        </SwiperSlide>
-        {weatherForecast && (
+        {showPrayerTimes && (
+          <SwiperSlide>
+            <PrayerTimingDisplay
+              prayerTimes={prayerTimes}
+              prayerTimeSettings={prayerTimeSettings}
+              userSettings={userSettings}
+            />
+          </SwiperSlide>
+        )}
+        {showWeather && weatherForecast && (
           <SwiperSlide>
             <WeatherDisplay weatherForecast={weatherForecast} area={masjidProfile?.area} />
           </SwiperSlide>
         )}
-        {allContentSlides}
+        {contentSlides}
         {isDev && (
           <SwiperSlide>
             <LogoutDisplay />

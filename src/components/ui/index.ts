@@ -24,6 +24,7 @@ export * from './radio-group';
 export * from './slider';
 export * from './map';
 export * from './switch';
+export * from './checkbox';
 export * from './theme-toggle';
 export * from './validation-feedback';
 export * from './predesigned-image-selector';

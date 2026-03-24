@@ -9,6 +9,7 @@ import {
   X,
   Images,
   Tickets,
+  Monitor,
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
@@ -66,6 +67,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       label: 'Posts',
       path: AppRoutes.Posts,
       icon: <Images size={20} />,
+    },
+    {
+      label: 'Screens',
+      path: AppRoutes.Screens,
+      icon: <Monitor size={20} />,
     },
     {
       label: 'Prayer Timings',

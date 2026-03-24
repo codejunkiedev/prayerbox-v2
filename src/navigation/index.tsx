@@ -14,6 +14,8 @@ import {
   Posts,
   Register,
   ResetPassword,
+  Screens,
+  ScreenDetail,
   Settings,
   SettingsProfile,
   SettingsModules,
@@ -89,6 +91,8 @@ export default function Navigation() {
             <Route path={AppRoutes.Announcements} element={<Announcements />} />
             <Route path={AppRoutes.Events} element={<Events />} />
             <Route path={AppRoutes.Posts} element={<Posts />} />
+            <Route path={AppRoutes.Screens} element={<Screens />} />
+            <Route path={AppRoutes.ScreenDetail} element={<ScreenDetail />} />
             <Route path={AppRoutes.PrayerTimings} element={<PrayerTimings />} />
             <Route path={AppRoutes.Settings} element={<Settings />} />
             <Route path={AppRoutes.SettingsProfile} element={<SettingsProfile />} />
