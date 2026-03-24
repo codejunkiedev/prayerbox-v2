@@ -24,16 +24,6 @@ export interface ProcessedPrayerTiming {
   arabicName: string;
 }
 
-export type ModuleId = 'ayat-and-hadith' | 'announcements' | 'events' | 'posts';
-export type ModuleName = 'Ayats & Hadiths' | 'Announcements' | 'Events' | 'Posts';
-
-export type Module = {
-  id: ModuleId;
-  name: ModuleName;
-  enabled: boolean;
-  display_order: number;
-};
-
 export enum Theme {
   Theme1 = 'theme-1',
   Theme2 = 'theme-2',

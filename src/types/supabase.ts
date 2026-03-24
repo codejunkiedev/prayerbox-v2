@@ -1,4 +1,4 @@
-import type { Module, PrayerAdjustments, Theme } from './common';
+import type { PrayerAdjustments, Theme } from './common';
 import type { HijriCalculationMethod } from '@/constants';
 
 export enum SupabaseTables {
@@ -43,15 +43,11 @@ export interface AyatAndHadith extends Base {
   reference: string;
   type: 'ayat' | 'hadith';
   archived: boolean;
-  visible: boolean;
-  display_order?: number;
 }
 
 export interface Announcement extends Base {
   description: string;
   archived: boolean;
-  visible: boolean;
-  display_order?: number;
 }
 
 export interface Event extends Base {
@@ -65,16 +61,12 @@ export interface Event extends Base {
   naat_khawn: string;
   karm_farma: string;
   archived: boolean;
-  visible: boolean;
-  display_order?: number;
 }
 
 export interface Post extends Base {
   title: string;
   image_url: string;
   archived: boolean;
-  visible: boolean;
-  display_order?: number;
 }
 
 export interface PrayerTimes extends Base {
@@ -84,7 +76,6 @@ export interface PrayerTimes extends Base {
 }
 
 export interface Settings extends Base {
-  modules: Module[];
   theme: Theme;
   hijri_calculation_method?: HijriCalculationMethod;
   hijri_offset?: number;

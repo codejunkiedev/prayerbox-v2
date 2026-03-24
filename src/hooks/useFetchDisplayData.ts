@@ -23,7 +23,7 @@ type ReturnType = {
 
 /**
  * Custom hook to fetch and manage display data for the application
- * Fetches announcements, ayat & hadith, events, posts based on user settings
+ * Fetches announcements, ayat & hadith, events, posts
  * @returns Object containing loading state, error messages, and fetched data
  */
 export function useFetchDisplayData(): ReturnType {
@@ -89,23 +89,19 @@ export function useFetchDisplayData(): ReturnType {
 
       try {
         const userSettings = await getSettings(userId);
-        if (!userSettings || !userSettings?.modules?.length) {
+        if (!userSettings) {
           setErrorMessage({
             title: 'User settings are not set',
             description: 'Please set your user settings to continue',
           });
         } else {
           setUserSettings(userSettings);
-          const promises: Promise<void>[] = [];
-          userSettings.modules.forEach(module => {
-            if (module?.enabled) {
-              if (module?.id === 'announcements') promises.push(fetchAnnouncements());
-              if (module?.id === 'ayat-and-hadith') promises.push(fetchAyatAndHadith());
-              if (module?.id === 'events') promises.push(fetchEvents());
-              if (module?.id === 'posts') promises.push(fetchPosts());
-            }
-          });
-          await Promise.all(promises);
+          await Promise.all([
+            fetchAnnouncements(),
+            fetchAyatAndHadith(),
+            fetchEvents(),
+            fetchPosts(),
+          ]);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
