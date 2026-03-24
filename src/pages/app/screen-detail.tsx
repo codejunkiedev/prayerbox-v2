@@ -15,11 +15,11 @@ import { AppRoutes } from '@/constants';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
 
-const CONTENT_TYPE_LABELS: Record<string, string> = {
-  ayat_and_hadith: 'Ayat / Hadith',
-  announcements: 'Announcement',
-  events: 'Event',
-  posts: 'Post',
+const CONTENT_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
+  ayat_and_hadith: { label: 'Ayat / Hadith', color: 'bg-blue-600 text-white' },
+  announcements: { label: 'Announcement', color: 'bg-amber-600 text-white' },
+  events: { label: 'Event', color: 'bg-emerald-600 text-white' },
+  posts: { label: 'Post', color: 'bg-purple-600 text-white' },
 };
 
 export default function ScreenDetail() {
@@ -107,34 +107,33 @@ export default function ScreenDetail() {
 
   const columns: Column<ScreenContentWithDetails>[] = [
     {
+      key: 'title',
+      name: 'Content',
+      width: 'w-[70%]',
+      render: (_, item) => {
+        const showDescription = item.title !== item.description && item.description;
+        return (
+          <div>
+            <div className='font-medium whitespace-pre-wrap line-clamp-1 overflow-hidden'>
+              {item.title}
+            </div>
+            {showDescription && (
+              <div className='text-muted-foreground text-xs whitespace-pre-wrap line-clamp-1 overflow-hidden mt-0.5'>
+                {item.description}
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       key: 'content_type',
       name: 'Type',
       width: 'w-[15%]',
-      render: value => (
-        <Badge variant='default' className='capitalize'>
-          {CONTENT_TYPE_LABELS[value as string] || (value as string)}
-        </Badge>
-      ),
-    },
-    {
-      key: 'title',
-      name: 'Title',
-      width: 'w-[35%]',
-      render: value => (
-        <div className='font-medium whitespace-pre-wrap line-clamp-1 overflow-hidden'>
-          {value as string}
-        </div>
-      ),
-    },
-    {
-      key: 'description',
-      name: 'Preview',
-      width: 'w-[35%]',
-      render: value => (
-        <div className='text-muted-foreground whitespace-pre-wrap line-clamp-1 overflow-hidden'>
-          {value as string}
-        </div>
-      ),
+      render: value => {
+        const config = CONTENT_TYPE_CONFIG[value as string];
+        return <Badge className={config?.color || ''}>{config?.label || (value as string)}</Badge>;
+      },
     },
     {
       key: 'visible',
@@ -244,6 +243,7 @@ export default function ScreenDetail() {
           showRowNumbers={true}
           isDraggable={true}
           onOrderChange={handleOrderChange}
+          rowClassName={item => (item.visible ? '' : 'opacity-40')}
         />
       )}
     </div>

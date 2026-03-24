@@ -38,6 +38,7 @@ type DataTableProps<T> = {
   rowNumberWidth?: string;
   isDraggable?: boolean;
   onOrderChange?: (items: T[]) => void;
+  rowClassName?: (item: T) => string;
 };
 
 function SortableRow<T>({
@@ -48,6 +49,7 @@ function SortableRow<T>({
   renderActions,
   showRowNumbers,
   isDraggable,
+  rowClassName,
 }: {
   item: T;
   index: number;
@@ -56,6 +58,7 @@ function SortableRow<T>({
   renderActions?: (item: T) => ReactNode;
   showRowNumbers?: boolean;
   isDraggable?: boolean;
+  rowClassName?: (item: T) => string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: String(item[keyField]),
@@ -67,8 +70,10 @@ function SortableRow<T>({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const extraClass = rowClassName ? rowClassName(item) : '';
+
   return (
-    <TableRow ref={setNodeRef} style={style} className='hover:bg-muted/30'>
+    <TableRow ref={setNodeRef} style={style} className={`hover:bg-muted/30 ${extraClass}`}>
       {isDraggable && (
         <TableCell className='w-[40px]'>
           <button
@@ -107,6 +112,7 @@ export function DataTable<T>({
   rowNumberWidth = 'w-[5%]',
   isDraggable = false,
   onOrderChange,
+  rowClassName,
 }: DataTableProps<T>) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -173,6 +179,7 @@ export function DataTable<T>({
                     renderActions={renderActions}
                     showRowNumbers={showRowNumbers}
                     isDraggable
+                    rowClassName={rowClassName}
                   />
                 ))}
               </TableBody>
@@ -189,7 +196,10 @@ export function DataTable<T>({
         {headerContent}
         <TableBody>
           {data.map((item, index) => (
-            <TableRow key={String(item[keyField])} className='hover:bg-muted/30'>
+            <TableRow
+              key={String(item[keyField])}
+              className={`hover:bg-muted/30 ${rowClassName ? rowClassName(item) : ''}`}
+            >
               {showRowNumbers && (
                 <TableCell className='text-muted-foreground'>{index + 1}</TableCell>
               )}
