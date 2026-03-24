@@ -118,7 +118,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[500px]'>
+      <DialogContent className='sm:max-w-[500px]' onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Screen' : 'Add New Screen'}</DialogTitle>
         </DialogHeader>
