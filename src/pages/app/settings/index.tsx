@@ -14,7 +14,7 @@ const settingsModules = [
   },
   {
     title: 'Modules',
-    description: 'Configure display modules, their order, and visibility',
+    description: 'View display modules and manage their content',
     icon: Grid,
     route: AppRoutes.SettingsModules,
     color: 'text-blue-600',
