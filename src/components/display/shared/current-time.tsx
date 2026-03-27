@@ -65,20 +65,26 @@ export function CurrentTime({
           <div
             className={
               isPortrait
-                ? 'w-full h-[15vh] flex items-center justify-center'
+                ? 'flex items-center justify-start'
                 : 'w-[20vw] h-full flex items-center justify-center'
             }
           >
-            <div className='flex flex-col items-center justify-center'>
+            <div
+              className={
+                isPortrait
+                  ? 'flex items-baseline gap-[1vw]'
+                  : 'flex flex-col items-center justify-center'
+              }
+            >
               <span
-                className={`${isPortrait ? 'text-[12vw]' : 'text-[8vw]'} text-white drop-shadow-lg clash-display-bold leading-none`}
+                className={`${isPortrait ? 'text-[10vw]' : 'text-[8vw]'} text-white drop-shadow-lg clash-display-bold leading-none`}
               >
                 {hours}
                 <span className='blink-colon'>:</span>
                 {minutes}
               </span>
               <span
-                className={`${isPortrait ? 'text-[5vw]' : 'text-[4vw]'} text-white drop-shadow-lg clash-display-medium lowercase leading-none`}
+                className={`${isPortrait ? 'text-[4vw]' : 'text-[4vw]'} text-white drop-shadow-lg clash-display-medium lowercase leading-none`}
               >
                 {amPm}
               </span>
