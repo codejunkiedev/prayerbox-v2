@@ -10,12 +10,10 @@ import {
   EventsDisplay,
   AyatHadithDisplay,
   WeatherDisplay,
-  LogoutDisplay,
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { EffectFade, Keyboard } from 'swiper/modules';
-import { isDev } from '@/utils';
 import type { Announcement, AyatAndHadith, Event, Post } from '@/types';
 import './display.css';
 
@@ -24,6 +22,11 @@ const SLIDE_DELAY = 9000;
 export default function Display() {
   const swiperRef = useRef<SwiperType | null>(null);
 
+  const { masjidProfile, displayScreen } = useDisplayStore();
+
+  const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
+  const showWeather = displayScreen?.show_weather ?? true;
+
   const { isLoading, errorMessage, orderedContent, userSettings } = useFetchDisplayData();
 
   const {
@@ -31,18 +34,13 @@ export default function Display() {
     errorMessage: prayerTimingsError,
     prayerTimes,
     prayerTimeSettings,
-  } = usePrayerTimings();
+  } = usePrayerTimings(showPrayerTimes);
 
   const {
     weatherForecast,
     isLoading: isWeatherLoading,
     errorMessage: weatherErrorMessage,
-  } = useWeatherData();
-
-  const { masjidProfile, displayScreen } = useDisplayStore();
-
-  const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
-  const showWeather = displayScreen?.show_weather ?? true;
+  } = useWeatherData(showWeather);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -58,10 +56,15 @@ export default function Display() {
     return () => clearInterval(interval);
   }, []);
 
-  if (isLoading || isPrayerTimingsLoading || isWeatherLoading) return <Loading />;
+  const isPageLoading =
+    isLoading || (showPrayerTimes && isPrayerTimingsLoading) || (showWeather && isWeatherLoading);
+
+  if (isPageLoading) return <Loading />;
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
-  if (prayerTimingsError) return <ErrorDisplay errorMessage={prayerTimingsError} />;
-  if (weatherErrorMessage) return <ErrorDisplay errorMessage={weatherErrorMessage} />;
+  if (showPrayerTimes && prayerTimingsError)
+    return <ErrorDisplay errorMessage={prayerTimingsError} />;
+  if (showWeather && weatherErrorMessage)
+    return <ErrorDisplay errorMessage={weatherErrorMessage} />;
 
   const contentSlides = orderedContent.map((item, index) => {
     switch (item.contentType) {
@@ -116,20 +119,25 @@ export default function Display() {
               prayerTimes={prayerTimes}
               prayerTimeSettings={prayerTimeSettings}
               userSettings={userSettings}
+              orientation={displayScreen?.orientation ?? 'landscape'}
             />
           </SwiperSlide>
         )}
         {showWeather && weatherForecast && (
           <SwiperSlide>
-            <WeatherDisplay weatherForecast={weatherForecast} area={masjidProfile?.area} />
+            <WeatherDisplay
+              weatherForecast={weatherForecast}
+              area={masjidProfile?.area}
+              orientation={displayScreen?.orientation ?? 'landscape'}
+            />
           </SwiperSlide>
         )}
         {contentSlides}
-        {isDev && (
+        {/* {isDev && (
           <SwiperSlide>
             <LogoutDisplay />
           </SwiperSlide>
-        )}
+        )} */}
       </Swiper>
     </div>
   );

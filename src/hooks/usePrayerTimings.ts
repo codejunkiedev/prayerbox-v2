@@ -19,7 +19,7 @@ type ReturnType = {
  * Fetches prayer time settings from database and prayer times from Al-Adhan API
  * @returns Object containing loading state, error messages, prayer times, and settings
  */
-export function usePrayerTimings(): ReturnType {
+export function usePrayerTimings(enabled: boolean = true): ReturnType {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes | null>(null);
@@ -78,7 +78,7 @@ export function usePrayerTimings(): ReturnType {
   useEffect(() => {
     const abortController = new AbortController();
 
-    if (!userId) return () => abortController.abort();
+    if (!enabled || !userId) return () => abortController.abort();
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -100,7 +100,7 @@ export function usePrayerTimings(): ReturnType {
     return () => {
       abortController.abort();
     };
-  }, [fetchPrayerTimes, userId]);
+  }, [enabled, fetchPrayerTimes, userId]);
 
   return {
     isLoading,

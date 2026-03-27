@@ -1,4 +1,4 @@
-import type { ProcessedPrayerTiming, PrayerTimes } from '@/types';
+import type { ProcessedPrayerTiming, PrayerTimes, ScreenOrientation } from '@/types';
 
 export interface ThemeProps {
   gregorianDate: string;
@@ -8,4 +8,5 @@ export interface ThemeProps {
   currentTime: Date;
   processedPrayerTimings: ProcessedPrayerTiming[];
   prayerTimeSettings: PrayerTimes | null;
+  orientation: ScreenOrientation;
 }

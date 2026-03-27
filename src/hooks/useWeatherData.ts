@@ -11,7 +11,7 @@ import { parseOpenWeatherForecast, isNullOrUndefined } from '@/utils';
  * Automatically refreshes data every 30 minutes
  * @returns Object containing weather forecast, loading state, and error messages
  */
-export function useWeatherData() {
+export function useWeatherData(enabled: boolean = true) {
   const [weatherForecast, setWeatherForecast] = useState<WeatherForecast | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
@@ -61,6 +61,8 @@ export function useWeatherData() {
       }
     }
 
+    if (!enabled) return () => abortController.abort();
+
     getWeatherData(abortController.signal);
 
     // Refresh weather data every 30 minutes
@@ -77,7 +79,7 @@ export function useWeatherData() {
       abortController.abort();
       clearInterval(interval);
     };
-  }, [masjidProfile]);
+  }, [enabled, masjidProfile]);
 
   return { weatherForecast, isLoading, errorMessage };
 }

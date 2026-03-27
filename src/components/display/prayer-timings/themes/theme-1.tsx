@@ -18,10 +18,107 @@ export function Theme1({
   currentTime,
   processedPrayerTimings,
   prayerTimeSettings,
+  orientation,
 }: ThemeProps) {
+  const isPortrait = orientation === 'portrait';
+
   const nextPrayer = useMemo(() => {
     return getTimeBeforeNextPrayer(processedPrayerTimings);
   }, [processedPrayerTimings]);
+
+  if (isPortrait) {
+    return (
+      <div
+        className='w-full h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center overflow-hidden'
+        style={{ backgroundImage: `url(${theme1Background})` }}
+      >
+        <div className='w-[90vw] h-full flex flex-col px-[5vw]'>
+          {/* Header Section - Stacked vertically */}
+          <div className='flex-shrink-0 flex flex-col items-center gap-[0.5vh] pt-[1vh]'>
+            <div className='flex flex-col items-center text-white'>
+              <span className='text-[3vw] barlow-regular'>{gregorianDate}</span>
+              <span className='text-[3vw] barlow-regular'>{hijriDate}</span>
+            </div>
+
+            <CurrentTime
+              currentTime={currentTime}
+              variant={Theme.Theme1}
+              orientation={orientation}
+            />
+
+            <div className='flex flex-col items-center text-white'>
+              <div className='flex items-center gap-[2vw]'>
+                <div>
+                  <span className='text-[2.5vw] barlow-regular'>Sunrise: </span>
+                  <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
+                    {sunrise}
+                  </span>
+                </div>
+                <div>
+                  <span className='text-[2.5vw] barlow-regular'>Sunset: </span>
+                  <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
+                    {sunset}
+                  </span>
+                </div>
+              </div>
+              {nextPrayer && (
+                <div>
+                  <span className='text-[2.5vw] barlow-regular capitalize'>
+                    {nextPrayer?.name} starts in:{' '}
+                  </span>
+                  <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
+                    {nextPrayer?.timeBefore}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Prayer Timings - Single Column */}
+          <div className='flex-1 flex items-center justify-center min-h-0'>
+            <div className='flex flex-col items-center justify-evenly h-full w-full'>
+              <PrayerTimingCard
+                prayerNames={['fajr']}
+                processedPrayerTimings={processedPrayerTimings}
+                position='right'
+                isPortrait
+              />
+              <PrayerTimingCard
+                prayerNames={['dhuhr']}
+                processedPrayerTimings={processedPrayerTimings}
+                position='left'
+                isPortrait
+              />
+              <PrayerTimingCard
+                prayerNames={['asr']}
+                processedPrayerTimings={processedPrayerTimings}
+                position='right'
+                isPortrait
+              />
+              <PrayerTimingCard
+                prayerNames={['maghrib']}
+                processedPrayerTimings={processedPrayerTimings}
+                position='left'
+                isPortrait
+              />
+              <PrayerTimingCard
+                prayerNames={['isha']}
+                processedPrayerTimings={processedPrayerTimings}
+                position='right'
+                isPortrait
+              />
+              <PrayerTimingCard
+                prayerNames={getFilteredJummaPrayerNames(prayerTimeSettings)}
+                processedPrayerTimings={processedPrayerTimings}
+                position='left'
+                isPortrait
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -117,6 +214,7 @@ interface PrayerTimingCardProps {
   position: 'left' | 'right';
   className?: string;
   highlight?: boolean;
+  isPortrait?: boolean;
 }
 
 /**
@@ -128,6 +226,7 @@ export function PrayerTimingCard({
   position,
   className = '',
   highlight = false,
+  isPortrait = false,
 }: PrayerTimingCardProps) {
   const cardImage = getPrayerCardImage(prayerNames[0], Theme.Theme1);
   const isLeftColumn = position === 'left';
@@ -141,22 +240,23 @@ export function PrayerTimingCard({
 
   const { timeNumber, amPm } = formatTimeNumber(currentTime);
 
+  const cardStyle = isPortrait
+    ? { width: '80vw', height: '12vh' }
+    : { width: '35vw', height: '25vh' };
+
+  const positionClass = isLeftColumn
+    ? `justify-end ${isPortrait ? 'pr-[18vw]' : 'pr-[4vw]'}`
+    : `justify-start ${isPortrait ? 'pl-[18vw]' : 'pl-[4vw]'}`;
+
   return (
-    <div
-      className={`relative flex items-center justify-center ${className}`}
-      style={{ width: '35vw', height: '25vh' }}
-    >
+    <div className={`relative flex items-center justify-center ${className}`} style={cardStyle}>
       <img
         src={cardImage}
         alt={prayerNames.join(', ')}
         className='absolute inset-0 object-contain'
         style={{ width: '100%', height: '100%' }}
       />
-      <div
-        className={`absolute inset-0 flex items-center ${
-          isLeftColumn ? 'justify-end pr-[4vw]' : 'justify-start pl-[4vw]'
-        }`}
-      >
+      <div className={`absolute inset-0 flex items-center ${positionClass}`}>
         <div
           className={cn(
             `flex items-baseline gap-[0.3vw] transition-all duration-300 px-6 py-1`,
@@ -164,10 +264,14 @@ export function PrayerTimingCard({
             isAnimating ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
           )}
         >
-          <span className='text-[4vw] font-bold text-white drop-shadow-2xl ds-digi-font'>
+          <span
+            className={`${isPortrait ? 'text-[7vw]' : 'text-[4vw]'} font-bold text-white drop-shadow-2xl ds-digi-font`}
+          >
             {timeNumber}
           </span>
-          <span className='text-[2.5vw] text-white drop-shadow-2xl barlow-medium relative top-[1vh] barlow-medium'>
+          <span
+            className={`${isPortrait ? 'text-[4vw]' : 'text-[2.5vw]'} text-white drop-shadow-2xl barlow-medium relative top-[1vh]`}
+          >
             {amPm}
           </span>
         </div>
