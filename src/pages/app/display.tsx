@@ -120,7 +120,11 @@ export default function Display() {
         )}
         {showWeather && weatherForecast && (
           <SwiperSlide>
-            <WeatherDisplay weatherForecast={weatherForecast} area={masjidProfile?.area} />
+            <WeatherDisplay
+              weatherForecast={weatherForecast}
+              area={masjidProfile?.area}
+              orientation={displayScreen?.orientation ?? 'landscape'}
+            />
           </SwiperSlide>
         )}
         {contentSlides}
