@@ -10,12 +10,10 @@ import {
   EventsDisplay,
   AyatHadithDisplay,
   WeatherDisplay,
-  LogoutDisplay,
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { EffectFade, Keyboard } from 'swiper/modules';
-import { isDev } from '@/utils';
 import type { Announcement, AyatAndHadith, Event, Post } from '@/types';
 import './display.css';
 
@@ -116,6 +114,7 @@ export default function Display() {
               prayerTimes={prayerTimes}
               prayerTimeSettings={prayerTimeSettings}
               userSettings={userSettings}
+              orientation={displayScreen?.orientation ?? 'landscape'}
             />
           </SwiperSlide>
         )}
@@ -125,11 +124,11 @@ export default function Display() {
           </SwiperSlide>
         )}
         {contentSlides}
-        {isDev && (
+        {/* {isDev && (
           <SwiperSlide>
             <LogoutDisplay />
           </SwiperSlide>
-        )}
+        )} */}
       </Swiper>
     </div>
   );

@@ -1,10 +1,11 @@
-import { Theme } from '@/types';
+import { Theme, type ScreenOrientation } from '@/types';
 import { formatTimeNumber, formatTimePickerTime } from '@/utils';
 import React from 'react';
 
 interface CurrentTimeProps {
   currentTime: Date;
   variant?: Theme;
+  orientation?: ScreenOrientation;
   className?: string;
 }
 
@@ -27,10 +28,12 @@ const animationStyle = `
 export function CurrentTime({
   currentTime,
   variant = Theme.Theme1,
+  orientation = 'landscape',
   className = '',
 }: CurrentTimeProps) {
   const { timeNumber, amPm } = formatTimeNumber(formatTimePickerTime(currentTime));
   const [hours, minutes] = timeNumber.split(':');
+  const isPortrait = orientation === 'portrait';
 
   switch (variant) {
     case Theme.Theme1:
@@ -38,13 +41,16 @@ export function CurrentTime({
         <React.Fragment>
           <style>{animationStyle}</style>
           <div className={`flex items-baseline gap-[0.5vw] ${className}`}>
-            <span className='text-[8vw] font-bold ds-digi-font italic' style={{ color: '#E0B05C' }}>
+            <span
+              className={`${isPortrait ? 'text-[10vw]' : 'text-[8vw]'} font-bold ds-digi-font italic`}
+              style={{ color: '#E0B05C' }}
+            >
               {hours}
               <span className='blink-colon'>:</span>
               {minutes}
             </span>
             <span
-              className='text-[3vw] ds-digi-font italic relative top-[1.5vh]'
+              className={`${isPortrait ? 'text-[4vw]' : 'text-[3vw]'} ds-digi-font italic relative top-[1.5vh]`}
               style={{ color: '#E0B05C' }}
             >
               {amPm}
@@ -56,14 +62,24 @@ export function CurrentTime({
       return (
         <React.Fragment>
           <style>{animationStyle}</style>
-          <div className='w-[20vw] h-full flex items-center justify-center'>
+          <div
+            className={
+              isPortrait
+                ? 'w-full h-[15vh] flex items-center justify-center'
+                : 'w-[20vw] h-full flex items-center justify-center'
+            }
+          >
             <div className='flex flex-col items-center justify-center'>
-              <span className='text-[8vw] text-white drop-shadow-lg clash-display-bold leading-none'>
+              <span
+                className={`${isPortrait ? 'text-[12vw]' : 'text-[8vw]'} text-white drop-shadow-lg clash-display-bold leading-none`}
+              >
                 {hours}
                 <span className='blink-colon'>:</span>
                 {minutes}
               </span>
-              <span className='text-[4vw] text-white drop-shadow-lg clash-display-medium lowercase leading-none'>
+              <span
+                className={`${isPortrait ? 'text-[5vw]' : 'text-[4vw]'} text-white drop-shadow-lg clash-display-medium lowercase leading-none`}
+              >
                 {amPm}
               </span>
             </div>
