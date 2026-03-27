@@ -8,7 +8,12 @@ import {
   type ScreenContentType,
 } from '@/types';
 import { useDisplayStore } from '@/store';
-import { getSettings, getVisibleScreenContent, fetchContentByTableAndIds } from '@/lib/supabase';
+import {
+  getSettings,
+  getVisibleScreenContent,
+  fetchContentByTableAndIds,
+  getScreenById,
+} from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { ErrorMessage } from '@/components/display';
 
@@ -42,7 +47,7 @@ export function useFetchDisplayData(): ReturnType {
   const [orderedContent, setOrderedContent] = useState<DisplayContentItem[]>([]);
   const [userSettings, setUserSettings] = useState<Settings | null>(null);
 
-  const { masjidProfile, displayScreen } = useDisplayStore();
+  const { masjidProfile, displayScreen, setDisplayScreen } = useDisplayStore();
   const userId = masjidProfile?.user_id;
   const screenId = displayScreen?.id;
 
@@ -56,10 +61,16 @@ export function useFetchDisplayData(): ReturnType {
       setErrorMessage(null);
 
       try {
-        const [settings, screenContentRows] = await Promise.all([
+        const [settings, screenContentRows, latestScreen] = await Promise.all([
           getSettings(userId),
           getVisibleScreenContent(screenId),
+          getScreenById(screenId),
         ]);
+
+        // Update screen settings in store if changed
+        if (latestScreen) {
+          setDisplayScreen(latestScreen);
+        }
 
         if (!settings) {
           setErrorMessage({
