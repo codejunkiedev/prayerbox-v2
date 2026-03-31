@@ -1,6 +1,7 @@
 /**
  * Types for image validation system
  */
+import type { PostOrientation } from './supabase';
 
 export interface ImageDimensions {
   width: number;
@@ -56,7 +57,7 @@ export interface UseImageValidationReturn {
   imageError: string | null;
   validationState: ValidationState | null;
   isValidating: boolean;
-  handleImageChange: (file: File | null) => Promise<void>;
+  handleImageChange: (file: File | null, orientation?: PostOrientation) => Promise<void>;
   resetValidation: () => void;
 }
 

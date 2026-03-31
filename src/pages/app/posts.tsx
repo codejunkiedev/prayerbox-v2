@@ -11,9 +11,9 @@ import {
   DataTable,
   type Column,
 } from '@/components/common';
-import { FileImage } from 'lucide-react';
+import { FileImage, Monitor, Smartphone } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
+import { Badge, Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
 import { toast } from 'sonner';
 
 export default function Posts() {
@@ -127,12 +127,35 @@ export default function Posts() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[80%]',
+      width: 'w-[60%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
           {value as string}
         </div>
       ),
+    },
+    {
+      key: 'orientation',
+      name: 'Orientation',
+      width: 'w-[120px]',
+      render: (value, item) => {
+        const isPortrait = (item as Post).orientation === 'portrait';
+        return (
+          <Badge variant='outline' className='gap-1'>
+            {isPortrait ? (
+              <>
+                <Smartphone className='w-3 h-3' />
+                Portrait
+              </>
+            ) : (
+              <>
+                <Monitor className='w-3 h-3' />
+                Landscape
+              </>
+            )}
+          </Badge>
+        );
+      },
     },
   ];
 
@@ -192,6 +215,7 @@ export default function Posts() {
           contentId={screenAssignItem.id}
           contentType='posts'
           contentLabel={screenAssignItem.title}
+          contentOrientation={screenAssignItem.orientation}
         />
       )}
     </div>

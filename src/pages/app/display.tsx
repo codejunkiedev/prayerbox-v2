@@ -66,6 +66,21 @@ export default function Display() {
   if (showWeather && weatherErrorMessage)
     return <ErrorDisplay errorMessage={weatherErrorMessage} />;
 
+  const hasNoContent =
+    !showPrayerTimes && !(showWeather && weatherForecast) && orderedContent.length === 0;
+
+  if (hasNoContent) {
+    return (
+      <ErrorDisplay
+        errorMessage={{
+          title: 'No content assigned',
+          description:
+            'This screen has no content assigned to it yet. Please assign content from the admin panel.',
+        }}
+      />
+    );
+  }
+
   const contentSlides = orderedContent.map((item, index) => {
     switch (item.contentType) {
       case 'announcements':

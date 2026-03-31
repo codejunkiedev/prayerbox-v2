@@ -106,6 +106,7 @@ export type EventData = z.infer<typeof eventSchema>;
 
 export const postSchema = z.object({
   title: z.string().min(1, 'Title is required'),
+  orientation: z.enum(['landscape', 'portrait']),
 });
 
 export type PostData = z.infer<typeof postSchema>;
