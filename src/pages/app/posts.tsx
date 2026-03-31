@@ -138,7 +138,7 @@ export default function Posts() {
       key: 'orientation',
       name: 'Orientation',
       width: 'w-[120px]',
-      render: (value, item) => {
+      render: (_value, item) => {
         const isPortrait = (item as Post).orientation === 'portrait';
         return (
           <Badge variant='outline' className='gap-1'>
