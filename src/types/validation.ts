@@ -48,6 +48,7 @@ export interface ValidationFeedbackProps {
   isValid: boolean;
   dimensions?: string;
   recommendation?: string;
+  validationError?: string;
   isLoading?: boolean;
   className?: string;
 }

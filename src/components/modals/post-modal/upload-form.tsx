@@ -69,6 +69,7 @@ export function UploadForm({
           onChange={onImageChange}
           value={existingImageUrl}
           disabled={isSubmitting}
+          orientation={orientation}
         />
 
         {(validationState || isValidating) && (
@@ -76,11 +77,10 @@ export function UploadForm({
             isValid={validationState?.isValid ?? false}
             dimensions={validationState?.dimensions}
             recommendation={validationState?.recommendation}
+            validationError={imageError ?? undefined}
             isLoading={isValidating}
           />
         )}
-
-        {imageError && <p className='text-destructive text-sm'>{imageError}</p>}
 
         <p className='text-xs text-muted-foreground'>
           <strong>Strict requirement:</strong> Only {ratioLabel} aspect ratio images accepted. Max

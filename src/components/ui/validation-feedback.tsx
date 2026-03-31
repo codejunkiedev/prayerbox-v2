@@ -9,6 +9,7 @@ export function ValidationFeedback({
   isValid,
   dimensions,
   recommendation,
+  validationError,
   isLoading = false,
   className,
 }: ValidationFeedbackProps) {
@@ -39,7 +40,11 @@ export function ValidationFeedback({
       {isValid ? (
         <ValidationSuccessContent dimensions={dimensions} />
       ) : (
-        <ValidationWarningContent dimensions={dimensions} recommendation={recommendation} />
+        <ValidationWarningContent
+          dimensions={dimensions}
+          recommendation={recommendation}
+          error={validationError}
+        />
       )}
     </div>
   );
@@ -66,16 +71,18 @@ function ValidationSuccessContent({ dimensions }: { dimensions?: string }) {
 function ValidationWarningContent({
   dimensions,
   recommendation,
+  error,
 }: {
   dimensions?: string;
   recommendation?: string;
+  error?: string;
 }) {
   return (
     <div className='flex items-start space-x-2'>
-      <AlertTriangle className='w-4 h-4 mt-0.5 text-yellow-600 dark:text-yellow-400' />
+      <AlertTriangle className='w-4 h-4 mt-0.5 shrink-0 text-yellow-600 dark:text-yellow-400' />
       <div>
-        <p className='font-medium'>Image may not display optimally</p>
-        {dimensions && <p className='text-xs mt-1 opacity-80'>Current: {dimensions}</p>}
+        <p className='font-medium'>{error ?? 'Image may not display optimally'}</p>
+        {dimensions && <p className='text-xs mt-1 opacity-80'>Detected: {dimensions}</p>}
         {recommendation && <p className='text-xs mt-1 opacity-90'>{recommendation}</p>}
       </div>
     </div>
