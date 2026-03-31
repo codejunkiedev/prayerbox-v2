@@ -8,34 +8,54 @@ import type {
   ImageOrientation,
   ResolutionName,
 } from '@/types/validation';
+import type { PostOrientation } from '@/types';
 
-// Configuration constants
-const ASPECT_RATIO_CONFIG: ValidationConfig = {
-  ratio: 16 / 9, // 1.7777...
+const LANDSCAPE_CONFIG: ValidationConfig = {
+  ratio: 16 / 9,
   name: '16:9',
-  tolerance: 0, // Perfect ratio required
+  tolerance: 0,
 } as const;
 
-const DIMENSION_LIMITS: DimensionLimits = {
-  min: { width: 1280, height: 720 }, // HD quality minimum
-  recommended: { width: 1920, height: 1080 }, // Full HD
-  max: { width: 3840, height: 2160 }, // 4K UHD
+const PORTRAIT_CONFIG: ValidationConfig = {
+  ratio: 9 / 16,
+  name: '9:16',
+  tolerance: 0,
 } as const;
 
-// Common resolutions for reference
-const COMMON_RESOLUTIONS = {
+const LANDSCAPE_LIMITS: DimensionLimits = {
+  min: { width: 1280, height: 720 },
+  recommended: { width: 1920, height: 1080 },
+  max: { width: 3840, height: 2160 },
+} as const;
+
+const PORTRAIT_LIMITS: DimensionLimits = {
+  min: { width: 720, height: 1280 },
+  recommended: { width: 1080, height: 1920 },
+  max: { width: 2160, height: 3840 },
+} as const;
+
+const LANDSCAPE_RESOLUTIONS = {
   HD: '1280×720',
   FULL_HD: '1920×1080',
   UHD_4K: '3840×2160',
 } as const;
 
+const PORTRAIT_RESOLUTIONS = {
+  HD: '720×1280',
+  FULL_HD: '1080×1920',
+  UHD_4K: '2160×3840',
+} as const;
+
 /**
  * Validates if an image file is suitable for full-screen display
  * @param file - The image file to validate
+ * @param orientation - The required orientation ('landscape' = 16:9, 'portrait' = 9:16)
  * @returns Promise resolving to validation result
  */
-export async function validateImageForFullScreen(file: File): Promise<ImageValidationResult> {
-  // Input validation
+export async function validateImageForFullScreen(
+  file: File,
+  orientation: PostOrientation = 'landscape'
+): Promise<ImageValidationResult> {
   if (!file || !file.type.startsWith('image/')) {
     return {
       isValid: false,
@@ -62,7 +82,7 @@ export async function validateImageForFullScreen(file: File): Promise<ImageValid
           aspectRatio: img.width / img.height,
         };
 
-        const result = validateDimensions(dimensions);
+        const result = validateDimensions(dimensions, orientation);
         cleanup();
         resolve(result);
       } catch {
@@ -98,20 +118,24 @@ export async function validateImageForFullScreen(file: File): Promise<ImageValid
 }
 
 /**
- * Validates image dimensions against our requirements
- * @param dimensions - The image dimensions to validate
- * @returns Validation result with quality assessment
+ * Validates image dimensions against orientation-specific requirements
  */
-function validateDimensions(dimensions: ImageDimensions): ImageValidationResult {
+function validateDimensions(
+  dimensions: ImageDimensions,
+  orientation: PostOrientation
+): ImageValidationResult {
   const { width, height, aspectRatio } = dimensions;
-  const { recommended, max } = DIMENSION_LIMITS;
-  const { ratio, tolerance, name } = ASPECT_RATIO_CONFIG;
+  const config = orientation === 'portrait' ? PORTRAIT_CONFIG : LANDSCAPE_CONFIG;
+  const limits = orientation === 'portrait' ? PORTRAIT_LIMITS : LANDSCAPE_LIMITS;
+  const { recommended, max } = limits;
+  const { ratio, tolerance, name } = config;
 
-  // Check maximum dimensions
   if (width > max.width || height > max.height) {
+    const maxLabel =
+      orientation === 'portrait' ? PORTRAIT_RESOLUTIONS.UHD_4K : LANDSCAPE_RESOLUTIONS.UHD_4K;
     return {
       isValid: false,
-      error: `Image resolution too high. Maximum allowed: ${COMMON_RESOLUTIONS.UHD_4K}`,
+      error: `Image resolution too high. Maximum allowed: ${maxLabel}`,
       dimensions,
       recommendation:
         'Please resize or compress the image to reduce file size and improve loading performance.',
@@ -119,18 +143,13 @@ function validateDimensions(dimensions: ImageDimensions): ImageValidationResult 
     };
   }
 
-  // Validate aspect ratio
-  const aspectRatioResult = validateAspectRatio(aspectRatio, ratio, tolerance);
+  const aspectRatioResult = validateAspectRatio(aspectRatio, ratio, tolerance, name, orientation);
   if (!aspectRatioResult.isValid) {
-    return {
-      ...aspectRatioResult,
-      dimensions,
-    };
+    return { ...aspectRatioResult, dimensions };
   }
 
-  // Determine quality level and recommendation
   const quality = getQualityLevel(width, height, recommended);
-  const recommendation = generateQualityRecommendation(quality);
+  const recommendation = generateQualityRecommendation(quality, orientation);
 
   return {
     isValid: true,
@@ -141,18 +160,24 @@ function validateDimensions(dimensions: ImageDimensions): ImageValidationResult 
 }
 
 /**
- * Validates aspect ratio against the required 16:9 ratio
+ * Validates aspect ratio against the required ratio for the given orientation
  */
-function validateAspectRatio(aspectRatio: number, targetRatio: number, tolerance: number) {
-  const is16by9 = Math.abs(aspectRatio - targetRatio) <= tolerance;
+function validateAspectRatio(
+  aspectRatio: number,
+  targetRatio: number,
+  tolerance: number,
+  ratioName: string,
+  orientation: PostOrientation
+) {
+  const isCorrectRatio = Math.abs(aspectRatio - targetRatio) <= tolerance;
 
-  if (!is16by9) {
+  if (!isCorrectRatio) {
     const currentRatio = `${aspectRatio.toFixed(2)}:1`;
-    const recommendation = generateAspectRatioRecommendation(aspectRatio, targetRatio);
+    const recommendation = generateAspectRatioRecommendation(aspectRatio, targetRatio, orientation);
 
     return {
       isValid: false,
-      error: `Only 16:9 aspect ratio images are accepted. Current ratio: ${currentRatio}`,
+      error: `Only ${ratioName} aspect ratio images are accepted. Current ratio: ${currentRatio}`,
       recommendation,
     };
   }
@@ -161,17 +186,29 @@ function validateAspectRatio(aspectRatio: number, targetRatio: number, tolerance
 }
 
 /**
- * Generates recommendation based on aspect ratio mismatch
+ * Generates a human-friendly recommendation based on the aspect ratio mismatch
  */
-function generateAspectRatioRecommendation(aspectRatio: number, targetRatio: number): string {
+function generateAspectRatioRecommendation(
+  aspectRatio: number,
+  targetRatio: number,
+  orientation: PostOrientation
+): string {
+  if (orientation === 'portrait') {
+    if (aspectRatio >= 1.0) {
+      return 'Please use a portrait image (taller than wide) in 9:16 ratio (height should be 1.78× the width).';
+    }
+    if (aspectRatio > targetRatio) {
+      return 'Image is too wide for portrait. Please crop to make it narrower or use a 9:16 aspect ratio image.';
+    }
+    return 'Image is too narrow for portrait. Please crop to make it wider or use a 9:16 aspect ratio image.';
+  }
+
   if (aspectRatio <= 1.0) {
     return 'Please use a landscape image and crop it to 16:9 ratio (width should be 1.78× the height).';
   }
-
   if (aspectRatio < targetRatio) {
     return 'Image is too narrow. Please crop to make it wider or use a 16:9 aspect ratio image.';
   }
-
   return 'Image is too wide. Please crop to make it less wide or use a 16:9 aspect ratio image.';
 }
 
@@ -184,7 +221,7 @@ function getQualityLevel(
   recommended: { width: number; height: number }
 ): ImageQuality {
   if (width >= recommended.width && height >= recommended.height) {
-    return width >= 2560 ? 'excellent' : 'recommended';
+    return width >= 2560 || height >= 2560 ? 'excellent' : 'recommended';
   }
   return 'minimum';
 }
@@ -192,10 +229,15 @@ function getQualityLevel(
 /**
  * Generates quality-based recommendations
  */
-function generateQualityRecommendation(quality: ImageQuality): string {
+function generateQualityRecommendation(
+  quality: ImageQuality,
+  orientation: PostOrientation
+): string {
+  const fullHd =
+    orientation === 'portrait' ? PORTRAIT_RESOLUTIONS.FULL_HD : LANDSCAPE_RESOLUTIONS.FULL_HD;
   switch (quality) {
     case 'minimum':
-      return `For optimal quality, consider using ${COMMON_RESOLUTIONS.FULL_HD} or higher.`;
+      return `For optimal quality, consider using ${fullHd} or higher.`;
     case 'excellent':
       return 'Excellent resolution for high-quality displays.';
     default:
@@ -205,22 +247,21 @@ function generateQualityRecommendation(quality: ImageQuality): string {
 
 /**
  * Gets a human-readable description of image dimensions and aspect ratio
- * @param dimensions - The image dimensions
- * @returns Formatted string describing the image
  */
 export function getImageDescription(dimensions: ImageDimensions): string {
   const { width, height, aspectRatio } = dimensions;
-  const { ratio, tolerance, name } = ASPECT_RATIO_CONFIG;
 
-  // Check if it matches 16:9 ratio
-  const is16by9 = Math.abs(aspectRatio - ratio) <= tolerance;
-  const ratioDisplay = is16by9 ? name : `${aspectRatio.toFixed(1)}:1`;
-
-  // Determine orientation
   const orientation = getImageOrientation(aspectRatio);
-
-  // Get quality indicator
   const qualityIndicator = getResolutionName(width, height);
+
+  let ratioDisplay: string;
+  if (orientation === 'landscape' && Math.abs(aspectRatio - 16 / 9) < 0.001) {
+    ratioDisplay = '16:9';
+  } else if (orientation === 'portrait' && Math.abs(aspectRatio - 9 / 16) < 0.001) {
+    ratioDisplay = '9:16';
+  } else {
+    ratioDisplay = `${aspectRatio.toFixed(1)}:1`;
+  }
 
   return `${width}×${height}px${qualityIndicator ? ` (${qualityIndicator})` : ''} - ${orientation} ${ratioDisplay}`;
 }
@@ -243,26 +284,28 @@ function getResolutionName(width: number, height: number): ResolutionName {
     '1920x1080': 'Full HD',
     '2560x1440': '1440p',
     '3840x2160': '4K UHD',
+    '720x1280': 'HD',
+    '1080x1920': 'Full HD',
+    '2160x3840': '4K UHD',
   };
 
-  const key = `${width}x${height}`;
-  return resolutionMap[key] || '';
+  return resolutionMap[`${width}x${height}`] || '';
 }
 
 /**
  * Suggests optimal cropping dimensions for the given image
- * @param dimensions - The original image dimensions
- * @returns Crop suggestion with detailed information
  */
-export function suggestOptimalCrop(dimensions: ImageDimensions): CropSuggestion {
+export function suggestOptimalCrop(
+  dimensions: ImageDimensions,
+  orientation: PostOrientation = 'landscape'
+): CropSuggestion {
   const { width, height } = dimensions;
-  const { ratio, name } = ASPECT_RATIO_CONFIG;
+  const config = orientation === 'portrait' ? PORTRAIT_CONFIG : LANDSCAPE_CONFIG;
+  const { ratio, name } = config;
 
-  // Calculate optimal 16:9 crop dimensions
   const cropWidth = Math.min(width, height * ratio);
   const cropHeight = Math.min(height, width / ratio);
 
-  // Calculate crop area and retained percentage
   const originalArea = width * height;
   const cropArea = cropWidth * cropHeight;
   const retainedPercentage = Math.round((cropArea / originalArea) * 100);

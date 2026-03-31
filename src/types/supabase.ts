@@ -40,6 +40,7 @@ export interface MasjidProfile extends Base {
 
 export type ScreenOrientation = 'landscape' | 'portrait' | 'mobile';
 export type ScreenContentType = 'ayat_and_hadith' | 'announcements' | 'events' | 'posts';
+export type PostOrientation = 'landscape' | 'portrait';
 
 export interface DisplayScreen extends Base {
   name: string;
@@ -89,6 +90,7 @@ export interface Post extends Base {
   title: string;
   image_url: string;
   archived: boolean;
+  orientation: PostOrientation;
 }
 
 export interface PrayerTimes extends Base {

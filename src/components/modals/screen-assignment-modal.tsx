@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Button,
   Checkbox,
@@ -9,8 +9,9 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui';
+import { Monitor, Smartphone, Tablet, Info } from 'lucide-react';
 import { getScreens, getScreensForContent, bulkUpdateScreenAssignments } from '@/lib/supabase';
-import type { DisplayScreen, ScreenContentType } from '@/types';
+import type { DisplayScreen, PostOrientation, ScreenContentType } from '@/types';
 import { toast } from 'sonner';
 
 type ScreenAssignmentModalProps = {
@@ -19,7 +20,24 @@ type ScreenAssignmentModalProps = {
   contentId: string;
   contentType: ScreenContentType;
   contentLabel?: string;
+  /** When provided (posts only), restricts which screens can be assigned */
+  contentOrientation?: PostOrientation;
 };
+
+/** Returns true if the screen's orientation is compatible with the post orientation */
+function isCompatible(
+  screenOrientation: DisplayScreen['orientation'],
+  postOrientation: PostOrientation
+): boolean {
+  if (postOrientation === 'landscape') return screenOrientation === 'landscape';
+  return screenOrientation === 'portrait' || screenOrientation === 'mobile';
+}
+
+function OrientationIcon({ orientation }: { orientation: DisplayScreen['orientation'] }) {
+  if (orientation === 'portrait') return <Smartphone className='w-4 h-4 text-muted-foreground' />;
+  if (orientation === 'mobile') return <Tablet className='w-4 h-4 text-muted-foreground' />;
+  return <Monitor className='w-4 h-4 text-muted-foreground' />;
+}
 
 export function ScreenAssignmentModal({
   isOpen,
@@ -27,6 +45,7 @@ export function ScreenAssignmentModal({
   contentId,
   contentType,
   contentLabel,
+  contentOrientation,
 }: ScreenAssignmentModalProps) {
   const [screens, setScreens] = useState<DisplayScreen[]>([]);
   const [selectedScreenIds, setSelectedScreenIds] = useState<Set<string>>(new Set());
@@ -56,6 +75,13 @@ export function ScreenAssignmentModal({
     fetchData();
   }, [isOpen, contentId, contentType]);
 
+  const compatibleScreens = useMemo(() => {
+    if (!contentOrientation) return screens;
+    return screens.filter(s => isCompatible(s.orientation, contentOrientation));
+  }, [screens, contentOrientation]);
+
+  const incompatibleCount = screens.length - compatibleScreens.length;
+
   const handleToggle = (screenId: string) => {
     setSelectedScreenIds(prev => {
       const next = new Set(prev);
@@ -82,6 +108,8 @@ export function ScreenAssignmentModal({
     }
   };
 
+  const orientationLabel = contentOrientation === 'portrait' ? 'portrait / mobile' : 'landscape';
+
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent className='sm:max-w-[450px]'>
@@ -92,31 +120,63 @@ export function ScreenAssignmentModal({
           )}
         </DialogHeader>
 
-        <div className='py-4'>
+        <div className='py-2'>
           {isLoading ? (
-            <div className='flex items-center justify-center py-8'>
+            <div className='flex items-center justify-center py-10'>
               <div className='animate-spin h-6 w-6 border-2 border-muted border-t-foreground rounded-full' />
             </div>
-          ) : screens.length === 0 ? (
-            <p className='text-sm text-muted-foreground text-center py-8'>
-              No screens created yet. Create a screen first from the Screens page.
-            </p>
+          ) : compatibleScreens.length === 0 ? (
+            <div className='flex flex-col items-center text-center py-10 gap-3'>
+              <div className='w-10 h-10 rounded-full bg-muted flex items-center justify-center'>
+                <Monitor className='w-5 h-5 text-muted-foreground' />
+              </div>
+              <p className='text-sm text-muted-foreground max-w-[280px]'>
+                {screens.length === 0
+                  ? 'No screens created yet. Create a screen first from the Screens page.'
+                  : `No compatible screens found. This post requires a ${orientationLabel} screen.`}
+              </p>
+            </div>
           ) : (
-            <div className='space-y-3'>
-              {screens.map(screen => (
-                <div key={screen.id} className='flex items-center space-x-3'>
-                  <Checkbox
-                    id={`screen-${screen.id}`}
-                    checked={selectedScreenIds.has(screen.id)}
-                    onCheckedChange={() => handleToggle(screen.id)}
-                    disabled={isSaving}
-                  />
-                  <label htmlFor={`screen-${screen.id}`} className='text-sm cursor-pointer flex-1'>
-                    {screen.name}
-                    <span className='text-muted-foreground ml-2'>({screen.code})</span>
-                  </label>
+            <div className='space-y-2'>
+              {contentOrientation && incompatibleCount > 0 && (
+                <div className='flex items-start gap-2 text-xs text-muted-foreground bg-muted/40 border border-border/50 rounded-lg px-3 py-2.5 mb-3'>
+                  <Info className='w-3.5 h-3.5 mt-0.5 shrink-0' />
+                  <span>
+                    Only <strong>{orientationLabel}</strong> screens are shown. {incompatibleCount}{' '}
+                    incompatible screen{incompatibleCount !== 1 ? 's' : ''}{' '}
+                    {incompatibleCount !== 1 ? 'are' : 'is'} hidden.
+                  </span>
                 </div>
-              ))}
+              )}
+
+              {compatibleScreens.map(screen => {
+                const isSelected = selectedScreenIds.has(screen.id);
+                return (
+                  <label
+                    key={screen.id}
+                    htmlFor={`screen-${screen.id}`}
+                    className={`flex items-center gap-3 px-3 py-3 rounded-lg border cursor-pointer transition-colors ${
+                      isSelected
+                        ? 'border-primary/40 bg-primary/5'
+                        : 'border-border hover:bg-muted/40'
+                    } ${isSaving ? 'opacity-50 pointer-events-none' : ''}`}
+                  >
+                    <Checkbox
+                      id={`screen-${screen.id}`}
+                      checked={isSelected}
+                      onCheckedChange={() => handleToggle(screen.id)}
+                      disabled={isSaving}
+                    />
+                    <OrientationIcon orientation={screen.orientation} />
+                    <div className='flex-1 min-w-0'>
+                      <p className='text-sm font-medium leading-none'>{screen.name}</p>
+                      <p className='text-xs text-muted-foreground mt-1 capitalize'>
+                        {screen.orientation} · {screen.code}
+                      </p>
+                    </div>
+                  </label>
+                );
+              })}
             </div>
           )}
         </div>
@@ -127,7 +187,11 @@ export function ScreenAssignmentModal({
               Cancel
             </Button>
           </DialogClose>
-          <Button onClick={handleSave} disabled={isSaving || isLoading || screens.length === 0}>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving || isLoading || compatibleScreens.length === 0}
+            loading={isSaving}
+          >
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </DialogFooter>

@@ -4,6 +4,7 @@ import { X, Image } from 'lucide-react';
 import { cn, formatFileRejectionError } from '@/utils';
 import { Label } from './label';
 import { VALID_IMAGE_TYPES, MAX_FILE_SIZE } from '@/lib/zod';
+import type { PostOrientation } from '@/types';
 
 export interface ImageUploadProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   onChange: (file: File | null) => void;
@@ -12,6 +13,7 @@ export interface ImageUploadProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   error?: string;
   disabled?: boolean;
   className?: string;
+  orientation?: PostOrientation;
 }
 
 /**
@@ -24,6 +26,7 @@ export function ImageUpload({
   error,
   disabled = false,
   className,
+  orientation = 'landscape',
   ...props
 }: ImageUploadProps) {
   const [preview, setPreview] = useState<string | null>(typeof value === 'string' ? value : null);
@@ -85,8 +88,17 @@ export function ImageUpload({
         <input {...getInputProps()} />
 
         {preview ? (
-          <div className='relative'>
-            <img src={preview} alt='Upload preview' className='max-h-48 mx-auto rounded-md' />
+          <div className={cn('relative mx-auto', orientation === 'portrait' ? 'w-fit' : 'w-full')}>
+            <img
+              src={preview}
+              alt='Upload preview'
+              className={cn(
+                'mx-auto rounded-md',
+                orientation === 'portrait'
+                  ? 'max-h-72 max-w-[162px]'
+                  : 'max-h-48 w-full object-cover'
+              )}
+            />
             {!disabled && (
               <button
                 type='button'
@@ -111,7 +123,8 @@ export function ImageUpload({
               Supported formats: JPEG, PNG, GIF, WebP (Max: 5MB)
             </p>
             <p className='text-xs text-gray-400 mt-1'>
-              <strong>16:9 aspect ratio only</strong> - Perfect for full-screen display
+              <strong>{orientation === 'portrait' ? '9:16' : '16:9'} aspect ratio only</strong> -{' '}
+              Perfect for full-screen display
             </p>
           </div>
         )}

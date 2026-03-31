@@ -5,11 +5,11 @@ import type {
   ValidationState,
   UseImageValidationReturn,
 } from '@/types/validation';
+import type { PostOrientation } from '@/types';
 
 /**
  * Custom hook for validating images for full-screen display
  * Validates image dimensions, format, and provides feedback on suitability
- * @returns Object containing validation state, handlers, and utility functions
  */
 export function useImageValidation(): UseImageValidationReturn {
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -24,45 +24,50 @@ export function useImageValidation(): UseImageValidationReturn {
     setIsValidating(false);
   }, []);
 
-  const handleImageChange = useCallback(async (file: File | null) => {
-    setImageFile(file);
-    setValidationState(null);
-    setIsValidating(false);
-
-    if (!file) {
-      setImageError('Image is required');
-      return;
-    }
-
-    setImageError(null);
-    setIsValidating(true);
-
-    try {
-      const validation: ImageValidationResult = await validateImageForFullScreen(file);
-
-      const newValidationState: ValidationState = {
-        isValid: validation.isValid,
-        error: validation.error,
-        recommendation: validation.recommendation,
-        dimensions: validation.dimensions ? getImageDescription(validation.dimensions) : undefined,
-      };
-
-      setValidationState(newValidationState);
-
-      if (!validation.isValid) {
-        setImageError(validation.error || 'Image validation failed');
-      }
-    } catch (error) {
-      console.error('Image validation error:', error);
-      setImageError('Failed to validate image. Please try again.');
-      setValidationState({
-        isValid: false,
-        error: 'Validation failed',
-      });
-    } finally {
+  const handleImageChange = useCallback(
+    async (file: File | null, orientation: PostOrientation = 'landscape') => {
+      setImageFile(file);
+      setValidationState(null);
       setIsValidating(false);
-    }
-  }, []);
+
+      if (!file) {
+        setImageError('Image is required');
+        return;
+      }
+
+      setImageError(null);
+      setIsValidating(true);
+
+      try {
+        const validation: ImageValidationResult = await validateImageForFullScreen(
+          file,
+          orientation
+        );
+
+        const newValidationState: ValidationState = {
+          isValid: validation.isValid,
+          error: validation.error,
+          recommendation: validation.recommendation,
+          dimensions: validation.dimensions
+            ? getImageDescription(validation.dimensions)
+            : undefined,
+        };
+
+        setValidationState(newValidationState);
+
+        if (!validation.isValid) {
+          setImageError(validation.error || 'Image validation failed');
+        }
+      } catch (error) {
+        console.error('Image validation error:', error);
+        setImageError('Failed to validate image. Please try again.');
+        setValidationState({ isValid: false, error: 'Validation failed' });
+      } finally {
+        setIsValidating(false);
+      }
+    },
+    []
+  );
 
   return {
     imageFile,
