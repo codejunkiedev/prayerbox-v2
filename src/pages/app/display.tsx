@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useFetchDisplayData, usePrayerTimings, useWeatherData } from '@/hooks';
+import {
+  useFetchDisplayData,
+  useOrientationMismatch,
+  usePrayerTimings,
+  useWeatherData,
+} from '@/hooks';
 import { useDisplayStore } from '@/store';
 import Loading from '../loading-page';
 import {
@@ -25,6 +30,12 @@ export default function Display() {
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   const { masjidProfile, displayScreen } = useDisplayStore();
+
+  const {
+    mismatch: orientationMismatch,
+    expected,
+    actual,
+  } = useOrientationMismatch(displayScreen?.orientation);
 
   const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
   const showWeather = displayScreen?.show_weather ?? true;
@@ -86,6 +97,18 @@ export default function Display() {
     isLoading || (showPrayerTimes && isPrayerTimingsLoading) || (showWeather && isWeatherLoading);
 
   if (isPageLoading) return <Loading />;
+
+  if (orientationMismatch) {
+    return (
+      <ErrorDisplay
+        errorMessage={{
+          title: 'Orientation mismatch',
+          description: `This screen is configured for ${expected} mode but your monitor is in ${actual} mode. Please rotate your monitor or change the screen orientation in the admin panel.`,
+        }}
+      />
+    );
+  }
+
   if (errorMessage) return <ErrorDisplay errorMessage={errorMessage} />;
   if (showPrayerTimes && prayerTimingsError)
     return <ErrorDisplay errorMessage={prayerTimingsError} />;
