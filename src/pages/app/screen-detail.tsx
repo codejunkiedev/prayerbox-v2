@@ -20,6 +20,7 @@ const CONTENT_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   announcements: { label: 'Announcement', color: 'bg-amber-600 text-white' },
   events: { label: 'Event', color: 'bg-emerald-600 text-white' },
   posts: { label: 'Post', color: 'bg-purple-600 text-white' },
+  youtube_videos: { label: 'YouTube Video', color: 'bg-red-600 text-white' },
 };
 
 export default function ScreenDetail() {
@@ -233,7 +234,7 @@ export default function ScreenDetail() {
         <EmptyState
           icon={<Monitor className='h-6 w-6 text-muted-foreground' />}
           title='No content assigned'
-          description='Assign content to this screen from the Announcements, Ayat & Hadith, Events, or Posts pages.'
+          description='Assign content to this screen from the Announcements, Ayat & Hadith, Events, Posts, or YouTube Videos pages.'
         />
       ) : (
         <DataTable

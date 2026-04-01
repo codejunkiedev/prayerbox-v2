@@ -7,6 +7,7 @@ import {
   insertRecord,
   fetchByMultipleConditions,
 } from '../helpers';
+import { removeScreenAssignments } from './screens';
 
 export async function getAyatAndHadith(userId?: string): Promise<AyatAndHadith[]> {
   const user = userId ? { id: userId } : await getCurrentUser();
@@ -56,5 +57,6 @@ export async function deleteAyatAndHadith(id: string): Promise<boolean> {
   const updates: Partial<AyatAndHadith> = { archived: true, updated_at: new Date().toISOString() };
 
   await updateRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, id, updates);
+  await removeScreenAssignments(id);
   return true;
 }

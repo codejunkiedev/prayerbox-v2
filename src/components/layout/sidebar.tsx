@@ -10,6 +10,7 @@ import {
   Images,
   Tickets,
   Monitor,
+  Video,
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
@@ -67,6 +68,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       label: 'Posts',
       path: AppRoutes.Posts,
       icon: <Images size={20} />,
+    },
+    {
+      label: 'YouTube Videos',
+      path: AppRoutes.YouTubeVideos,
+      icon: <Video size={20} />,
     },
     {
       label: 'Screens',

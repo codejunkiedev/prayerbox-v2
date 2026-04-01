@@ -68,6 +68,15 @@ export async function deleteScreen(id: string): Promise<boolean> {
   return true;
 }
 
+export async function removeScreenAssignments(contentId: string): Promise<void> {
+  const { error } = await supabase
+    .from(SupabaseTables.ScreenContent)
+    .delete()
+    .eq('content_id', contentId);
+
+  if (error) throw error;
+}
+
 export async function getScreenContent(screenId: string): Promise<ScreenContent[]> {
   const { data, error } = await supabase
     .from(SupabaseTables.ScreenContent)
@@ -145,6 +154,7 @@ export async function getScreenContentWithDetails(
     fetchFromTable('announcements', idsByType['announcements'] || [], 'description', 'description'),
     fetchFromTable('events', idsByType['events'] || [], 'title', 'description'),
     fetchFromTable('posts', idsByType['posts'] || [], 'title', 'title'),
+    fetchFromTable('youtube_videos', idsByType['youtube_videos'] || [], 'title', 'youtube_url'),
   ]);
 
   return rows.map(row => ({

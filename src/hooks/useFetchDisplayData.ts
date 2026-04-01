@@ -4,6 +4,7 @@ import {
   type AyatAndHadith,
   type Event,
   type Post,
+  type YouTubeVideo,
   type Settings,
   type ScreenContentType,
 } from '@/types';
@@ -20,7 +21,7 @@ import type { ErrorMessage } from '@/components/display';
 export type DisplayContentItem = {
   contentType: ScreenContentType;
   displayOrder: number;
-  data: Announcement | AyatAndHadith | Event | Post;
+  data: Announcement | AyatAndHadith | Event | Post | YouTubeVideo;
 };
 
 type ReturnType = {
@@ -35,6 +36,7 @@ const TABLE_MAP: Record<string, string> = {
   ayat_and_hadith: 'ayat_and_hadith',
   events: 'events',
   posts: 'posts',
+  youtube_videos: 'youtube_videos',
 };
 
 /**

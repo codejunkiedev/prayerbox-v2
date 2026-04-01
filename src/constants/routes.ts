@@ -14,6 +14,7 @@ export enum AppRoutes {
   Announcements = '/admin/announcements',
   Events = '/admin/events',
   Posts = '/admin/posts',
+  YouTubeVideos = '/admin/youtube-videos',
   PrayerTimings = '/admin/prayer-timings',
   Screens = '/admin/screens',
   ScreenDetail = '/admin/screens/:id',
