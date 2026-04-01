@@ -99,7 +99,7 @@ export default function YouTubeVideos() {
     {
       key: 'title',
       name: 'Title',
-      width: 'w-[50%]',
+      width: 'w-[30%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden font-medium'>
           {value as string}
@@ -109,7 +109,7 @@ export default function YouTubeVideos() {
     {
       key: 'youtube_url',
       name: 'URL',
-      width: 'w-[30%]',
+      width: 'w-[50%]',
       render: value => (
         <div className='whitespace-pre-wrap line-clamp-1 overflow-hidden text-muted-foreground text-sm'>
           {value as string}
