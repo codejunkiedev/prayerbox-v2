@@ -49,7 +49,7 @@ export function useFetchDisplayData(): ReturnType {
   const [orderedContent, setOrderedContent] = useState<DisplayContentItem[]>([]);
   const [userSettings, setUserSettings] = useState<Settings | null>(null);
 
-  const { masjidProfile, displayScreen, setDisplayScreen } = useDisplayStore();
+  const { masjidProfile, displayScreen, setDisplayScreen, signOut } = useDisplayStore();
   const userId = masjidProfile?.user_id;
   const screenId = displayScreen?.id;
 
@@ -69,10 +69,14 @@ export function useFetchDisplayData(): ReturnType {
           getScreenById(screenId),
         ]);
 
-        // Update screen settings in store if changed
-        if (latestScreen) {
-          setDisplayScreen(latestScreen);
+        // If screen was deleted, sign out so the display redirects to login
+        if (!latestScreen) {
+          signOut();
+          return;
         }
+
+        // Update screen settings in store if changed
+        setDisplayScreen(latestScreen);
 
         if (!settings) {
           setErrorMessage({
