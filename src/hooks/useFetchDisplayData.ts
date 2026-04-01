@@ -4,6 +4,7 @@ import {
   type AyatAndHadith,
   type Event,
   type Post,
+  type YouTubeVideo,
   type Settings,
   type ScreenContentType,
 } from '@/types';
@@ -20,7 +21,7 @@ import type { ErrorMessage } from '@/components/display';
 export type DisplayContentItem = {
   contentType: ScreenContentType;
   displayOrder: number;
-  data: Announcement | AyatAndHadith | Event | Post;
+  data: Announcement | AyatAndHadith | Event | Post | YouTubeVideo;
 };
 
 type ReturnType = {
@@ -35,6 +36,7 @@ const TABLE_MAP: Record<string, string> = {
   ayat_and_hadith: 'ayat_and_hadith',
   events: 'events',
   posts: 'posts',
+  youtube_videos: 'youtube_videos',
 };
 
 /**
@@ -47,7 +49,7 @@ export function useFetchDisplayData(): ReturnType {
   const [orderedContent, setOrderedContent] = useState<DisplayContentItem[]>([]);
   const [userSettings, setUserSettings] = useState<Settings | null>(null);
 
-  const { masjidProfile, displayScreen, setDisplayScreen } = useDisplayStore();
+  const { masjidProfile, displayScreen, setDisplayScreen, signOut } = useDisplayStore();
   const userId = masjidProfile?.user_id;
   const screenId = displayScreen?.id;
 
@@ -67,10 +69,14 @@ export function useFetchDisplayData(): ReturnType {
           getScreenById(screenId),
         ]);
 
-        // Update screen settings in store if changed
-        if (latestScreen) {
-          setDisplayScreen(latestScreen);
+        // If screen was deleted, sign out so the display redirects to login
+        if (!latestScreen) {
+          signOut();
+          return;
         }
+
+        // Update screen settings in store if changed
+        setDisplayScreen(latestScreen);
 
         if (!settings) {
           setErrorMessage({

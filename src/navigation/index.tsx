@@ -26,6 +26,7 @@ import {
   Display,
   DisplayLogout,
   LoginWithCode,
+  YouTubeVideos,
 } from '@/pages';
 import { useDisplayStore } from '@/store';
 
@@ -91,6 +92,7 @@ export default function Navigation() {
             <Route path={AppRoutes.Announcements} element={<Announcements />} />
             <Route path={AppRoutes.Events} element={<Events />} />
             <Route path={AppRoutes.Posts} element={<Posts />} />
+            <Route path={AppRoutes.YouTubeVideos} element={<YouTubeVideos />} />
             <Route path={AppRoutes.Screens} element={<Screens />} />
             <Route path={AppRoutes.ScreenDetail} element={<ScreenDetail />} />
             <Route path={AppRoutes.PrayerTimings} element={<PrayerTimings />} />

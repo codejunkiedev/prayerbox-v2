@@ -6,3 +6,4 @@ export * from './posts';
 export * from './prayer-times';
 export * from './settings';
 export * from './screens';
+export * from './youtube-videos';

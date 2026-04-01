@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFetchDisplayData, usePrayerTimings, useWeatherData } from '@/hooks';
 import { useDisplayStore } from '@/store';
 import Loading from '../loading-page';
@@ -10,17 +10,19 @@ import {
   EventsDisplay,
   AyatHadithDisplay,
   WeatherDisplay,
+  YouTubeVideoDisplay,
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { EffectFade, Keyboard } from 'swiper/modules';
-import type { Announcement, AyatAndHadith, Event, Post } from '@/types';
+import type { Announcement, AyatAndHadith, Event, Post, YouTubeVideo } from '@/types';
 import './display.css';
 
 const SLIDE_DELAY = 9000;
 
 export default function Display() {
   const swiperRef = useRef<SwiperType | null>(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   const { masjidProfile, displayScreen } = useDisplayStore();
 
@@ -42,10 +44,34 @@ export default function Display() {
     errorMessage: weatherErrorMessage,
   } = useWeatherData(showWeather);
 
+  // Build a set of slide indices that are YouTube videos (offset by prayer/weather slides)
+  const youtubeSlideIndices = useMemo(() => {
+    const fixedSlideCount = (showPrayerTimes ? 1 : 0) + (showWeather && weatherForecast ? 1 : 0);
+    const indices = new Set<number>();
+    orderedContent.forEach((item, i) => {
+      if (item.contentType === 'youtube_videos') {
+        indices.add(fixedSlideCount + i);
+      }
+    });
+    return indices;
+  }, [orderedContent, showPrayerTimes, showWeather, weatherForecast]);
+
+  const advanceSlide = useCallback(() => {
+    const swiper = swiperRef.current;
+    if (!swiper) return;
+    if (swiper.activeIndex >= swiper.slides.length - 1) {
+      swiper.slideTo(0);
+    } else {
+      swiper.slideNext();
+    }
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       const swiper = swiperRef.current;
       if (!swiper) return;
+      // Don't auto-advance if current slide is a YouTube video — the video handles its own timing
+      if (youtubeSlideIndices.has(swiper.activeIndex)) return;
       if (swiper.activeIndex >= swiper.slides.length - 1) {
         swiper.slideTo(0);
       } else {
@@ -54,7 +80,7 @@ export default function Display() {
     }, SLIDE_DELAY);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [youtubeSlideIndices]);
 
   const isPageLoading =
     isLoading || (showPrayerTimes && isPrayerTimingsLoading) || (showWeather && isWeatherLoading);
@@ -81,7 +107,11 @@ export default function Display() {
     );
   }
 
+  const fixedSlideCount = (showPrayerTimes ? 1 : 0) + (showWeather && weatherForecast ? 1 : 0);
+
   const contentSlides = orderedContent.map((item, index) => {
+    const slideIndex = fixedSlideCount + index;
+
     switch (item.contentType) {
       case 'announcements':
         return (
@@ -107,6 +137,16 @@ export default function Display() {
             <PostsDisplay post={item.data as Post} />
           </SwiperSlide>
         );
+      case 'youtube_videos':
+        return (
+          <SwiperSlide key={`content-${index}`}>
+            <YouTubeVideoDisplay
+              video={item.data as YouTubeVideo}
+              isActive={activeSlideIndex === slideIndex}
+              onSlideNext={advanceSlide}
+            />
+          </SwiperSlide>
+        );
       default:
         return null;
     }
@@ -118,6 +158,7 @@ export default function Display() {
         onSwiper={swiper => {
           swiperRef.current = swiper;
         }}
+        onSlideChange={swiper => setActiveSlideIndex(swiper.activeIndex)}
         modules={[EffectFade, Keyboard]}
         effect='fade'
         fadeEffect={{ crossFade: true }}

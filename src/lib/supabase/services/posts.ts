@@ -8,6 +8,7 @@ import {
   fetchByMultipleConditions,
   uploadFile,
 } from '../helpers';
+import { removeScreenAssignments } from './screens';
 
 export async function getPosts(userId?: string): Promise<Post[]> {
   const user = userId ? { id: userId } : await getCurrentUser();
@@ -60,5 +61,6 @@ export async function deletePost(id: string): Promise<boolean> {
   const updates: Partial<Post> = { archived: true, updated_at: new Date().toISOString() };
 
   await updateRecord<Post>(SupabaseTables.Posts, id, updates);
+  await removeScreenAssignments(id);
   return true;
 }

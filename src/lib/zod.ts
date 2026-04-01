@@ -111,6 +111,24 @@ export const postSchema = z.object({
 
 export type PostData = z.infer<typeof postSchema>;
 
+export const youtubeVideoSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  youtube_url: z
+    .string()
+    .min(1, 'YouTube URL is required')
+    .refine(
+      url => {
+        const pattern =
+          /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)[\w-]+/;
+        return pattern.test(url);
+      },
+      { message: 'Please enter a valid YouTube URL' }
+    ),
+  loop_video: z.boolean(),
+});
+
+export type YouTubeVideoData = z.infer<typeof youtubeVideoSchema>;
+
 export const prayerAdjustmentSchema = z.object({
   type: z.enum(['offset', 'manual', 'default']),
   offset: z.number().optional(),

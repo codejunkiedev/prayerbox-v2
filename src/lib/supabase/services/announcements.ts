@@ -7,6 +7,7 @@ import {
   insertRecord,
   fetchByMultipleConditions,
 } from '../helpers';
+import { removeScreenAssignments } from './screens';
 
 export async function getAnnouncements(userId?: string): Promise<Announcement[]> {
   const user = userId ? { id: userId } : await getCurrentUser();
@@ -56,5 +57,6 @@ export async function deleteAnnouncement(id: string): Promise<boolean> {
   const updates: Partial<Announcement> = { archived: true, updated_at: new Date().toISOString() };
 
   await updateRecord<Announcement>(SupabaseTables.Announcements, id, updates);
+  await removeScreenAssignments(id);
   return true;
 }

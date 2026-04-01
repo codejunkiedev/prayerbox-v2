@@ -7,6 +7,7 @@ export enum SupabaseTables {
   Announcements = 'announcements',
   Events = 'events',
   Posts = 'posts',
+  YouTubeVideos = 'youtube_videos',
   PrayerTimes = 'prayer_times',
   Settings = 'settings',
   DisplayScreens = 'display_screens',
@@ -39,7 +40,12 @@ export interface MasjidProfile extends Base {
 }
 
 export type ScreenOrientation = 'landscape' | 'portrait' | 'mobile';
-export type ScreenContentType = 'ayat_and_hadith' | 'announcements' | 'events' | 'posts';
+export type ScreenContentType =
+  | 'ayat_and_hadith'
+  | 'announcements'
+  | 'events'
+  | 'posts'
+  | 'youtube_videos';
 export type PostOrientation = 'landscape' | 'portrait';
 
 export interface DisplayScreen extends Base {
@@ -91,6 +97,13 @@ export interface Post extends Base {
   image_url: string;
   archived: boolean;
   orientation: PostOrientation;
+}
+
+export interface YouTubeVideo extends Base {
+  title: string;
+  youtube_url: string;
+  loop_video: boolean;
+  archived: boolean;
 }
 
 export interface PrayerTimes extends Base {

@@ -21,3 +21,6 @@ export const ScreenModal = lazy(() =>
 export const ScreenAssignmentModal = lazy(() =>
   import('./screen-assignment-modal').then(m => ({ default: m.ScreenAssignmentModal }))
 );
+export const YouTubeVideoModal = lazy(() =>
+  import('./youtube-video-modal').then(m => ({ default: m.YouTubeVideoModal }))
+);
