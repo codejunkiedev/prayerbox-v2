@@ -10,16 +10,6 @@ import {
   DialogFooter,
   Button,
   Label,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -29,12 +19,9 @@ import {
   Slider,
   TimePicker,
 } from '@/components/ui';
-import { CalculationMethod, JuristicSchool } from '@/constants';
-import { prayerTimingsFormSchema, type PrayerTimingsData } from '@/lib/zod';
-import { savePrayerTimeSettings } from '@/lib/supabase';
-import { MapPin, Clock, Plus, Minus } from 'lucide-react';
-import { Link } from 'react-router';
-import { AppRoutes } from '@/constants';
+import { prayerAdjustmentsFormSchema, type PrayerAdjustmentsFormData } from '@/lib/zod';
+import { savePrayerAdjustments } from '@/lib/supabase';
+import { Plus, Minus } from 'lucide-react';
 import { parseTimeString, formatTimeString } from '@/utils';
 import type { PrayerAdjustments } from '@/types';
 
@@ -42,8 +29,7 @@ interface PrayerTimingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: () => void;
-  masjidCoordinates: { latitude: number; longitude: number } | null;
-  initialValues: PrayerTimingsData | null;
+  initialValues: PrayerAdjustmentsFormData | null;
 }
 
 type PrayerName = keyof PrayerAdjustments;
@@ -67,23 +53,13 @@ export function PrayerTimingsModal({
   isOpen,
   onClose,
   onSubmit,
-  masjidCoordinates,
   initialValues,
 }: PrayerTimingsModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('general');
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-  } = useForm<PrayerTimingsData>({
-    resolver: zodResolver(prayerTimingsFormSchema),
+  const { handleSubmit, setValue, watch } = useForm<PrayerAdjustmentsFormData>({
+    resolver: zodResolver(prayerAdjustmentsFormSchema),
     defaultValues: {
-      calculation_method:
-        initialValues?.calculation_method ?? CalculationMethod.Muslim_World_League,
-      juristic_school: initialValues?.juristic_school ?? JuristicSchool.Shafi,
       prayer_adjustments: initialValues?.prayer_adjustments ?? {
         fajr: { type: 'default' },
         sunrise: { type: 'default' },
@@ -99,25 +75,15 @@ export function PrayerTimingsModal({
   });
 
   useEffect(() => {
-    if (initialValues) {
-      setValue('calculation_method', initialValues.calculation_method);
-      setValue('juristic_school', initialValues.juristic_school);
-
-      if (initialValues.prayer_adjustments) {
-        setValue('prayer_adjustments', initialValues.prayer_adjustments);
-      }
+    if (initialValues?.prayer_adjustments) {
+      setValue('prayer_adjustments', initialValues.prayer_adjustments);
     }
   }, [initialValues, setValue]);
 
-  const onFormSubmit = async (data: PrayerTimingsData) => {
-    if (!masjidCoordinates) {
-      toast.error('Please set masjid coordinates in your profile first');
-      return;
-    }
-
+  const onFormSubmit = async (data: PrayerAdjustmentsFormData) => {
     try {
       setIsSubmitting(true);
-      await savePrayerTimeSettings(data);
+      await savePrayerAdjustments(data);
 
       onSubmit();
       onClose();
@@ -130,17 +96,7 @@ export function PrayerTimingsModal({
     }
   };
 
-  const calculationMethod = watch('calculation_method');
-  const juristicSchool = watch('juristic_school');
   const prayerAdjustments = watch('prayer_adjustments');
-
-  const handleMethodChange = (value: string): void => {
-    setValue('calculation_method', parseInt(value));
-  };
-
-  const handleSchoolChange = (value: string): void => {
-    setValue('juristic_school', parseInt(value));
-  };
 
   const handlePrayerTypeChange = (prayer: PrayerName, type: PrayerAdjustmentType): void => {
     setValue(`prayer_adjustments.${prayer}.type`, type);
@@ -259,120 +215,18 @@ export function PrayerTimingsModal({
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent className='sm:max-w-[500px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto scrollbar-custom'>
         <DialogHeader>
-          <DialogTitle>Prayer Times Settings</DialogTitle>
+          <DialogTitle>Prayer Time Adjustments</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-4'>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-            <TabsList className='grid w-full grid-cols-2'>
-              <TabsTrigger value='general'>General</TabsTrigger>
-              <TabsTrigger value='adjustments'>Adjustments</TabsTrigger>
-            </TabsList>
-            <TabsContent value='general' className='space-y-4 pt-4'>
-              <div className='space-y-2'>
-                <Label htmlFor='calculation_method'>Calculation Method</Label>
-                <Select onValueChange={handleMethodChange} value={calculationMethod?.toString()}>
-                  <SelectTrigger id='calculation_method' className='w-full'>
-                    <SelectValue placeholder='Select calculation method' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(CalculationMethod)
-                      .filter(([key]) => isNaN(Number(key)))
-                      .map(([key, value]) => (
-                        <SelectItem key={key} value={value.toString()}>
-                          {key.replace(/_/g, ' ')}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                {errors.calculation_method && (
-                  <p className='text-destructive text-sm mt-1'>
-                    {errors.calculation_method.message}
-                  </p>
-                )}
-              </div>
+          <p className='text-sm text-muted-foreground'>
+            Adjust prayer times by setting an offset (minutes earlier/later) or manually entering a
+            specific time.
+          </p>
 
-              <div className='space-y-2'>
-                <Label htmlFor='juristic_school'>Juristic School</Label>
-                <Select onValueChange={handleSchoolChange} value={juristicSchool?.toString()}>
-                  <SelectTrigger id='juristic_school' className='w-full'>
-                    <SelectValue placeholder='Select juristic school' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(JuristicSchool)
-                      .filter(([key]) => isNaN(Number(key)))
-                      .map(([key, value]) => (
-                        <SelectItem key={key} value={value.toString()}>
-                          {key}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                {errors.juristic_school && (
-                  <p className='text-destructive text-sm mt-1'>{errors.juristic_school.message}</p>
-                )}
-              </div>
-
-              <div className='space-y-2'>
-                <div className='flex items-center gap-2'>
-                  <MapPin size={16} />
-                  <Label>Masjid Location</Label>
-                </div>
-                <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                  <div>
-                    <Label htmlFor='latitude' className='text-xs text-muted-foreground'>
-                      Latitude
-                    </Label>
-                    <Input
-                      id='latitude'
-                      value={masjidCoordinates?.latitude.toFixed(3) || 'Not set'}
-                      readOnly
-                      className='bg-muted cursor-not-allowed'
-                      autoFocus={false}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor='longitude' className='text-xs text-muted-foreground'>
-                      Longitude
-                    </Label>
-                    <Input
-                      id='longitude'
-                      value={masjidCoordinates?.longitude.toFixed(3) || 'Not set'}
-                      readOnly
-                      className='bg-muted cursor-not-allowed'
-                      autoFocus={false}
-                    />
-                  </div>
-                </div>
-
-                <p className='text-xs text-muted-foreground mt-1'>
-                  {masjidCoordinates
-                    ? 'To update these coordinates, please visit the'
-                    : 'To set these coordinates, please visit the'}{' '}
-                  <Link to={AppRoutes.SettingsProfile} className='text-primary hover:underline'>
-                    Profile page
-                  </Link>
-                  .
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value='adjustments' className='space-y-4 pt-4'>
-              <div className='flex items-center gap-2 mb-2'>
-                <Clock size={16} />
-                <h3 className='font-medium'>Prayer Time Adjustments</h3>
-              </div>
-
-              <p className='text-sm text-muted-foreground mb-4'>
-                Adjust prayer times by setting an offset (minutes earlier/later) or manually
-                entering a specific time.
-              </p>
-
-              <Accordion type='single' collapsible className='w-full'>
-                {PRAYER_NAMES.map(prayer => renderPrayerAdjustment(prayer))}
-              </Accordion>
-            </TabsContent>
-          </Tabs>
+          <Accordion type='single' collapsible className='w-full'>
+            {PRAYER_NAMES.map(prayer => renderPrayerAdjustment(prayer))}
+          </Accordion>
 
           <DialogFooter className='flex flex-col sm:flex-row gap-2 sm:gap-0'>
             <Button type='button' variant='outline' onClick={onClose} className='w-full sm:w-auto'>
@@ -381,7 +235,7 @@ export function PrayerTimingsModal({
             <Button
               type='submit'
               loading={isSubmitting}
-              disabled={!masjidCoordinates}
+              disabled={isSubmitting}
               className='w-full sm:w-auto'
             >
               {isSubmitting ? 'Saving...' : 'Save Settings'}

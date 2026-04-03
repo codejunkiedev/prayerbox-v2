@@ -1,5 +1,5 @@
 import { SupabaseTables, type Settings, Theme } from '@/types';
-import { HijriCalculationMethod } from '@/constants';
+import { HijriCalculationMethod, CalculationMethod, JuristicSchool } from '@/constants';
 import { getCurrentUser, insertRecord, fetchByColumn, updateRecord } from '../helpers';
 
 export async function getSettings(userId?: string): Promise<Settings | null> {
@@ -29,6 +29,8 @@ export async function createDefaultSettings(): Promise<Settings> {
     theme: Theme.Theme1,
     hijri_calculation_method: HijriCalculationMethod.Umm_al_Qura,
     hijri_offset: 0,
+    calculation_method: CalculationMethod.Muslim_World_League,
+    juristic_school: JuristicSchool.Shafi,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -72,6 +74,25 @@ export async function updateHijriSettings(
     });
   } catch (error) {
     console.error('Error in updateHijriSettings:', error);
+    throw error;
+  }
+}
+
+export async function updatePrayerCalculationSettings(
+  calculationMethod: number,
+  juristicSchool: number
+): Promise<Settings> {
+  const settings = await getOrCreateSettings();
+  if (!settings) throw new Error('Failed to get or create settings');
+
+  try {
+    return await updateRecord<Settings>(SupabaseTables.Settings, settings.id, {
+      calculation_method: calculationMethod,
+      juristic_school: juristicSchool,
+      updated_at: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Error in updatePrayerCalculationSettings:', error);
     throw error;
   }
 }

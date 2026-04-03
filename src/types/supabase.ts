@@ -107,8 +107,6 @@ export interface YouTubeVideo extends Base {
 }
 
 export interface PrayerTimes extends Base {
-  calculation_method: number;
-  juristic_school: number;
   prayer_adjustments?: PrayerAdjustments;
 }
 
@@ -116,4 +114,6 @@ export interface Settings extends Base {
   theme: Theme;
   hijri_calculation_method?: HijriCalculationMethod;
   hijri_offset?: number;
+  calculation_method?: number;
+  juristic_school?: number;
 }

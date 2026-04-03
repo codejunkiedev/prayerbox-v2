@@ -22,6 +22,7 @@ import {
   SettingsThemes,
   SettingsHijri,
   SettingsAccount,
+  SettingsPrayerTimes,
   PrayerTimings,
   Display,
   DisplayLogout,
@@ -102,6 +103,7 @@ export default function Navigation() {
             <Route path={AppRoutes.SettingsModules} element={<SettingsModules />} />
             <Route path={AppRoutes.SettingsThemes} element={<SettingsThemes />} />
             <Route path={AppRoutes.SettingsHijri} element={<SettingsHijri />} />
+            <Route path={AppRoutes.SettingsPrayerTimes} element={<SettingsPrayerTimes />} />
             <Route path={AppRoutes.Support} element={<Support />} />
           </Route>
 
