@@ -18,3 +18,4 @@ export const ScreenDetail = lazy(() => import('./screen-detail'));
 export const Display = lazy(() => import('./display'));
 export const DisplayLogout = lazy(() => import('./display-logout'));
 export const YouTubeVideos = lazy(() => import('./youtube-videos'));
+export const Support = lazy(() => import('./support'));

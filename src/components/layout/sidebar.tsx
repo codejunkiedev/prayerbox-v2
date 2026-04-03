@@ -11,6 +11,7 @@ import {
   Tickets,
   Monitor,
   Video,
+  LifeBuoy,
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
@@ -88,6 +89,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       label: 'Settings',
       path: AppRoutes.Settings,
       icon: <Settings size={20} />,
+    },
+    {
+      label: 'Support',
+      path: AppRoutes.Support,
+      icon: <LifeBuoy size={20} />,
     },
   ];
 

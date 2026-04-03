@@ -24,4 +24,5 @@ export enum AppRoutes {
   SettingsThemes = '/admin/settings/themes',
   SettingsHijri = '/admin/settings/hijri-adjustment',
   SettingsAccount = '/admin/settings/account',
+  Support = '/admin/support',
 }
