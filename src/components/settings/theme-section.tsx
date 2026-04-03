@@ -21,9 +21,10 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
   const [isSaving, setIsSaving] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<Theme | undefined>(settings?.theme);
 
-  const themeImageMap: Partial<Record<Theme, string>> = {
+  const themeImageMap: Record<Theme, string> = {
     [Theme.Theme1]: new URL('@/assets/themes/theme-1/background.jpg', import.meta.url).href,
     [Theme.Theme2]: new URL('@/assets/themes/theme-2/background.jpg', import.meta.url).href,
+    [Theme.Theme3]: new URL('@/assets/themes/theme-3/background.png', import.meta.url).href,
   };
 
   const themeOptions = Object.values(Theme);
@@ -89,17 +90,11 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
                   type='button'
                   aria-label={`Select ${themeName}`}
                 >
-                  {themeImageMap[themeKey] ? (
-                    <img
-                      src={themeImageMap[themeKey]}
-                      alt={themeName}
-                      className='w-32 h-20 object-cover'
-                    />
-                  ) : (
-                    <div className='w-32 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 flex items-center justify-center text-emerald-600 text-xs font-medium'>
-                      Table View
-                    </div>
-                  )}
+                  <img
+                    src={themeImageMap[themeKey]}
+                    alt={themeName}
+                    className='w-32 h-20 object-cover'
+                  />
                   <div className='mt-2 text-center text-xs font-medium text-foreground truncate w-32 capitalize'>
                     {themeName}
                   </div>
