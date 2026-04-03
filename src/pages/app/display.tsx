@@ -139,19 +139,28 @@ export default function Display() {
       case 'announcements':
         return (
           <SwiperSlide key={`content-${index}`}>
-            <AnnouncementsDisplay announcements={[item.data as Announcement]} />
+            <AnnouncementsDisplay
+              announcements={[item.data as Announcement]}
+              orientation={displayScreen?.orientation ?? 'landscape'}
+            />
           </SwiperSlide>
         );
       case 'ayat_and_hadith':
         return (
           <SwiperSlide key={`content-${index}`}>
-            <AyatHadithDisplay item={item.data as AyatAndHadith} />
+            <AyatHadithDisplay
+              item={item.data as AyatAndHadith}
+              orientation={displayScreen?.orientation ?? 'landscape'}
+            />
           </SwiperSlide>
         );
       case 'events':
         return (
           <SwiperSlide key={`content-${index}`}>
-            <EventsDisplay event={item.data as Event} />
+            <EventsDisplay
+              event={item.data as Event}
+              orientation={displayScreen?.orientation ?? 'landscape'}
+            />
           </SwiperSlide>
         );
       case 'posts':

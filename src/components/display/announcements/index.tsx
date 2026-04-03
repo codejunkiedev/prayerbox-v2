@@ -1,25 +1,40 @@
-import type { Announcement } from '@/types';
+import type { Announcement, ScreenOrientation } from '@/types';
 import bgImage from '@/assets/backgrounds/01.jpeg';
 import { AnimationProvider, DisplayContainer, DisplayCard, DisplayHeading } from '../shared';
 
 interface AnnouncementsDisplayProps {
   announcements: Announcement[];
+  orientation?: ScreenOrientation;
 }
 
 /**
  * Displays announcements in a card layout with animation and background image
  */
-export function AnnouncementsDisplay({ announcements }: AnnouncementsDisplayProps) {
+export function AnnouncementsDisplay({
+  announcements,
+  orientation = 'landscape',
+}: AnnouncementsDisplayProps) {
   if (!announcements.length) return null;
 
   const announcement = announcements[0];
+  const isPortrait = orientation === 'portrait';
 
-  const getDynamicWidth = (length: number) => {
+  const getDynamicWidth = (length: number): 'md' | 'lg' => {
     if (length < 50) return 'md'; // Short text: medium width
     return 'lg'; // Long text: large width
   };
 
   const getDynamicFontClass = (length: number) => {
+    if (isPortrait) {
+      if (length < 50) {
+        return 'text-[7vw] leading-relaxed';
+      } else if (length <= 200) {
+        return 'text-[5vw] leading-relaxed';
+      } else {
+        return 'text-[3.5vw] leading-relaxed';
+      }
+    }
+
     if (length < 50) {
       // Short: larger sizes
       return 'text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl [@media(min-width:3000px)]:text-[8.4rem] [@media(min-width:4000px)]:text-[10.5rem]';
