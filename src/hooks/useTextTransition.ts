@@ -29,7 +29,7 @@ export function useTextTransition({
     if (!prayerNames.length) return [];
     return processedPrayerTimings
       .filter(prayer => prayerNames.includes(prayer.name))
-      .map(prayer => prayer.starts);
+      .map(prayer => prayer.iqamah);
   }, [processedPrayerTimings, prayerNames]);
 
   useEffect(() => {
