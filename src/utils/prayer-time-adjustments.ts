@@ -158,3 +158,24 @@ export const getTimeBeforeNextPrayer = (
   const formattedTime = `${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
   return { timeBefore: formattedTime, name: nextPrayerTime.name };
 };
+
+/**
+ * Gets the time before the next iqamah
+ */
+export const getTimeBeforeNextIqamah = (
+  prayerTimes: ProcessedPrayerTiming[]
+): { timeBefore: string; hours: number; minutes: number; name: keyof PrayerAdjustments } | null => {
+  const currentTime = new Date();
+  const nextIqamah = prayerTimes.find(
+    prayer => new Date(`${currentTime.toDateString()} ${prayer.iqamah}`) > currentTime
+  );
+  if (!nextIqamah) return null;
+  const difference = differenceInMinutes(
+    new Date(`${currentTime.toDateString()} ${nextIqamah.iqamah}`),
+    currentTime
+  );
+  const hours = Math.floor(difference / 60);
+  const minutes = difference % 60;
+  const formattedTime = `${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
+  return { timeBefore: formattedTime, hours, minutes, name: nextIqamah.name };
+};
