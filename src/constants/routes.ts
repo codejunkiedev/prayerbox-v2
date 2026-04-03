@@ -20,7 +20,7 @@ export enum AppRoutes {
   ScreenDetail = '/admin/screens/:id',
   Settings = '/admin/settings',
   SettingsProfile = '/admin/settings/profile',
-  SettingsModules = '/admin/settings/modules',
+
   SettingsThemes = '/admin/settings/themes',
   SettingsHijri = '/admin/settings/hijri-adjustment',
   SettingsAccount = '/admin/settings/account',

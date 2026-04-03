@@ -18,7 +18,6 @@ import {
   ScreenDetail,
   Settings,
   SettingsProfile,
-  SettingsModules,
   SettingsThemes,
   SettingsHijri,
   SettingsAccount,
@@ -100,7 +99,7 @@ export default function Navigation() {
             <Route path={AppRoutes.PrayerTimings} element={<PrayerTimings />} />
             <Route path={AppRoutes.Settings} element={<Settings />} />
             <Route path={AppRoutes.SettingsProfile} element={<SettingsProfile />} />
-            <Route path={AppRoutes.SettingsModules} element={<SettingsModules />} />
+
             <Route path={AppRoutes.SettingsThemes} element={<SettingsThemes />} />
             <Route path={AppRoutes.SettingsHijri} element={<SettingsHijri />} />
             <Route path={AppRoutes.SettingsPrayerTimes} element={<SettingsPrayerTimes />} />

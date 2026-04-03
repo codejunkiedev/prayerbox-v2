@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Palette, Calendar, Grid, UserRound, Shield, Clock } from 'lucide-react';
+import { Palette, Calendar, UserRound, Shield, Clock } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
@@ -11,13 +11,6 @@ const settingsModules = [
     icon: UserRound,
     route: AppRoutes.SettingsProfile,
     color: 'text-orange-600',
-  },
-  {
-    title: 'Modules',
-    description: 'View display modules and manage their content',
-    icon: Grid,
-    route: AppRoutes.SettingsModules,
-    color: 'text-blue-600',
   },
   {
     title: 'Themes',
