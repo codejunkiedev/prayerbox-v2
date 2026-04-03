@@ -78,130 +78,64 @@ export function Theme3({
     return { sunsetNum: parsed.timeNumber, sunsetAmPm: parsed.amPm };
   }, [sunset]);
 
-  const renderTimeCell = (time: string, size: string) => {
+  const renderTimeCell = (time: string, sizeNum: string, sizeAmPm: string) => {
     const { timeNumber, amPm } = formatTimeNumber(time);
     return (
       <div className='flex items-baseline justify-center gap-[0.2vw]'>
-        <span className={`${size} font-bold text-gray-800`}>{timeNumber}</span>
-        <span
-          className={`${isPortrait ? 'text-[1.8vw]' : 'text-[0.9vw]'} font-semibold text-gray-500 uppercase`}
-        >
-          {amPm}
-        </span>
+        <span className={`${sizeNum} font-bold text-gray-800`}>{timeNumber}</span>
+        <span className={`${sizeAmPm} font-medium text-gray-400 uppercase`}>{amPm}</span>
       </div>
     );
   };
 
-  const tableTimeFontSize = isPortrait ? 'text-[3.2vw]' : 'text-[1.8vw]';
-  const headerFontSize = isPortrait ? 'text-[2.8vw]' : 'text-[1.4vw]';
-  const prayerNameSize = isPortrait ? 'text-[3vw]' : 'text-[1.6vw]';
-  const arabicNameSize = isPortrait ? 'text-[2.8vw]' : 'text-[1.4vw]';
-
-  return (
-    <div className='w-full h-screen bg-gradient-to-b from-white via-emerald-50/30 to-white flex flex-col overflow-hidden'>
-      {/* Header */}
-      <div
-        className={`flex-shrink-0 flex items-center justify-between ${isPortrait ? 'px-[4vw] pt-[2vh]' : 'px-[3vw] pt-[1.5vh]'}`}
-      >
-        {/* Dates */}
-        <div className='flex flex-col items-start'>
-          <span
-            className={`${isPortrait ? 'text-[2.5vw]' : 'text-[1.3vw]'} font-semibold text-gray-700 uppercase tracking-wide`}
-          >
-            {gregorianDate}
-          </span>
-          <span
-            className={`${isPortrait ? 'text-[2.2vw]' : 'text-[1.1vw]'} font-medium text-emerald-700`}
-          >
-            {hijriDate}
-          </span>
-        </div>
-
-        {/* Current Time */}
-        <CurrentTime currentTime={currentTime} variant={Theme.Theme3} orientation={orientation} />
-
-        {/* Sunrise & Sunset */}
-        <div className='flex flex-col items-end gap-[0.3vh]'>
-          <div className='flex items-center gap-[0.5vw]'>
-            <span
-              className={`${isPortrait ? 'text-[2vw]' : 'text-[1vw]'} font-semibold text-gray-500 uppercase tracking-wider`}
-            >
-              Sunrise
+  if (isPortrait) {
+    return (
+      <div className='w-full h-screen bg-[#f8faf9] flex flex-col overflow-hidden'>
+        {/* Top bar */}
+        <div className='flex-shrink-0 bg-emerald-800 px-[5vw] py-[1.8vh] flex items-center justify-between'>
+          <div className='flex flex-col'>
+            <span className='text-[3.2vw] font-semibold text-white/90 uppercase tracking-wide'>
+              {gregorianDate}
             </span>
-            <div className='flex items-baseline gap-[0.15vw]'>
-              <span
-                className={`${isPortrait ? 'text-[2.5vw]' : 'text-[1.3vw]'} font-bold text-amber-600`}
-              >
-                {sunriseNum}
-              </span>
-              <span
-                className={`${isPortrait ? 'text-[1.5vw]' : 'text-[0.8vw]'} font-semibold text-amber-500 uppercase`}
-              >
-                {sunriseAmPm}
-              </span>
-            </div>
+            <span className='text-[2.8vw] font-medium text-emerald-300'>{hijriDate}</span>
           </div>
-          <div className='flex items-center gap-[0.5vw]'>
-            <span
-              className={`${isPortrait ? 'text-[2vw]' : 'text-[1vw]'} font-semibold text-gray-500 uppercase tracking-wider`}
-            >
-              Sunset
-            </span>
-            <div className='flex items-baseline gap-[0.15vw]'>
-              <span
-                className={`${isPortrait ? 'text-[2.5vw]' : 'text-[1.3vw]'} font-bold text-orange-600`}
-              >
-                {sunsetNum}
-              </span>
-              <span
-                className={`${isPortrait ? 'text-[1.5vw]' : 'text-[0.8vw]'} font-semibold text-orange-500 uppercase`}
-              >
-                {sunsetAmPm}
-              </span>
+
+          <CurrentTime currentTime={currentTime} variant={Theme.Theme3} orientation={orientation} />
+
+          <div className='flex flex-col items-end gap-[0.4vh]'>
+            <div className='flex items-baseline gap-[0.8vw]'>
+              <span className='text-[2.2vw] text-emerald-300 uppercase font-medium'>Sunrise</span>
+              <span className='text-[3vw] font-bold text-amber-400'>{sunriseNum}</span>
+              <span className='text-[1.8vw] text-amber-400/80'>{sunriseAmPm}</span>
+            </div>
+            <div className='flex items-baseline gap-[0.8vw]'>
+              <span className='text-[2.2vw] text-emerald-300 uppercase font-medium'>Sunset</span>
+              <span className='text-[3vw] font-bold text-orange-400'>{sunsetNum}</span>
+              <span className='text-[1.8vw] text-orange-400/80'>{sunsetAmPm}</span>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Divider */}
-      <div className={`${isPortrait ? 'mx-[4vw] my-[1vh]' : 'mx-[3vw] my-[0.8vh]'}`}>
-        <div className='h-[2px] bg-gradient-to-r from-transparent via-emerald-300 to-transparent' />
-      </div>
-
-      {/* Main content: Table + Next Iqamah */}
-      <div
-        className={`flex-1 flex ${isPortrait ? 'flex-col px-[4vw] gap-[2vh]' : 'flex-row px-[3vw] gap-[2vw]'} min-h-0`}
-      >
-        {/* Prayer Table */}
-        <div className={`${isPortrait ? 'flex-1' : 'flex-[3]'} flex flex-col min-h-0`}>
-          {/* Table Header */}
-          <div
-            className={`grid ${isPortrait ? 'grid-cols-[2fr_1fr_1fr_1fr]' : 'grid-cols-[2fr_1fr_1fr_1fr]'} bg-emerald-700 rounded-t-lg ${isPortrait ? 'py-[1vh]' : 'py-[0.8vh]'}`}
-          >
-            <div
-              className={`${headerFontSize} font-bold text-white uppercase tracking-wider pl-[1.5vw]`}
-            >
+        {/* Prayer table */}
+        <div className='flex-1 flex flex-col min-h-0 px-[4vw] py-[1.5vh]'>
+          {/* Column headers */}
+          <div className='flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] bg-emerald-700 rounded-t-xl py-[1.5vh] px-[3vw]'>
+            <span className='text-[3.2vw] font-bold text-white uppercase tracking-wider'>
               Prayer
-            </div>
-            <div
-              className={`${headerFontSize} font-bold text-white uppercase tracking-wider text-center`}
-            >
+            </span>
+            <span className='text-[3.2vw] font-bold text-white uppercase tracking-wider text-center'>
               Starts
-            </div>
-            <div
-              className={`${headerFontSize} font-bold text-white uppercase tracking-wider text-center`}
-            >
+            </span>
+            <span className='text-[3.2vw] font-bold text-white uppercase tracking-wider text-center'>
               Athan
-            </div>
-            <div
-              className={`${headerFontSize} font-bold text-white uppercase tracking-wider text-center`}
-            >
+            </span>
+            <span className='text-[3.2vw] font-bold text-white uppercase tracking-wider text-center'>
               Iqamah
-            </div>
+            </span>
           </div>
 
-          {/* Prayer Rows */}
-          <div className='flex-1 flex flex-col'>
+          {/* Rows */}
+          <div className='flex-1 flex flex-col rounded-b-xl overflow-hidden shadow-sm border border-t-0 border-gray-200'>
             {displayPrayers.map((prayer, index) => {
               const isNext = nextIqamah?.name === prayer.name;
               const isEven = index % 2 === 0;
@@ -209,40 +143,141 @@ export function Theme3({
               return (
                 <div
                   key={prayer.name}
-                  className={`grid grid-cols-[2fr_1fr_1fr_1fr] flex-1 items-center transition-colors ${
+                  className={`grid grid-cols-[2.5fr_1fr_1fr_1fr] flex-1 items-center px-[3vw] border-b border-gray-100 last:border-b-0 ${
                     isNext
-                      ? 'bg-emerald-100 border-l-[4px] border-l-emerald-600'
+                      ? 'bg-emerald-50 border-l-[5px] border-l-emerald-500'
                       : isEven
-                        ? 'bg-emerald-50/60'
-                        : 'bg-white'
+                        ? 'bg-white'
+                        : 'bg-gray-50/70'
                   }`}
                 >
-                  {/* Prayer Name */}
-                  <div className={`flex items-center gap-[0.8vw] pl-[1.5vw]`}>
-                    <span
-                      className={`${prayerNameSize} font-extrabold text-gray-800 uppercase tracking-wide`}
-                    >
-                      {ENGLISH_NAMES[prayer.name] || prayer.name}
+                  <div className='flex items-center gap-[2vw]'>
+                    <span className='text-[4vw] font-extrabold text-gray-800 uppercase'>
+                      {ENGLISH_NAMES[prayer.name]}
                     </span>
-                    <span className={`${arabicNameSize} font-bold text-emerald-700`} dir='rtl'>
-                      {ARABIC_NAMES[prayer.name] || prayer.arabicName}
+                    <span className='text-[3.2vw] font-semibold text-emerald-600/70' dir='rtl'>
+                      {ARABIC_NAMES[prayer.name]}
                     </span>
                   </div>
+                  {renderTimeCell(prayer.starts, 'text-[4vw]', 'text-[2.2vw]')}
+                  {renderTimeCell(prayer.athan, 'text-[4vw]', 'text-[2.2vw]')}
+                  {renderTimeCell(prayer.iqamah, 'text-[4vw]', 'text-[2.2vw]')}
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-                  {/* Starts */}
-                  <div className='flex items-center justify-center'>
-                    {renderTimeCell(prayer.starts, tableTimeFontSize)}
-                  </div>
+        {/* Next Iqamah */}
+        {nextIqamah && (
+          <div className='flex-shrink-0 px-[4vw] pb-[2vh]'>
+            <div className='bg-emerald-700 rounded-xl py-[2.5vh] flex items-center justify-center gap-[4vw] shadow-md'>
+              <div className='flex flex-col items-center'>
+                <span className='text-[2.5vw] font-bold text-emerald-200 uppercase tracking-[0.2em]'>
+                  Next Iqamah
+                </span>
+                <span className='text-[3vw] font-semibold text-white uppercase'>
+                  {ENGLISH_NAMES[nextIqamah.name]}
+                </span>
+              </div>
+              <div className='w-[1px] h-[5vh] bg-emerald-500/50' />
+              <div className='flex items-baseline gap-[1.5vw]'>
+                {nextIqamah.hours > 0 && (
+                  <>
+                    <span className='text-[12vw] font-black text-white leading-none'>
+                      {nextIqamah.hours}
+                    </span>
+                    <span className='text-[3.5vw] font-bold text-emerald-300 uppercase'>hr</span>
+                  </>
+                )}
+                <span className='text-[12vw] font-black text-white leading-none'>
+                  {nextIqamah.minutes}
+                </span>
+                <span className='text-[3.5vw] font-bold text-emerald-300 uppercase'>min</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
-                  {/* Athan */}
-                  <div className='flex items-center justify-center'>
-                    {renderTimeCell(prayer.athan, tableTimeFontSize)}
-                  </div>
+  // Landscape layout
+  return (
+    <div className='w-full h-screen bg-[#f8faf9] flex flex-col overflow-hidden'>
+      {/* Top bar */}
+      <div className='flex-shrink-0 bg-emerald-800 px-[3vw] py-[1.2vh] flex items-center justify-between'>
+        <div className='flex flex-col'>
+          <span className='text-[1.3vw] font-semibold text-white/90 uppercase tracking-wide'>
+            {gregorianDate}
+          </span>
+          <span className='text-[1.1vw] font-medium text-emerald-300'>{hijriDate}</span>
+        </div>
 
-                  {/* Iqamah */}
-                  <div className='flex items-center justify-center'>
-                    {renderTimeCell(prayer.iqamah, tableTimeFontSize)}
+        <CurrentTime currentTime={currentTime} variant={Theme.Theme3} orientation={orientation} />
+
+        <div className='flex items-center gap-[2vw]'>
+          <div className='flex items-baseline gap-[0.4vw]'>
+            <span className='text-[0.9vw] text-emerald-300 uppercase font-medium'>Sunrise</span>
+            <span className='text-[1.3vw] font-bold text-amber-400'>{sunriseNum}</span>
+            <span className='text-[0.7vw] text-amber-400/80'>{sunriseAmPm}</span>
+          </div>
+          <div className='flex items-baseline gap-[0.4vw]'>
+            <span className='text-[0.9vw] text-emerald-300 uppercase font-medium'>Sunset</span>
+            <span className='text-[1.3vw] font-bold text-orange-400'>{sunsetNum}</span>
+            <span className='text-[0.7vw] text-orange-400/80'>{sunsetAmPm}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className='flex-1 flex flex-row px-[2.5vw] py-[1.5vh] gap-[2vw] min-h-0'>
+        {/* Prayer Table */}
+        <div className='flex-[3] flex flex-col min-h-0'>
+          {/* Column headers */}
+          <div className='flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] bg-emerald-700 rounded-t-xl py-[1vh] px-[1.5vw]'>
+            <span className='text-[1.3vw] font-bold text-white uppercase tracking-wider'>
+              Prayer
+            </span>
+            <span className='text-[1.3vw] font-bold text-white uppercase tracking-wider text-center'>
+              Starts
+            </span>
+            <span className='text-[1.3vw] font-bold text-white uppercase tracking-wider text-center'>
+              Athan
+            </span>
+            <span className='text-[1.3vw] font-bold text-white uppercase tracking-wider text-center'>
+              Iqamah
+            </span>
+          </div>
+
+          {/* Rows */}
+          <div className='flex-1 flex flex-col rounded-b-xl overflow-hidden shadow-sm border border-t-0 border-gray-200'>
+            {displayPrayers.map((prayer, index) => {
+              const isNext = nextIqamah?.name === prayer.name;
+              const isEven = index % 2 === 0;
+
+              return (
+                <div
+                  key={prayer.name}
+                  className={`grid grid-cols-[2.5fr_1fr_1fr_1fr] flex-1 items-center px-[1.5vw] border-b border-gray-100 last:border-b-0 ${
+                    isNext
+                      ? 'bg-emerald-50 border-l-[4px] border-l-emerald-500'
+                      : isEven
+                        ? 'bg-white'
+                        : 'bg-gray-50/70'
+                  }`}
+                >
+                  <div className='flex items-center gap-[0.8vw]'>
+                    <span className='text-[1.7vw] font-extrabold text-gray-800 uppercase'>
+                      {ENGLISH_NAMES[prayer.name]}
+                    </span>
+                    <span className='text-[1.3vw] font-semibold text-emerald-600/70' dir='rtl'>
+                      {ARABIC_NAMES[prayer.name]}
+                    </span>
                   </div>
+                  {renderTimeCell(prayer.starts, 'text-[1.8vw]', 'text-[0.9vw]')}
+                  {renderTimeCell(prayer.athan, 'text-[1.8vw]', 'text-[0.9vw]')}
+                  {renderTimeCell(prayer.iqamah, 'text-[1.8vw]', 'text-[0.9vw]')}
                 </div>
               );
             })}
@@ -251,57 +286,33 @@ export function Theme3({
 
         {/* Next Iqamah Card */}
         {nextIqamah && (
-          <div
-            className={`${isPortrait ? 'flex-shrink-0' : 'flex-[1] flex items-center justify-center'}`}
-          >
-            <div
-              className={`bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl flex flex-col items-center justify-center ${
-                isPortrait ? 'py-[2vh] px-[4vw]' : 'w-full h-[60%] px-[1vw]'
-              } shadow-lg`}
-            >
-              <span
-                className={`${isPortrait ? 'text-[2.2vw]' : 'text-[1.1vw]'} font-bold text-emerald-100 uppercase tracking-widest`}
-              >
-                Next Iqamah In
+          <div className='flex-[1] flex items-center justify-center'>
+            <div className='bg-emerald-700 rounded-2xl flex flex-col items-center justify-center w-full h-[70%] px-[1vw] shadow-md'>
+              <span className='text-[0.9vw] font-bold text-emerald-200 uppercase tracking-[0.2em]'>
+                Next Iqamah
               </span>
-              <div className='flex items-baseline gap-[0.5vw] mt-[0.5vh]'>
+              <span className='text-[1.2vw] font-semibold text-white uppercase mt-[0.3vh]'>
+                {ENGLISH_NAMES[nextIqamah.name]}
+              </span>
+              <div className='w-[60%] h-[1px] bg-emerald-500/50 my-[1vh]' />
+              <div className='flex items-baseline gap-[0.4vw]'>
                 {nextIqamah.hours > 0 && (
                   <>
-                    <span
-                      className={`${isPortrait ? 'text-[8vw]' : 'text-[4vw]'} font-black text-white leading-none`}
-                    >
+                    <span className='text-[4.5vw] font-black text-white leading-none'>
                       {nextIqamah.hours}
                     </span>
-                    <span
-                      className={`${isPortrait ? 'text-[2.5vw]' : 'text-[1.2vw]'} font-bold text-emerald-200 uppercase`}
-                    >
-                      hr
-                    </span>
+                    <span className='text-[1.1vw] font-bold text-emerald-300 uppercase'>hr</span>
                   </>
                 )}
-                <span
-                  className={`${isPortrait ? 'text-[8vw]' : 'text-[4vw]'} font-black text-white leading-none`}
-                >
+                <span className='text-[4.5vw] font-black text-white leading-none'>
                   {nextIqamah.minutes}
                 </span>
-                <span
-                  className={`${isPortrait ? 'text-[2.5vw]' : 'text-[1.2vw]'} font-bold text-emerald-200 uppercase`}
-                >
-                  min
-                </span>
+                <span className='text-[1.1vw] font-bold text-emerald-300 uppercase'>min</span>
               </div>
-              <span
-                className={`${isPortrait ? 'text-[2vw]' : 'text-[1vw]'} font-semibold text-emerald-200 uppercase tracking-wider mt-[0.3vh]`}
-              >
-                {ENGLISH_NAMES[nextIqamah.name] || nextIqamah.name}
-              </span>
             </div>
           </div>
         )}
       </div>
-
-      {/* Bottom accent line */}
-      <div className='flex-shrink-0 h-[0.5vh] bg-gradient-to-r from-emerald-600 via-emerald-400 to-emerald-600' />
     </div>
   );
 }
