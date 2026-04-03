@@ -27,6 +27,7 @@ import {
   DisplayLogout,
   LoginWithCode,
   YouTubeVideos,
+  Support,
 } from '@/pages';
 import { useDisplayStore } from '@/store';
 
@@ -101,6 +102,7 @@ export default function Navigation() {
             <Route path={AppRoutes.SettingsModules} element={<SettingsModules />} />
             <Route path={AppRoutes.SettingsThemes} element={<SettingsThemes />} />
             <Route path={AppRoutes.SettingsHijri} element={<SettingsHijri />} />
+            <Route path={AppRoutes.Support} element={<Support />} />
           </Route>
 
           {/* Display routes - require authentication */}
