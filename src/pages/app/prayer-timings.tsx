@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { PrayerTimingsModal } from '@/components/modals';
-import { getMasjidProfile, getPrayerTimeSettings } from '@/lib/supabase';
+import { getMasjidProfile, getPrayerAdjustments, getOrCreateSettings } from '@/lib/supabase';
 import { toast } from 'sonner';
-import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
+import type { AlAdhanPrayerTimes, PrayerTimes, Settings } from '@/types';
 import { useTrigger } from '@/hooks';
 import { fetchPrayerTimesForThisMonth } from '@/api';
 import { PageHeader } from '@/components/common/page-header';
@@ -27,6 +27,7 @@ export default function PrayerTimings() {
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes[] | null>(null);
   const [masjidCoordinates, setMasjidCoordinates] = useState<MasjidCoordinates | null>(null);
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
+  const [userSettings, setUserSettings] = useState<Settings | null>(null);
   const [isFetchingCoordinates, setIsFetchingCoordinates] = useState<boolean>(true);
   const [isFetchingTimes, setIsFetchingTimes] = useState<boolean>(false);
 
@@ -63,16 +64,21 @@ export default function PrayerTimings() {
 
         if (!masjidCoordinates) return;
 
-        const savedSettings = await getPrayerTimeSettings();
-        if (!savedSettings) return;
-        setSavedSettings(savedSettings);
+        const [settings, prayerSettings] = await Promise.all([
+          getOrCreateSettings(),
+          getPrayerAdjustments(),
+        ]);
+        setUserSettings(settings);
+        setSavedSettings(prayerSettings);
+
+        if (!settings?.calculation_method || !settings?.juristic_school) return;
 
         const response = await fetchPrayerTimesForThisMonth({
           date: currentDate,
           latitude: masjidCoordinates.latitude,
           longitude: masjidCoordinates.longitude,
-          method: savedSettings?.calculation_method,
-          school: savedSettings?.juristic_school,
+          method: settings.calculation_method,
+          school: settings.juristic_school,
           signal: abortController.signal,
         });
         setPrayerTimes(response.data);
@@ -109,16 +115,12 @@ export default function PrayerTimings() {
       return <LocationNotSet />;
     }
 
-    if (!savedSettings) {
-      return <PrayerTimingsSettingsNotSet onConfigure={handleOpenModal} />;
+    if (!userSettings?.calculation_method || !userSettings?.juristic_school) {
+      return <PrayerTimingsSettingsNotSet />;
     }
 
     if (prayerTimes && prayerTimes.length > 0) {
-      return (
-        <div className='space-y-6'>
-          <PrayerTimesTable prayerTimes={prayerTimes} savedSettings={savedSettings} />
-        </div>
-      );
+      return <PrayerTimesTable prayerTimes={prayerTimes} savedSettings={savedSettings} />;
     }
 
     return <PrayerTimesEmpty onConfigure={handleOpenModal} />;
@@ -140,7 +142,6 @@ export default function PrayerTimings() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={() => forceUpdate()}
-        masjidCoordinates={masjidCoordinates}
         initialValues={savedSettings}
       />
     </div>

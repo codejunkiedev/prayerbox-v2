@@ -129,17 +129,23 @@ export const youtubeVideoSchema = z.object({
 
 export type YouTubeVideoData = z.infer<typeof youtubeVideoSchema>;
 
-export const prayerAdjustmentSchema = z.object({
+export const singleAdjustmentSchema = z.object({
   type: z.enum(['offset', 'manual', 'default']),
   offset: z.number().optional(),
   manual_time: z.string().optional(),
 });
 
+export type SingleAdjustmentData = z.infer<typeof singleAdjustmentSchema>;
+
+export const prayerAdjustmentSchema = z.object({
+  starts: singleAdjustmentSchema,
+  athan: singleAdjustmentSchema,
+  iqamah: singleAdjustmentSchema,
+});
+
 export type PrayerAdjustmentData = z.infer<typeof prayerAdjustmentSchema>;
 
-export const prayerTimingsFormSchema = z.object({
-  calculation_method: z.number(),
-  juristic_school: z.number(),
+export const prayerAdjustmentsFormSchema = z.object({
   prayer_adjustments: z
     .object({
       fajr: prayerAdjustmentSchema,
@@ -155,7 +161,7 @@ export const prayerTimingsFormSchema = z.object({
     .optional(),
 });
 
-export type PrayerTimingsData = z.infer<typeof prayerTimingsFormSchema>;
+export type PrayerAdjustmentsFormData = z.infer<typeof prayerAdjustmentsFormSchema>;
 
 export const screenSchema = z.object({
   name: z.string().min(1, 'Screen name is required'),

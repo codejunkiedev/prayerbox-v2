@@ -50,7 +50,7 @@ const themeImageMaps = {
  * @returns Path to the prayer card image, fallback to fajr image if not found
  */
 export function getPrayerCardImage(prayerName: keyof PrayerAdjustments, theme: Theme): string {
-  const imageMap = themeImageMaps[theme];
-  // @ts-expect-error - prayerName is a valid key of the imageMap
-  return imageMap[prayerName] || imageMap.fajr;
+  const imageMap = themeImageMaps[theme as keyof typeof themeImageMaps];
+  if (!imageMap) return '';
+  return (imageMap as Record<string, string>)[prayerName] || imageMap.fajr;
 }

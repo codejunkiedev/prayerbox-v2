@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Palette, Calendar, Grid, UserRound, Shield } from 'lucide-react';
+import { Palette, Calendar, Grid, UserRound, Shield, Clock } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
@@ -25,6 +25,13 @@ const settingsModules = [
     icon: Palette,
     route: AppRoutes.SettingsThemes,
     color: 'text-purple-600',
+  },
+  {
+    title: 'Prayer Times',
+    description: 'Configure calculation method, juristic school, and location',
+    icon: Clock,
+    route: AppRoutes.SettingsPrayerTimes,
+    color: 'text-teal-600',
   },
   {
     title: 'Hijri Calendar',

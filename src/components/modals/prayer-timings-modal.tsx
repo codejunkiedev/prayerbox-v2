@@ -10,16 +10,6 @@ import {
   DialogFooter,
   Button,
   Label,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -28,97 +18,84 @@ import {
   RadioGroupItem,
   Slider,
   TimePicker,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from '@/components/ui';
-import { CalculationMethod, JuristicSchool } from '@/constants';
-import { prayerTimingsFormSchema, type PrayerTimingsData } from '@/lib/zod';
-import { savePrayerTimeSettings } from '@/lib/supabase';
-import { MapPin, Clock, Plus, Minus } from 'lucide-react';
-import { Link } from 'react-router';
-import { AppRoutes } from '@/constants';
+import { prayerAdjustmentsFormSchema, type PrayerAdjustmentsFormData } from '@/lib/zod';
+import { savePrayerAdjustments } from '@/lib/supabase';
+import { Plus, Minus } from 'lucide-react';
 import { parseTimeString, formatTimeString } from '@/utils';
-import type { PrayerAdjustments } from '@/types';
+import type { AdjustmentCategory, PrayerAdjustments, SingleAdjustment } from '@/types';
 
 interface PrayerTimingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: () => void;
-  masjidCoordinates: { latitude: number; longitude: number } | null;
-  initialValues: PrayerTimingsData | null;
+  initialValues: PrayerAdjustmentsFormData | null;
 }
 
 type PrayerName = keyof PrayerAdjustments;
-type PrayerAdjustmentType = PrayerAdjustments[PrayerName]['type'];
-const PRAYER_NAMES: PrayerName[] = [
-  'fajr',
-  'sunrise',
-  'dhuhr',
-  'jumma1',
-  'jumma2',
-  'jumma3',
-  'asr',
-  'maghrib',
-  'isha',
+type AdjustmentType = SingleAdjustment['type'];
+
+const PRAYER_LIST: { name: PrayerName; label: string }[] = [
+  { name: 'fajr', label: 'Fajr' },
+  { name: 'sunrise', label: 'Sunrise' },
+  { name: 'dhuhr', label: 'Dhuhr' },
+  { name: 'jumma1', label: 'Jumma 1' },
+  { name: 'jumma2', label: 'Jumma 2' },
+  { name: 'jumma3', label: 'Jumma 3' },
+  { name: 'asr', label: 'Asr' },
+  { name: 'maghrib', label: 'Maghrib' },
+  { name: 'isha', label: 'Isha' },
 ];
 
-/**
- * Modal component for configuring prayer time settings including calculation methods, juristic schools, and individual prayer adjustments
- */
+const CATEGORIES: { key: AdjustmentCategory; label: string }[] = [
+  { key: 'starts', label: 'Starts' },
+  { key: 'athan', label: 'Athan' },
+  { key: 'iqamah', label: 'Iqamah' },
+];
+
+const DEFAULT_SINGLE = { type: 'default' as const };
+
+const DEFAULT_ADJUSTMENT: PrayerAdjustmentsFormData['prayer_adjustments'] = {
+  fajr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  sunrise: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  dhuhr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  asr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  maghrib: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  isha: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  jumma1: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  jumma2: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  jumma3: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+};
+
 export function PrayerTimingsModal({
   isOpen,
   onClose,
   onSubmit,
-  masjidCoordinates,
   initialValues,
 }: PrayerTimingsModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('general');
 
-  const {
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-  } = useForm<PrayerTimingsData>({
-    resolver: zodResolver(prayerTimingsFormSchema),
+  const { handleSubmit, setValue, watch } = useForm<PrayerAdjustmentsFormData>({
+    resolver: zodResolver(prayerAdjustmentsFormSchema),
     defaultValues: {
-      calculation_method:
-        initialValues?.calculation_method ?? CalculationMethod.Muslim_World_League,
-      juristic_school: initialValues?.juristic_school ?? JuristicSchool.Shafi,
-      prayer_adjustments: initialValues?.prayer_adjustments ?? {
-        fajr: { type: 'default' },
-        sunrise: { type: 'default' },
-        dhuhr: { type: 'default' },
-        asr: { type: 'default' },
-        maghrib: { type: 'default' },
-        isha: { type: 'default' },
-        jumma1: { type: 'default' },
-        jumma2: { type: 'default' },
-        jumma3: { type: 'default' },
-      },
+      prayer_adjustments: initialValues?.prayer_adjustments ?? DEFAULT_ADJUSTMENT,
     },
   });
 
   useEffect(() => {
-    if (initialValues) {
-      setValue('calculation_method', initialValues.calculation_method);
-      setValue('juristic_school', initialValues.juristic_school);
-
-      if (initialValues.prayer_adjustments) {
-        setValue('prayer_adjustments', initialValues.prayer_adjustments);
-      }
+    if (initialValues?.prayer_adjustments) {
+      setValue('prayer_adjustments', initialValues.prayer_adjustments);
     }
   }, [initialValues, setValue]);
 
-  const onFormSubmit = async (data: PrayerTimingsData) => {
-    if (!masjidCoordinates) {
-      toast.error('Please set masjid coordinates in your profile first');
-      return;
-    }
-
+  const onFormSubmit = async (data: PrayerAdjustmentsFormData) => {
     try {
       setIsSubmitting(true);
-      await savePrayerTimeSettings(data);
-
+      await savePrayerAdjustments(data);
       onSubmit();
       onClose();
       toast.success('Prayer time settings saved successfully');
@@ -130,128 +107,115 @@ export function PrayerTimingsModal({
     }
   };
 
-  const calculationMethod = watch('calculation_method');
-  const juristicSchool = watch('juristic_school');
   const prayerAdjustments = watch('prayer_adjustments');
 
-  const handleMethodChange = (value: string): void => {
-    setValue('calculation_method', parseInt(value));
-  };
-
-  const handleSchoolChange = (value: string): void => {
-    setValue('juristic_school', parseInt(value));
-  };
-
-  const handlePrayerTypeChange = (prayer: PrayerName, type: PrayerAdjustmentType): void => {
-    setValue(`prayer_adjustments.${prayer}.type`, type);
+  const handleTypeChange = (
+    prayer: PrayerName,
+    category: AdjustmentCategory,
+    type: AdjustmentType
+  ): void => {
+    setValue(`prayer_adjustments.${prayer}.${category}.type`, type);
     if (type === 'offset') {
-      setValue(`prayer_adjustments.${prayer}.manual_time`, undefined);
+      setValue(`prayer_adjustments.${prayer}.${category}.manual_time`, undefined);
     } else if (type === 'manual') {
-      setValue(`prayer_adjustments.${prayer}.offset`, undefined);
+      setValue(`prayer_adjustments.${prayer}.${category}.offset`, undefined);
     } else if (type === 'default') {
-      setValue(`prayer_adjustments.${prayer}.offset`, undefined);
-      setValue(`prayer_adjustments.${prayer}.manual_time`, undefined);
+      setValue(`prayer_adjustments.${prayer}.${category}.offset`, undefined);
+      setValue(`prayer_adjustments.${prayer}.${category}.manual_time`, undefined);
     }
   };
 
-  const handleOffsetChange = (prayer: PrayerName, value: number[]): void => {
-    setValue(`prayer_adjustments.${prayer}.offset`, value[0]);
+  const getAdjustmentSummary = (adj: SingleAdjustment | undefined): string => {
+    if (!adj || adj.type === 'default') return 'Default';
+    if (adj.type === 'offset' && adj.offset !== undefined) {
+      const sign = adj.offset > 0 ? '+' : adj.offset < 0 ? '-' : '';
+      const abs = Math.abs(adj.offset);
+      const h = Math.floor(abs / 60);
+      const m = abs % 60;
+      return `${sign}${h > 0 ? `${h}h ` : ''}${m}m`;
+    }
+    if (adj.type === 'manual' && adj.manual_time) {
+      return adj.manual_time;
+    }
+    return 'Default';
   };
 
-  const renderPrayerAdjustment = (prayer: PrayerName) => {
-    const type = prayerAdjustments?.[prayer]?.type || 'default';
-    const offset = prayerAdjustments?.[prayer]?.offset || 0;
-    const manualTime = prayerAdjustments?.[prayer]?.manual_time || '';
+  const renderAdjustmentControls = (prayer: PrayerName, category: AdjustmentCategory) => {
+    const adj = prayerAdjustments?.[prayer]?.[category];
+    const type = adj?.type || 'default';
+    const offset = adj?.offset || 0;
+    const manualTime = adj?.manual_time || '';
+    const id = `${prayer}-${category}`;
 
     const offsetValue = Math.abs(offset);
     const hours = Math.floor(offsetValue / 60);
     const minutes = offsetValue % 60;
 
-    const getStringFromTime = (time: Date): string => {
-      return formatTimeString(time);
-    };
-
-    const timeValue = parseTimeString(manualTime);
-
-    const handleTimeChange = (time: Date): void => {
-      setValue(`prayer_adjustments.${prayer}.manual_time`, getStringFromTime(time));
-    };
-
-    const getJummaLabel = () => {
-      if (prayer === 'jumma1') return 'Jumma 1';
-      if (prayer === 'jumma2') return 'Jumma 2';
-      if (prayer === 'jumma3') return 'Jumma 3';
-      return prayer;
-    };
-
-    const isJummaPrayer = ['jumma1', 'jumma2', 'jumma3'].includes(prayer);
-
     return (
-      <AccordionItem value={prayer} key={prayer}>
-        <AccordionTrigger className='text-sm font-medium py-2 capitalize'>
-          {isJummaPrayer ? getJummaLabel() : prayer}
-        </AccordionTrigger>
-        <AccordionContent>
-          {isJummaPrayer && (
-            <p className='text-xs text-muted-foreground mb-3'>
-              This adjustment applies only on Fridays.
-            </p>
-          )}
-          <div className='space-y-4'>
-            <RadioGroup
-              value={type}
-              onValueChange={value => handlePrayerTypeChange(prayer, value as PrayerAdjustmentType)}
-              className='flex flex-row gap-4'
-            >
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='default' id={`${prayer}-default`} />
-                <Label htmlFor={`${prayer}-default`}>Default</Label>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='offset' id={`${prayer}-offset`} />
-                <Label htmlFor={`${prayer}-offset`}>Offset</Label>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='manual' id={`${prayer}-manual`} />
-                <Label htmlFor={`${prayer}-manual`}>Manual</Label>
-              </div>
-            </RadioGroup>
-
-            {type === 'offset' && (
-              <div className='space-y-3'>
-                <div className='flex flex-row xs:flex-row justify-between items-start xs:items-center gap-2'>
-                  <Label>
-                    {offset > 0 ? '+' : offset < 0 ? '-' : ''}
-                    {hours > 0 ? `${hours.toString().padStart(2, '0')}h ` : ''}
-                    {minutes.toString().padStart(2, '0')}m
-                  </Label>
-                  <div className='flex items-center gap-1 text-xs'>
-                    <Minus className='h-3 w-3 text-muted-foreground' />
-                    <span className='text-muted-foreground'>Earlier</span>
-                    <span className='mx-1'>|</span>
-                    <span className='text-muted-foreground'>Later</span>
-                    <Plus className='h-3 w-3 text-muted-foreground' />
-                  </div>
-                </div>
-                <Slider
-                  defaultValue={[offset]}
-                  min={-120}
-                  max={120}
-                  step={1}
-                  onValueChange={value => handleOffsetChange(prayer, value)}
-                />
-              </div>
-            )}
-
-            {type === 'manual' && (
-              <div className='space-y-2'>
-                <Label htmlFor={`${prayer}-manual-time`}>Select Time</Label>
-                <TimePicker time={timeValue} setTime={handleTimeChange} minuteInterval={1} />
-              </div>
-            )}
+      <div className='space-y-3 pt-2'>
+        <RadioGroup
+          value={type}
+          onValueChange={value => handleTypeChange(prayer, category, value as AdjustmentType)}
+          className='flex flex-row gap-4'
+        >
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='default' id={`${id}-default`} />
+            <Label htmlFor={`${id}-default`}>Default</Label>
           </div>
-        </AccordionContent>
-      </AccordionItem>
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='offset' id={`${id}-offset`} />
+            <Label htmlFor={`${id}-offset`}>Offset</Label>
+          </div>
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='manual' id={`${id}-manual`} />
+            <Label htmlFor={`${id}-manual`}>Manual</Label>
+          </div>
+        </RadioGroup>
+
+        {type === 'offset' && (
+          <div className='space-y-3'>
+            <div className='flex flex-row justify-between items-start gap-2'>
+              <Label>
+                {offset > 0 ? '+' : offset < 0 ? '-' : ''}
+                {hours > 0 ? `${hours.toString().padStart(2, '0')}h ` : ''}
+                {minutes.toString().padStart(2, '0')}m
+              </Label>
+              <div className='flex items-center gap-1 text-xs'>
+                <Minus className='h-3 w-3 text-muted-foreground' />
+                <span className='text-muted-foreground'>Earlier</span>
+                <span className='mx-1'>|</span>
+                <span className='text-muted-foreground'>Later</span>
+                <Plus className='h-3 w-3 text-muted-foreground' />
+              </div>
+            </div>
+            <Slider
+              defaultValue={[offset]}
+              min={-120}
+              max={120}
+              step={1}
+              onValueChange={value =>
+                setValue(`prayer_adjustments.${prayer}.${category}.offset`, value[0])
+              }
+            />
+          </div>
+        )}
+
+        {type === 'manual' && (
+          <div className='space-y-2'>
+            <Label htmlFor={`${id}-manual-time`}>Select Time</Label>
+            <TimePicker
+              time={parseTimeString(manualTime)}
+              setTime={time =>
+                setValue(
+                  `prayer_adjustments.${prayer}.${category}.manual_time`,
+                  formatTimeString(time)
+                )
+              }
+              minuteInterval={1}
+            />
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -259,119 +223,53 @@ export function PrayerTimingsModal({
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
       <DialogContent className='sm:max-w-[500px] max-w-[95vw] w-full max-h-[90vh] overflow-y-auto scrollbar-custom'>
         <DialogHeader>
-          <DialogTitle>Prayer Times Settings</DialogTitle>
+          <DialogTitle>Prayer Time Adjustments</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-4'>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-            <TabsList className='grid w-full grid-cols-2'>
-              <TabsTrigger value='general'>General</TabsTrigger>
-              <TabsTrigger value='adjustments'>Adjustments</TabsTrigger>
+        <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-2'>
+          <Tabs defaultValue='starts' className='w-full'>
+            <TabsList className='grid w-full grid-cols-3'>
+              {CATEGORIES.map(cat => (
+                <TabsTrigger key={cat.key} value={cat.key}>
+                  {cat.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
-            <TabsContent value='general' className='space-y-4 pt-4'>
-              <div className='space-y-2'>
-                <Label htmlFor='calculation_method'>Calculation Method</Label>
-                <Select onValueChange={handleMethodChange} value={calculationMethod?.toString()}>
-                  <SelectTrigger id='calculation_method' className='w-full'>
-                    <SelectValue placeholder='Select calculation method' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(CalculationMethod)
-                      .filter(([key]) => isNaN(Number(key)))
-                      .map(([key, value]) => (
-                        <SelectItem key={key} value={value.toString()}>
-                          {key.replace(/_/g, ' ')}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                {errors.calculation_method && (
-                  <p className='text-destructive text-sm mt-1'>
-                    {errors.calculation_method.message}
-                  </p>
-                )}
-              </div>
 
-              <div className='space-y-2'>
-                <Label htmlFor='juristic_school'>Juristic School</Label>
-                <Select onValueChange={handleSchoolChange} value={juristicSchool?.toString()}>
-                  <SelectTrigger id='juristic_school' className='w-full'>
-                    <SelectValue placeholder='Select juristic school' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(JuristicSchool)
-                      .filter(([key]) => isNaN(Number(key)))
-                      .map(([key, value]) => (
-                        <SelectItem key={key} value={value.toString()}>
-                          {key}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-                {errors.juristic_school && (
-                  <p className='text-destructive text-sm mt-1'>{errors.juristic_school.message}</p>
-                )}
-              </div>
+            {CATEGORIES.map(cat => (
+              <TabsContent key={cat.key} value={cat.key} className='pt-2'>
+                <Accordion type='single' collapsible className='w-full'>
+                  {PRAYER_LIST.map(prayer => {
+                    const adj = prayerAdjustments?.[prayer.name]?.[cat.key];
+                    const summary = getAdjustmentSummary(adj);
+                    const isDefault = !adj || adj.type === 'default';
 
-              <div className='space-y-2'>
-                <div className='flex items-center gap-2'>
-                  <MapPin size={16} />
-                  <Label>Masjid Location</Label>
-                </div>
-                <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-                  <div>
-                    <Label htmlFor='latitude' className='text-xs text-muted-foreground'>
-                      Latitude
-                    </Label>
-                    <Input
-                      id='latitude'
-                      value={masjidCoordinates?.latitude.toFixed(3) || 'Not set'}
-                      readOnly
-                      className='bg-muted cursor-not-allowed'
-                      autoFocus={false}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor='longitude' className='text-xs text-muted-foreground'>
-                      Longitude
-                    </Label>
-                    <Input
-                      id='longitude'
-                      value={masjidCoordinates?.longitude.toFixed(3) || 'Not set'}
-                      readOnly
-                      className='bg-muted cursor-not-allowed'
-                      autoFocus={false}
-                    />
-                  </div>
-                </div>
-
-                <p className='text-xs text-muted-foreground mt-1'>
-                  {masjidCoordinates
-                    ? 'To update these coordinates, please visit the'
-                    : 'To set these coordinates, please visit the'}{' '}
-                  <Link to={AppRoutes.SettingsProfile} className='text-primary hover:underline'>
-                    Profile page
-                  </Link>
-                  .
-                </p>
-              </div>
-            </TabsContent>
-
-            <TabsContent value='adjustments' className='space-y-4 pt-4'>
-              <div className='flex items-center gap-2 mb-2'>
-                <Clock size={16} />
-                <h3 className='font-medium'>Prayer Time Adjustments</h3>
-              </div>
-
-              <p className='text-sm text-muted-foreground mb-4'>
-                Adjust prayer times by setting an offset (minutes earlier/later) or manually
-                entering a specific time.
-              </p>
-
-              <Accordion type='single' collapsible className='w-full'>
-                {PRAYER_NAMES.map(prayer => renderPrayerAdjustment(prayer))}
-              </Accordion>
-            </TabsContent>
+                    return (
+                      <AccordionItem value={prayer.name} key={prayer.name}>
+                        <AccordionTrigger className='py-2.5 hover:no-underline'>
+                          <div className='flex items-center justify-between w-full pr-2'>
+                            <span className='text-sm font-medium'>{prayer.label}</span>
+                            <span
+                              className={`text-xs ${isDefault ? 'text-muted-foreground' : 'text-primary font-medium'}`}
+                            >
+                              {summary}
+                            </span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          {['jumma1', 'jumma2', 'jumma3'].includes(prayer.name) && (
+                            <p className='text-xs text-muted-foreground mb-2'>
+                              This adjustment applies only on Fridays.
+                            </p>
+                          )}
+                          {renderAdjustmentControls(prayer.name, cat.key)}
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </TabsContent>
+            ))}
           </Tabs>
 
           <DialogFooter className='flex flex-col sm:flex-row gap-2 sm:gap-0'>
@@ -381,7 +279,7 @@ export function PrayerTimingsModal({
             <Button
               type='submit'
               loading={isSubmitting}
-              disabled={!masjidCoordinates}
+              disabled={isSubmitting}
               className='w-full sm:w-auto'
             >
               {isSubmitting ? 'Saving...' : 'Save Settings'}

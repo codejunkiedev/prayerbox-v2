@@ -1,9 +1,17 @@
-import type { PrayerAdjustmentData } from '@/lib/zod';
+import type { SingleAdjustmentData } from '@/lib/zod';
 
-export interface PrayerAdjustment {
-  type: PrayerAdjustmentData['type'];
+export type AdjustmentCategory = 'starts' | 'athan' | 'iqamah';
+
+export interface SingleAdjustment {
+  type: SingleAdjustmentData['type'];
   offset?: number;
   manual_time?: string;
+}
+
+export interface PrayerAdjustment {
+  starts: SingleAdjustment;
+  athan: SingleAdjustment;
+  iqamah: SingleAdjustment;
 }
 
 export interface PrayerAdjustments {
@@ -20,13 +28,16 @@ export interface PrayerAdjustments {
 
 export interface ProcessedPrayerTiming {
   name: keyof PrayerAdjustments;
-  time: string;
+  starts: string;
+  athan: string;
+  iqamah: string;
   arabicName: string;
 }
 
 export enum Theme {
   Theme1 = 'theme-1',
   Theme2 = 'theme-2',
+  Theme3 = 'theme-3',
 }
 
 export type WeatherData = {

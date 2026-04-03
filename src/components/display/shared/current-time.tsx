@@ -92,6 +92,24 @@ export function CurrentTime({
           </div>
         </React.Fragment>
       );
+    case Theme.Theme3:
+      return (
+        <React.Fragment>
+          <style>{animationStyle}</style>
+          <div className={`flex items-baseline gap-[0.3vw] ${className}`}>
+            <span className={`${isPortrait ? 'text-[10vw]' : 'text-[5vw]'} font-bold text-white`}>
+              {hours}
+              <span className='blink-colon'>:</span>
+              {minutes}
+            </span>
+            <span
+              className={`${isPortrait ? 'text-[4vw]' : 'text-[2vw]'} text-emerald-300 font-semibold`}
+            >
+              {amPm}
+            </span>
+          </div>
+        </React.Fragment>
+      );
     default:
       return null;
   }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
+import type { AlAdhanPrayerTimes, PrayerTimes, Settings } from '@/types';
 import { useDisplayStore } from '@/store';
-import { getPrayerTimeSettings } from '@/lib/supabase';
+import { getPrayerAdjustments, getSettings } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { fetchPrayerTimesForDate } from '@/api';
 import { isNullOrUndefined } from '@/utils';
@@ -29,7 +29,11 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
   const userId = masjidProfile?.user_id;
 
   const fetchPrayerTimes = useCallback(
-    async (prayerTimeSettings: PrayerTimes | null, signal: AbortSignal) => {
+    async (
+      userSettings: Settings | null,
+      prayerTimeSettings: PrayerTimes | null,
+      signal: AbortSignal
+    ) => {
       try {
         const { latitude, longitude } = masjidProfile || {};
 
@@ -41,7 +45,8 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
           return;
         }
 
-        const { calculation_method: method, juristic_school: school } = prayerTimeSettings || {};
+        const method = userSettings?.calculation_method;
+        const school = userSettings?.juristic_school;
 
         if (isNullOrUndefined(method) || isNullOrUndefined(school)) {
           setErrorMessage({
@@ -85,8 +90,11 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
       setErrorMessage(null);
 
       try {
-        const prayerTimeSettings = await getPrayerTimeSettings(userId);
-        await fetchPrayerTimes(prayerTimeSettings, abortController.signal);
+        const [userSettings, prayerTimeSettings] = await Promise.all([
+          getSettings(userId),
+          getPrayerAdjustments(userId),
+        ]);
+        await fetchPrayerTimes(userSettings, prayerTimeSettings, abortController.signal);
       } catch (error) {
         console.error('Error fetching prayer times:', error);
         toast.error('Failed to fetch prayer times');

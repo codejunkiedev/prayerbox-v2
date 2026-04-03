@@ -24,6 +24,7 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
   const themeImageMap: Record<Theme, string> = {
     [Theme.Theme1]: new URL('@/assets/themes/theme-1/background.jpg', import.meta.url).href,
     [Theme.Theme2]: new URL('@/assets/themes/theme-2/background.jpg', import.meta.url).href,
+    [Theme.Theme3]: new URL('@/assets/themes/theme-3/background.png', import.meta.url).href,
   };
 
   const themeOptions = Object.values(Theme);

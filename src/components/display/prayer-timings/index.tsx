@@ -11,7 +11,7 @@ import {
   type ScreenOrientation,
   type Settings,
 } from '@/types';
-import { Theme1, Theme2 } from './themes';
+import { Theme1, Theme2, Theme3 } from './themes';
 import type { ThemeProps } from './themes/types';
 import { useCurrentTime, useAdjustedHijriDate } from '@/hooks';
 import { HijriCalculationMethod } from '@/constants';
@@ -64,6 +64,8 @@ export function PrayerTimingDisplay({
         return <Theme1 {...themeProps} />;
       case Theme.Theme2:
         return <Theme2 {...themeProps} />;
+      case Theme.Theme3:
+        return <Theme3 {...themeProps} />;
       default:
         return <Theme1 {...themeProps} />;
     }
