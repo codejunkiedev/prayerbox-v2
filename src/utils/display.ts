@@ -21,47 +21,27 @@ export function getProcessedPrayerTimings(
   prayerTimeSettings: PrayerTimes
 ): ProcessedPrayerTiming[] {
   const timings = prayerTimes.timings;
-  const processedTimings: ProcessedPrayerTiming[] = [
-    {
-      name: 'fajr',
-      time: getAdjustedPrayerTime('fajr', timings.Fajr, prayerTimeSettings),
-      arabicName: PRAYER_NAMES.fajr,
-    },
-    {
-      name: 'dhuhr',
-      time: getAdjustedPrayerTime('dhuhr', timings.Dhuhr, prayerTimeSettings),
-      arabicName: PRAYER_NAMES.dhuhr,
-    },
-    {
-      name: 'asr',
-      time: getAdjustedPrayerTime('asr', timings.Asr, prayerTimeSettings),
-      arabicName: PRAYER_NAMES.asr,
-    },
-    {
-      name: 'maghrib',
-      time: getAdjustedPrayerTime('maghrib', timings.Maghrib, prayerTimeSettings),
-      arabicName: PRAYER_NAMES.maghrib,
-    },
-    {
-      name: 'isha',
-      time: getAdjustedPrayerTime('isha', timings.Isha, prayerTimeSettings),
-      arabicName: PRAYER_NAMES.isha,
-    },
-    {
-      name: 'jumma1',
-      time: getAdjustedPrayerTime('jumma1', timings.Dhuhr, prayerTimeSettings),
-      arabicName: PRAYER_NAMES.jumma,
-    },
-    {
-      name: 'jumma2',
-      time: getAdjustedPrayerTime('jumma2', timings.Dhuhr, prayerTimeSettings),
-      arabicName: PRAYER_NAMES.jumma,
-    },
-    {
-      name: 'jumma3',
-      time: getAdjustedPrayerTime('jumma3', timings.Dhuhr, prayerTimeSettings),
-      arabicName: PRAYER_NAMES.jumma,
-    },
+
+  const process = (
+    name: keyof import('@/types').PrayerAdjustments,
+    rawTime: string,
+    arabicName: string
+  ): ProcessedPrayerTiming => ({
+    name,
+    starts: getAdjustedPrayerTime(name, rawTime, prayerTimeSettings, 'starts'),
+    athan: getAdjustedPrayerTime(name, rawTime, prayerTimeSettings, 'athan'),
+    iqamah: getAdjustedPrayerTime(name, rawTime, prayerTimeSettings, 'iqamah'),
+    arabicName,
+  });
+
+  return [
+    process('fajr', timings.Fajr, PRAYER_NAMES.fajr),
+    process('dhuhr', timings.Dhuhr, PRAYER_NAMES.dhuhr),
+    process('asr', timings.Asr, PRAYER_NAMES.asr),
+    process('maghrib', timings.Maghrib, PRAYER_NAMES.maghrib),
+    process('isha', timings.Isha, PRAYER_NAMES.isha),
+    process('jumma1', timings.Dhuhr, PRAYER_NAMES.jumma),
+    process('jumma2', timings.Dhuhr, PRAYER_NAMES.jumma),
+    process('jumma3', timings.Dhuhr, PRAYER_NAMES.jumma),
   ];
-  return processedTimings;
 }

@@ -18,12 +18,16 @@ import {
   RadioGroupItem,
   Slider,
   TimePicker,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from '@/components/ui';
 import { prayerAdjustmentsFormSchema, type PrayerAdjustmentsFormData } from '@/lib/zod';
 import { savePrayerAdjustments } from '@/lib/supabase';
 import { Plus, Minus } from 'lucide-react';
 import { parseTimeString, formatTimeString } from '@/utils';
-import type { PrayerAdjustments } from '@/types';
+import type { AdjustmentCategory, PrayerAdjustments, SingleAdjustment } from '@/types';
 
 interface PrayerTimingsModalProps {
   isOpen: boolean;
@@ -33,22 +37,40 @@ interface PrayerTimingsModalProps {
 }
 
 type PrayerName = keyof PrayerAdjustments;
-type PrayerAdjustmentType = PrayerAdjustments[PrayerName]['type'];
-const PRAYER_NAMES: PrayerName[] = [
-  'fajr',
-  'sunrise',
-  'dhuhr',
-  'jumma1',
-  'jumma2',
-  'jumma3',
-  'asr',
-  'maghrib',
-  'isha',
+type AdjustmentType = SingleAdjustment['type'];
+
+const PRAYER_LIST: { name: PrayerName; label: string }[] = [
+  { name: 'fajr', label: 'Fajr' },
+  { name: 'sunrise', label: 'Sunrise' },
+  { name: 'dhuhr', label: 'Dhuhr' },
+  { name: 'jumma1', label: 'Jumma 1' },
+  { name: 'jumma2', label: 'Jumma 2' },
+  { name: 'jumma3', label: 'Jumma 3' },
+  { name: 'asr', label: 'Asr' },
+  { name: 'maghrib', label: 'Maghrib' },
+  { name: 'isha', label: 'Isha' },
 ];
 
-/**
- * Modal component for configuring prayer time settings including calculation methods, juristic schools, and individual prayer adjustments
- */
+const CATEGORIES: { key: AdjustmentCategory; label: string }[] = [
+  { key: 'starts', label: 'Starts' },
+  { key: 'athan', label: 'Athan' },
+  { key: 'iqamah', label: 'Iqamah' },
+];
+
+const DEFAULT_SINGLE = { type: 'default' as const };
+
+const DEFAULT_ADJUSTMENT: PrayerAdjustmentsFormData['prayer_adjustments'] = {
+  fajr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  sunrise: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  dhuhr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  asr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  maghrib: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  isha: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  jumma1: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  jumma2: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+  jumma3: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
+};
+
 export function PrayerTimingsModal({
   isOpen,
   onClose,
@@ -60,17 +82,7 @@ export function PrayerTimingsModal({
   const { handleSubmit, setValue, watch } = useForm<PrayerAdjustmentsFormData>({
     resolver: zodResolver(prayerAdjustmentsFormSchema),
     defaultValues: {
-      prayer_adjustments: initialValues?.prayer_adjustments ?? {
-        fajr: { type: 'default' },
-        sunrise: { type: 'default' },
-        dhuhr: { type: 'default' },
-        asr: { type: 'default' },
-        maghrib: { type: 'default' },
-        isha: { type: 'default' },
-        jumma1: { type: 'default' },
-        jumma2: { type: 'default' },
-        jumma3: { type: 'default' },
-      },
+      prayer_adjustments: initialValues?.prayer_adjustments ?? DEFAULT_ADJUSTMENT,
     },
   });
 
@@ -84,7 +96,6 @@ export function PrayerTimingsModal({
     try {
       setIsSubmitting(true);
       await savePrayerAdjustments(data);
-
       onSubmit();
       onClose();
       toast.success('Prayer time settings saved successfully');
@@ -98,116 +109,113 @@ export function PrayerTimingsModal({
 
   const prayerAdjustments = watch('prayer_adjustments');
 
-  const handlePrayerTypeChange = (prayer: PrayerName, type: PrayerAdjustmentType): void => {
-    setValue(`prayer_adjustments.${prayer}.type`, type);
+  const handleTypeChange = (
+    prayer: PrayerName,
+    category: AdjustmentCategory,
+    type: AdjustmentType
+  ): void => {
+    setValue(`prayer_adjustments.${prayer}.${category}.type`, type);
     if (type === 'offset') {
-      setValue(`prayer_adjustments.${prayer}.manual_time`, undefined);
+      setValue(`prayer_adjustments.${prayer}.${category}.manual_time`, undefined);
     } else if (type === 'manual') {
-      setValue(`prayer_adjustments.${prayer}.offset`, undefined);
+      setValue(`prayer_adjustments.${prayer}.${category}.offset`, undefined);
     } else if (type === 'default') {
-      setValue(`prayer_adjustments.${prayer}.offset`, undefined);
-      setValue(`prayer_adjustments.${prayer}.manual_time`, undefined);
+      setValue(`prayer_adjustments.${prayer}.${category}.offset`, undefined);
+      setValue(`prayer_adjustments.${prayer}.${category}.manual_time`, undefined);
     }
   };
 
-  const handleOffsetChange = (prayer: PrayerName, value: number[]): void => {
-    setValue(`prayer_adjustments.${prayer}.offset`, value[0]);
+  const getAdjustmentSummary = (adj: SingleAdjustment | undefined): string => {
+    if (!adj || adj.type === 'default') return 'Default';
+    if (adj.type === 'offset' && adj.offset !== undefined) {
+      const sign = adj.offset > 0 ? '+' : adj.offset < 0 ? '-' : '';
+      const abs = Math.abs(adj.offset);
+      const h = Math.floor(abs / 60);
+      const m = abs % 60;
+      return `${sign}${h > 0 ? `${h}h ` : ''}${m}m`;
+    }
+    if (adj.type === 'manual' && adj.manual_time) {
+      return adj.manual_time;
+    }
+    return 'Default';
   };
 
-  const renderPrayerAdjustment = (prayer: PrayerName) => {
-    const type = prayerAdjustments?.[prayer]?.type || 'default';
-    const offset = prayerAdjustments?.[prayer]?.offset || 0;
-    const manualTime = prayerAdjustments?.[prayer]?.manual_time || '';
+  const renderAdjustmentControls = (prayer: PrayerName, category: AdjustmentCategory) => {
+    const adj = prayerAdjustments?.[prayer]?.[category];
+    const type = adj?.type || 'default';
+    const offset = adj?.offset || 0;
+    const manualTime = adj?.manual_time || '';
+    const id = `${prayer}-${category}`;
 
     const offsetValue = Math.abs(offset);
     const hours = Math.floor(offsetValue / 60);
     const minutes = offsetValue % 60;
 
-    const getStringFromTime = (time: Date): string => {
-      return formatTimeString(time);
-    };
-
-    const timeValue = parseTimeString(manualTime);
-
-    const handleTimeChange = (time: Date): void => {
-      setValue(`prayer_adjustments.${prayer}.manual_time`, getStringFromTime(time));
-    };
-
-    const getJummaLabel = () => {
-      if (prayer === 'jumma1') return 'Jumma 1';
-      if (prayer === 'jumma2') return 'Jumma 2';
-      if (prayer === 'jumma3') return 'Jumma 3';
-      return prayer;
-    };
-
-    const isJummaPrayer = ['jumma1', 'jumma2', 'jumma3'].includes(prayer);
-
     return (
-      <AccordionItem value={prayer} key={prayer}>
-        <AccordionTrigger className='text-sm font-medium py-2 capitalize'>
-          {isJummaPrayer ? getJummaLabel() : prayer}
-        </AccordionTrigger>
-        <AccordionContent>
-          {isJummaPrayer && (
-            <p className='text-xs text-muted-foreground mb-3'>
-              This adjustment applies only on Fridays.
-            </p>
-          )}
-          <div className='space-y-4'>
-            <RadioGroup
-              value={type}
-              onValueChange={value => handlePrayerTypeChange(prayer, value as PrayerAdjustmentType)}
-              className='flex flex-row gap-4'
-            >
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='default' id={`${prayer}-default`} />
-                <Label htmlFor={`${prayer}-default`}>Default</Label>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='offset' id={`${prayer}-offset`} />
-                <Label htmlFor={`${prayer}-offset`}>Offset</Label>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <RadioGroupItem value='manual' id={`${prayer}-manual`} />
-                <Label htmlFor={`${prayer}-manual`}>Manual</Label>
-              </div>
-            </RadioGroup>
-
-            {type === 'offset' && (
-              <div className='space-y-3'>
-                <div className='flex flex-row xs:flex-row justify-between items-start xs:items-center gap-2'>
-                  <Label>
-                    {offset > 0 ? '+' : offset < 0 ? '-' : ''}
-                    {hours > 0 ? `${hours.toString().padStart(2, '0')}h ` : ''}
-                    {minutes.toString().padStart(2, '0')}m
-                  </Label>
-                  <div className='flex items-center gap-1 text-xs'>
-                    <Minus className='h-3 w-3 text-muted-foreground' />
-                    <span className='text-muted-foreground'>Earlier</span>
-                    <span className='mx-1'>|</span>
-                    <span className='text-muted-foreground'>Later</span>
-                    <Plus className='h-3 w-3 text-muted-foreground' />
-                  </div>
-                </div>
-                <Slider
-                  defaultValue={[offset]}
-                  min={-120}
-                  max={120}
-                  step={1}
-                  onValueChange={value => handleOffsetChange(prayer, value)}
-                />
-              </div>
-            )}
-
-            {type === 'manual' && (
-              <div className='space-y-2'>
-                <Label htmlFor={`${prayer}-manual-time`}>Select Time</Label>
-                <TimePicker time={timeValue} setTime={handleTimeChange} minuteInterval={1} />
-              </div>
-            )}
+      <div className='space-y-3 pt-2'>
+        <RadioGroup
+          value={type}
+          onValueChange={value => handleTypeChange(prayer, category, value as AdjustmentType)}
+          className='flex flex-row gap-4'
+        >
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='default' id={`${id}-default`} />
+            <Label htmlFor={`${id}-default`}>Default</Label>
           </div>
-        </AccordionContent>
-      </AccordionItem>
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='offset' id={`${id}-offset`} />
+            <Label htmlFor={`${id}-offset`}>Offset</Label>
+          </div>
+          <div className='flex items-center space-x-2'>
+            <RadioGroupItem value='manual' id={`${id}-manual`} />
+            <Label htmlFor={`${id}-manual`}>Manual</Label>
+          </div>
+        </RadioGroup>
+
+        {type === 'offset' && (
+          <div className='space-y-3'>
+            <div className='flex flex-row justify-between items-start gap-2'>
+              <Label>
+                {offset > 0 ? '+' : offset < 0 ? '-' : ''}
+                {hours > 0 ? `${hours.toString().padStart(2, '0')}h ` : ''}
+                {minutes.toString().padStart(2, '0')}m
+              </Label>
+              <div className='flex items-center gap-1 text-xs'>
+                <Minus className='h-3 w-3 text-muted-foreground' />
+                <span className='text-muted-foreground'>Earlier</span>
+                <span className='mx-1'>|</span>
+                <span className='text-muted-foreground'>Later</span>
+                <Plus className='h-3 w-3 text-muted-foreground' />
+              </div>
+            </div>
+            <Slider
+              defaultValue={[offset]}
+              min={-120}
+              max={120}
+              step={1}
+              onValueChange={value =>
+                setValue(`prayer_adjustments.${prayer}.${category}.offset`, value[0])
+              }
+            />
+          </div>
+        )}
+
+        {type === 'manual' && (
+          <div className='space-y-2'>
+            <Label htmlFor={`${id}-manual-time`}>Select Time</Label>
+            <TimePicker
+              time={parseTimeString(manualTime)}
+              setTime={time =>
+                setValue(
+                  `prayer_adjustments.${prayer}.${category}.manual_time`,
+                  formatTimeString(time)
+                )
+              }
+              minuteInterval={1}
+            />
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -218,15 +226,51 @@ export function PrayerTimingsModal({
           <DialogTitle>Prayer Time Adjustments</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-4'>
-          <p className='text-sm text-muted-foreground'>
-            Adjust prayer times by setting an offset (minutes earlier/later) or manually entering a
-            specific time.
-          </p>
+        <form onSubmit={handleSubmit(onFormSubmit)} className='space-y-4 py-2'>
+          <Tabs defaultValue='starts' className='w-full'>
+            <TabsList className='grid w-full grid-cols-3'>
+              {CATEGORIES.map(cat => (
+                <TabsTrigger key={cat.key} value={cat.key}>
+                  {cat.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
 
-          <Accordion type='single' collapsible className='w-full'>
-            {PRAYER_NAMES.map(prayer => renderPrayerAdjustment(prayer))}
-          </Accordion>
+            {CATEGORIES.map(cat => (
+              <TabsContent key={cat.key} value={cat.key} className='pt-2'>
+                <Accordion type='single' collapsible className='w-full'>
+                  {PRAYER_LIST.map(prayer => {
+                    const adj = prayerAdjustments?.[prayer.name]?.[cat.key];
+                    const summary = getAdjustmentSummary(adj);
+                    const isDefault = !adj || adj.type === 'default';
+
+                    return (
+                      <AccordionItem value={prayer.name} key={prayer.name}>
+                        <AccordionTrigger className='py-2.5 hover:no-underline'>
+                          <div className='flex items-center justify-between w-full pr-2'>
+                            <span className='text-sm font-medium'>{prayer.label}</span>
+                            <span
+                              className={`text-xs ${isDefault ? 'text-muted-foreground' : 'text-primary font-medium'}`}
+                            >
+                              {summary}
+                            </span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          {['jumma1', 'jumma2', 'jumma3'].includes(prayer.name) && (
+                            <p className='text-xs text-muted-foreground mb-2'>
+                              This adjustment applies only on Fridays.
+                            </p>
+                          )}
+                          {renderAdjustmentControls(prayer.name, cat.key)}
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </TabsContent>
+            ))}
+          </Tabs>
 
           <DialogFooter className='flex flex-col sm:flex-row gap-2 sm:gap-0'>
             <Button type='button' variant='outline' onClick={onClose} className='w-full sm:w-auto'>

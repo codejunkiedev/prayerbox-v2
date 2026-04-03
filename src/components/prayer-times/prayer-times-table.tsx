@@ -1,10 +1,5 @@
-import {
-  isFriday,
-  getCurrentDay,
-  getAdjustedPrayerTime,
-  isPrayerAdjusted,
-  getAdjustmentLabel,
-} from '@/utils';
+import { useState } from 'react';
+import { isFriday, getCurrentDay, getAdjustedPrayerTime } from '@/utils';
 import {
   Card,
   CardContent,
@@ -16,8 +11,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from '@/components/ui';
-import type { AlAdhanPrayerTimes, PrayerTimes } from '@/types';
+import type {
+  AdjustmentCategory,
+  AlAdhanPrayerTimes,
+  PrayerAdjustments,
+  PrayerTimes,
+} from '@/types';
 
 interface PrayerTimesTableProps {
   prayerTimes: AlAdhanPrayerTimes[];
@@ -26,121 +29,78 @@ interface PrayerTimesTableProps {
 
 type JummaPrayer = 'jumma1' | 'jumma2' | 'jumma3';
 
+type PrayerColumn = {
+  name: keyof PrayerAdjustments;
+  label: string;
+  getTime: (day: AlAdhanPrayerTimes) => string;
+};
+
 const currentDay = getCurrentDay();
 
-/**
- * Renders a comprehensive prayer times table with monthly data, adjustments, and special Jumma timings
- */
 export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTableProps) {
-  const isJummaAdjusted = (jumma: JummaPrayer): boolean => {
-    return isPrayerAdjusted(jumma, savedSettings);
-  };
+  const [category, setCategory] = useState<AdjustmentCategory>('starts');
 
-  const getJummaColumnHeader = (jumma: JummaPrayer, label: string): React.ReactElement => {
+  const isJummaActive = (jumma: JummaPrayer): boolean => {
+    const adj = savedSettings?.prayer_adjustments?.[jumma];
+    if (!adj) return false;
     return (
-      <TableHead className='text-center font-medium'>
-        <div className='flex flex-col items-center'>
-          <span className='font-semibold'>{label}</span>
-          {isPrayerAdjusted(jumma, savedSettings) && (
-            <span className='text-xs text-muted-foreground mt-0.5'>
-              {getAdjustmentLabel(jumma, savedSettings, true)}
-            </span>
-          )}
-        </div>
-      </TableHead>
+      adj.starts?.type !== 'default' ||
+      adj.athan?.type !== 'default' ||
+      adj.iqamah?.type !== 'default'
     );
   };
 
-  const getJummaTimeCell = (day: AlAdhanPrayerTimes, jumma: JummaPrayer): React.ReactElement => {
-    const dateStr = `${day.date.gregorian.year}-${day.date.gregorian.month.number.toString().padStart(2, '0')}-${day.date.gregorian.day}`;
-    const isJummaDay = isFriday(dateStr);
-    return (
-      <TableCell className='text-center'>
-        {isJummaDay ? getAdjustedPrayerTime(jumma, day.timings.Dhuhr, savedSettings) : '—'}
-      </TableCell>
-    );
-  };
+  const basePrayers: PrayerColumn[] = [
+    { name: 'fajr', label: 'Fajr', getTime: d => d.timings.Fajr },
+    { name: 'sunrise', label: 'Sunrise', getTime: d => d.timings.Sunrise },
+    { name: 'dhuhr', label: 'Dhuhr', getTime: d => d.timings.Dhuhr },
+  ];
+
+  const jummaColumns: PrayerColumn[] = (['jumma1', 'jumma2', 'jumma3'] as JummaPrayer[])
+    .filter(j => isJummaActive(j))
+    .map((j, i) => ({
+      name: j,
+      label: `Jumma ${i + 1}`,
+      getTime: (d: AlAdhanPrayerTimes) => d.timings.Dhuhr,
+    }));
+
+  const restPrayers: PrayerColumn[] = [
+    { name: 'asr', label: 'Asr', getTime: d => d.timings.Asr },
+    { name: 'maghrib', label: 'Maghrib', getTime: d => d.timings.Maghrib },
+    { name: 'isha', label: 'Isha', getTime: d => d.timings.Isha },
+  ];
+
+  const columns = [...basePrayers, ...jummaColumns, ...restPrayers];
 
   const currentMonth = prayerTimes[0]?.date?.gregorian?.month?.en;
   const currentYear = prayerTimes[0]?.date?.gregorian?.year;
 
   return (
-    <Card>
-      <CardHeader className='bg-primary/5'>
-        <CardTitle className='flex justify-between items-center mt-2'>
-          <span>
+    <Card className='gap-0 py-0'>
+      <CardHeader className='bg-primary/5 py-3'>
+        <div className='flex items-center justify-between'>
+          <CardTitle className='text-base'>
             Prayer Times for {currentMonth}, {currentYear}
-          </span>
-        </CardTitle>
+          </CardTitle>
+          <Tabs value={category} onValueChange={v => setCategory(v as AdjustmentCategory)}>
+            <TabsList>
+              <TabsTrigger value='starts'>Starts</TabsTrigger>
+              <TabsTrigger value='athan'>Athan</TabsTrigger>
+              <TabsTrigger value='iqamah'>Iqamah</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </CardHeader>
       <CardContent className='p-0 overflow-auto'>
         <Table>
           <TableHeader>
             <TableRow className='bg-muted/50'>
               <TableHead className='w-[80px] text-center font-medium py-3'>Date</TableHead>
-              <TableHead className='text-center font-medium'>
-                <div className='flex flex-col items-center'>
-                  <span className='font-semibold'>Fajr</span>
-                  {isPrayerAdjusted('fajr', savedSettings) && (
-                    <span className='text-xs text-muted-foreground mt-0.5'>
-                      {getAdjustmentLabel('fajr', savedSettings, true)}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className='text-center font-medium'>
-                <div className='flex flex-col items-center'>
-                  <span className='font-semibold'>Sunrise</span>
-                  {isPrayerAdjusted('sunrise', savedSettings) && (
-                    <span className='text-xs text-muted-foreground mt-0.5'>
-                      {getAdjustmentLabel('sunrise', savedSettings, true)}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className='text-center font-medium'>
-                <div className='flex flex-col items-center'>
-                  <span className='font-semibold'>Dhuhr</span>
-                  {isPrayerAdjusted('dhuhr', savedSettings) && (
-                    <span className='text-xs text-muted-foreground mt-0.5'>
-                      {getAdjustmentLabel('dhuhr', savedSettings, true)}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              {isJummaAdjusted('jumma1') && getJummaColumnHeader('jumma1', 'Jumma 1')}
-              {isJummaAdjusted('jumma2') && getJummaColumnHeader('jumma2', 'Jumma 2')}
-              {isJummaAdjusted('jumma3') && getJummaColumnHeader('jumma3', 'Jumma 3')}
-              <TableHead className='text-center font-medium'>
-                <div className='flex flex-col items-center'>
-                  <span className='font-semibold'>Asr</span>
-                  {isPrayerAdjusted('asr', savedSettings) && (
-                    <span className='text-xs text-muted-foreground mt-0.5'>
-                      {getAdjustmentLabel('asr', savedSettings, true)}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className='text-center font-medium'>
-                <div className='flex flex-col items-center'>
-                  <span className='font-semibold'>Maghrib</span>
-                  {isPrayerAdjusted('maghrib', savedSettings) && (
-                    <span className='text-xs text-muted-foreground mt-0.5'>
-                      {getAdjustmentLabel('maghrib', savedSettings, true)}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
-              <TableHead className='text-center font-medium'>
-                <div className='flex flex-col items-center'>
-                  <span className='font-semibold'>Isha</span>
-                  {isPrayerAdjusted('isha', savedSettings) && (
-                    <span className='text-xs text-muted-foreground mt-0.5'>
-                      {getAdjustmentLabel('isha', savedSettings, true)}
-                    </span>
-                  )}
-                </div>
-              </TableHead>
+              {columns.map(col => (
+                <TableHead key={col.name} className='text-center font-semibold'>
+                  {col.label}
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -159,27 +119,21 @@ export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTabl
                     {day.date.gregorian.day}
                     {isJummaDay && <span className='ml-1 text-xs text-primary'>(Fri)</span>}
                   </TableCell>
-                  <TableCell className='text-center'>
-                    {getAdjustedPrayerTime('fajr', day.timings.Fajr, savedSettings)}
-                  </TableCell>
-                  <TableCell className='text-center'>
-                    {getAdjustedPrayerTime('sunrise', day.timings.Sunrise, savedSettings)}
-                  </TableCell>
-                  <TableCell className='text-center'>
-                    {getAdjustedPrayerTime('dhuhr', day.timings.Dhuhr, savedSettings)}
-                  </TableCell>
-                  {isJummaAdjusted('jumma1') && getJummaTimeCell(day, 'jumma1')}
-                  {isJummaAdjusted('jumma2') && getJummaTimeCell(day, 'jumma2')}
-                  {isJummaAdjusted('jumma3') && getJummaTimeCell(day, 'jumma3')}
-                  <TableCell className='text-center'>
-                    {getAdjustedPrayerTime('asr', day.timings.Asr, savedSettings)}
-                  </TableCell>
-                  <TableCell className='text-center'>
-                    {getAdjustedPrayerTime('maghrib', day.timings.Maghrib, savedSettings)}
-                  </TableCell>
-                  <TableCell className='text-center'>
-                    {getAdjustedPrayerTime('isha', day.timings.Isha, savedSettings)}
-                  </TableCell>
+                  {columns.map(col => {
+                    const isJumma = ['jumma1', 'jumma2', 'jumma3'].includes(col.name);
+                    return (
+                      <TableCell key={col.name} className='text-center'>
+                        {isJumma && !isJummaDay
+                          ? '—'
+                          : getAdjustedPrayerTime(
+                              col.name,
+                              col.getTime(day),
+                              savedSettings,
+                              category
+                            )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               );
             })}

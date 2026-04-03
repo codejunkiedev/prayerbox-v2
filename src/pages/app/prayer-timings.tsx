@@ -120,11 +120,7 @@ export default function PrayerTimings() {
     }
 
     if (prayerTimes && prayerTimes.length > 0) {
-      return (
-        <div className='space-y-6'>
-          <PrayerTimesTable prayerTimes={prayerTimes} savedSettings={savedSettings} />
-        </div>
-      );
+      return <PrayerTimesTable prayerTimes={prayerTimes} savedSettings={savedSettings} />;
     }
 
     return <PrayerTimesEmpty onConfigure={handleOpenModal} />;

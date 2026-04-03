@@ -129,10 +129,18 @@ export const youtubeVideoSchema = z.object({
 
 export type YouTubeVideoData = z.infer<typeof youtubeVideoSchema>;
 
-export const prayerAdjustmentSchema = z.object({
+export const singleAdjustmentSchema = z.object({
   type: z.enum(['offset', 'manual', 'default']),
   offset: z.number().optional(),
   manual_time: z.string().optional(),
+});
+
+export type SingleAdjustmentData = z.infer<typeof singleAdjustmentSchema>;
+
+export const prayerAdjustmentSchema = z.object({
+  starts: singleAdjustmentSchema,
+  athan: singleAdjustmentSchema,
+  iqamah: singleAdjustmentSchema,
 });
 
 export type PrayerAdjustmentData = z.infer<typeof prayerAdjustmentSchema>;

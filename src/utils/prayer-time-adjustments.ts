@@ -1,5 +1,11 @@
 import { formatTime, addTimeMinutes } from './date-time';
-import type { PrayerAdjustments, PrayerTimes, ProcessedPrayerTiming } from '@/types';
+import type {
+  AdjustmentCategory,
+  PrayerAdjustments,
+  PrayerTimes,
+  ProcessedPrayerTiming,
+  SingleAdjustment,
+} from '@/types';
 import type { AlAdhanPrayerTimes } from '@/types';
 import { differenceInMinutes } from 'date-fns';
 
@@ -7,16 +13,11 @@ type PrayerName = keyof PrayerAdjustments;
 
 /**
  * Checks if the given date is a Friday
- * @param date AlAdhan prayer times date object
- * @returns True if the date is Friday
  */
 export const isFridayPrayer = (date: AlAdhanPrayerTimes['date'] | undefined): boolean => {
   return date?.gregorian?.weekday?.en === 'Friday';
 };
 
-/**
- * Gets the prayer time names for display
- */
 export const PRAYER_NAMES = {
   fajr: 'فجر',
   sunrise: 'شروق',
@@ -30,75 +31,72 @@ export const PRAYER_NAMES = {
   jumma3: 'جمعة ٣',
 } as const;
 
+const DEFAULT_SINGLE_ADJUSTMENT: SingleAdjustment = { type: 'default' };
+
 /**
- * Adjusts a prayer time based on settings
- * @param prayerName Name of the prayer
- * @param originalTime Original time in HH:mm format or formatted time
- * @param prayerTimeSettings Prayer time settings
- * @returns Adjusted time string formatted for display (e.g., "12:30 PM")
+ * Applies a single adjustment to a time string
+ */
+const applyAdjustment = (originalTime: string, adjustment: SingleAdjustment): string => {
+  const timeOnly = originalTime.includes(' ') ? originalTime.split(' ')[0] : originalTime;
+
+  if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
+    return addTimeMinutes(timeOnly, adjustment.offset);
+  } else if (adjustment.type === 'manual' && adjustment.manual_time) {
+    return adjustment.manual_time;
+  }
+  return timeOnly;
+};
+
+/**
+ * Gets the single adjustment object for a prayer + category
+ */
+const getAdjustment = (
+  prayerName: PrayerName,
+  category: AdjustmentCategory,
+  prayerTimeSettings: PrayerTimes | null
+): SingleAdjustment => {
+  return (
+    prayerTimeSettings?.prayer_adjustments?.[prayerName]?.[category] ?? DEFAULT_SINGLE_ADJUSTMENT
+  );
+};
+
+/**
+ * Adjusts a prayer time based on settings for a specific category
  */
 export const getAdjustedPrayerTime = (
   prayerName: PrayerName,
   originalTime: string,
-  prayerTimeSettings: PrayerTimes | null
+  prayerTimeSettings: PrayerTimes | null,
+  category: AdjustmentCategory = 'starts'
 ): string => {
-  if (!prayerTimeSettings?.prayer_adjustments) {
-    return formatTime(originalTime.includes(' ') ? originalTime.split(' ')[0] : originalTime);
-  }
-
-  const timeOnly = originalTime.includes(' ') ? originalTime.split(' ')[0] : originalTime;
-  const adjustment = prayerTimeSettings.prayer_adjustments[prayerName];
-
-  if (!adjustment) {
-    return formatTime(timeOnly);
-  }
-
-  let adjustedTime: string;
-
-  if (adjustment.type === 'default') {
-    adjustedTime = timeOnly;
-  } else if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
-    adjustedTime = addTimeMinutes(timeOnly, adjustment.offset);
-  } else if (adjustment.type === 'manual' && adjustment.manual_time) {
-    adjustedTime = adjustment.manual_time;
-  } else {
-    adjustedTime = timeOnly;
-  }
-
-  return formatTime(adjustedTime);
+  const adjustment = getAdjustment(prayerName, category, prayerTimeSettings);
+  return formatTime(applyAdjustment(originalTime, adjustment));
 };
 
 /**
- * Checks if a prayer time is adjusted
- * @param prayerName Name of the prayer
- * @param prayerTimeSettings Prayer time settings
- * @returns True if the prayer time is adjusted
+ * Checks if a prayer time is adjusted for a specific category
  */
 export const isPrayerAdjusted = (
   prayerName: PrayerName,
-  prayerTimeSettings: PrayerTimes | null
+  prayerTimeSettings: PrayerTimes | null,
+  category: AdjustmentCategory = 'starts'
 ): boolean => {
-  if (!prayerTimeSettings?.prayer_adjustments) return false;
-  const adjustment = prayerTimeSettings.prayer_adjustments[prayerName];
-  return !!adjustment && adjustment.type !== 'default';
+  const adjustment = getAdjustment(prayerName, category, prayerTimeSettings);
+  return adjustment.type !== 'default';
 };
 
 /**
  * Gets the adjustment label for a prayer time
- * @param prayerName Name of the prayer
- * @param prayerTimeSettings Prayer time settings
- * @param includeParentheses Whether to wrap the label in parentheses
- * @returns Adjustment label string
  */
 export const getAdjustmentLabel = (
   prayerName: PrayerName,
   prayerTimeSettings: PrayerTimes | null,
-  includeParentheses: boolean = false
+  includeParentheses: boolean = false,
+  category: AdjustmentCategory = 'starts'
 ): string => {
-  if (!prayerTimeSettings?.prayer_adjustments) return '';
-  const adjustment = prayerTimeSettings.prayer_adjustments[prayerName];
+  const adjustment = getAdjustment(prayerName, category, prayerTimeSettings);
 
-  if (!adjustment || adjustment.type === 'default') return '';
+  if (adjustment.type === 'default') return '';
 
   let label = '';
 
@@ -123,36 +121,36 @@ export const getAdjustmentLabel = (
 
 /**
  * Gets filtered Jumma prayer names based on adjustments
- * @param prayerTimeSettings Prayer time settings
- * @returns Array of Jumma prayer names that have adjustments, or ['jumma1'] if none
  */
 export const getFilteredJummaPrayerNames = (
   prayerTimeSettings: PrayerTimes | null
 ): (keyof PrayerAdjustments)[] => {
   const jummaVariants: (keyof PrayerAdjustments)[] = ['jumma1', 'jumma2', 'jumma3'];
-  const adjustedJummaVariants = jummaVariants.filter(variant =>
-    isPrayerAdjusted(variant, prayerTimeSettings)
-  );
+  const adjustedJummaVariants = jummaVariants.filter(variant => {
+    // A jumma variant is "active" if any of its categories are adjusted
+    return (
+      isPrayerAdjusted(variant, prayerTimeSettings, 'starts') ||
+      isPrayerAdjusted(variant, prayerTimeSettings, 'athan') ||
+      isPrayerAdjusted(variant, prayerTimeSettings, 'iqamah')
+    );
+  });
 
-  // If no adjustments exist for any Jumma variant, return only jumma1 (which equals dhuhr)
   return adjustedJummaVariants.length > 0 ? adjustedJummaVariants : ['jumma1'];
 };
 
 /**
- * Gets the time before the next prayer
- * @param prayerTimes Prayer times
- * @returns Time before the next prayer
+ * Gets the time before the next prayer (based on starts time)
  */
 export const getTimeBeforeNextPrayer = (
   prayerTimes: ProcessedPrayerTiming[]
 ): { timeBefore: string; name: keyof PrayerAdjustments } | null => {
   const currentTime = new Date();
   const nextPrayerTime = prayerTimes.find(
-    prayer => new Date(`${currentTime.toDateString()} ${prayer.time}`) > currentTime
+    prayer => new Date(`${currentTime.toDateString()} ${prayer.starts}`) > currentTime
   );
   if (!nextPrayerTime) return null;
   const difference = differenceInMinutes(
-    new Date(`${currentTime.toDateString()} ${nextPrayerTime.time}`),
+    new Date(`${currentTime.toDateString()} ${nextPrayerTime.starts}`),
     currentTime
   );
   const hours = Math.floor(difference / 60);
