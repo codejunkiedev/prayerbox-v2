@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useEffect, useState, Suspense } from 'react';
-import { getCurrentSession, getMasjidMembership } from '@/lib/supabase';
+import { getCurrentSession, getMasjidMembership, updateLastActive } from '@/lib/supabase';
 import { subscribeToAuthChanges } from '@/lib/supabase';
 import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
@@ -58,6 +58,7 @@ export default function Navigation() {
           try {
             const membership = await getMasjidMembership();
             setAuth(membership.masjid_id, membership.role);
+            updateLastActive();
           } catch {
             // User may not have membership yet (e.g. during registration)
           }

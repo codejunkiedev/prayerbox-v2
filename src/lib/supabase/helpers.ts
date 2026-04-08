@@ -63,6 +63,20 @@ export async function getMasjidMembership(): Promise<{ masjid_id: string; role: 
 }
 
 /**
+ * Updates the last_active_at timestamp for the current user's membership.
+ * Called on login to track moderator activity.
+ */
+export async function updateLastActive(): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) return;
+
+  await supabase
+    .from('masjid_members')
+    .update({ last_active_at: new Date().toISOString() })
+    .eq('user_id', user.id);
+}
+
+/**
  * Helper to handle common Supabase errors
  * @param error The PostgrestError to handle
  * @param customMessage Optional custom error message
