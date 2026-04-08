@@ -36,7 +36,7 @@ Deno.serve(async req => {
       });
     }
 
-    const { email, password } = await req.json();
+    const { email, password, name } = await req.json();
 
     if (!email || !password) {
       return new Response(JSON.stringify({ error: 'Email and password are required' }), {
@@ -78,6 +78,7 @@ Deno.serve(async req => {
       masjid_id: membership.masjid_id,
       user_id: newUser.user.id,
       role: 'moderator',
+      name: name || '',
     });
 
     if (insertError) {

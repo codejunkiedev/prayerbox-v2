@@ -12,9 +12,25 @@ export async function getModerators(): Promise<ModeratorWithEmail[]> {
   return [];
 }
 
-export async function createModerator(email: string, password: string): Promise<void> {
+export async function updateModerator(
+  userId: string,
+  updates: { name?: string; email?: string }
+): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('update-moderator', {
+    body: { user_id: userId, ...updates },
+  });
+
+  if (error) throw new Error(error.message || 'Failed to update moderator');
+  if (data?.error) throw new Error(data.error);
+}
+
+export async function createModerator(
+  email: string,
+  password: string,
+  name: string
+): Promise<void> {
   const { data, error } = await supabase.functions.invoke('create-moderator', {
-    body: { email, password },
+    body: { email, password, name },
   });
 
   if (error) throw new Error(error.message || 'Failed to create moderator');

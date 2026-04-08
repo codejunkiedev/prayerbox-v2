@@ -6,6 +6,7 @@ import {
   createModerator,
   revokeModerator,
   resetModeratorPassword,
+  updateModerator,
 } from '@/lib/supabase';
 import type { ModeratorWithEmail } from '@/lib/supabase/services/moderators';
 import {
@@ -13,6 +14,8 @@ import {
   type CreateModeratorData,
   resetModeratorPasswordSchema,
   type ResetModeratorPasswordData,
+  updateModeratorSchema,
+  type UpdateModeratorData,
 } from '@/lib/zod';
 import { TableSkeleton } from '@/components/skeletons';
 import { PageHeader, ErrorAlert, EmptyState, DataTable, type Column } from '@/components/common';
@@ -27,7 +30,7 @@ import {
   Input,
   Label,
 } from '@/components/ui';
-import { Users, Trash2, KeyRound, Eye, EyeOff } from 'lucide-react';
+import { Users, Trash2, KeyRound, Pencil, Eye, EyeOff } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -39,11 +42,14 @@ export default function Moderators() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRevokeModalOpen, setIsRevokeModalOpen] = useState(false);
   const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [moderatorToRevoke, setModeratorToRevoke] = useState<ModeratorWithEmail | null>(null);
   const [moderatorToReset, setModeratorToReset] = useState<ModeratorWithEmail | null>(null);
+  const [moderatorToEdit, setModeratorToEdit] = useState<ModeratorWithEmail | null>(null);
   const [isRevoking, setIsRevoking] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
@@ -51,22 +57,16 @@ export default function Moderators() {
 
   const [trigger, forceUpdate] = useTrigger();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateModeratorData>({
+  const createForm = useForm<CreateModeratorData>({
     resolver: zodResolver(createModeratorSchema),
   });
 
-  const {
-    register: registerReset,
-    handleSubmit: handleSubmitReset,
-    reset: resetResetForm,
-    formState: { errors: resetErrors },
-  } = useForm<ResetModeratorPasswordData>({
+  const resetPasswordForm = useForm<ResetModeratorPasswordData>({
     resolver: zodResolver(resetModeratorPasswordSchema),
+  });
+
+  const editForm = useForm<UpdateModeratorData>({
+    resolver: zodResolver(updateModeratorSchema),
   });
 
   useEffect(() => {
@@ -87,8 +87,9 @@ export default function Moderators() {
     fetchData();
   }, [trigger]);
 
+  // Add modal
   const handleAddNew = () => {
-    reset();
+    createForm.reset();
     setShowPassword(false);
     setShowConfirmPassword(false);
     setIsAddModalOpen(true);
@@ -96,13 +97,13 @@ export default function Moderators() {
 
   const handleAddModalClose = () => {
     setIsAddModalOpen(false);
-    reset();
+    createForm.reset();
   };
 
   const onSubmitCreate = async (data: CreateModeratorData) => {
     try {
       setIsCreating(true);
-      await createModerator(data.email, data.password);
+      await createModerator(data.email, data.password, data.name);
       toast.success('Moderator created successfully');
       handleAddModalClose();
       forceUpdate();
@@ -114,6 +115,7 @@ export default function Moderators() {
     }
   };
 
+  // Revoke modal
   const handleRevokeClick = (moderator: ModeratorWithEmail) => {
     setModeratorToRevoke(moderator);
     setIsRevokeModalOpen(true);
@@ -121,7 +123,6 @@ export default function Moderators() {
 
   const handleRevokeConfirm = async () => {
     if (!moderatorToRevoke) return;
-
     try {
       setIsRevoking(true);
       await revokeModerator(moderatorToRevoke.user_id);
@@ -142,9 +143,10 @@ export default function Moderators() {
     setModeratorToRevoke(null);
   };
 
+  // Reset password modal
   const handleResetPasswordClick = (moderator: ModeratorWithEmail) => {
     setModeratorToReset(moderator);
-    resetResetForm();
+    resetPasswordForm.reset();
     setShowResetPassword(false);
     setShowResetConfirmPassword(false);
     setIsResetPasswordModalOpen(true);
@@ -153,12 +155,11 @@ export default function Moderators() {
   const handleResetPasswordClose = () => {
     setIsResetPasswordModalOpen(false);
     setModeratorToReset(null);
-    resetResetForm();
+    resetPasswordForm.reset();
   };
 
   const onSubmitResetPassword = async (data: ResetModeratorPasswordData) => {
     if (!moderatorToReset) return;
-
     try {
       setIsResetting(true);
       await resetModeratorPassword(moderatorToReset.user_id, data.password);
@@ -172,17 +173,66 @@ export default function Moderators() {
     }
   };
 
+  // Edit modal
+  const handleEditClick = (moderator: ModeratorWithEmail) => {
+    setModeratorToEdit(moderator);
+    editForm.reset({ name: moderator.name, email: moderator.email });
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setModeratorToEdit(null);
+    editForm.reset();
+  };
+
+  const onSubmitEdit = async (data: UpdateModeratorData) => {
+    if (!moderatorToEdit) return;
+    try {
+      setIsUpdating(true);
+      const updates: { name?: string; email?: string } = {};
+      if (data.name !== moderatorToEdit.name) updates.name = data.name;
+      if (data.email !== moderatorToEdit.email) updates.email = data.email;
+
+      if (Object.keys(updates).length === 0) {
+        handleEditClose();
+        return;
+      }
+
+      await updateModerator(moderatorToEdit.user_id, updates);
+      toast.success('Moderator updated successfully');
+      handleEditClose();
+      forceUpdate();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to update moderator';
+      toast.error(message);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const columns: Column<ModeratorWithEmail>[] = [
+    {
+      key: 'name',
+      name: 'Name',
+      width: 'w-[25%]',
+      render: value =>
+        value ? (
+          <span className='font-medium'>{value as string}</span>
+        ) : (
+          <span className='text-muted-foreground italic'>—</span>
+        ),
+    },
     {
       key: 'email',
       name: 'Email',
-      width: 'w-[40%]',
-      render: value => <span className='font-medium'>{value as string}</span>,
+      width: 'w-[30%]',
+      render: value => <span>{value as string}</span>,
     },
     {
       key: 'last_active_at',
       name: 'Last Active',
-      width: 'w-[25%]',
+      width: 'w-[20%]',
       render: value =>
         value ? (
           <span className='text-muted-foreground'>
@@ -195,7 +245,7 @@ export default function Moderators() {
     {
       key: 'created_at',
       name: 'Added',
-      width: 'w-[25%]',
+      width: 'w-[15%]',
       render: value => (
         <span className='text-muted-foreground'>
           {formatDistanceToNow(new Date(value as string), { addSuffix: true })}
@@ -238,6 +288,15 @@ export default function Moderators() {
                 variant='ghost'
                 size='icon'
                 className='hover:bg-muted'
+                onClick={() => handleEditClick(item)}
+                title='Edit moderator'
+              >
+                <Pencil size={16} />
+              </Button>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='hover:bg-muted'
                 onClick={() => handleResetPasswordClick(item)}
                 title='Reset password'
               >
@@ -268,16 +327,30 @@ export default function Moderators() {
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmitCreate)} className='space-y-4'>
+          <form onSubmit={createForm.handleSubmit(onSubmitCreate)} className='space-y-4'>
+            <div className='space-y-2'>
+              <Label htmlFor='name'>Name</Label>
+              <Input id='name' placeholder='Full name' {...createForm.register('name')} />
+              {createForm.formState.errors.name && (
+                <p className='text-sm text-destructive'>
+                  {createForm.formState.errors.name.message}
+                </p>
+              )}
+            </div>
+
             <div className='space-y-2'>
               <Label htmlFor='email'>Email</Label>
               <Input
                 id='email'
                 type='email'
                 placeholder='moderator@example.com'
-                {...register('email')}
+                {...createForm.register('email')}
               />
-              {errors.email && <p className='text-sm text-destructive'>{errors.email.message}</p>}
+              {createForm.formState.errors.email && (
+                <p className='text-sm text-destructive'>
+                  {createForm.formState.errors.email.message}
+                </p>
+              )}
             </div>
 
             <div className='space-y-2'>
@@ -287,7 +360,7 @@ export default function Moderators() {
                   id='password'
                   type={showPassword ? 'text' : 'password'}
                   placeholder='Minimum 8 characters'
-                  {...register('password')}
+                  {...createForm.register('password')}
                 />
                 <Button
                   type='button'
@@ -299,8 +372,10 @@ export default function Moderators() {
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </Button>
               </div>
-              {errors.password && (
-                <p className='text-sm text-destructive'>{errors.password.message}</p>
+              {createForm.formState.errors.password && (
+                <p className='text-sm text-destructive'>
+                  {createForm.formState.errors.password.message}
+                </p>
               )}
             </div>
 
@@ -311,7 +386,7 @@ export default function Moderators() {
                   id='confirmPassword'
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder='Confirm password'
-                  {...register('confirmPassword')}
+                  {...createForm.register('confirmPassword')}
                 />
                 <Button
                   type='button'
@@ -323,8 +398,10 @@ export default function Moderators() {
                   {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </Button>
               </div>
-              {errors.confirmPassword && (
-                <p className='text-sm text-destructive'>{errors.confirmPassword.message}</p>
+              {createForm.formState.errors.confirmPassword && (
+                <p className='text-sm text-destructive'>
+                  {createForm.formState.errors.confirmPassword.message}
+                </p>
               )}
             </div>
 
@@ -345,6 +422,55 @@ export default function Moderators() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Moderator Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={open => !open && handleEditClose()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Moderator</DialogTitle>
+            <DialogDescription>Update the moderator's name or email address.</DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={editForm.handleSubmit(onSubmitEdit)} className='space-y-4'>
+            <div className='space-y-2'>
+              <Label htmlFor='editName'>Name</Label>
+              <Input id='editName' placeholder='Full name' {...editForm.register('name')} />
+              {editForm.formState.errors.name && (
+                <p className='text-sm text-destructive'>{editForm.formState.errors.name.message}</p>
+              )}
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='editEmail'>Email</Label>
+              <Input
+                id='editEmail'
+                type='email'
+                placeholder='moderator@example.com'
+                {...editForm.register('email')}
+              />
+              {editForm.formState.errors.email && (
+                <p className='text-sm text-destructive'>
+                  {editForm.formState.errors.email.message}
+                </p>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={handleEditClose}
+                disabled={isUpdating}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={isUpdating} loading={isUpdating}>
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
       {/* Reset Password Modal */}
       <Dialog
         open={isResetPasswordModalOpen}
@@ -353,10 +479,15 @@ export default function Moderators() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reset Password</DialogTitle>
-            <DialogDescription>Set a new password for {moderatorToReset?.email}</DialogDescription>
+            <DialogDescription>
+              Set a new password for {moderatorToReset?.name || moderatorToReset?.email}
+            </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmitReset(onSubmitResetPassword)} className='space-y-4'>
+          <form
+            onSubmit={resetPasswordForm.handleSubmit(onSubmitResetPassword)}
+            className='space-y-4'
+          >
             <div className='space-y-2'>
               <Label htmlFor='resetPassword'>New Password</Label>
               <div className='relative'>
@@ -364,7 +495,7 @@ export default function Moderators() {
                   id='resetPassword'
                   type={showResetPassword ? 'text' : 'password'}
                   placeholder='Minimum 8 characters'
-                  {...registerReset('password')}
+                  {...resetPasswordForm.register('password')}
                 />
                 <Button
                   type='button'
@@ -376,8 +507,10 @@ export default function Moderators() {
                   {showResetPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </Button>
               </div>
-              {resetErrors.password && (
-                <p className='text-sm text-destructive'>{resetErrors.password.message}</p>
+              {resetPasswordForm.formState.errors.password && (
+                <p className='text-sm text-destructive'>
+                  {resetPasswordForm.formState.errors.password.message}
+                </p>
               )}
             </div>
 
@@ -388,7 +521,7 @@ export default function Moderators() {
                   id='resetConfirmPassword'
                   type={showResetConfirmPassword ? 'text' : 'password'}
                   placeholder='Confirm password'
-                  {...registerReset('confirmPassword')}
+                  {...resetPasswordForm.register('confirmPassword')}
                 />
                 <Button
                   type='button'
@@ -400,8 +533,10 @@ export default function Moderators() {
                   {showResetConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </Button>
               </div>
-              {resetErrors.confirmPassword && (
-                <p className='text-sm text-destructive'>{resetErrors.confirmPassword.message}</p>
+              {resetPasswordForm.formState.errors.confirmPassword && (
+                <p className='text-sm text-destructive'>
+                  {resetPasswordForm.formState.errors.confirmPassword.message}
+                </p>
               )}
             </div>
 
@@ -435,7 +570,10 @@ export default function Moderators() {
 
           {moderatorToRevoke && (
             <div className='mt-2 p-4 bg-muted rounded border'>
-              <p className='font-medium text-foreground'>{moderatorToRevoke.email}</p>
+              {moderatorToRevoke.name && (
+                <p className='font-medium text-foreground'>{moderatorToRevoke.name}</p>
+              )}
+              <p className='text-sm text-muted-foreground'>{moderatorToRevoke.email}</p>
             </div>
           )}
 
