@@ -196,7 +196,14 @@ export default function Navigation() {
                 </RequireAdmin>
               }
             />
-            <Route path={AppRoutes.Support} element={<Support />} />
+            <Route
+              path={AppRoutes.Support}
+              element={
+                <RequireAdmin>
+                  <Support />
+                </RequireAdmin>
+              }
+            />
           </Route>
 
           {/* Display routes - require authentication */}

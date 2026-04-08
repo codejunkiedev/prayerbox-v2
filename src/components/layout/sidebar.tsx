@@ -102,13 +102,13 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             path: AppRoutes.Moderators,
             icon: <Users size={20} />,
           },
+          {
+            label: 'Support',
+            path: AppRoutes.Support,
+            icon: <LifeBuoy size={20} />,
+          },
         ]
       : []),
-    {
-      label: 'Support',
-      path: AppRoutes.Support,
-      icon: <LifeBuoy size={20} />,
-    },
   ];
 
   const navItems = allNavItems;
