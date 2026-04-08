@@ -3,12 +3,26 @@ import supabase from '../index';
 
 export type ModeratorWithEmail = MasjidMember & { email: string };
 
+async function handleError(error: Error | null, fallback: string): Promise<never> {
+  // FunctionsHttpError stores the raw Response in error.context
+  // We need to parse the JSON body to get the actual error message
+  if (error && 'context' in error && error.context instanceof Response) {
+    try {
+      const body = await error.context.json();
+      if (body?.error) throw new Error(body.error);
+    } catch (e) {
+      if (e instanceof Error && e.message !== error.message) throw e;
+    }
+  }
+  throw new Error(error?.message || fallback);
+}
+
 export async function getModerators(): Promise<ModeratorWithEmail[]> {
   const { data, error } = await supabase.functions.invoke('get-moderators');
 
-  if (error) throw new Error(error.message || 'Failed to fetch moderators');
-  if (Array.isArray(data)) return data;
+  if (error) await handleError(error, 'Failed to fetch moderators');
   if (data?.error) throw new Error(data.error);
+  if (Array.isArray(data)) return data;
   return [];
 }
 
@@ -20,7 +34,7 @@ export async function updateModerator(
     body: { user_id: userId, ...updates },
   });
 
-  if (error) throw new Error(error.message || 'Failed to update moderator');
+  if (error) await handleError(error, 'Failed to update moderator');
   if (data?.error) throw new Error(data.error);
 }
 
@@ -33,7 +47,7 @@ export async function createModerator(
     body: { email, password, name },
   });
 
-  if (error) throw new Error(error.message || 'Failed to create moderator');
+  if (error) await handleError(error, 'Failed to create moderator');
   if (data?.error) throw new Error(data.error);
 }
 
@@ -42,7 +56,7 @@ export async function resetModeratorPassword(userId: string, password: string): 
     body: { user_id: userId, password },
   });
 
-  if (error) throw new Error(error.message || 'Failed to reset password');
+  if (error) await handleError(error, 'Failed to reset password');
   if (data?.error) throw new Error(data.error);
 }
 
@@ -51,6 +65,6 @@ export async function revokeModerator(userId: string): Promise<void> {
     body: { user_id: userId },
   });
 
-  if (error) throw new Error(error.message || 'Failed to revoke moderator');
+  if (error) await handleError(error, 'Failed to revoke moderator');
   if (data?.error) throw new Error(data.error);
 }
