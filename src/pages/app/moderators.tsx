@@ -1,9 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { getModerators, createModerator, revokeModerator } from '@/lib/supabase';
+import {
+  getModerators,
+  createModerator,
+  revokeModerator,
+  resetModeratorPassword,
+} from '@/lib/supabase';
 import type { ModeratorWithEmail } from '@/lib/supabase/services/moderators';
-import { createModeratorSchema, type CreateModeratorData } from '@/lib/zod';
+import {
+  createModeratorSchema,
+  type CreateModeratorData,
+  resetModeratorPasswordSchema,
+  type ResetModeratorPasswordData,
+} from '@/lib/zod';
 import { TableSkeleton } from '@/components/skeletons';
 import { PageHeader, ErrorAlert, EmptyState, DataTable, type Column } from '@/components/common';
 import {
@@ -17,7 +27,7 @@ import {
   Input,
   Label,
 } from '@/components/ui';
-import { Users, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Users, Trash2, KeyRound, Eye, EyeOff } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -28,11 +38,16 @@ export default function Moderators() {
   const [error, setError] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRevokeModalOpen, setIsRevokeModalOpen] = useState(false);
+  const [isResetPasswordModalOpen, setIsResetPasswordModalOpen] = useState(false);
   const [moderatorToRevoke, setModeratorToRevoke] = useState<ModeratorWithEmail | null>(null);
+  const [moderatorToReset, setModeratorToReset] = useState<ModeratorWithEmail | null>(null);
   const [isRevoking, setIsRevoking] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showResetConfirmPassword, setShowResetConfirmPassword] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -43,6 +58,15 @@ export default function Moderators() {
     formState: { errors },
   } = useForm<CreateModeratorData>({
     resolver: zodResolver(createModeratorSchema),
+  });
+
+  const {
+    register: registerReset,
+    handleSubmit: handleSubmitReset,
+    reset: resetResetForm,
+    formState: { errors: resetErrors },
+  } = useForm<ResetModeratorPasswordData>({
+    resolver: zodResolver(resetModeratorPasswordSchema),
   });
 
   useEffect(() => {
@@ -118,6 +142,36 @@ export default function Moderators() {
     setModeratorToRevoke(null);
   };
 
+  const handleResetPasswordClick = (moderator: ModeratorWithEmail) => {
+    setModeratorToReset(moderator);
+    resetResetForm();
+    setShowResetPassword(false);
+    setShowResetConfirmPassword(false);
+    setIsResetPasswordModalOpen(true);
+  };
+
+  const handleResetPasswordClose = () => {
+    setIsResetPasswordModalOpen(false);
+    setModeratorToReset(null);
+    resetResetForm();
+  };
+
+  const onSubmitResetPassword = async (data: ResetModeratorPasswordData) => {
+    if (!moderatorToReset) return;
+
+    try {
+      setIsResetting(true);
+      await resetModeratorPassword(moderatorToReset.user_id, data.password);
+      toast.success('Password reset successfully');
+      handleResetPasswordClose();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to reset password';
+      toast.error(message);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   const columns: Column<ModeratorWithEmail>[] = [
     {
       key: 'email',
@@ -179,15 +233,26 @@ export default function Moderators() {
           showRowNumbers={true}
           actionsWidth='w-[10%]'
           renderActions={item => (
-            <Button
-              variant='ghost'
-              size='icon'
-              className='text-destructive hover:text-destructive hover:bg-destructive/10'
-              onClick={() => handleRevokeClick(item)}
-              title='Revoke moderator'
-            >
-              <Trash2 size={16} />
-            </Button>
+            <div className='flex items-center gap-1'>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='hover:bg-muted'
+                onClick={() => handleResetPasswordClick(item)}
+                title='Reset password'
+              >
+                <KeyRound size={16} />
+              </Button>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='text-destructive hover:text-destructive hover:bg-destructive/10'
+                onClick={() => handleRevokeClick(item)}
+                title='Revoke moderator'
+              >
+                <Trash2 size={16} />
+              </Button>
+            </div>
           )}
         />
       )}
@@ -274,6 +339,83 @@ export default function Moderators() {
               </Button>
               <Button type='submit' disabled={isCreating} loading={isCreating}>
                 Create Moderator
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset Password Modal */}
+      <Dialog
+        open={isResetPasswordModalOpen}
+        onOpenChange={open => !open && handleResetPasswordClose()}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset Password</DialogTitle>
+            <DialogDescription>Set a new password for {moderatorToReset?.email}</DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmitReset(onSubmitResetPassword)} className='space-y-4'>
+            <div className='space-y-2'>
+              <Label htmlFor='resetPassword'>New Password</Label>
+              <div className='relative'>
+                <Input
+                  id='resetPassword'
+                  type={showResetPassword ? 'text' : 'password'}
+                  placeholder='Minimum 8 characters'
+                  {...registerReset('password')}
+                />
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
+                  onClick={() => setShowResetPassword(!showResetPassword)}
+                >
+                  {showResetPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </Button>
+              </div>
+              {resetErrors.password && (
+                <p className='text-sm text-destructive'>{resetErrors.password.message}</p>
+              )}
+            </div>
+
+            <div className='space-y-2'>
+              <Label htmlFor='resetConfirmPassword'>Confirm New Password</Label>
+              <div className='relative'>
+                <Input
+                  id='resetConfirmPassword'
+                  type={showResetConfirmPassword ? 'text' : 'password'}
+                  placeholder='Confirm password'
+                  {...registerReset('confirmPassword')}
+                />
+                <Button
+                  type='button'
+                  variant='ghost'
+                  size='icon'
+                  className='absolute right-0 top-0 h-full px-3 hover:bg-transparent'
+                  onClick={() => setShowResetConfirmPassword(!showResetConfirmPassword)}
+                >
+                  {showResetConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </Button>
+              </div>
+              {resetErrors.confirmPassword && (
+                <p className='text-sm text-destructive'>{resetErrors.confirmPassword.message}</p>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={handleResetPasswordClose}
+                disabled={isResetting}
+              >
+                Cancel
+              </Button>
+              <Button type='submit' disabled={isResetting} loading={isResetting}>
+                Reset Password
               </Button>
             </DialogFooter>
           </form>

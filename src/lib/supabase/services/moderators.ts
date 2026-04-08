@@ -21,6 +21,15 @@ export async function createModerator(email: string, password: string): Promise<
   if (data?.error) throw new Error(data.error);
 }
 
+export async function resetModeratorPassword(userId: string, password: string): Promise<void> {
+  const { data, error } = await supabase.functions.invoke('reset-moderator-password', {
+    body: { user_id: userId, password },
+  });
+
+  if (error) throw new Error(error.message || 'Failed to reset password');
+  if (data?.error) throw new Error(data.error);
+}
+
 export async function revokeModerator(userId: string): Promise<void> {
   const { data, error } = await supabase.functions.invoke('revoke-moderator', {
     body: { user_id: userId },

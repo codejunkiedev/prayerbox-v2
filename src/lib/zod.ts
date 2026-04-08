@@ -184,3 +184,15 @@ export const createModeratorSchema = z
   });
 
 export type CreateModeratorData = z.infer<typeof createModeratorSchema>;
+
+export const resetModeratorPasswordSchema = z
+  .object({
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export type ResetModeratorPasswordData = z.infer<typeof resetModeratorPasswordSchema>;
