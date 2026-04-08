@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { DisplayStore } from '@/types';
 
+export { useAuthStore } from './auth-store';
+
 enum StorageKeys {
   Display = 'display',
 }

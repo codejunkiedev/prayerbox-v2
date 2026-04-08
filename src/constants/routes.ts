@@ -25,5 +25,6 @@ export enum AppRoutes {
   SettingsHijri = '/admin/settings/hijri-adjustment',
   SettingsAccount = '/admin/settings/account',
   SettingsPrayerTimes = '/admin/settings/prayer-times',
+  Moderators = '/admin/moderators',
   Support = '/admin/support',
 }

@@ -50,13 +50,13 @@ export function useFetchDisplayData(): ReturnType {
   const [userSettings, setUserSettings] = useState<Settings | null>(null);
 
   const { masjidProfile, displayScreen, setDisplayScreen, signOut } = useDisplayStore();
-  const userId = masjidProfile?.user_id;
+  const masjidId = masjidProfile?.id;
   const screenId = displayScreen?.id;
 
   useEffect(() => {
     const abortController = new AbortController();
 
-    if (!userId || !screenId) return () => abortController.abort();
+    if (!masjidId || !screenId) return () => abortController.abort();
 
     const req = async () => {
       setFetching(true);
@@ -64,7 +64,7 @@ export function useFetchDisplayData(): ReturnType {
 
       try {
         const [settings, screenContentRows, latestScreen] = await Promise.all([
-          getSettings(userId),
+          getSettings(masjidId),
           getVisibleScreenContent(screenId),
           getScreenById(screenId),
         ]);
@@ -143,7 +143,7 @@ export function useFetchDisplayData(): ReturnType {
     return () => {
       abortController.abort();
     };
-  }, [userId, screenId]);
+  }, [masjidId, screenId]);
 
   return {
     isLoading: fetching,

@@ -5,7 +5,7 @@ import { Button, Input, Label, ErrorBox } from '@/components/ui';
 import { cn } from '@/utils';
 import { loginWithCodeSchema, type LoginWithCodeData } from '@/lib/zod';
 import { Link, useSearchParams } from 'react-router';
-import { getScreenByCode, getMasjidProfileByUserId } from '@/lib/supabase';
+import { getScreenByCode, getMasjidProfileByMasjidId } from '@/lib/supabase';
 import { AuthRoutes } from '@/constants';
 import { useDisplayStore } from '@/store';
 
@@ -39,7 +39,7 @@ export default function LoginWithCode() {
           return;
         }
 
-        const masjidProfile = await getMasjidProfileByUserId(screen.user_id);
+        const masjidProfile = await getMasjidProfileByMasjidId(screen.masjid_id);
 
         setDisplayScreen(screen);
         setMasjidProfile(masjidProfile);

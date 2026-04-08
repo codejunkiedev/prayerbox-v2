@@ -1,13 +1,22 @@
 import { SupabaseTables, type Settings, Theme } from '@/types';
 import { HijriCalculationMethod, CalculationMethod, JuristicSchool } from '@/constants';
-import { getCurrentUser, insertRecord, fetchByColumn, updateRecord } from '../helpers';
+import {
+  getCurrentUser,
+  getMasjidMembership,
+  insertRecord,
+  fetchByColumn,
+  updateRecord,
+} from '../helpers';
 
-export async function getSettings(userId?: string): Promise<Settings | null> {
+export async function getSettings(masjidId?: string): Promise<Settings | null> {
   try {
-    const user = userId ? { id: userId } : await getCurrentUser();
-    if (!user) throw new Error('User not authenticated');
+    const effectiveMasjidId = masjidId || (await getMasjidMembership()).masjid_id;
 
-    const results = await fetchByColumn<Settings>(SupabaseTables.Settings, 'user_id', user.id);
+    const results = await fetchByColumn<Settings>(
+      SupabaseTables.Settings,
+      'masjid_id',
+      effectiveMasjidId
+    );
 
     if (results.length > 0) {
       return results[0];
@@ -23,9 +32,11 @@ export async function getSettings(userId?: string): Promise<Settings | null> {
 export async function createDefaultSettings(): Promise<Settings> {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
+  const { masjid_id } = await getMasjidMembership();
 
   const settingsData: Partial<Settings> = {
     user_id: user.id,
+    masjid_id,
     theme: Theme.Theme1,
     hijri_calculation_method: HijriCalculationMethod.Umm_al_Qura,
     hijri_offset: 0,

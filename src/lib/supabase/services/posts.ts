@@ -2,7 +2,7 @@ import { SupabaseBuckets, SupabaseTables, type Post } from '@/types';
 import type { PostData } from '../../zod';
 import {
   getCurrentUser,
-  fetchByColumn,
+  getMasjidMembership,
   updateRecord,
   insertRecord,
   fetchByMultipleConditions,
@@ -10,12 +10,11 @@ import {
 } from '../helpers';
 import { removeScreenAssignments } from './screens';
 
-export async function getPosts(userId?: string): Promise<Post[]> {
-  const user = userId ? { id: userId } : await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
+export async function getPosts(masjidId?: string): Promise<Post[]> {
+  const effectiveMasjidId = masjidId || (await getMasjidMembership()).masjid_id;
 
   const conditions = [
-    { column: 'user_id', value: user.id },
+    { column: 'masjid_id', value: effectiveMasjidId },
     { column: 'archived', value: false, isNull: true },
   ];
 
@@ -25,6 +24,7 @@ export async function getPosts(userId?: string): Promise<Post[]> {
 export async function upsertPost(post: PostData & { id?: string }, imageFile: File | null) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
+  const { masjid_id } = await getMasjidMembership();
 
   let imageUrl = undefined;
 
@@ -35,6 +35,7 @@ export async function upsertPost(post: PostData & { id?: string }, imageFile: Fi
   const postToUpsert: Partial<Post> = {
     ...post,
     user_id: user.id,
+    masjid_id,
     updated_at: new Date().toISOString(),
     archived: false,
     ...(imageUrl && { image_url: imageUrl }),
@@ -50,14 +51,6 @@ export async function upsertPost(post: PostData & { id?: string }, imageFile: Fi
 }
 
 export async function deletePost(id: string): Promise<boolean> {
-  const user = await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
-
-  const items = await fetchByColumn<Post>(SupabaseTables.Posts, 'id', id);
-
-  if (items.length === 0) throw new Error('Item not found');
-  if (items[0].user_id !== user.id) throw new Error('Not authorized to delete this item');
-
   const updates: Partial<Post> = { archived: true, updated_at: new Date().toISOString() };
 
   await updateRecord<Post>(SupabaseTables.Posts, id, updates);

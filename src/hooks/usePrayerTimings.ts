@@ -26,7 +26,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
   const [prayerTimeSettings, setPrayerTimeSettings] = useState<PrayerTimes | null>(null);
 
   const { masjidProfile } = useDisplayStore();
-  const userId = masjidProfile?.user_id;
+  const masjidId = masjidProfile?.id;
 
   const fetchPrayerTimes = useCallback(
     async (
@@ -83,7 +83,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
   useEffect(() => {
     const abortController = new AbortController();
 
-    if (!enabled || !userId) return () => abortController.abort();
+    if (!enabled || !masjidId) return () => abortController.abort();
 
     const fetchData = async () => {
       setIsLoading(true);
@@ -91,8 +91,8 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
 
       try {
         const [userSettings, prayerTimeSettings] = await Promise.all([
-          getSettings(userId),
-          getPrayerAdjustments(userId),
+          getSettings(masjidId),
+          getPrayerAdjustments(masjidId),
         ]);
         await fetchPrayerTimes(userSettings, prayerTimeSettings, abortController.signal);
       } catch (error) {
@@ -108,7 +108,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
     return () => {
       abortController.abort();
     };
-  }, [enabled, fetchPrayerTimes, userId]);
+  }, [enabled, fetchPrayerTimes, masjidId]);
 
   return {
     isLoading,

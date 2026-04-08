@@ -5,15 +5,20 @@ import {
   type ScreenContentType,
 } from '@/types';
 import type { ScreenData } from '../../zod';
-import { getCurrentUser, fetchByColumn, updateRecord, insertRecord } from '../helpers';
+import {
+  getCurrentUser,
+  getMasjidMembership,
+  fetchByColumn,
+  updateRecord,
+  insertRecord,
+} from '../helpers';
 import { generateScreenCode } from '@/utils';
 import supabase from '../index';
 
 export async function getScreens(): Promise<DisplayScreen[]> {
-  const user = await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
+  const { masjid_id } = await getMasjidMembership();
 
-  return await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'user_id', user.id);
+  return await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'masjid_id', masjid_id);
 }
 
 export async function getScreenById(id: string): Promise<DisplayScreen | null> {
@@ -29,10 +34,12 @@ export async function getScreenByCode(code: string): Promise<DisplayScreen | nul
 export async function createScreen(data: ScreenData): Promise<DisplayScreen> {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
+  const { masjid_id } = await getMasjidMembership();
 
   const screenToInsert: Partial<DisplayScreen> = {
     ...data,
     user_id: user.id,
+    masjid_id,
     code: generateScreenCode(),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -42,13 +49,6 @@ export async function createScreen(data: ScreenData): Promise<DisplayScreen> {
 }
 
 export async function updateScreen(id: string, data: ScreenData): Promise<DisplayScreen> {
-  const user = await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
-
-  const screens = await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'id', id);
-  if (screens.length === 0) throw new Error('Screen not found');
-  if (screens[0].user_id !== user.id) throw new Error('Not authorized to update this screen');
-
   return await updateRecord<DisplayScreen>(SupabaseTables.DisplayScreens, id, {
     ...data,
     updated_at: new Date().toISOString(),
@@ -56,13 +56,6 @@ export async function updateScreen(id: string, data: ScreenData): Promise<Displa
 }
 
 export async function deleteScreen(id: string): Promise<boolean> {
-  const user = await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
-
-  const screens = await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'id', id);
-  if (screens.length === 0) throw new Error('Screen not found');
-  if (screens[0].user_id !== user.id) throw new Error('Not authorized to delete this screen');
-
   const { error } = await supabase.from(SupabaseTables.DisplayScreens).delete().eq('id', id);
   if (error) throw error;
   return true;

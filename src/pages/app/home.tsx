@@ -1,16 +1,24 @@
 import { BookOpen, Bell, Clock, Settings, Images, Tickets, User } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { ModuleCard, QuickActionButton, WelcomeHeader, SectionTitle } from '@/components/home';
+import { useAuthStore } from '@/store';
 
 export default function Home() {
+  const role = useAuthStore(s => s.role);
+  const isAdmin = role === 'admin';
+
   const modules = [
-    {
-      title: 'Prayer Timings',
-      description: 'Manage prayer times for your masjid',
-      icon: <Clock className='h-10 w-10 text-primary' />,
-      path: AppRoutes.PrayerTimings,
-      color: 'bg-red-50 dark:bg-red-950/30',
-    },
+    ...(isAdmin
+      ? [
+          {
+            title: 'Prayer Timings',
+            description: 'Manage prayer times for your masjid',
+            icon: <Clock className='h-10 w-10 text-primary' />,
+            path: AppRoutes.PrayerTimings,
+            color: 'bg-red-50 dark:bg-red-950/30',
+          },
+        ]
+      : []),
     {
       title: 'Ayat & Hadith',
       description: 'Manage your collection of Quranic verses and Hadith',
@@ -40,18 +48,22 @@ export default function Home() {
       icon: <Images className='h-5 w-5' />,
       path: AppRoutes.Posts,
     },
-    {
-      title: 'Update Profile',
-      description: 'Manage your masjid information',
-      icon: <User className='h-5 w-5' />,
-      path: AppRoutes.SettingsProfile,
-    },
-    {
-      title: 'Settings',
-      description: 'Update the display settings',
-      icon: <Settings className='h-5 w-5' />,
-      path: AppRoutes.Settings,
-    },
+    ...(isAdmin
+      ? [
+          {
+            title: 'Update Profile',
+            description: 'Manage your masjid information',
+            icon: <User className='h-5 w-5' />,
+            path: AppRoutes.SettingsProfile,
+          },
+          {
+            title: 'Settings',
+            description: 'Update the display settings',
+            icon: <Settings className='h-5 w-5' />,
+            path: AppRoutes.Settings,
+          },
+        ]
+      : []),
   ];
 
   return (

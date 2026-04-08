@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useEffect, useState, Suspense } from 'react';
-import { getCurrentSession, subscribeToAuthChanges } from '@/lib/supabase';
+import { getCurrentSession, getMasjidMembership } from '@/lib/supabase';
+import { subscribeToAuthChanges } from '@/lib/supabase';
 import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
 import {
@@ -11,6 +12,7 @@ import {
   Home,
   Loading,
   Login,
+  Moderators,
   Posts,
   Register,
   ResetPassword,
@@ -29,13 +31,20 @@ import {
   YouTubeVideos,
   Support,
 } from '@/pages';
-import { useDisplayStore } from '@/store';
+import { useDisplayStore, useAuthStore } from '@/store';
+
+function RequireAdmin({ children }: { children: React.ReactNode }) {
+  const role = useAuthStore(s => s.role);
+  if (role !== 'admin') return <Navigate to={AppRoutes.Home} />;
+  return <>{children}</>;
+}
 
 export default function Navigation() {
   const [isLoggedInWithEmail, setIsLoggedInWithEmail] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const { loggedIn: isLoggedInWithCode } = useDisplayStore();
+  const { setAuth, clearAuth } = useAuthStore();
 
   const route = isLoggedInWithEmail ? AppRoutes.Home : AppRoutes.Display;
 
@@ -44,6 +53,15 @@ export default function Navigation() {
       try {
         const session = await getCurrentSession();
         setIsLoggedInWithEmail(!!session);
+
+        if (session?.user) {
+          try {
+            const membership = await getMasjidMembership();
+            setAuth(membership.masjid_id, membership.role);
+          } catch {
+            // User may not have membership yet (e.g. during registration)
+          }
+        }
       } catch (error) {
         console.error('Error checking authentication:', error);
       } finally {
@@ -55,8 +73,19 @@ export default function Navigation() {
 
     const {
       data: { subscription },
-    } = subscribeToAuthChanges(session => {
+    } = subscribeToAuthChanges(async session => {
       setIsLoggedInWithEmail(!!session?.user);
+
+      if (session?.user) {
+        try {
+          const membership = await getMasjidMembership();
+          setAuth(membership.masjid_id, membership.role);
+        } catch {
+          // User may not have membership yet
+        }
+      } else {
+        clearAuth();
+      }
     });
 
     return () => {
@@ -94,15 +123,78 @@ export default function Navigation() {
             <Route path={AppRoutes.Events} element={<Events />} />
             <Route path={AppRoutes.Posts} element={<Posts />} />
             <Route path={AppRoutes.YouTubeVideos} element={<YouTubeVideos />} />
-            <Route path={AppRoutes.Screens} element={<Screens />} />
-            <Route path={AppRoutes.ScreenDetail} element={<ScreenDetail />} />
-            <Route path={AppRoutes.PrayerTimings} element={<PrayerTimings />} />
-            <Route path={AppRoutes.Settings} element={<Settings />} />
-            <Route path={AppRoutes.SettingsProfile} element={<SettingsProfile />} />
-
-            <Route path={AppRoutes.SettingsThemes} element={<SettingsThemes />} />
-            <Route path={AppRoutes.SettingsHijri} element={<SettingsHijri />} />
-            <Route path={AppRoutes.SettingsPrayerTimes} element={<SettingsPrayerTimes />} />
+            <Route
+              path={AppRoutes.Screens}
+              element={
+                <RequireAdmin>
+                  <Screens />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.ScreenDetail}
+              element={
+                <RequireAdmin>
+                  <ScreenDetail />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.PrayerTimings}
+              element={
+                <RequireAdmin>
+                  <PrayerTimings />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.Settings}
+              element={
+                <RequireAdmin>
+                  <Settings />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsProfile}
+              element={
+                <RequireAdmin>
+                  <SettingsProfile />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsThemes}
+              element={
+                <RequireAdmin>
+                  <SettingsThemes />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsHijri}
+              element={
+                <RequireAdmin>
+                  <SettingsHijri />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsPrayerTimes}
+              element={
+                <RequireAdmin>
+                  <SettingsPrayerTimes />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.Moderators}
+              element={
+                <RequireAdmin>
+                  <Moderators />
+                </RequireAdmin>
+              }
+            />
             <Route path={AppRoutes.Support} element={<Support />} />
           </Route>
 

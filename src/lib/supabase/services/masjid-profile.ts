@@ -1,35 +1,44 @@
 import { SupabaseBuckets, SupabaseTables, type MasjidProfile } from '@/types';
 import type { MasjidProfileData } from '../../zod';
-import { getCurrentUser, uploadFile, fetchByColumn, updateRecord, insertRecord } from '../helpers';
+import {
+  getCurrentUser,
+  getMasjidMembership,
+  uploadFile,
+  fetchByColumn,
+  fetchById,
+  updateRecord,
+  insertRecord,
+} from '../helpers';
 
 /**
  * Gets the masjid profile for the current authenticated user
  * @returns Promise resolving to masjid profile or null if not found
  */
 export async function getMasjidProfile(): Promise<MasjidProfile | null> {
-  const user = await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
+  try {
+    const { masjid_id } = await getMasjidMembership();
+    return await fetchById<MasjidProfile>(SupabaseTables.MasjidProfiles, masjid_id);
+  } catch {
+    // Fallback for users who haven't been added to masjid_members yet (e.g. during registration)
+    const user = await getCurrentUser();
+    if (!user) throw new Error('User not authenticated');
 
-  const profiles = await fetchByColumn<MasjidProfile>(
-    SupabaseTables.MasjidProfiles,
-    'user_id',
-    user.id
-  );
-  return profiles.length > 0 ? profiles[0] : null;
+    const profiles = await fetchByColumn<MasjidProfile>(
+      SupabaseTables.MasjidProfiles,
+      'user_id',
+      user.id
+    );
+    return profiles.length > 0 ? profiles[0] : null;
+  }
 }
 
 /**
- * Gets a masjid profile by user ID
- * @param userId The user ID to search for
+ * Gets a masjid profile by masjid ID
+ * @param masjidId The masjid ID to search for
  * @returns Promise resolving to masjid profile or null if not found
  */
-export async function getMasjidProfileByUserId(userId: string): Promise<MasjidProfile | null> {
-  const profiles = await fetchByColumn<MasjidProfile>(
-    SupabaseTables.MasjidProfiles,
-    'user_id',
-    userId
-  );
-  return profiles.length > 0 ? profiles[0] : null;
+export async function getMasjidProfileByMasjidId(masjidId: string): Promise<MasjidProfile | null> {
+  return await fetchById<MasjidProfile>(SupabaseTables.MasjidProfiles, masjidId);
 }
 
 /**
