@@ -2,19 +2,18 @@ import { SupabaseTables, type YouTubeVideo } from '@/types';
 import type { YouTubeVideoData } from '../../zod';
 import {
   getCurrentUser,
-  fetchByColumn,
+  getMasjidMembership,
   updateRecord,
   insertRecord,
   fetchByMultipleConditions,
 } from '../helpers';
 import { removeScreenAssignments } from './screens';
 
-export async function getYouTubeVideos(userId?: string): Promise<YouTubeVideo[]> {
-  const user = userId ? { id: userId } : await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
+export async function getYouTubeVideos(masjidId?: string): Promise<YouTubeVideo[]> {
+  const effectiveMasjidId = masjidId || (await getMasjidMembership()).masjid_id;
 
   const conditions = [
-    { column: 'user_id', value: user.id },
+    { column: 'masjid_id', value: effectiveMasjidId },
     { column: 'archived', value: false, isNull: true },
   ];
 
@@ -24,10 +23,12 @@ export async function getYouTubeVideos(userId?: string): Promise<YouTubeVideo[]>
 export async function upsertYouTubeVideo(video: YouTubeVideoData & { id?: string }) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
+  const { masjid_id } = await getMasjidMembership();
 
   const record: Partial<YouTubeVideo> = {
     ...video,
     user_id: user.id,
+    masjid_id,
     updated_at: new Date().toISOString(),
     archived: false,
   };
@@ -41,14 +42,6 @@ export async function upsertYouTubeVideo(video: YouTubeVideoData & { id?: string
 }
 
 export async function deleteYouTubeVideo(id: string): Promise<boolean> {
-  const user = await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
-
-  const items = await fetchByColumn<YouTubeVideo>(SupabaseTables.YouTubeVideos, 'id', id);
-
-  if (items.length === 0) throw new Error('Item not found');
-  if (items[0].user_id !== user.id) throw new Error('Not authorized to delete this item');
-
   const updates: Partial<YouTubeVideo> = { archived: true, updated_at: new Date().toISOString() };
 
   await updateRecord<YouTubeVideo>(SupabaseTables.YouTubeVideos, id, updates);

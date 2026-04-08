@@ -1,4 +1,4 @@
-import type { DisplayScreen, MasjidProfile } from './supabase';
+import type { DisplayScreen, MasjidProfile, MemberRole } from './supabase';
 
 export type DisplayStore = {
   loggedIn: boolean;
@@ -8,4 +8,11 @@ export type DisplayStore = {
   displayScreen: DisplayScreen | null;
   setDisplayScreen: (displayScreen: DisplayScreen | null) => void;
   signOut: () => void;
+};
+
+export type AuthStore = {
+  masjidId: string | null;
+  role: MemberRole | null;
+  setAuth: (masjidId: string, role: MemberRole) => void;
+  clearAuth: () => void;
 };

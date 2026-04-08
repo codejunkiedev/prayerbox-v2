@@ -12,6 +12,7 @@ export enum SupabaseTables {
   Settings = 'settings',
   DisplayScreens = 'display_screens',
   ScreenContent = 'screen_content',
+  MasjidMembers = 'masjid_members',
 }
 
 export enum SupabaseBuckets {
@@ -24,9 +25,23 @@ export enum SupabaseFolders {
   PredesignedPosts = 'predesigned-posts',
 }
 
+export type MemberRole = 'admin' | 'moderator';
+
+export interface MasjidMember {
+  id: string;
+  masjid_id: string;
+  user_id: string;
+  role: MemberRole;
+  name: string;
+  last_active_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 interface Base {
   id: string;
   user_id: string;
+  masjid_id: string;
   created_at: string;
   updated_at: string;
 }

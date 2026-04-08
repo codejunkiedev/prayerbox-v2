@@ -1,7 +1,7 @@
 import { AppRoutes } from '@/constants';
 import supabase from './index';
 import { PostgrestError, type Session } from '@supabase/supabase-js';
-import type { SupabaseBuckets, SupabaseFolders } from '@/types';
+import type { MemberRole, SupabaseBuckets, SupabaseFolders } from '@/types';
 
 /**
  * Helper to subscribe to auth changes
@@ -42,6 +42,38 @@ export async function getCurrentUser() {
   }
 
   return data.user;
+}
+
+/**
+ * Gets the masjid membership for the current authenticated user
+ * @returns The masjid_id and role for the current user
+ */
+export async function getMasjidMembership(): Promise<{ masjid_id: string; role: MemberRole }> {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const { data, error } = await supabase
+    .from('masjid_members')
+    .select('masjid_id, role')
+    .eq('user_id', user.id)
+    .single();
+
+  if (error || !data) throw new Error('No masjid membership found');
+  return data as { masjid_id: string; role: MemberRole };
+}
+
+/**
+ * Updates the last_active_at timestamp for the current user's membership.
+ * Called on login to track moderator activity.
+ */
+export async function updateLastActive(): Promise<void> {
+  const user = await getCurrentUser();
+  if (!user) return;
+
+  await supabase
+    .from('masjid_members')
+    .update({ last_active_at: new Date().toISOString() })
+    .eq('user_id', user.id);
 }
 
 /**

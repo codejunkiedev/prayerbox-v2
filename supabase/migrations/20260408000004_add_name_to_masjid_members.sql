@@ -1,0 +1,1 @@
+ALTER TABLE masjid_members ADD COLUMN name TEXT NOT NULL DEFAULT '';

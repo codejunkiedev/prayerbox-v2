@@ -171,3 +171,36 @@ export const screenSchema = z.object({
 });
 
 export type ScreenData = z.infer<typeof screenSchema>;
+
+export const createModeratorSchema = z
+  .object({
+    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Please enter a valid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export type CreateModeratorData = z.infer<typeof createModeratorSchema>;
+
+export const updateModeratorSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  email: z.string().email('Please enter a valid email address'),
+});
+
+export type UpdateModeratorData = z.infer<typeof updateModeratorSchema>;
+
+export const resetModeratorPasswordSchema = z
+  .object({
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+export type ResetModeratorPasswordData = z.infer<typeof resetModeratorPasswordSchema>;

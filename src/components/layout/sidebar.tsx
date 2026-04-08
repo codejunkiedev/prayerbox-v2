@@ -12,11 +12,13 @@ import {
   Monitor,
   Video,
   LifeBuoy,
+  Users,
 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils';
 import { useSidebarState } from '@/hooks';
+import { useAuthStore } from '@/store';
 
 interface SidebarProps {
   onClose?: () => void;
@@ -29,6 +31,7 @@ interface SidebarProps {
 export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const [collapsed, toggleSidebar] = useSidebarState(false);
   const location = useLocation();
+  const role = useAuthStore(s => s.role);
 
   /**
    * Determines if a navigation item should be active
@@ -44,7 +47,9 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
     return location.pathname === path || location.pathname.startsWith(path + '/');
   };
 
-  const navItems = [
+  const isAdmin = role === 'admin';
+
+  const allNavItems = [
     {
       label: 'Home',
       path: AppRoutes.Home,
@@ -75,27 +80,38 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       path: AppRoutes.YouTubeVideos,
       icon: <Video size={20} />,
     },
-    {
-      label: 'Screens',
-      path: AppRoutes.Screens,
-      icon: <Monitor size={20} />,
-    },
-    {
-      label: 'Prayer Timings',
-      path: AppRoutes.PrayerTimings,
-      icon: <Clock size={20} />,
-    },
-    {
-      label: 'Settings',
-      path: AppRoutes.Settings,
-      icon: <Settings size={20} />,
-    },
-    {
-      label: 'Support',
-      path: AppRoutes.Support,
-      icon: <LifeBuoy size={20} />,
-    },
+    ...(isAdmin
+      ? [
+          {
+            label: 'Screens',
+            path: AppRoutes.Screens,
+            icon: <Monitor size={20} />,
+          },
+          {
+            label: 'Prayer Timings',
+            path: AppRoutes.PrayerTimings,
+            icon: <Clock size={20} />,
+          },
+          {
+            label: 'Settings',
+            path: AppRoutes.Settings,
+            icon: <Settings size={20} />,
+          },
+          {
+            label: 'Moderators',
+            path: AppRoutes.Moderators,
+            icon: <Users size={20} />,
+          },
+          {
+            label: 'Support',
+            path: AppRoutes.Support,
+            icon: <LifeBuoy size={20} />,
+          },
+        ]
+      : []),
   ];
+
+  const navItems = allNavItems;
 
   return (
     <div className='relative h-screen flex overflow-hidden'>

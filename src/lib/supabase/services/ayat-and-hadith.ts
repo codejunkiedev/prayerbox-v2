@@ -2,19 +2,18 @@ import { SupabaseTables, type AyatAndHadith } from '@/types';
 import type { AyatAndHadithData } from '../../zod';
 import {
   getCurrentUser,
-  fetchByColumn,
+  getMasjidMembership,
   updateRecord,
   insertRecord,
   fetchByMultipleConditions,
 } from '../helpers';
 import { removeScreenAssignments } from './screens';
 
-export async function getAyatAndHadith(userId?: string): Promise<AyatAndHadith[]> {
-  const user = userId ? { id: userId } : await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
+export async function getAyatAndHadith(masjidId?: string): Promise<AyatAndHadith[]> {
+  const effectiveMasjidId = masjidId || (await getMasjidMembership()).masjid_id;
 
   const conditions = [
-    { column: 'user_id', value: user.id },
+    { column: 'masjid_id', value: effectiveMasjidId },
     { column: 'archived', value: false, isNull: true },
   ];
 
@@ -24,10 +23,12 @@ export async function getAyatAndHadith(userId?: string): Promise<AyatAndHadith[]
 export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData & { id?: string }) {
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
+  const { masjid_id } = await getMasjidMembership();
 
   const ayatAndHadithToUpsert: Partial<AyatAndHadith> = {
     ...ayatAndHadith,
     user_id: user.id,
+    masjid_id,
     updated_at: new Date().toISOString(),
     archived: false,
   };
@@ -46,14 +47,6 @@ export async function upsertAyatAndHadith(ayatAndHadith: AyatAndHadithData & { i
 }
 
 export async function deleteAyatAndHadith(id: string): Promise<boolean> {
-  const user = await getCurrentUser();
-  if (!user) throw new Error('User not authenticated');
-
-  const items = await fetchByColumn<AyatAndHadith>(SupabaseTables.AyatAndHadith, 'id', id);
-
-  if (items.length === 0) throw new Error('Item not found');
-  if (items[0].user_id !== user.id) throw new Error('Not authorized to delete this item');
-
   const updates: Partial<AyatAndHadith> = { archived: true, updated_at: new Date().toISOString() };
 
   await updateRecord<AyatAndHadith>(SupabaseTables.AyatAndHadith, id, updates);
