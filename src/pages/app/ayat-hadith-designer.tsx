@@ -1,15 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
-import {
-  Button,
-  Label,
-  RadioGroup,
-  RadioGroupItem,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
+import { Button, Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
 import {
   Canvas,
   ContentPanel,
@@ -77,16 +68,26 @@ function makeInitialContentState(initial?: AyatAndHadith | null): ContentState {
 export default function AyatHadithDesigner() {
   const navigate = useNavigate();
   const params = useParams<{ id?: string }>();
+  const [searchParams] = useSearchParams();
   const isEdit = !!params.id;
   const snapshot = useCanvasSnapshot();
   const canvasRef = useRef<HTMLDivElement | null>(null);
+
+  const queryOrientation = searchParams.get('orientation');
+  const presetOrientation: ScreenOrientation | null =
+    queryOrientation === 'landscape' ||
+    queryOrientation === 'portrait' ||
+    queryOrientation === 'mobile'
+      ? queryOrientation
+      : null;
 
   const [initialData, setInitialData] = useState<AyatAndHadith | null>(null);
   const [loadingInitial, setLoadingInitial] = useState(isEdit);
   const [notFound, setNotFound] = useState(false);
 
-  const [orientation, setOrientation] = useState<ScreenOrientation>('landscape');
-  const [orientationChosen, setOrientationChosen] = useState<boolean>(false);
+  const [orientation, setOrientation] = useState<ScreenOrientation>(
+    presetOrientation ?? 'landscape'
+  );
   const [content, setContent] = useState<ContentState>(() => makeInitialContentState(null));
   const [cachedText, setCachedText] = useState<AyatHadithCachedText>({ arabic: '' });
   const [style, setStyle] = useState<AyatHadithStyle>(DEFAULT_STYLE);
@@ -94,6 +95,13 @@ export default function AyatHadithDesigner() {
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
+
+  // Redirect to listing if create mode is missing the orientation query param
+  useEffect(() => {
+    if (!isEdit && !presetOrientation) {
+      navigate(AppRoutes.AyatAndHadith, { replace: true });
+    }
+  }, [isEdit, presetOrientation, navigate]);
 
   // Load existing slide in edit mode
   useEffect(() => {
@@ -109,7 +117,6 @@ export default function AyatHadithDesigner() {
         }
         setInitialData(slide);
         setOrientation(slide.orientation);
-        setOrientationChosen(true);
         setContent(makeInitialContentState(slide));
         setCachedText(slide.cached_text);
         setStyle(slide.style);
@@ -200,112 +207,56 @@ export default function AyatHadithDesigner() {
             <h1 className='text-xl font-semibold'>
               {isEdit ? 'Edit Ayat / Hadith Slide' : 'Create Ayat / Hadith Slide'}
             </h1>
-            {orientationChosen && (
-              <p className='text-xs text-muted-foreground capitalize'>Orientation: {orientation}</p>
-            )}
+            <p className='text-xs text-muted-foreground capitalize'>Orientation: {orientation}</p>
           </div>
         </div>
-        {orientationChosen && (
-          <div className='flex items-center gap-2'>
-            {error && <span className='text-destructive text-sm'>{error}</span>}
-            <Button variant='outline' onClick={handleCancel} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button onClick={onSubmit} disabled={isSubmitting || isFetching || !canSave}>
-              {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        )}
+        <div className='flex items-center gap-2'>
+          {error && <span className='text-destructive text-sm'>{error}</span>}
+          <Button variant='outline' onClick={handleCancel} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button onClick={onSubmit} disabled={isSubmitting || isFetching || !canSave}>
+            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+          </Button>
+        </div>
       </header>
 
-      {!orientationChosen ? (
-        <div className='flex-1 flex items-center justify-center p-6'>
-          <div className='max-w-2xl w-full space-y-6 border rounded-lg p-8 bg-card'>
-            <div className='space-y-2'>
-              <h2 className='text-lg font-semibold'>Select orientation</h2>
-              <p className='text-sm text-muted-foreground'>
-                Choose the screen type this slide is for. This cannot be changed later.
-              </p>
-            </div>
-            <RadioGroup
-              value={orientation}
-              onValueChange={v => setOrientation(v as ScreenOrientation)}
-              className='grid grid-cols-3 gap-3'
-            >
-              <Label
-                htmlFor='o-landscape'
-                className='flex flex-col items-center gap-3 border rounded-md p-6 cursor-pointer hover:bg-accent transition'
-              >
-                <RadioGroupItem id='o-landscape' value='landscape' />
-                <div className='w-32 h-20 bg-muted rounded' />
-                <span className='font-medium'>Landscape</span>
-                <span className='text-xs text-muted-foreground'>1920 × 1080</span>
-              </Label>
-              <Label
-                htmlFor='o-portrait'
-                className='flex flex-col items-center gap-3 border rounded-md p-6 cursor-pointer hover:bg-accent transition'
-              >
-                <RadioGroupItem id='o-portrait' value='portrait' />
-                <div className='w-20 h-32 bg-muted rounded' />
-                <span className='font-medium'>Portrait</span>
-                <span className='text-xs text-muted-foreground'>1080 × 1920</span>
-              </Label>
-              <Label
-                htmlFor='o-mobile'
-                className='flex flex-col items-center gap-3 border rounded-md p-6 cursor-pointer hover:bg-accent transition'
-              >
-                <RadioGroupItem id='o-mobile' value='mobile' />
-                <div className='w-16 h-28 bg-muted rounded' />
-                <span className='font-medium'>Mobile</span>
-                <span className='text-xs text-muted-foreground'>1080 × 1920</span>
-              </Label>
-            </RadioGroup>
-            <div className='flex justify-end gap-2 pt-2'>
-              <Button variant='outline' onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button onClick={() => setOrientationChosen(true)}>Continue</Button>
-            </div>
-          </div>
+      <div className='flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6 p-6'>
+        <div className='min-h-[300px] bg-muted/10 rounded-md overflow-hidden'>
+          <Canvas
+            ref={canvasRef}
+            orientation={orientation}
+            style={style}
+            cachedText={cachedText}
+            showUrdu={content.showUrdu}
+            showEnglish={content.showEnglish}
+          />
         </div>
-      ) : (
-        <div className='flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6 p-6'>
-          <div className='min-h-[300px] bg-muted/10 rounded-md overflow-hidden'>
-            <Canvas
-              ref={canvasRef}
-              orientation={orientation}
-              style={style}
-              cachedText={cachedText}
-              showUrdu={content.showUrdu}
-              showEnglish={content.showEnglish}
-            />
-          </div>
-          <div className='overflow-y-auto pr-2'>
-            <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'content' | 'design')}>
-              <TabsList className='grid w-full grid-cols-2'>
-                <TabsTrigger value='content'>Content</TabsTrigger>
-                <TabsTrigger value='design'>Design</TabsTrigger>
-              </TabsList>
-              <TabsContent value='content' className='pt-4'>
-                <ContentPanel
-                  state={content}
-                  onChange={setContent}
-                  onCachedTextChange={setCachedText}
-                  onFetchingChange={setIsFetching}
-                />
-              </TabsContent>
-              <TabsContent value='design' className='pt-4'>
-                <DesignPanel
-                  style={style}
-                  onChange={setStyle}
-                  showUrdu={content.showUrdu}
-                  showEnglish={content.showEnglish}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
+        <div className='overflow-y-auto pr-2'>
+          <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'content' | 'design')}>
+            <TabsList className='grid w-full grid-cols-2'>
+              <TabsTrigger value='content'>Content</TabsTrigger>
+              <TabsTrigger value='design'>Design</TabsTrigger>
+            </TabsList>
+            <TabsContent value='content' className='pt-4'>
+              <ContentPanel
+                state={content}
+                onChange={setContent}
+                onCachedTextChange={setCachedText}
+                onFetchingChange={setIsFetching}
+              />
+            </TabsContent>
+            <TabsContent value='design' className='pt-4'>
+              <DesignPanel
+                style={style}
+                onChange={setStyle}
+                showUrdu={content.showUrdu}
+                showEnglish={content.showEnglish}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
-      )}
+      </div>
     </div>
   );
 }
