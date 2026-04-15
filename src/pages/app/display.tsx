@@ -15,11 +15,12 @@ import {
   EventsDisplay,
   WeatherDisplay,
   YouTubeVideoDisplay,
+  AyatHadithDisplay,
 } from '@/components/display';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { EffectFade, Keyboard } from 'swiper/modules';
-import type { Announcement, Event, Post, YouTubeVideo } from '@/types';
+import type { Announcement, AyatAndHadith, Event, Post, YouTubeVideo } from '@/types';
 import './display.css';
 
 const SLIDE_DELAY = 9000;
@@ -167,6 +168,12 @@ export default function Display() {
               isActive={activeSlideIndex === slideIndex}
               onSlideNext={advanceSlide}
             />
+          </SwiperSlide>
+        );
+      case 'ayat_and_hadith':
+        return (
+          <SwiperSlide key={`content-${index}`}>
+            <AyatHadithDisplay slide={item.data as AyatAndHadith} />
           </SwiperSlide>
         );
       default:

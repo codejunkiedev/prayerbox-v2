@@ -19,3 +19,6 @@ export const WeatherDisplay = lazy(() =>
 export const YouTubeVideoDisplay = lazy(() =>
   import('./youtube-videos').then(m => ({ default: m.YouTubeVideoDisplay }))
 );
+export const AyatHadithDisplay = lazy(() =>
+  import('./ayat-hadith').then(m => ({ default: m.AyatHadithDisplay }))
+);

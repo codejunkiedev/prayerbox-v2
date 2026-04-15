@@ -6,6 +6,7 @@ import {
   type YouTubeVideo,
   type Settings,
   type ScreenContentType,
+  type AyatAndHadith,
 } from '@/types';
 import { useDisplayStore } from '@/store';
 import {
@@ -20,7 +21,7 @@ import type { ErrorMessage } from '@/components/display';
 export type DisplayContentItem = {
   contentType: ScreenContentType;
   displayOrder: number;
-  data: Announcement | Event | Post | YouTubeVideo;
+  data: Announcement | Event | Post | YouTubeVideo | AyatAndHadith;
 };
 
 type ReturnType = {
@@ -35,6 +36,7 @@ const TABLE_MAP: Record<string, string> = {
   events: 'events',
   posts: 'posts',
   youtube_videos: 'youtube_videos',
+  ayat_and_hadith: 'ayat_and_hadith',
 };
 
 /**
@@ -93,7 +95,7 @@ export function useFetchDisplayData(): ReturnType {
           idsByType[row.content_type].push(row.content_id);
         }
 
-        type ContentRecord = (Announcement | Event | Post) & { id: string };
+        type ContentRecord = (Announcement | Event | Post | AyatAndHadith) & { id: string };
 
         // Fetch all content in parallel
         const fetchResults = await Promise.all(
