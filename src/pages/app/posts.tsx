@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react';
 import { getPosts, deletePost } from '@/lib/supabase';
-import type { Post } from '@/types';
+import type { Post, PostOrientation } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
-import { PostModal, DeleteConfirmationModal, ScreenAssignmentModal } from '@/components/modals';
+import {
+  PostModal,
+  DeleteConfirmationModal,
+  OrientationPickerModal,
+  ScreenAssignmentModal,
+} from '@/components/modals';
 import {
   PageHeader,
   ErrorAlert,
@@ -17,6 +22,8 @@ import { useTrigger } from '@/hooks';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
 import { toast } from 'sonner';
 
+const POST_ORIENTATIONS = ['landscape', 'portrait'] as const;
+
 export default function Posts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,6 +34,8 @@ export default function Posts() {
   const [itemToDelete, setItemToDelete] = useState<Post | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [screenAssignItem, setScreenAssignItem] = useState<Post | null>(null);
+  const [orientationPickerOpen, setOrientationPickerOpen] = useState(false);
+  const [pendingOrientation, setPendingOrientation] = useState<PostOrientation | null>(null);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -50,6 +59,11 @@ export default function Posts() {
 
   const handleAddNew = () => {
     setSelectedItem(undefined);
+    setOrientationPickerOpen(true);
+  };
+
+  const handleOrientationContinue = (orientation: PostOrientation) => {
+    setPendingOrientation(orientation);
     setIsModalOpen(true);
   };
 
@@ -61,6 +75,7 @@ export default function Posts() {
   const handleModalClose = () => {
     setIsModalOpen(false);
     setSelectedItem(undefined);
+    setPendingOrientation(null);
   };
 
   const handleDeleteClick = (item: Post) => {
@@ -186,6 +201,16 @@ export default function Posts() {
         onClose={handleModalClose}
         onSuccess={forceUpdate}
         initialData={selectedItem}
+        presetOrientation={pendingOrientation ?? undefined}
+      />
+
+      <OrientationPickerModal
+        open={orientationPickerOpen}
+        onOpenChange={setOrientationPickerOpen}
+        title='New Post'
+        itemLabel='post'
+        orientations={POST_ORIENTATIONS}
+        onSelect={handleOrientationContinue}
       />
 
       <DeleteConfirmationModal

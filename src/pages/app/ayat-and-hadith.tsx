@@ -4,7 +4,11 @@ import { deleteAyatAndHadith, getAyatAndHadith } from '@/lib/supabase';
 import type { AyatAndHadith, AyatSource, HadithSource, PostOrientation } from '@/types';
 import { AppRoutes, SURAHS, HADITH_BOOKS } from '@/constants';
 import { TableSkeleton } from '@/components/skeletons';
-import { DeleteConfirmationModal, ScreenAssignmentModal } from '@/components/modals';
+import {
+  DeleteConfirmationModal,
+  OrientationPickerModal,
+  ScreenAssignmentModal,
+} from '@/components/modals';
 import {
   PageHeader,
   ErrorAlert,
@@ -18,6 +22,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
+
+const SLIDE_ORIENTATIONS = ['landscape', 'portrait'] as const;
 
 function formatReference(item: AyatAndHadith): string {
   if (item.type === 'ayat') {
@@ -43,6 +49,7 @@ export default function AyatAndHadithPage() {
   const [itemToDelete, setItemToDelete] = useState<AyatAndHadith | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [screenAssignItem, setScreenAssignItem] = useState<AyatAndHadith | null>(null);
+  const [orientationPickerOpen, setOrientationPickerOpen] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -63,7 +70,12 @@ export default function AyatAndHadithPage() {
     fetchData();
   }, [trigger]);
 
-  const handleAddNew = () => navigate(AppRoutes.AyatAndHadithNew);
+  const handleAddNew = () => setOrientationPickerOpen(true);
+
+  const handleOrientationContinue = (orientation: 'landscape' | 'portrait') => {
+    setOrientationPickerOpen(false);
+    navigate(`${AppRoutes.AyatAndHadithNew}?orientation=${orientation}`);
+  };
 
   const handleEdit = (item: AyatAndHadith) =>
     navigate(AppRoutes.AyatAndHadithEdit.replace(':id', item.id));
@@ -205,6 +217,15 @@ export default function AyatAndHadithPage() {
           contentOrientation={slideToPostOrientation(screenAssignItem.orientation)}
         />
       )}
+
+      <OrientationPickerModal
+        open={orientationPickerOpen}
+        onOpenChange={setOrientationPickerOpen}
+        title='New Ayat / Hadith Slide'
+        itemLabel='slide'
+        orientations={SLIDE_ORIENTATIONS}
+        onSelect={handleOrientationContinue}
+      />
     </div>
   );
 }

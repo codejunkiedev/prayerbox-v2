@@ -7,7 +7,6 @@ import type { Post, PostOrientation } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { OrientationPicker } from './orientation-picker';
 import { ImageSourcePicker } from './image-source-picker';
 import { PredesignedStep } from './predesigned-step';
 import { UploadForm } from './upload-form';
@@ -17,15 +16,26 @@ type PostModalProps = {
   onClose: () => void;
   onSuccess: () => void;
   initialData?: Post;
+  presetOrientation?: PostOrientation;
 };
 
 type ImageSource = 'predesigned' | 'upload' | null;
 
-export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModalProps) {
+export function PostModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  initialData,
+  presetOrientation,
+}: PostModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedOrientation, setSelectedOrientation] = useState<PostOrientation | null>(null);
-  const [imageSource, setImageSource] = useState<ImageSource>(null);
+  const [selectedOrientation, setSelectedOrientation] = useState<PostOrientation | null>(
+    presetOrientation ?? null
+  );
+  const [imageSource, setImageSource] = useState<ImageSource>(
+    presetOrientation === 'portrait' ? 'upload' : null
+  );
   const [selectedPredesignedImage, setSelectedPredesignedImage] = useState<string | null>(null);
 
   const {
@@ -49,7 +59,7 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
     resolver: zodResolver(postSchema),
     defaultValues: initialData
       ? { title: initialData.title, orientation: initialData.orientation }
-      : { title: '', orientation: 'landscape' },
+      : { title: '', orientation: presetOrientation ?? 'landscape' },
   });
 
   useEffect(() => {
@@ -65,10 +75,10 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
 
   const resetSteps = useCallback(() => {
     resetValidation();
-    setSelectedOrientation(null);
-    setImageSource(null);
+    setSelectedOrientation(presetOrientation ?? null);
+    setImageSource(presetOrientation === 'portrait' ? 'upload' : null);
     setSelectedPredesignedImage(null);
-  }, [resetValidation]);
+  }, [resetValidation, presetOrientation]);
 
   useEffect(() => {
     if (!isOpen || !initialData) resetSteps();
@@ -81,21 +91,16 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
     onClose();
   }, [reset, resetSteps, onClose]);
 
-  const handleOrientationSelect = useCallback(
-    (orientation: PostOrientation) => {
-      setSelectedOrientation(orientation);
-      setValue('orientation', orientation);
-      if (orientation === 'portrait') setImageSource('upload');
-    },
-    [setValue]
-  );
-
   const handleBackToOrientation = useCallback(() => {
+    if (presetOrientation) {
+      handleClose();
+      return;
+    }
     setSelectedOrientation(null);
     setImageSource(null);
     resetValidation();
     setSelectedPredesignedImage(null);
-  }, [resetValidation]);
+  }, [resetValidation, presetOrientation, handleClose]);
 
   const handleBackToSource = useCallback(() => {
     setImageSource(null);
@@ -154,14 +159,6 @@ export function PostModal({ isOpen, onClose, onSuccess, initialData }: PostModal
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Post' : 'Add New Post'}</DialogTitle>
         </DialogHeader>
-
-        {!isEdit && !selectedOrientation && (
-          <OrientationPicker
-            onSelect={handleOrientationSelect}
-            onCancel={handleClose}
-            error={error}
-          />
-        )}
 
         {!isEdit && selectedOrientation === 'landscape' && !imageSource && (
           <ImageSourcePicker
