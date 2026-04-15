@@ -70,14 +70,27 @@ export function OrientationPickerModal<T extends ScreenOrientation>({
             {orientations.map(o => {
               const cfg = ORIENTATION_CONFIG[o];
               const id = `orientation-${o}`;
+              const isSelected = value === o;
               return (
                 <Label
                   key={o}
                   htmlFor={id}
-                  className='flex flex-col items-center gap-3 border rounded-md p-6 cursor-pointer hover:bg-accent transition'
+                  className={cn(
+                    'flex flex-col items-center gap-3 border-2 rounded-md p-6 cursor-pointer transition',
+                    isSelected
+                      ? 'border-primary bg-primary/5 ring-2 ring-primary/30'
+                      : 'border-border hover:bg-accent hover:border-muted-foreground/40'
+                  )}
                 >
                   <RadioGroupItem id={id} value={o} />
-                  <div className={cn('bg-muted rounded', cfg.shape.w, cfg.shape.h)} />
+                  <div
+                    className={cn(
+                      'rounded border border-border',
+                      isSelected ? 'bg-primary/15' : 'bg-foreground/10',
+                      cfg.shape.w,
+                      cfg.shape.h
+                    )}
+                  />
                   <span className='font-medium'>{cfg.label}</span>
                   <span className='text-xs text-muted-foreground'>{cfg.dimensions}</span>
                 </Label>
