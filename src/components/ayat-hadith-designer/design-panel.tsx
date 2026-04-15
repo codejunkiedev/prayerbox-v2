@@ -22,34 +22,52 @@ interface DesignPanelProps {
 export function DesignPanel({ style, onChange, showUrdu, showEnglish }: DesignPanelProps) {
   const update = (patch: Partial<AyatHadithStyle>) => onChange({ ...style, ...patch });
 
+  const images = BACKGROUNDS.filter(b => b.type === 'image');
+  const colors = BACKGROUNDS.filter(b => b.type === 'color');
+  const gradients = BACKGROUNDS.filter(b => b.type === 'gradient');
+
+  const renderTile = (bg: (typeof BACKGROUNDS)[number]) => {
+    const bgStyle =
+      bg.type === 'image'
+        ? { backgroundImage: `url(${bg.value})`, backgroundSize: 'cover' }
+        : bg.type === 'gradient'
+          ? { backgroundImage: bg.value }
+          : { backgroundColor: bg.value };
+    return (
+      <button
+        key={bg.id}
+        type='button'
+        onClick={() => update({ background_id: bg.id })}
+        className={cn(
+          'aspect-video rounded border-2 transition cursor-pointer',
+          style.background_id === bg.id
+            ? 'border-primary ring-2 ring-primary/40'
+            : 'border-transparent hover:border-muted-foreground/50'
+        )}
+        style={bgStyle}
+        title={bg.label}
+      />
+    );
+  };
+
   return (
     <div className='space-y-6'>
-      <section className='space-y-2'>
-        <Label>Background</Label>
-        <div className='grid grid-cols-4 gap-2'>
-          {BACKGROUNDS.map(bg => {
-            const bgStyle =
-              bg.type === 'image'
-                ? { backgroundImage: `url(${bg.value})`, backgroundSize: 'cover' }
-                : bg.type === 'gradient'
-                  ? { backgroundImage: bg.value }
-                  : { backgroundColor: bg.value };
-            return (
-              <button
-                key={bg.id}
-                type='button'
-                onClick={() => update({ background_id: bg.id })}
-                className={cn(
-                  'aspect-video rounded border-2 transition cursor-pointer',
-                  style.background_id === bg.id
-                    ? 'border-primary ring-2 ring-primary/40'
-                    : 'border-transparent hover:border-muted-foreground/50'
-                )}
-                style={bgStyle}
-                title={bg.label}
-              />
-            );
-          })}
+      <section className='space-y-3'>
+        <Label className='text-sm font-semibold'>Background</Label>
+
+        <div className='space-y-1.5'>
+          <Label className='text-xs text-muted-foreground'>Images</Label>
+          <div className='grid grid-cols-3 gap-2'>{images.map(renderTile)}</div>
+        </div>
+
+        <div className='space-y-1.5'>
+          <Label className='text-xs text-muted-foreground'>Colors</Label>
+          <div className='grid grid-cols-3 gap-2'>{colors.map(renderTile)}</div>
+        </div>
+
+        <div className='space-y-1.5'>
+          <Label className='text-xs text-muted-foreground'>Gradients</Label>
+          <div className='grid grid-cols-3 gap-2'>{gradients.map(renderTile)}</div>
         </div>
       </section>
 
