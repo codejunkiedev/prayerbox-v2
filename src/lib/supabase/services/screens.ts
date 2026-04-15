@@ -143,7 +143,6 @@ export async function getScreenContentWithDetails(
   };
 
   await Promise.all([
-    fetchFromTable('ayat_and_hadith', idsByType['ayat_and_hadith'] || [], 'reference', 'text'),
     fetchFromTable('announcements', idsByType['announcements'] || [], 'description', 'description'),
     fetchFromTable('events', idsByType['events'] || [], 'title', 'description'),
     fetchFromTable('posts', idsByType['posts'] || [], 'title', 'title'),

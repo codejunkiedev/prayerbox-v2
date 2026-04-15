@@ -271,7 +271,7 @@ export default function Moderators() {
         <EmptyState
           icon={<Users className='h-6 w-6 text-muted-foreground' />}
           title='No moderators yet'
-          description='Add moderators to help manage your masjid content. Moderators can manage ayat, announcements, events, posts, and videos.'
+          description='Add moderators to help manage your masjid content. Moderators can manage announcements, events, posts, and videos.'
           actionText='Add First Moderator'
           onActionClick={handleAddNew}
         />

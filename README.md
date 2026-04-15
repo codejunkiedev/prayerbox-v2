@@ -1,6 +1,6 @@
 # PrayerBox v2
 
-A mosque management and display system built with React, TypeScript, and Vite. PrayerBox provides prayer time management, weather forecasts, content management (announcements, events, posts, Ayat & Hadith), and a dedicated full-screen display mode designed for mosque TV screens.
+A mosque management and display system built with React, TypeScript, and Vite. PrayerBox provides prayer time management, weather forecasts, content management (announcements, events, posts), and a dedicated full-screen display mode designed for mosque TV screens.
 
 ## Features
 
@@ -17,7 +17,7 @@ A mosque management and display system built with React, TypeScript, and Vite. P
 
 - Full-screen auto-rotating carousel optimized for mosque TVs and displays
 - Two display themes with distinct prayer time layouts
-- Slides include: prayer times, weather, announcements, events, posts, Ayat & Hadith
+- Slides include: prayer times, weather, announcements, events, posts
 - Configurable module ordering and visibility
 - Legacy browser support (Chrome 49+, Android 5+) for older TV boxes
 - URL-based access: `/login/code?code=YOUR_CODE` for easy device setup
@@ -27,7 +27,6 @@ A mosque management and display system built with React, TypeScript, and Vite. P
 - **Announcements** - Create, edit, show/hide, reorder, and archive
 - **Events** - Title, description, date/time, location, roles (chief guest, host, qari, naat khawn, karm farma)
 - **Posts** - Image-based posts with upload to Supabase storage
-- **Ayat & Hadith** - Quranic verses and hadiths with Arabic text, translation, and reference
 - Drag-and-drop reordering for all content types
 - Visibility toggle per item
 

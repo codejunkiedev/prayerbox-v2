@@ -13,9 +13,6 @@ export const PostsDisplay = lazy(() => import('./posts').then(m => ({ default: m
 export const EventsDisplay = lazy(() =>
   import('./events').then(m => ({ default: m.EventsDisplay }))
 );
-export const AyatHadithDisplay = lazy(() =>
-  import('./ayat-hadith').then(m => ({ default: m.AyatHadithDisplay }))
-);
 export const WeatherDisplay = lazy(() =>
   import('./weather').then(m => ({ default: m.WeatherDisplay }))
 );
