@@ -23,9 +23,7 @@ export const BACKGROUNDS: BackgroundPreset[] = [
   { id: 'color-navy', type: 'color', value: '#0c1f3d', label: 'Navy' },
   { id: 'color-maroon', type: 'color', value: '#4a1c1c', label: 'Maroon' },
   { id: 'color-charcoal', type: 'color', value: '#1a1a1a', label: 'Charcoal' },
-  { id: 'color-forest', type: 'color', value: '#14532d', label: 'Forest' },
   { id: 'color-indigo', type: 'color', value: '#1e1b4b', label: 'Indigo' },
-  { id: 'color-slate', type: 'color', value: '#334155', label: 'Slate' },
   { id: 'color-cream', type: 'color', value: '#fef3c7', label: 'Cream' },
   {
     id: 'grad-sunset',
