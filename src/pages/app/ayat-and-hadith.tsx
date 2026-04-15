@@ -18,7 +18,7 @@ import {
   OrientationBadge,
   type Column,
 } from '@/components/common';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
+import { Badge, Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
@@ -142,12 +142,6 @@ export default function AyatAndHadithPage() {
       ),
     },
     {
-      key: 'type',
-      name: 'Type',
-      width: 'w-[100px]',
-      render: value => <span className='capitalize font-medium'>{value as string}</span>,
-    },
-    {
       key: 'id',
       name: 'Reference',
       width: 'w-auto',
@@ -158,6 +152,25 @@ export default function AyatAndHadithPage() {
       name: 'Orientation',
       width: 'w-[130px]',
       render: value => <OrientationBadge orientation={value as AyatAndHadith['orientation']} />,
+    },
+    {
+      key: 'type',
+      name: 'Type',
+      width: 'w-[100px]',
+      render: value => {
+        const type = value as AyatAndHadith['type'];
+        return (
+          <Badge
+            className={
+              type === 'ayat'
+                ? 'bg-emerald-600 text-white border-transparent'
+                : 'bg-indigo-600 text-white border-transparent'
+            }
+          >
+            {type === 'ayat' ? 'Ayat' : 'Hadith'}
+          </Badge>
+        );
+      },
     },
   ];
 
