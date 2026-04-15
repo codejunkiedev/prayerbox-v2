@@ -142,11 +142,29 @@ export async function getScreenContentWithDetails(
     }
   };
 
+  const fetchAyatAndHadith = async (ids: string[]) => {
+    if (ids.length === 0) return;
+    const { data, error } = await supabase
+      .from('ayat_and_hadith')
+      .select('id, type, source, cached_text')
+      .in('id', ids);
+    if (error) throw error;
+    for (const item of data || []) {
+      const arabicPreview =
+        typeof item.cached_text?.arabic === 'string' ? item.cached_text.arabic.slice(0, 80) : '';
+      contentMap.set(item.id, {
+        title: item.type === 'ayat' ? 'Ayat' : 'Hadith',
+        description: arabicPreview,
+      });
+    }
+  };
+
   await Promise.all([
     fetchFromTable('announcements', idsByType['announcements'] || [], 'description', 'description'),
     fetchFromTable('events', idsByType['events'] || [], 'title', 'description'),
     fetchFromTable('posts', idsByType['posts'] || [], 'title', 'title'),
     fetchFromTable('youtube_videos', idsByType['youtube_videos'] || [], 'title', 'youtube_url'),
+    fetchAyatAndHadith(idsByType['ayat_and_hadith'] || []),
   ]);
 
   return rows.map(row => ({
