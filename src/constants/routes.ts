@@ -26,4 +26,7 @@ export enum AppRoutes {
   SettingsPrayerTimes = '/admin/settings/prayer-times',
   Moderators = '/admin/moderators',
   Support = '/admin/support',
+  AyatAndHadith = '/admin/ayat-and-hadith',
+  AyatAndHadithNew = '/admin/ayat-and-hadith/new',
+  AyatAndHadithEdit = '/admin/ayat-and-hadith/:id/edit',
 }

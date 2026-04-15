@@ -12,12 +12,14 @@ export enum SupabaseTables {
   DisplayScreens = 'display_screens',
   ScreenContent = 'screen_content',
   MasjidMembers = 'masjid_members',
+  AyatAndHadith = 'ayat_and_hadith',
 }
 
 export enum SupabaseBuckets {
   MasjidLogos = 'masjid-logos',
   MasjidPosts = 'masjid-posts',
   Assets = 'assets',
+  AyatHadithSlides = 'ayat-hadith-slides',
 }
 
 export enum SupabaseFolders {
@@ -54,8 +56,58 @@ export interface MasjidProfile extends Base {
 }
 
 export type ScreenOrientation = 'landscape' | 'portrait' | 'mobile';
-export type ScreenContentType = 'announcements' | 'events' | 'posts' | 'youtube_videos';
+export type ScreenContentType =
+  | 'announcements'
+  | 'events'
+  | 'posts'
+  | 'youtube_videos'
+  | 'ayat_and_hadith';
 export type PostOrientation = 'landscape' | 'portrait';
+
+export type AyatHadithType = 'ayat' | 'hadith';
+
+export interface AyatSource {
+  surah: number;
+  ayah: number;
+}
+
+export interface HadithSource {
+  book: string;
+  hadith_number: string;
+}
+
+export interface AyatHadithCachedText {
+  arabic: string;
+  urdu?: { edition: string; text: string };
+  english?: { edition: string; text: string };
+}
+
+export interface AyatHadithTextStyle {
+  font_id: string;
+  size: number;
+  color: string;
+  line_height: number;
+}
+
+export interface AyatHadithStyle {
+  background_id: string;
+  overlay_color: string;
+  overlay_opacity: number;
+  arabic: AyatHadithTextStyle;
+  urdu: AyatHadithTextStyle;
+  english: AyatHadithTextStyle;
+}
+
+export interface AyatAndHadith extends Base {
+  type: AyatHadithType;
+  orientation: ScreenOrientation;
+  source: AyatSource | HadithSource;
+  cached_text: AyatHadithCachedText;
+  style: AyatHadithStyle;
+  image_url: string;
+  image_path: string;
+  archived: boolean;
+}
 
 export interface DisplayScreen extends Base {
   name: string;
