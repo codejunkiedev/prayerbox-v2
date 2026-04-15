@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
   type Announcement,
-  type AyatAndHadith,
   type Event,
   type Post,
   type YouTubeVideo,
@@ -21,7 +20,7 @@ import type { ErrorMessage } from '@/components/display';
 export type DisplayContentItem = {
   contentType: ScreenContentType;
   displayOrder: number;
-  data: Announcement | AyatAndHadith | Event | Post | YouTubeVideo;
+  data: Announcement | Event | Post | YouTubeVideo;
 };
 
 type ReturnType = {
@@ -33,7 +32,6 @@ type ReturnType = {
 
 const TABLE_MAP: Record<string, string> = {
   announcements: 'announcements',
-  ayat_and_hadith: 'ayat_and_hadith',
   events: 'events',
   posts: 'posts',
   youtube_videos: 'youtube_videos',
@@ -95,7 +93,7 @@ export function useFetchDisplayData(): ReturnType {
           idsByType[row.content_type].push(row.content_id);
         }
 
-        type ContentRecord = (Announcement | AyatAndHadith | Event | Post) & { id: string };
+        type ContentRecord = (Announcement | Event | Post) & { id: string };
 
         // Fetch all content in parallel
         const fetchResults = await Promise.all(

@@ -2,15 +2,6 @@ import type { AlAdhanPrayerTimes, PrayerTimes, ProcessedPrayerTiming } from '@/t
 import { getAdjustedPrayerTime, PRAYER_NAMES } from './prayer-time-adjustments';
 
 /**
- * Gets the appropriate title for an AyatAndHadith item
- * @param type Type of content ('ayat' or 'hadith')
- * @returns Display title for the content type
- */
-export function getAyatHadithTitle(type: 'ayat' | 'hadith'): string {
-  return type === 'ayat' ? 'Quranic Verse' : 'Hadith';
-}
-
-/**
  * Processes prayer times with adjustments and returns formatted timing data
  * @param prayerTimes Raw prayer times from Al-Adhan API
  * @param prayerTimeSettings Prayer time settings with adjustments

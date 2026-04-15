@@ -3,7 +3,6 @@ import type { HijriCalculationMethod } from '@/constants';
 
 export enum SupabaseTables {
   MasjidProfiles = 'masjid_profiles',
-  AyatAndHadith = 'ayat_and_hadith',
   Announcements = 'announcements',
   Events = 'events',
   Posts = 'posts',
@@ -55,12 +54,7 @@ export interface MasjidProfile extends Base {
 }
 
 export type ScreenOrientation = 'landscape' | 'portrait' | 'mobile';
-export type ScreenContentType =
-  | 'ayat_and_hadith'
-  | 'announcements'
-  | 'events'
-  | 'posts'
-  | 'youtube_videos';
+export type ScreenContentType = 'announcements' | 'events' | 'posts' | 'youtube_videos';
 export type PostOrientation = 'landscape' | 'portrait';
 
 export interface DisplayScreen extends Base {
@@ -79,14 +73,6 @@ export interface ScreenContent {
   display_order: number;
   visible: boolean;
   created_at: string;
-}
-
-export interface AyatAndHadith extends Base {
-  text: string;
-  translation: string;
-  reference: string;
-  type: 'ayat' | 'hadith';
-  archived: boolean;
 }
 
 export interface Announcement extends Base {

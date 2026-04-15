@@ -3,7 +3,6 @@ import { lazy } from 'react';
 export * from './sign-out-modal';
 export * from './delete-confirmation-modal';
 
-export const AyatAndHadithModal = lazy(() => import('./ayat-and-hadith-modal'));
 export const AnnouncementModal = lazy(() =>
   import('./announcement-modal').then(m => ({ default: m.AnnouncementModal }))
 );

@@ -2,7 +2,6 @@ import { NavLink, useLocation } from 'react-router';
 import {
   ChevronLeft,
   Home,
-  BookOpen,
   Bell,
   Clock,
   Settings,
@@ -54,11 +53,6 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       label: 'Home',
       path: AppRoutes.Home,
       icon: <Home size={20} />,
-    },
-    {
-      label: 'Ayat & Hadith',
-      path: AppRoutes.AyatAndHadith,
-      icon: <BookOpen size={20} />,
     },
     {
       label: 'Announcements',

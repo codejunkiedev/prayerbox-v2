@@ -36,7 +36,6 @@ export enum HijriCalculationMethod {
 }
 
 export const MODULES: { id: string; name: string }[] = [
-  { id: 'ayat-and-hadith', name: 'Ayats & Hadiths' },
   { id: 'announcements', name: 'Announcements' },
   { id: 'events', name: 'Events' },
   { id: 'posts', name: 'Posts' },

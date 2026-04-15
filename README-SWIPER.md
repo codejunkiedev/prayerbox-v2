@@ -4,7 +4,6 @@ This implementation uses Swiper.js to create a smooth, animated fullscreen displ
 
 - Prayer Times
 - Announcements
-- Ayat and Hadith
 - Events
 - Posts
 
@@ -26,9 +25,8 @@ The implementation is directly integrated into the display page for maximum cont
 
 1. **Prayer Times**: Shows the daily prayer schedule (always displayed first)
 2. **Announcements**: Important messages from the masjid
-3. **Ayat and Hadith**: Quranic verses and Prophetic traditions
-4. **Events**: Upcoming events with details
-5. **Posts**: Image-based posts from the masjid
+3. **Events**: Upcoming events with details
+4. **Posts**: Image-based posts from the masjid
 
 ### Smart Content Ordering
 
@@ -82,7 +80,6 @@ Each content type has its own dedicated display component:
 
 - **PrayerTimingDisplay**: Shows prayer times
 - **AnnouncementsDisplay**: Shows announcements
-- **AyatHadithDisplay**: Shows Quranic verses and hadiths
 - **EventsDisplay**: Shows event details
 - **PostsDisplay**: Shows posts with images
 

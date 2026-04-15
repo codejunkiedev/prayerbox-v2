@@ -3,7 +3,6 @@ import { lazy } from 'react';
 export const Home = lazy(() => import('./home'));
 export const ResetPassword = lazy(() => import('./reset-password'));
 export const SettingsAccount = lazy(() => import('./settings/account'));
-export const AyatAndHadith = lazy(() => import('./ayat-and-hadith'));
 export const Announcements = lazy(() => import('./announcements'));
 export const Events = lazy(() => import('./events'));
 export const Posts = lazy(() => import('./posts'));

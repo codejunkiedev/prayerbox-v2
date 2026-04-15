@@ -1,4 +1,4 @@
-import { BookOpen, Bell, Clock, Settings, Images, Tickets, User } from 'lucide-react';
+import { Bell, Clock, Settings, Images, Tickets, User } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { ModuleCard, QuickActionButton, WelcomeHeader, SectionTitle } from '@/components/home';
 import { useAuthStore } from '@/store';
@@ -19,13 +19,6 @@ export default function Home() {
           },
         ]
       : []),
-    {
-      title: 'Ayat & Hadith',
-      description: 'Manage your collection of Quranic verses and Hadith',
-      icon: <BookOpen className='h-10 w-10 text-primary' />,
-      path: AppRoutes.AyatAndHadith,
-      color: 'bg-blue-50 dark:bg-blue-950/30',
-    },
     {
       title: 'Announcements',
       description: 'Create and manage masjid announcements for your community',

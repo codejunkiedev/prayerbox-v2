@@ -10,7 +10,6 @@ export enum AppRoutes {
   DisplayLogout = '/logout',
   Home = '/admin',
   ResetPassword = '/admin/reset-password',
-  AyatAndHadith = '/admin/ayat-and-hadith',
   Announcements = '/admin/announcements',
   Events = '/admin/events',
   Posts = '/admin/posts',

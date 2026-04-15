@@ -16,7 +16,6 @@ import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
 
 const CONTENT_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
-  ayat_and_hadith: { label: 'Ayat / Hadith', color: 'bg-blue-600 text-white' },
   announcements: { label: 'Announcement', color: 'bg-amber-600 text-white' },
   events: { label: 'Event', color: 'bg-emerald-600 text-white' },
   posts: { label: 'Post', color: 'bg-purple-600 text-white' },
@@ -234,7 +233,7 @@ export default function ScreenDetail() {
         <EmptyState
           icon={<Monitor className='h-6 w-6 text-muted-foreground' />}
           title='No content assigned'
-          description='Assign content to this screen from the Announcements, Ayat & Hadith, Events, Posts, or YouTube Videos pages.'
+          description='Assign content to this screen from the Announcements, Events, Posts, or YouTube Videos pages.'
         />
       ) : (
         <DataTable
