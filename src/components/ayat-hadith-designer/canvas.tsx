@@ -56,7 +56,7 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(function Canvas(
   return (
     <div
       ref={containerRef}
-      className='relative w-full h-full flex items-center justify-center overflow-hidden bg-muted/20 rounded-md'
+      className='relative w-full h-full flex items-center justify-center overflow-hidden rounded-md'
     >
       <div
         ref={ref}

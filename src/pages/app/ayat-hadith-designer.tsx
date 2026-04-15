@@ -222,7 +222,7 @@ export default function AyatHadithDesigner() {
       </header>
 
       <div className='flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 p-6'>
-        <div className='min-h-[300px] bg-muted/10 rounded-md overflow-hidden'>
+        <div className='min-h-[300px] bg-muted rounded-md overflow-hidden'>
           <Canvas
             ref={canvasRef}
             orientation={orientation}
