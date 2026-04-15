@@ -1,7 +1,7 @@
 import { AlertTriangle, RefreshCcw, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { cn } from '@/utils';
-import bgImage from '@/assets/backgrounds/06.jpeg';
+import bgImage from '@/assets/backgrounds/05.jpeg';
 import { useDisplayStore } from '@/store';
 import { useState } from 'react';
 

@@ -1,7 +1,7 @@
 import { DisplayContainer } from '../shared';
 import { AnimationProvider } from '../shared/animation-provider';
 import type { WeatherForecast, ScreenOrientation } from '@/types';
-import bgImage from '@/assets/backgrounds/04.jpeg';
+import bgImage from '@/assets/backgrounds/03.jpeg';
 import { format } from 'date-fns';
 import { getWeatherIconWithTimeContext } from '@/utils';
 import raindropIcon from '@/assets/icons/weather/raindrop.svg';

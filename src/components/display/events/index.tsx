@@ -1,7 +1,7 @@
 import type { Event, ScreenOrientation } from '@/types';
 import { Calendar, MapPin, User, Users, Mic } from 'lucide-react';
 import { format } from 'date-fns';
-import bgImage from '@/assets/backgrounds/03.jpeg';
+import bgImage from '@/assets/backgrounds/02.jpeg';
 import {
   AnimationProvider,
   DisplayContainer,

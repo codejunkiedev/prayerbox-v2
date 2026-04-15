@@ -3,7 +3,6 @@ import bg02 from '@/assets/backgrounds/02.jpeg';
 import bg03 from '@/assets/backgrounds/03.jpeg';
 import bg04 from '@/assets/backgrounds/04.jpeg';
 import bg05 from '@/assets/backgrounds/05.jpeg';
-import bg06 from '@/assets/backgrounds/06.jpeg';
 
 export type BackgroundType = 'image' | 'color' | 'gradient';
 
@@ -20,7 +19,6 @@ export const BACKGROUNDS: BackgroundPreset[] = [
   { id: 'img-03', type: 'image', value: bg03, label: 'Image 3' },
   { id: 'img-04', type: 'image', value: bg04, label: 'Image 4' },
   { id: 'img-05', type: 'image', value: bg05, label: 'Image 5' },
-  { id: 'img-06', type: 'image', value: bg06, label: 'Image 6' },
   { id: 'color-emerald', type: 'color', value: '#064e3b', label: 'Deep Emerald' },
   { id: 'color-navy', type: 'color', value: '#0c1f3d', label: 'Navy' },
   { id: 'color-maroon', type: 'color', value: '#4a1c1c', label: 'Maroon' },

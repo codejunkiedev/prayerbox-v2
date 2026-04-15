@@ -2,7 +2,7 @@ import { Button } from '@/components/ui';
 import { useDisplayStore } from '@/store';
 import { DisplayContainer } from '../shared';
 import { AnimationProvider } from '../shared/animation-provider';
-import bgImage from '@/assets/backgrounds/06.jpeg';
+import bgImage from '@/assets/backgrounds/05.jpeg';
 
 /**
  * Displays a development mode logout interface with administrative controls
