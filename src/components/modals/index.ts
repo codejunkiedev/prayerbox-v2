@@ -2,6 +2,7 @@ import { lazy } from 'react';
 
 export * from './sign-out-modal';
 export * from './delete-confirmation-modal';
+export * from './orientation-picker-modal';
 
 export const AnnouncementModal = lazy(() =>
   import('./announcement-modal').then(m => ({ default: m.AnnouncementModal }))

@@ -3,6 +3,7 @@ import {
   ChevronLeft,
   Home,
   Bell,
+  BookOpen,
   Clock,
   Settings,
   X,
@@ -73,6 +74,11 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
       label: 'YouTube Videos',
       path: AppRoutes.YouTubeVideos,
       icon: <Video size={20} />,
+    },
+    {
+      label: 'Ayat & Hadith',
+      path: AppRoutes.AyatAndHadith,
+      icon: <BookOpen size={20} />,
     },
     ...(isAdmin
       ? [

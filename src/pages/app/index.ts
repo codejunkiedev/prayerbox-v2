@@ -20,3 +20,5 @@ export const DisplayLogout = lazy(() => import('./display-logout'));
 export const YouTubeVideos = lazy(() => import('./youtube-videos'));
 export const Moderators = lazy(() => import('./moderators'));
 export const Support = lazy(() => import('./support'));
+export const AyatAndHadith = lazy(() => import('./ayat-and-hadith'));
+export const AyatHadithDesigner = lazy(() => import('./ayat-hadith-designer'));

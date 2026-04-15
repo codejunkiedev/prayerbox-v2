@@ -6,6 +6,8 @@ import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
 import {
   Announcements,
+  AyatAndHadith,
+  AyatHadithDesigner,
   Events,
   ForgotPassword,
   Home,
@@ -113,6 +115,12 @@ export default function Navigation() {
             <Route path={AuthRoutes.LoginWithCode} element={<LoginWithCode />} />
           </Route>
 
+          {/* Admin routes WITHOUT layout - require authentication */}
+          <Route element={isLoggedInWithEmail ? <Outlet /> : <Navigate to={AuthRoutes.Login} />}>
+            <Route path={AppRoutes.AyatAndHadithNew} element={<AyatHadithDesigner />} />
+            <Route path={AppRoutes.AyatAndHadithEdit} element={<AyatHadithDesigner />} />
+          </Route>
+
           {/* Admin routes with layout - require authentication */}
           <Route element={isLoggedInWithEmail ? <AppLayout /> : <Navigate to={AuthRoutes.Login} />}>
             <Route path={AppRoutes.Home} element={<Home />} />
@@ -122,6 +130,7 @@ export default function Navigation() {
             <Route path={AppRoutes.Events} element={<Events />} />
             <Route path={AppRoutes.Posts} element={<Posts />} />
             <Route path={AppRoutes.YouTubeVideos} element={<YouTubeVideos />} />
+            <Route path={AppRoutes.AyatAndHadith} element={<AyatAndHadith />} />
             <Route
               path={AppRoutes.Screens}
               element={

@@ -9,7 +9,14 @@ import {
 } from '@/lib/supabase';
 import type { DisplayScreen } from '@/types';
 import { Badge, Button, Switch, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
-import { PageHeader, ErrorAlert, EmptyState, DataTable, type Column } from '@/components/common';
+import {
+  PageHeader,
+  ErrorAlert,
+  EmptyState,
+  DataTable,
+  OrientationBadge,
+  type Column,
+} from '@/components/common';
 import { ArrowLeft, Monitor, Copy, Check } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { useTrigger } from '@/hooks';
@@ -20,6 +27,7 @@ const CONTENT_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   events: { label: 'Event', color: 'bg-emerald-600 text-white' },
   posts: { label: 'Post', color: 'bg-purple-600 text-white' },
   youtube_videos: { label: 'YouTube Video', color: 'bg-red-600 text-white' },
+  ayat_and_hadith: { label: 'Ayat / Hadith', color: 'bg-sky-600 text-white' },
 };
 
 export default function ScreenDetail() {
@@ -209,9 +217,9 @@ export default function ScreenDetail() {
             </div>
             <div>
               <span className='text-muted-foreground block'>Orientation</span>
-              <Badge variant='default' className='capitalize mt-1'>
-                {screen.orientation}
-              </Badge>
+              <div className='mt-1'>
+                <OrientationBadge orientation={screen.orientation} />
+              </div>
             </div>
             <div>
               <span className='text-muted-foreground block'>Prayer Times</span>
@@ -233,7 +241,7 @@ export default function ScreenDetail() {
         <EmptyState
           icon={<Monitor className='h-6 w-6 text-muted-foreground' />}
           title='No content assigned'
-          description='Assign content to this screen from the Announcements, Events, Posts, or YouTube Videos pages.'
+          description='Assign content to this screen from the Announcements, Events, Posts, YouTube Videos, or Ayat & Hadith pages.'
         />
       ) : (
         <DataTable

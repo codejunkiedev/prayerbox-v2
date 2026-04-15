@@ -195,3 +195,45 @@ export const resetModeratorPasswordSchema = z
   });
 
 export type ResetModeratorPasswordData = z.infer<typeof resetModeratorPasswordSchema>;
+
+const textStyleSchema = z.object({
+  font_id: z.string(),
+  size: z.number().min(8).max(300),
+  color: z.string(),
+  line_height: z.number().min(0.8).max(4),
+});
+
+const ayatHadithStyleSchema = z.object({
+  background_id: z.string(),
+  overlay_color: z.string(),
+  overlay_opacity: z.number().min(0).max(1),
+  arabic: textStyleSchema,
+  urdu: textStyleSchema,
+  english: textStyleSchema,
+});
+
+const ayatSourceSchema = z.object({
+  surah: z.number().int().min(1).max(114),
+  ayah: z.number().int().min(1),
+});
+
+const hadithSourceSchema = z.object({
+  book: z.string().min(1),
+  hadith_number: z.string().min(1),
+});
+
+const cachedTextSchema = z.object({
+  arabic: z.string(),
+  urdu: z.object({ edition: z.string(), text: z.string() }).optional(),
+  english: z.object({ edition: z.string(), text: z.string() }).optional(),
+});
+
+export const ayatAndHadithSchema = z.object({
+  type: z.enum(['ayat', 'hadith']),
+  orientation: z.enum(['landscape', 'portrait', 'mobile']),
+  source: z.union([ayatSourceSchema, hadithSourceSchema]),
+  cached_text: cachedTextSchema,
+  style: ayatHadithStyleSchema,
+});
+
+export type AyatAndHadithData = z.infer<typeof ayatAndHadithSchema>;
