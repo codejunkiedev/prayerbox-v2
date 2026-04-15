@@ -9,11 +9,12 @@ import {
   EmptyState,
   ActionButtons,
   DataTable,
+  OrientationBadge,
   type Column,
 } from '@/components/common';
-import { FileImage, Monitor, Smartphone } from 'lucide-react';
+import { FileImage } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-import { Badge, Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
 import { toast } from 'sonner';
 
 export default function Posts() {
@@ -94,33 +95,38 @@ export default function Posts() {
   const columns: Column<Post>[] = [
     {
       key: 'image_url',
-      name: 'Image',
-      width: 'w-[100px]',
+      name: 'Preview',
+      width: 'w-[120px]',
       render: value =>
         value ? (
           <Popover>
             <PopoverTrigger asChild>
-              <div className='w-12 h-12 relative cursor-zoom-in'>
+              <button type='button' className='cursor-zoom-in'>
                 <img
                   src={value as string}
-                  alt='Post'
-                  className='absolute inset-0 w-full h-full object-cover rounded-md aspect-square'
+                  alt='Post preview'
+                  className='h-14 w-24 object-cover rounded border'
                 />
-              </div>
+              </button>
             </PopoverTrigger>
-            <PopoverContent className='p-0 w-80'>
-              <div className='relative w-full overflow-hidden'>
-                <img
-                  src={value as string}
-                  alt='Post enlarged'
-                  className='w-full h-auto object-contain'
-                />
-              </div>
+            <PopoverContent
+              className='p-0 border-0 bg-transparent shadow-none'
+              style={{ width: 'auto' }}
+              side='right'
+              align='start'
+              collisionPadding={16}
+            >
+              <img
+                src={value as string}
+                alt='Post enlarged'
+                style={{ maxHeight: '60vh', maxWidth: 'min(85vw, 300px)', display: 'block' }}
+                className='object-contain rounded-md shadow-lg'
+              />
             </PopoverContent>
           </Popover>
         ) : (
-          <div className='w-12 h-12 bg-gray-100 flex items-center justify-center rounded-md aspect-square'>
-            <FileImage className='w-6 h-6 text-gray-400' />
+          <div className='h-14 w-24 bg-muted flex items-center justify-center rounded border'>
+            <FileImage className='w-6 h-6 text-muted-foreground' />
           </div>
         ),
     },
@@ -138,24 +144,7 @@ export default function Posts() {
       key: 'orientation',
       name: 'Orientation',
       width: 'w-[120px]',
-      render: (_value, item) => {
-        const isPortrait = (item as Post).orientation === 'portrait';
-        return (
-          <Badge variant='outline' className='gap-1'>
-            {isPortrait ? (
-              <>
-                <Smartphone className='w-3 h-3' />
-                Portrait
-              </>
-            ) : (
-              <>
-                <Monitor className='w-3 h-3' />
-                Landscape
-              </>
-            )}
-          </Badge>
-        );
-      },
+      render: (_value, item) => <OrientationBadge orientation={(item as Post).orientation} />,
     },
   ];
 

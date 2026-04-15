@@ -10,6 +10,7 @@ import {
   EmptyState,
   ActionButtons,
   DataTable,
+  OrientationBadge,
   type Column,
 } from '@/components/common';
 import { Monitor, Copy, Check } from 'lucide-react';
@@ -141,11 +142,7 @@ export default function Screens() {
       key: 'orientation',
       name: 'Orientation',
       width: 'w-[15%]',
-      render: value => (
-        <Badge variant='default' className='capitalize'>
-          {value as string}
-        </Badge>
-      ),
+      render: value => <OrientationBadge orientation={value as DisplayScreen['orientation']} />,
     },
     {
       key: 'show_prayer_times',
