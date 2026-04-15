@@ -8,25 +8,92 @@ import { cn } from '@/utils';
 const Tabs = TabsPrimitive.Root;
 
 /**
- * Container for tab triggers with background styling
+ * Container for tab triggers. Renders a sliding indicator that smoothly
+ * animates between the active triggers.
  */
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      'inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
-      className
-    )}
-    {...props}
-  />
-));
+>(({ className, children, ...props }, forwardedRef) => {
+  const innerRef = React.useRef<HTMLDivElement | null>(null);
+  const [indicator, setIndicator] = React.useState<{
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    visible: boolean;
+  }>({ left: 0, top: 0, width: 0, height: 0, visible: false });
+
+  React.useEffect(() => {
+    const list = innerRef.current;
+    if (!list) return;
+
+    const update = () => {
+      const active = list.querySelector('[data-state="active"]') as HTMLElement | null;
+      if (!active) {
+        setIndicator(prev => ({ ...prev, visible: false }));
+        return;
+      }
+      setIndicator({
+        left: active.offsetLeft,
+        top: active.offsetTop,
+        width: active.offsetWidth,
+        height: active.offsetHeight,
+        visible: true,
+      });
+    };
+
+    update();
+
+    const mo = new MutationObserver(update);
+    mo.observe(list, { attributes: true, subtree: true, attributeFilter: ['data-state'] });
+
+    const ro = new ResizeObserver(update);
+    ro.observe(list);
+
+    return () => {
+      mo.disconnect();
+      ro.disconnect();
+    };
+  }, []);
+
+  const setRef = (node: HTMLDivElement | null) => {
+    innerRef.current = node;
+    if (typeof forwardedRef === 'function') forwardedRef(node);
+    else if (forwardedRef) forwardedRef.current = node;
+  };
+
+  return (
+    <TabsPrimitive.List
+      ref={setRef}
+      className={cn(
+        'relative inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
+        className
+      )}
+      {...props}
+    >
+      <span
+        aria-hidden
+        className={cn(
+          'absolute rounded-sm bg-background shadow-sm transition-all duration-300 ease-out',
+          indicator.visible ? 'opacity-100' : 'opacity-0'
+        )}
+        style={{
+          left: indicator.left,
+          top: indicator.top,
+          width: indicator.width,
+          height: indicator.height,
+        }}
+      />
+      {children}
+    </TabsPrimitive.List>
+  );
+});
 TabsList.displayName = TabsPrimitive.List.displayName;
 
 /**
- * Clickable tab button with active state styling
+ * Clickable tab button. The active background is provided by the sliding
+ * indicator in TabsList, so this only handles text color and focus.
  */
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
@@ -35,7 +102,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+      'relative z-10 inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-foreground',
       className
     )}
     {...props}
