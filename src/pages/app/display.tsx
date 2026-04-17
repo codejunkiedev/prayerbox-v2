@@ -3,6 +3,7 @@ import {
   useFetchDisplayData,
   useOrientationMismatch,
   usePrayerTimings,
+  useWakeLock,
   useWeatherData,
 } from '@/hooks';
 import { useDisplayStore } from '@/store';
@@ -26,6 +27,8 @@ import './display.css';
 const SLIDE_DELAY = 9000;
 
 export default function Display() {
+  useWakeLock();
+
   const swiperRef = useRef<SwiperType | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 

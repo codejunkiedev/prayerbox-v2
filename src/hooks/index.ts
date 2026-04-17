@@ -10,3 +10,4 @@ export * from './useAdjustedHijriDate';
 export * from './useSettings';
 export * from './useLocationSearch';
 export * from './useOrientationMismatch';
+export * from './useWakeLock';
