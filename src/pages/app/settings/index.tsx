@@ -3,6 +3,7 @@ import { Palette, Calendar, UserRound, Shield, Clock } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
+import { useAuthStore } from '@/store';
 
 const settingsModules = [
   {
@@ -11,6 +12,7 @@ const settingsModules = [
     icon: UserRound,
     route: AppRoutes.SettingsProfile,
     color: 'text-orange-600',
+    requiresMasjid: false,
   },
   {
     title: 'Themes',
@@ -18,6 +20,7 @@ const settingsModules = [
     icon: Palette,
     route: AppRoutes.SettingsThemes,
     color: 'text-purple-600',
+    requiresMasjid: true,
   },
   {
     title: 'Prayer Times',
@@ -25,6 +28,7 @@ const settingsModules = [
     icon: Clock,
     route: AppRoutes.SettingsPrayerTimes,
     color: 'text-teal-600',
+    requiresMasjid: true,
   },
   {
     title: 'Hijri Calendar',
@@ -32,6 +36,7 @@ const settingsModules = [
     icon: Calendar,
     route: AppRoutes.SettingsHijri,
     color: 'text-green-600',
+    requiresMasjid: true,
   },
   {
     title: 'Account',
@@ -39,10 +44,16 @@ const settingsModules = [
     icon: Shield,
     route: AppRoutes.SettingsAccount,
     color: 'text-red-600',
+    requiresMasjid: false,
   },
 ];
 
 export default function Settings() {
+  const masjidId = useAuthStore(s => s.masjidId);
+  const visibleModules = masjidId
+    ? settingsModules
+    : settingsModules.filter(m => !m.requiresMasjid);
+
   return (
     <div className='container mx-auto py-6 space-y-4'>
       <PageHeader
@@ -51,7 +62,7 @@ export default function Settings() {
       />
 
       <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-3'>
-        {settingsModules.map(module => {
+        {visibleModules.map(module => {
           const Icon = module.icon;
           return (
             <Link key={module.title} to={module.route} className='block'>
