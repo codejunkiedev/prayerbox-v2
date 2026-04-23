@@ -13,6 +13,6 @@ export type DisplayStore = {
 export type AuthStore = {
   masjidId: string | null;
   role: MemberRole | null;
-  setAuth: (masjidId: string, role: MemberRole) => void;
+  setAuth: (masjidId: string | null, role: MemberRole) => void;
   clearAuth: () => void;
 };
