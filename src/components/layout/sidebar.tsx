@@ -32,6 +32,7 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   const [collapsed, toggleSidebar] = useSidebarState(false);
   const location = useLocation();
   const role = useAuthStore(s => s.role);
+  const masjidId = useAuthStore(s => s.masjidId);
 
   /**
    * Determines if a navigation item should be active
@@ -48,40 +49,49 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
   };
 
   const isAdmin = role === 'admin';
+  const needsOnboarding = !masjidId;
 
-  const allNavItems = [
-    {
-      label: 'Home',
-      path: AppRoutes.Home,
-      icon: <Home size={20} />,
-    },
-    {
-      label: 'Announcements',
-      path: AppRoutes.Announcements,
-      icon: <Bell size={20} />,
-    },
-    {
-      label: 'Events',
-      path: AppRoutes.Events,
-      icon: <Tickets size={20} />,
-    },
-    {
-      label: 'Posts',
-      path: AppRoutes.Posts,
-      icon: <Images size={20} />,
-    },
-    {
-      label: 'YouTube Videos',
-      path: AppRoutes.YouTubeVideos,
-      icon: <Video size={20} />,
-    },
-    {
-      label: 'Ayat & Hadith',
-      path: AppRoutes.AyatAndHadith,
-      icon: <BookOpen size={20} />,
-    },
-    ...(isAdmin
+  const contentNavItems = needsOnboarding
+    ? []
+    : [
+        {
+          label: 'Announcements',
+          path: AppRoutes.Announcements,
+          icon: <Bell size={20} />,
+        },
+        {
+          label: 'Events',
+          path: AppRoutes.Events,
+          icon: <Tickets size={20} />,
+        },
+        {
+          label: 'Posts',
+          path: AppRoutes.Posts,
+          icon: <Images size={20} />,
+        },
+        {
+          label: 'YouTube Videos',
+          path: AppRoutes.YouTubeVideos,
+          icon: <Video size={20} />,
+        },
+        {
+          label: 'Ayat & Hadith',
+          path: AppRoutes.AyatAndHadith,
+          icon: <BookOpen size={20} />,
+        },
+      ];
+
+  const adminNavItems = !isAdmin
+    ? []
+    : needsOnboarding
       ? [
+          {
+            label: 'Settings',
+            path: AppRoutes.Settings,
+            icon: <Settings size={20} />,
+          },
+        ]
+      : [
           {
             label: 'Screens',
             path: AppRoutes.Screens,
@@ -107,8 +117,16 @@ export default function Sidebar({ onClose, isMobile = false }: SidebarProps) {
             path: AppRoutes.Support,
             icon: <LifeBuoy size={20} />,
           },
-        ]
-      : []),
+        ];
+
+  const allNavItems = [
+    {
+      label: 'Home',
+      path: AppRoutes.Home,
+      icon: <Home size={20} />,
+    },
+    ...contentNavItems,
+    ...adminNavItems,
   ];
 
   const navItems = allNavItems;
