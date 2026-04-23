@@ -5,7 +5,27 @@ import { useAuthStore } from '@/store';
 
 export default function Home() {
   const role = useAuthStore(s => s.role);
+  const masjidId = useAuthStore(s => s.masjidId);
   const isAdmin = role === 'admin';
+  const needsOnboarding = !masjidId;
+
+  if (needsOnboarding) {
+    return (
+      <div className='container mx-auto py-8 space-y-6'>
+        <WelcomeHeader
+          title='Welcome to PrayerBox'
+          subtitle='Set up your masjid profile to get started'
+        />
+        <ModuleCard
+          title='Masjid Profile'
+          description='Add your masjid name, area, and location so you can start managing content.'
+          icon={<User className='h-10 w-10 text-primary' />}
+          path={AppRoutes.SettingsProfile}
+          color='bg-emerald-50 dark:bg-emerald-950/30'
+        />
+      </div>
+    );
+  }
 
   const modules = [
     ...(isAdmin

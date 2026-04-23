@@ -61,7 +61,9 @@ export default function Navigation() {
             setAuth(membership.masjid_id, membership.role);
             updateLastActive();
           } catch {
-            // User may not have membership yet (e.g. during registration)
+            // Fresh signup: no membership yet. Grant transient admin with
+            // a null masjidId so onboarding (Settings → Profile) is reachable.
+            setAuth(null, 'admin');
           }
         }
       } catch (error) {
@@ -83,7 +85,7 @@ export default function Navigation() {
           const membership = await getMasjidMembership();
           setAuth(membership.masjid_id, membership.role);
         } catch {
-          // User may not have membership yet
+          setAuth(null, 'admin');
         }
       } else {
         clearAuth();

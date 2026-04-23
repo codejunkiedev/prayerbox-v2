@@ -9,6 +9,7 @@ import {
   updateRecord,
   insertRecord,
 } from '../helpers';
+import { useAuthStore } from '@/store';
 
 /**
  * Gets the masjid profile for the current authenticated user
@@ -90,6 +91,13 @@ export async function upsertMasjidProfile(
     );
   } else {
     profileToUpsert.created_at = new Date().toISOString();
-    return await insertRecord<MasjidProfile>(SupabaseTables.MasjidProfiles, profileToUpsert);
+    const created = await insertRecord<MasjidProfile>(
+      SupabaseTables.MasjidProfiles,
+      profileToUpsert
+    );
+    // The on_masjid_profile_insert trigger creates the admin membership
+    // server-side; mirror that into the client auth store.
+    useAuthStore.getState().setAuth(created.id, 'admin');
+    return created;
   }
 }
