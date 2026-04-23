@@ -1,4 +1,4 @@
-import { AppRoutes } from '@/constants';
+import { AppRoutes, AuthRoutes } from '@/constants';
 import supabase from './index';
 import { PostgrestError, type Session } from '@supabase/supabase-js';
 import type { MemberRole, SupabaseBuckets, SupabaseFolders } from '@/types';
@@ -341,7 +341,12 @@ export async function updateUserPasswordWithVerification(
  * @param newEmail The new email address
  */
 export async function updateUserEmail(newEmail: string) {
-  const { error } = await supabase.auth.updateUser({ email: newEmail });
+  const origin = window.location.origin;
+  const adminLoginRoute = `${origin}${AuthRoutes.Login}`;
+  const { error } = await supabase.auth.updateUser(
+    { email: newEmail },
+    { emailRedirectTo: adminLoginRoute }
+  );
 
   if (error) {
     console.error('Error updating user email:', error);
