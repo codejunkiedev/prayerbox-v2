@@ -1,4 +1,4 @@
-import { SupabaseBuckets, SupabaseTables, type MasjidMember, type MasjidProfile } from '@/types';
+import { SupabaseBuckets, SupabaseTables, type MasjidProfile } from '@/types';
 import type { MasjidProfileData } from '../../zod';
 import {
   getCurrentUser,
@@ -84,7 +84,6 @@ export async function upsertMasjidProfile(
   else if (shouldRemoveLogo) profileToUpsert.logo_url = '';
 
   if (existingProfile) {
-    await ensureAdminMembership(existingProfile.id as string, user.id, profileData.name);
     return await updateRecord<MasjidProfile>(
       SupabaseTables.MasjidProfiles,
       existingProfile.id as string,
@@ -96,30 +95,9 @@ export async function upsertMasjidProfile(
       SupabaseTables.MasjidProfiles,
       profileToUpsert
     );
-
-    await ensureAdminMembership(created.id, user.id, profileData.name);
-
+    // The on_masjid_profile_insert trigger creates the admin membership
+    // server-side; mirror that into the client auth store.
+    useAuthStore.getState().setAuth(created.id, 'admin');
     return created;
   }
-}
-
-async function ensureAdminMembership(
-  masjidId: string,
-  userId: string,
-  name: string
-): Promise<void> {
-  try {
-    const { masjid_id } = await getMasjidMembership();
-    if (masjid_id === masjidId) return;
-  } catch {
-    // no membership yet — fall through to bootstrap
-  }
-
-  await insertRecord<MasjidMember>(SupabaseTables.MasjidMembers, {
-    masjid_id: masjidId,
-    user_id: userId,
-    role: 'admin',
-    name,
-  });
-  useAuthStore.getState().setAuth(masjidId, 'admin');
 }
