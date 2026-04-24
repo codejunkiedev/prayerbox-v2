@@ -7,6 +7,7 @@ import {
   fetchByColumn,
   updateRecord,
 } from '../helpers';
+import { getOrCreatePrayerAdjustments } from './prayer-times';
 
 export async function getSettings(masjidId?: string): Promise<Settings | null> {
   try {
@@ -109,11 +110,15 @@ export async function updatePrayerCalculationSettings(
 }
 
 export async function getOrCreateSettings(): Promise<Settings | null> {
-  const settings = await getSettings();
-  if (settings) return settings;
+  const existing = await getSettings();
+  if (existing) return existing;
 
   try {
-    return await createDefaultSettings();
+    const created = await createDefaultSettings();
+    // Pair the settings defaults with a matching prayer_times row so the
+    // display has adjustments (even if empty) to render against.
+    await getOrCreatePrayerAdjustments();
+    return created;
   } catch {
     // If insert fails due to unique constraint (race condition from concurrent calls),
     // the record was already created — just fetch it.

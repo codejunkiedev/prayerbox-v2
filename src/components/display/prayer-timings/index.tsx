@@ -39,7 +39,7 @@ export function PrayerTimingDisplay({
     offset: userSettings?.hijri_offset || 0,
   });
 
-  if (!prayerTimes || !userSettings || !prayerTimeSettings) return null;
+  if (!prayerTimes || !userSettings) return null;
 
   const timings = prayerTimes?.timings;
   const date = prayerTimes?.date;

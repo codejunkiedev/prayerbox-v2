@@ -39,8 +39,9 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
 
         if (isNullOrUndefined(latitude) || isNullOrUndefined(longitude)) {
           setErrorMessage({
-            title: 'Masjid profile is not set',
-            description: 'Please set your masjid profile to continue',
+            title: 'Masjid location is missing',
+            description:
+              'Prayer times need latitude and longitude from the masjid profile. Please set the location in the admin panel, or disable prayer times on this screen.',
           });
           return;
         }
@@ -50,8 +51,9 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
 
         if (isNullOrUndefined(method) || isNullOrUndefined(school)) {
           setErrorMessage({
-            title: 'Prayer time settings are not set',
-            description: 'Please set your prayer time settings to continue',
+            title: 'Prayer calculation settings are missing',
+            description:
+              'Prayer times require a calculation method and juristic school. Please configure them in the admin panel, or disable prayer times on this screen.',
           });
           return;
         }

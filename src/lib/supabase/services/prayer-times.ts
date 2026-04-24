@@ -25,6 +25,32 @@ export async function getPrayerAdjustments(masjidId?: string): Promise<PrayerTim
 }
 
 /**
+ * Gets the prayer_times row for the current user's masjid, creating a default
+ * (empty-adjustments) row if one does not exist yet.
+ */
+export async function getOrCreatePrayerAdjustments(): Promise<PrayerTimes | null> {
+  const existing = await getPrayerAdjustments();
+  if (existing) return existing;
+
+  const user = await getCurrentUser();
+  if (!user) return null;
+  const { masjid_id } = await getMasjidMembership();
+
+  try {
+    const now = new Date().toISOString();
+    return await insertRecord<PrayerTimes>(SupabaseTables.PrayerTimes, {
+      user_id: user.id,
+      masjid_id,
+      created_at: now,
+      updated_at: now,
+    });
+  } catch {
+    // Race or unique-constraint violation — another caller created it; just fetch.
+    return await getPrayerAdjustments();
+  }
+}
+
+/**
  * Saves or updates prayer adjustments for the current user's masjid
  * @param settings The prayer adjustments data to save
  * @returns Promise resolving to the saved prayer adjustments

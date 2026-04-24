@@ -22,6 +22,7 @@ import {
 } from '@/lib/supabase';
 import { MapPin } from 'lucide-react';
 import { Link } from 'react-router';
+import { isNullOrUndefined } from '@/utils';
 
 export function PrayerTimesSection() {
   const [isLoading, setIsLoading] = useState(true);
@@ -41,13 +42,11 @@ export function PrayerTimesSection() {
         setIsLoading(true);
         const [settings, profile] = await Promise.all([getOrCreateSettings(), getMasjidProfile()]);
 
-        if (settings) {
-          if (settings.calculation_method !== undefined) {
-            setCalculationMethod(settings.calculation_method);
-          }
-          if (settings.juristic_school !== undefined) {
-            setJuristicSchool(settings.juristic_school);
-          }
+        if (settings && !isNullOrUndefined(settings.calculation_method)) {
+          setCalculationMethod(settings.calculation_method);
+        }
+        if (settings && !isNullOrUndefined(settings.juristic_school)) {
+          setJuristicSchool(settings.juristic_school);
         }
 
         if (profile && profile.latitude && profile.longitude) {

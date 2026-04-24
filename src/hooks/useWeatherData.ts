@@ -26,9 +26,9 @@ export function useWeatherData(enabled: boolean = true) {
 
       if (isNullOrUndefined(latitude) || isNullOrUndefined(longitude)) {
         setErrorMessage({
-          title: 'Location not available',
+          title: 'Masjid location is missing',
           description:
-            'Weather data requires location coordinates to be set in your masjid profile',
+            'Weather requires latitude and longitude from the masjid profile. Please set the location in the admin panel, or disable weather on this screen.',
         });
         return;
       }
