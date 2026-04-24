@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { PrayerTimingsModal } from '@/components/modals';
-import { getMasjidProfile, getPrayerAdjustments, getOrCreateSettings } from '@/lib/supabase';
+import {
+  getMasjidProfile,
+  getOrCreatePrayerAdjustments,
+  getOrCreateSettings,
+} from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { AlAdhanPrayerTimes, PrayerTimes, Settings } from '@/types';
 import { useTrigger } from '@/hooks';
@@ -66,7 +70,7 @@ export default function PrayerTimings() {
 
         const [settings, prayerSettings] = await Promise.all([
           getOrCreateSettings(),
-          getPrayerAdjustments(),
+          getOrCreatePrayerAdjustments(),
         ]);
         setUserSettings(settings);
         setSavedSettings(prayerSettings);
