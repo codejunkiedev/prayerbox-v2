@@ -17,7 +17,7 @@ import {
   LocationNotSet,
   PrayerTimingsSettingsNotSet,
 } from '@/components/prayer-times';
-import { getCurrentDate } from '@/utils';
+import { getCurrentDate, isNullOrUndefined } from '@/utils';
 
 const currentDate = getCurrentDate();
 
@@ -75,7 +75,11 @@ export default function PrayerTimings() {
         setUserSettings(settings);
         setSavedSettings(prayerSettings);
 
-        if (!settings?.calculation_method || !settings?.juristic_school) return;
+        if (
+          isNullOrUndefined(settings?.calculation_method) ||
+          isNullOrUndefined(settings?.juristic_school)
+        )
+          return;
 
         const response = await fetchPrayerTimesForThisMonth({
           date: currentDate,
@@ -119,7 +123,10 @@ export default function PrayerTimings() {
       return <LocationNotSet />;
     }
 
-    if (!userSettings?.calculation_method || !userSettings?.juristic_school) {
+    if (
+      isNullOrUndefined(userSettings?.calculation_method) ||
+      isNullOrUndefined(userSettings?.juristic_school)
+    ) {
       return <PrayerTimingsSettingsNotSet />;
     }
 
