@@ -226,6 +226,8 @@ export default function AyatHadithDesigner() {
           <Canvas
             ref={canvasRef}
             orientation={orientation}
+            type={content.type}
+            source={buildSource()}
             style={style}
             cachedText={cachedText}
             showUrdu={content.showUrdu}
