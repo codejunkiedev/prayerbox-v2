@@ -78,10 +78,11 @@ export function useFetchDisplayData(): ReturnType {
         // Update screen settings in store if changed
         setDisplayScreen(latestScreen);
 
-        if (!settings) {
+        if (!settings && latestScreen.show_prayer_times) {
           setErrorMessage({
-            title: 'User settings are not set',
-            description: 'Please set your user settings to continue',
+            title: 'Prayer time settings are missing',
+            description:
+              'Prayer times are enabled for this screen but calculation method and juristic school have not been configured. Please set them in the admin panel, or disable prayer times on this screen.',
           });
           return;
         }
