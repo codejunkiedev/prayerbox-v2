@@ -9,7 +9,7 @@ import { getAdjustedPrayerTime, PRAYER_NAMES } from './prayer-time-adjustments';
  */
 export function getProcessedPrayerTimings(
   prayerTimes: AlAdhanPrayerTimes,
-  prayerTimeSettings: PrayerTimes
+  prayerTimeSettings: PrayerTimes | null
 ): ProcessedPrayerTiming[] {
   const timings = prayerTimes.timings;
 
