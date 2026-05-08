@@ -2,24 +2,22 @@ import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { toast } from 'sonner';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
-import { updateTheme } from '@/lib/supabase';
-import type { Settings } from '@/types';
+import { updateScreenTheme } from '@/lib/supabase';
+import type { DisplayScreen } from '@/types';
 import { Theme } from '@/types';
 
 interface ThemeSectionProps {
-  settings: Settings | null;
-  onSettingsChange: (settings: Settings) => void;
-  isLoading: boolean;
+  screen: DisplayScreen;
+  onScreenChange: (screen: DisplayScreen) => void;
 }
 
 /**
- * Component that allows users to select and preview different background themes
- * for the prayer timings screen. Changes are automatically saved when a theme
- * is selected.
+ * Per-screen background theme picker for the prayer timings display.
+ * Saves immediately on selection.
  */
-export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSectionProps) {
+export function ThemeSection({ screen, onScreenChange }: ThemeSectionProps) {
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedTheme, setSelectedTheme] = useState<Theme | undefined>(settings?.theme);
+  const [selectedTheme, setSelectedTheme] = useState<Theme>(screen.theme);
 
   const themeImageMap: Record<Theme, string> = {
     [Theme.Theme1]: new URL('@/assets/themes/theme-1/background.jpg', import.meta.url).href,
@@ -30,43 +28,35 @@ export function ThemeSection({ settings, onSettingsChange, isLoading }: ThemeSec
   const themeOptions = Object.values(Theme);
 
   useEffect(() => {
-    if (isLoading) return;
+    setSelectedTheme(screen.theme);
+  }, [screen.theme]);
 
-    if (settings?.theme) {
-      setSelectedTheme(settings.theme);
-    }
-  }, [settings, isLoading]);
-
-  /**
-   * Handles theme selection and updates the settings in the database
-   */
   const handleThemeSelect = async (theme: Theme) => {
-    if (!settings) return;
     if (theme === selectedTheme) return;
 
+    const previous = selectedTheme;
     try {
       setIsSaving(true);
       setSelectedTheme(theme);
-      const updatedSettings = await updateTheme(theme);
-      onSettingsChange(updatedSettings);
+      const updated = await updateScreenTheme(screen.id, theme);
+      onScreenChange(updated);
       toast.success('Theme updated successfully');
     } catch (error) {
       console.error('Error updating theme:', error);
+      setSelectedTheme(previous);
       toast.error('Failed to update theme');
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (isLoading) return <div className='animate-pulse bg-muted rounded-lg h-48'></div>;
-
   return (
     <Card>
       <CardHeader>
         <CardTitle>Prayer Timings Display Theme</CardTitle>
         <CardDescription>
-          Select a background theme for the prayer timings display screen. This only affects the
-          public display view that shows prayer times. Your choice will be saved automatically.
+          Select a background theme for this screen's prayer timings display. Each screen can have
+          its own theme. Your choice is saved automatically.
         </CardDescription>
       </CardHeader>
       <CardContent>

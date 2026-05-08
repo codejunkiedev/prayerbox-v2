@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Palette, Calendar, UserRound, Shield, Clock } from 'lucide-react';
+import { Calendar, UserRound, Shield, Clock } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
@@ -13,14 +13,6 @@ const settingsModules = [
     route: AppRoutes.SettingsProfile,
     color: 'text-orange-600',
     requiresMasjid: false,
-  },
-  {
-    title: 'Themes',
-    description: 'Choose and customize display themes',
-    icon: Palette,
-    route: AppRoutes.SettingsThemes,
-    color: 'text-purple-600',
-    requiresMasjid: true,
   },
   {
     title: 'Prayer Times',

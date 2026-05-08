@@ -22,7 +22,14 @@ import {
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { EffectFade, Keyboard } from 'swiper/modules';
-import type { Announcement, AyatAndHadith, Event, Post, YouTubeVideo } from '@/types';
+import {
+  Theme,
+  type Announcement,
+  type AyatAndHadith,
+  type Event,
+  type Post,
+  type YouTubeVideo,
+} from '@/types';
 import './display.css';
 
 const SLIDE_DELAY = 9000;
@@ -226,6 +233,7 @@ export default function Display() {
               prayerTimeSettings={prayerTimeSettings}
               userSettings={userSettings}
               orientation={displayScreen?.orientation ?? 'landscape'}
+              theme={displayScreen?.theme ?? Theme.Theme1}
             />
           </SwiperSlide>
         )}

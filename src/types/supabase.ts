@@ -115,6 +115,7 @@ export interface DisplayScreen extends Base {
   orientation: ScreenOrientation;
   show_prayer_times: boolean;
   show_weather: boolean;
+  theme: Theme;
 }
 
 export interface ScreenContent {
@@ -164,7 +165,6 @@ export interface PrayerTimes extends Base {
 }
 
 export interface Settings extends Base {
-  theme: Theme;
   hijri_calculation_method?: HijriCalculationMethod;
   hijri_offset?: number;
   calculation_method?: number;

@@ -17,6 +17,7 @@ import {
   OrientationBadge,
   type Column,
 } from '@/components/common';
+import { ThemeSection } from '@/components/settings';
 import { ArrowLeft, Monitor, Copy, Check } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { useTrigger } from '@/hooks';
@@ -193,6 +194,8 @@ export default function ScreenDetail() {
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
+
+      <ThemeSection screen={screen} onScreenChange={setScreen} />
 
       <Card>
         <CardHeader>

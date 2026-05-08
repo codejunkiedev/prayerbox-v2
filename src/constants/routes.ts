@@ -20,7 +20,6 @@ export enum AppRoutes {
   Settings = '/admin/settings',
   SettingsProfile = '/admin/settings/profile',
 
-  SettingsThemes = '/admin/settings/themes',
   SettingsHijri = '/admin/settings/hijri-adjustment',
   SettingsAccount = '/admin/settings/account',
   SettingsPrayerTimes = '/admin/settings/prayer-times',
