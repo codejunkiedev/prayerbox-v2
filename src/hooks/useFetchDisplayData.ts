@@ -9,11 +9,12 @@ import {
   type AyatAndHadith,
 } from '@/types';
 import { useDisplayStore } from '@/store';
-import {
+import supabase, {
+  fetchContentByTableAndIds,
+  getMasjidProfileByMasjidId,
+  getScreenById,
   getSettings,
   getVisibleScreenContent,
-  fetchContentByTableAndIds,
-  getScreenById,
 } from '@/lib/supabase';
 import type { ErrorMessage } from '@/components/display';
 import { readDisplayCache, writeDisplayCache, type DisplayDataCache } from '@/utils';
@@ -43,6 +44,10 @@ type ContentRecord = (Announcement | Event | Post | YouTubeVideo | AyatAndHadith
   id: string;
 };
 
+// Coalesce bursts of realtime events (e.g. reordering many rows fires one event
+// per row) into a single refetch.
+const REALTIME_DEBOUNCE_MS = 250;
+
 const buildOrderedContent = (
   screenContentRows: DisplayDataCache['screenContent'],
   contentItems: DisplayDataCache['contentItems']
@@ -68,14 +73,19 @@ const buildOrderedContent = (
  * Hydrates from localStorage cache so the screen renders offline. The network
  * fetch runs in the background; on success the cache is updated, on failure
  * the cached data keeps showing.
+ *
+ * Subscribes to Supabase Realtime so admin edits (content, screen settings,
+ * profile, prayer settings) propagate to the display without a reload.
  */
 export function useFetchDisplayData(): ReturnType {
   const [fetching, setFetching] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [orderedContent, setOrderedContent] = useState<DisplayContentItem[]>([]);
   const [userSettings, setUserSettings] = useState<Settings | null>(null);
+  const [refreshKey, setRefreshKey] = useState<number>(0);
 
-  const { masjidProfile, displayScreen, setDisplayScreen, signOut } = useDisplayStore();
+  const { masjidProfile, displayScreen, setDisplayScreen, setMasjidProfile, signOut } =
+    useDisplayStore();
   const masjidId = masjidProfile?.id;
   const screenId = displayScreen?.id;
 
@@ -84,34 +94,38 @@ export function useFetchDisplayData(): ReturnType {
 
     if (!masjidId || !screenId) return () => abortController.abort();
 
+    const isInitialFetch = refreshKey === 0;
     let hasCachedData = false;
-    const cached = readDisplayCache(screenId);
-    if (cached) {
-      hasCachedData = true;
-      setUserSettings(cached.settings);
-      setOrderedContent(buildOrderedContent(cached.screenContent, cached.contentItems));
-      setDisplayScreen(cached.screen);
+
+    if (isInitialFetch) {
+      const cached = readDisplayCache(screenId);
+      if (cached) {
+        hasCachedData = true;
+        setUserSettings(cached.settings);
+        setOrderedContent(buildOrderedContent(cached.screenContent, cached.contentItems));
+        setDisplayScreen(cached.screen);
+      }
     }
 
     const req = async () => {
-      if (!hasCachedData) setFetching(true);
+      if (isInitialFetch && !hasCachedData) setFetching(true);
       setErrorMessage(null);
 
       try {
-        const [settings, screenContentRows, latestScreen] = await Promise.all([
+        const [settings, screenContentRows, latestScreen, latestProfile] = await Promise.all([
           getSettings(masjidId),
           getVisibleScreenContent(screenId),
           getScreenById(screenId),
+          getMasjidProfileByMasjidId(masjidId),
         ]);
 
-        // If screen was deleted, sign out so the display redirects to login
         if (!latestScreen) {
           signOut();
           return;
         }
 
-        // Update screen settings in store if changed
         setDisplayScreen(latestScreen);
+        if (latestProfile) setMasjidProfile(latestProfile);
 
         if (!settings && latestScreen.show_prayer_times) {
           setErrorMessage({
@@ -155,8 +169,7 @@ export function useFetchDisplayData(): ReturnType {
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') return;
         console.error('Error fetching data:', error);
-        // Keep showing cached data if we have it; otherwise surface a soft error.
-        if (!hasCachedData) {
+        if (isInitialFetch && !hasCachedData) {
           setErrorMessage({
             title: 'Unable to load display content',
             description:
@@ -171,6 +184,94 @@ export function useFetchDisplayData(): ReturnType {
 
     return () => {
       abortController.abort();
+    };
+  }, [masjidId, screenId, refreshKey]);
+
+  // Realtime subscription: bump refreshKey whenever any source table the
+  // display depends on changes for this masjid/screen.
+  useEffect(() => {
+    if (!masjidId || !screenId) return;
+
+    let debounceTimer = 0;
+    const scheduleRefresh = () => {
+      window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(() => {
+        setRefreshKey(k => k + 1);
+      }, REALTIME_DEBOUNCE_MS);
+    };
+
+    const channel = supabase
+      .channel(`display:${screenId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'display_screens', filter: `id=eq.${screenId}` },
+        scheduleRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'screen_content',
+          filter: `screen_id=eq.${screenId}`,
+        },
+        scheduleRefresh
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'settings', filter: `masjid_id=eq.${masjidId}` },
+        scheduleRefresh
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'masjid_profiles', filter: `id=eq.${masjidId}` },
+        scheduleRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'announcements',
+          filter: `masjid_id=eq.${masjidId}`,
+        },
+        scheduleRefresh
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'events', filter: `masjid_id=eq.${masjidId}` },
+        scheduleRefresh
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'posts', filter: `masjid_id=eq.${masjidId}` },
+        scheduleRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'youtube_videos',
+          filter: `masjid_id=eq.${masjidId}`,
+        },
+        scheduleRefresh
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'ayat_and_hadith',
+          filter: `masjid_id=eq.${masjidId}`,
+        },
+        scheduleRefresh
+      )
+      .subscribe();
+
+    return () => {
+      window.clearTimeout(debounceTimer);
+      supabase.removeChannel(channel);
     };
   }, [masjidId, screenId]);
 
