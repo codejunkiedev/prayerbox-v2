@@ -9,3 +9,4 @@ export default supabase;
 
 export * from './services';
 export * from './helpers';
+export * from './realtime';

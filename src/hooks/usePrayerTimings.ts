@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { AlAdhanPrayerTimes, PrayerTimes, Settings } from '@/types';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type AlAdhanPrayerTimes, type PrayerTimes, type Settings, SupabaseTables } from '@/types';
 import { useDisplayStore } from '@/store';
-import supabase, { getPrayerAdjustments, getSettings } from '@/lib/supabase';
+import { getPrayerAdjustments, getSettings, type TableSubscription } from '@/lib/supabase';
 import { fetchPrayerTimesForThisMonth } from '@/api';
 import {
   findTodayInMonth,
@@ -11,6 +11,7 @@ import {
   writePrayerTimesMonth,
 } from '@/utils';
 import type { ErrorMessage } from '@/components/display';
+import { useRealtimeRefresh } from './useRealtimeRefresh';
 
 type ReturnType = {
   isLoading: boolean;
@@ -25,9 +26,6 @@ const millisecondsUntilNextMidnight = (now: Date): number => {
   return nextMidnight.getTime() - now.getTime();
 };
 
-// Coalesce bursts of realtime events into a single refetch.
-const REALTIME_DEBOUNCE_MS = 250;
-
 /**
  * Custom hook to fetch and manage prayer times and settings.
  *
@@ -41,11 +39,24 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes | null>(null);
   const [prayerTimeSettings, setPrayerTimeSettings] = useState<PrayerTimes | null>(null);
-  const [refreshKey, setRefreshKey] = useState<number>(0);
   const monthDaysRef = useRef<AlAdhanPrayerTimes[] | null>(null);
 
   const { masjidProfile } = useDisplayStore();
   const masjidId = masjidProfile?.id;
+
+  const subscriptions = useMemo<TableSubscription[]>(() => {
+    if (!masjidId) return [];
+    const masjidFilter = `masjid_id=eq.${masjidId}`;
+    return [
+      { table: SupabaseTables.Settings, filter: masjidFilter },
+      { table: SupabaseTables.PrayerTimes, filter: masjidFilter },
+    ];
+  }, [masjidId]);
+
+  const refreshKey = useRealtimeRefresh(
+    enabled && masjidId ? `prayer-times:${masjidId}` : null,
+    subscriptions
+  );
 
   const fetchPrayerTimes = useCallback(
     async (
@@ -180,39 +191,6 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
       abortController.abort();
     };
   }, [enabled, fetchPrayerTimes, masjidId, masjidProfile, refreshKey]);
-
-  // Realtime: re-fetch when calculation settings or prayer adjustments change.
-  // Location changes propagate via the masjidProfile dep above.
-  useEffect(() => {
-    if (!enabled || !masjidId) return;
-
-    let debounceTimer = 0;
-    const scheduleRefresh = () => {
-      window.clearTimeout(debounceTimer);
-      debounceTimer = window.setTimeout(() => {
-        setRefreshKey(k => k + 1);
-      }, REALTIME_DEBOUNCE_MS);
-    };
-
-    const channel = supabase
-      .channel(`prayer-times:${masjidId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'settings', filter: `masjid_id=eq.${masjidId}` },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'prayer_times', filter: `masjid_id=eq.${masjidId}` },
-        scheduleRefresh
-      )
-      .subscribe();
-
-    return () => {
-      window.clearTimeout(debounceTimer);
-      supabase.removeChannel(channel);
-    };
-  }, [enabled, masjidId]);
 
   // At midnight, re-pick today's row from the cached month so prayer times
   // roll over without a network call. If the month has changed, the cached

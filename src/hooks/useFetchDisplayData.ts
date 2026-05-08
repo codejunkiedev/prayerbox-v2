@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   type Announcement,
   type Event,
@@ -7,17 +7,20 @@ import {
   type Settings,
   type ScreenContentType,
   type AyatAndHadith,
+  SupabaseTables,
 } from '@/types';
 import { useDisplayStore } from '@/store';
-import supabase, {
+import {
   fetchContentByTableAndIds,
   getMasjidProfileByMasjidId,
   getScreenById,
   getSettings,
   getVisibleScreenContent,
+  type TableSubscription,
 } from '@/lib/supabase';
 import type { ErrorMessage } from '@/components/display';
 import { readDisplayCache, writeDisplayCache, type DisplayDataCache } from '@/utils';
+import { useRealtimeRefresh } from './useRealtimeRefresh';
 
 export type DisplayContentItem = {
   contentType: ScreenContentType;
@@ -43,10 +46,6 @@ const TABLE_MAP: Record<string, string> = {
 type ContentRecord = (Announcement | Event | Post | YouTubeVideo | AyatAndHadith) & {
   id: string;
 };
-
-// Coalesce bursts of realtime events (e.g. reordering many rows fires one event
-// per row) into a single refetch.
-const REALTIME_DEBOUNCE_MS = 250;
 
 const buildOrderedContent = (
   screenContentRows: DisplayDataCache['screenContent'],
@@ -82,12 +81,32 @@ export function useFetchDisplayData(): ReturnType {
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
   const [orderedContent, setOrderedContent] = useState<DisplayContentItem[]>([]);
   const [userSettings, setUserSettings] = useState<Settings | null>(null);
-  const [refreshKey, setRefreshKey] = useState<number>(0);
 
   const { masjidProfile, displayScreen, setDisplayScreen, setMasjidProfile, signOut } =
     useDisplayStore();
   const masjidId = masjidProfile?.id;
   const screenId = displayScreen?.id;
+
+  const subscriptions = useMemo<TableSubscription[]>(() => {
+    if (!masjidId || !screenId) return [];
+    const masjidFilter = `masjid_id=eq.${masjidId}`;
+    return [
+      { table: SupabaseTables.DisplayScreens, filter: `id=eq.${screenId}` },
+      { table: SupabaseTables.ScreenContent, filter: `screen_id=eq.${screenId}` },
+      { table: SupabaseTables.Settings, filter: masjidFilter },
+      { table: SupabaseTables.MasjidProfiles, filter: `id=eq.${masjidId}` },
+      { table: SupabaseTables.Announcements, filter: masjidFilter },
+      { table: SupabaseTables.Events, filter: masjidFilter },
+      { table: SupabaseTables.Posts, filter: masjidFilter },
+      { table: SupabaseTables.YouTubeVideos, filter: masjidFilter },
+      { table: SupabaseTables.AyatAndHadith, filter: masjidFilter },
+    ];
+  }, [masjidId, screenId]);
+
+  const refreshKey = useRealtimeRefresh(
+    masjidId && screenId ? `display:${screenId}` : null,
+    subscriptions
+  );
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -186,94 +205,6 @@ export function useFetchDisplayData(): ReturnType {
       abortController.abort();
     };
   }, [masjidId, screenId, refreshKey]);
-
-  // Realtime subscription: bump refreshKey whenever any source table the
-  // display depends on changes for this masjid/screen.
-  useEffect(() => {
-    if (!masjidId || !screenId) return;
-
-    let debounceTimer = 0;
-    const scheduleRefresh = () => {
-      window.clearTimeout(debounceTimer);
-      debounceTimer = window.setTimeout(() => {
-        setRefreshKey(k => k + 1);
-      }, REALTIME_DEBOUNCE_MS);
-    };
-
-    const channel = supabase
-      .channel(`display:${screenId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'display_screens', filter: `id=eq.${screenId}` },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'screen_content',
-          filter: `screen_id=eq.${screenId}`,
-        },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'settings', filter: `masjid_id=eq.${masjidId}` },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'masjid_profiles', filter: `id=eq.${masjidId}` },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'announcements',
-          filter: `masjid_id=eq.${masjidId}`,
-        },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'events', filter: `masjid_id=eq.${masjidId}` },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'posts', filter: `masjid_id=eq.${masjidId}` },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'youtube_videos',
-          filter: `masjid_id=eq.${masjidId}`,
-        },
-        scheduleRefresh
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'ayat_and_hadith',
-          filter: `masjid_id=eq.${masjidId}`,
-        },
-        scheduleRefresh
-      )
-      .subscribe();
-
-    return () => {
-      window.clearTimeout(debounceTimer);
-      supabase.removeChannel(channel);
-    };
-  }, [masjidId, screenId]);
 
   return {
     isLoading: fetching,
