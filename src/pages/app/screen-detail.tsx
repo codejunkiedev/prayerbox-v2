@@ -18,7 +18,8 @@ import {
   type Column,
 } from '@/components/common';
 import { ThemeSection } from '@/components/settings';
-import { ArrowLeft, Monitor, Copy, Check } from 'lucide-react';
+import { ScreenModal } from '@/components/modals';
+import { ArrowLeft, Monitor, Copy, Check, Pencil } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
@@ -39,6 +40,7 @@ export default function ScreenDetail() {
   const [error, setError] = useState<string | null>(null);
   const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -199,7 +201,13 @@ export default function ScreenDetail() {
 
       <Card>
         <CardHeader>
-          <CardTitle className='text-base'>Screen Info</CardTitle>
+          <div className='flex justify-between items-center'>
+            <CardTitle className='text-base'>Screen Info</CardTitle>
+            <Button variant='outline' size='sm' onClick={() => setIsEditModalOpen(true)}>
+              <Pencil className='h-4 w-4 mr-2' />
+              Edit
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
@@ -257,6 +265,13 @@ export default function ScreenDetail() {
           rowClassName={item => (item.visible ? '' : 'opacity-40')}
         />
       )}
+
+      <ScreenModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSuccess={forceUpdate}
+        initialData={screen}
+      />
     </div>
   );
 }
