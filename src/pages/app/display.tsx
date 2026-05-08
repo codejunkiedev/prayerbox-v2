@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useFetchDisplayData,
+  useOnlineStatus,
   useOrientationMismatch,
   usePrayerTimings,
   useWakeLock,
@@ -43,7 +44,24 @@ export default function Display() {
   const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
   const showWeather = displayScreen?.show_weather ?? true;
 
-  const { isLoading, errorMessage, orderedContent, userSettings } = useFetchDisplayData();
+  const isOnline = useOnlineStatus();
+
+  const {
+    isLoading,
+    errorMessage,
+    orderedContent: rawOrderedContent,
+    userSettings,
+  } = useFetchDisplayData();
+
+  // YouTube embeds need a live network connection, so drop those slides when
+  // we're offline — the slideshow keeps cycling through the remaining content.
+  const orderedContent = useMemo(
+    () =>
+      isOnline
+        ? rawOrderedContent
+        : rawOrderedContent.filter(item => item.contentType !== 'youtube_videos'),
+    [rawOrderedContent, isOnline]
+  );
 
   const {
     isLoading: isPrayerTimingsLoading,
