@@ -15,8 +15,8 @@ import {
   fetchContentByTableAndIds,
   getScreenById,
 } from '@/lib/supabase';
-import { toast } from 'sonner';
 import type { ErrorMessage } from '@/components/display';
+import { readDisplayCache, writeDisplayCache, type DisplayDataCache } from '@/utils';
 
 export type DisplayContentItem = {
   contentType: ScreenContentType;
@@ -39,9 +39,35 @@ const TABLE_MAP: Record<string, string> = {
   ayat_and_hadith: 'ayat_and_hadith',
 };
 
+type ContentRecord = (Announcement | Event | Post | YouTubeVideo | AyatAndHadith) & {
+  id: string;
+};
+
+const buildOrderedContent = (
+  screenContentRows: DisplayDataCache['screenContent'],
+  contentItems: DisplayDataCache['contentItems']
+): DisplayContentItem[] => {
+  const items: DisplayContentItem[] = [];
+  for (const row of screenContentRows) {
+    const found = contentItems[row.content_id];
+    if (found) {
+      items.push({
+        contentType: row.content_type as ScreenContentType,
+        displayOrder: row.display_order,
+        data: found,
+      });
+    }
+  }
+  return items;
+};
+
 /**
  * Custom hook to fetch display data filtered by screen content assignments.
  * Only fetches visible content, ordered by display_order.
+ *
+ * Hydrates from localStorage cache so the screen renders offline. The network
+ * fetch runs in the background; on success the cache is updated, on failure
+ * the cached data keeps showing.
  */
 export function useFetchDisplayData(): ReturnType {
   const [fetching, setFetching] = useState<boolean>(false);
@@ -58,8 +84,17 @@ export function useFetchDisplayData(): ReturnType {
 
     if (!masjidId || !screenId) return () => abortController.abort();
 
+    let hasCachedData = false;
+    const cached = readDisplayCache(screenId);
+    if (cached) {
+      hasCachedData = true;
+      setUserSettings(cached.settings);
+      setOrderedContent(buildOrderedContent(cached.screenContent, cached.contentItems));
+      setDisplayScreen(cached.screen);
+    }
+
     const req = async () => {
-      setFetching(true);
+      if (!hasCachedData) setFetching(true);
       setErrorMessage(null);
 
       try {
@@ -89,52 +124,45 @@ export function useFetchDisplayData(): ReturnType {
 
         setUserSettings(settings);
 
-        // Group content IDs by type
         const idsByType: Record<string, string[]> = {};
         for (const row of screenContentRows) {
           if (!idsByType[row.content_type]) idsByType[row.content_type] = [];
           idsByType[row.content_type].push(row.content_id);
         }
 
-        type ContentRecord = (Announcement | Event | Post | AyatAndHadith) & { id: string };
-
-        // Fetch all content in parallel
         const fetchResults = await Promise.all(
           Object.entries(idsByType).map(async ([type, ids]) => {
             const data = await fetchContentByTableAndIds<ContentRecord>(TABLE_MAP[type], ids);
-            const dataMap = new Map<string, ContentRecord>();
-            for (const item of data) {
-              dataMap.set(item.id, item);
-            }
-            return { type, dataMap };
+            return { type, data };
           })
         );
 
-        // Build a lookup: contentId -> fetched data
-        const contentDataMap = new Map<string, ContentRecord>();
-        for (const { dataMap } of fetchResults) {
-          for (const [id, data] of dataMap) {
-            contentDataMap.set(id, data);
+        const contentItems: Record<string, ContentRecord> = {};
+        for (const { data } of fetchResults) {
+          for (const item of data) {
+            contentItems[item.id] = item;
           }
         }
 
-        // Build ordered content list following screen_content display_order
-        const items: DisplayContentItem[] = [];
-        for (const row of screenContentRows) {
-          const found = contentDataMap.get(row.content_id);
-          if (found) {
-            items.push({
-              contentType: row.content_type as ScreenContentType,
-              displayOrder: row.display_order,
-              data: found,
-            });
-          }
-        }
+        setOrderedContent(buildOrderedContent(screenContentRows, contentItems));
 
-        setOrderedContent(items);
+        writeDisplayCache(screenId, {
+          settings,
+          screen: latestScreen,
+          screenContent: screenContentRows,
+          contentItems,
+        });
       } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
         console.error('Error fetching data:', error);
-        toast.error('Failed to fetch data');
+        // Keep showing cached data if we have it; otherwise surface a soft error.
+        if (!hasCachedData) {
+          setErrorMessage({
+            title: 'Unable to load display content',
+            description:
+              'No cached content is available and we could not reach the server. Check the internet connection and refresh.',
+          });
+        }
       } finally {
         setFetching(false);
       }
