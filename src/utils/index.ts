@@ -8,6 +8,7 @@ export * from './weather-background-mapping';
 export * from './weather';
 export * from './weather-cache';
 export * from './display-cache';
+export * from './prayer-times-cache';
 export * from './prayer-card-images';
 export * from './image-validation';
 export * from './password-strength';
