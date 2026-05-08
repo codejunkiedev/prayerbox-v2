@@ -3,6 +3,7 @@ import {
   type DisplayScreen,
   type ScreenContent,
   type ScreenContentType,
+  type Theme,
 } from '@/types';
 import type { ScreenData } from '../../zod';
 import {
@@ -51,6 +52,13 @@ export async function createScreen(data: ScreenData): Promise<DisplayScreen> {
 export async function updateScreen(id: string, data: ScreenData): Promise<DisplayScreen> {
   return await updateRecord<DisplayScreen>(SupabaseTables.DisplayScreens, id, {
     ...data,
+    updated_at: new Date().toISOString(),
+  });
+}
+
+export async function updateScreenTheme(id: string, theme: Theme): Promise<DisplayScreen> {
+  return await updateRecord<DisplayScreen>(SupabaseTables.DisplayScreens, id, {
+    theme,
     updated_at: new Date().toISOString(),
   });
 }

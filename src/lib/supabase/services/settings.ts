@@ -1,4 +1,4 @@
-import { SupabaseTables, type Settings, Theme } from '@/types';
+import { SupabaseTables, type Settings } from '@/types';
 import { HijriCalculationMethod, CalculationMethod, JuristicSchool } from '@/constants';
 import {
   getCurrentUser,
@@ -38,7 +38,6 @@ export async function createDefaultSettings(): Promise<Settings> {
   const settingsData: Partial<Settings> = {
     user_id: user.id,
     masjid_id,
-    theme: Theme.Theme1,
     hijri_calculation_method: HijriCalculationMethod.Umm_al_Qura,
     hijri_offset: 0,
     calculation_method: CalculationMethod.Muslim_World_League,
@@ -51,21 +50,6 @@ export async function createDefaultSettings(): Promise<Settings> {
     return await insertRecord<Settings>(SupabaseTables.Settings, settingsData);
   } catch (error) {
     console.error('Error creating default settings:', error);
-    throw error;
-  }
-}
-
-export async function updateTheme(theme: Theme): Promise<Settings> {
-  const settings = await getOrCreateSettings();
-  if (!settings) throw new Error('Failed to get or create settings');
-
-  try {
-    return await updateRecord<Settings>(SupabaseTables.Settings, settings.id, {
-      theme,
-      updated_at: new Date().toISOString(),
-    });
-  } catch (error) {
-    console.error('Error in updateTheme:', error);
     throw error;
   }
 }

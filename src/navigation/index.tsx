@@ -21,7 +21,6 @@ import {
   ScreenDetail,
   Settings,
   SettingsProfile,
-  SettingsThemes,
   SettingsHijri,
   SettingsAccount,
   SettingsPrayerTimes,
@@ -170,14 +169,6 @@ export default function Navigation() {
               element={
                 <RequireAdmin>
                   <SettingsProfile />
-                </RequireAdmin>
-              }
-            />
-            <Route
-              path={AppRoutes.SettingsThemes}
-              element={
-                <RequireAdmin>
-                  <SettingsThemes />
                 </RequireAdmin>
               }
             />
