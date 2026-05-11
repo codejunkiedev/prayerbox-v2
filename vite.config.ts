@@ -25,7 +25,9 @@ export default defineConfig(({ mode }) => {
       }),
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: 'auto',
+        // Registration is done manually in src/main.tsx so we can report
+        // service-worker registration / update failures to Sentry.
+        injectRegister: false,
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
           navigateFallback: '/index.html',
