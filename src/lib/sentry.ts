@@ -1,4 +1,6 @@
 import * as Sentry from '@sentry/react';
+import type { Session } from '@supabase/supabase-js';
+import type { MemberRole } from '@/types';
 
 export function initSentry(): void {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
@@ -38,6 +40,23 @@ export function captureSupabaseError(error: unknown, context: CaptureContext): v
     if (context.extra) scope.setExtras(context.extra);
     Sentry.captureException(error);
   });
+}
+
+export function identifySentryUser(
+  session: Session,
+  masjidId: string | null,
+  role: MemberRole | null
+): void {
+  Sentry.setUser({
+    id: session.user.id,
+    email: session.user.email,
+    masjid_id: masjidId ?? undefined,
+    role: role ?? undefined,
+  });
+}
+
+export function clearSentryUser(): void {
+  Sentry.setUser(null);
 }
 
 export { Sentry };

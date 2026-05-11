@@ -1,19 +1,8 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useEffect, useState, Suspense } from 'react';
-import * as Sentry from '@sentry/react';
 import { getCurrentSession, getMasjidMembership, updateLastActive } from '@/lib/supabase';
 import { subscribeToAuthChanges } from '@/lib/supabase';
-import type { Session } from '@supabase/supabase-js';
-import type { MemberRole } from '@/types';
-
-function identifyUser(session: Session, masjidId: string | null, role: MemberRole | null) {
-  Sentry.setUser({
-    id: session.user.id,
-    email: session.user.email,
-    masjid_id: masjidId ?? undefined,
-    role: role ?? undefined,
-  });
-}
+import { identifySentryUser, clearSentryUser } from '@/lib/sentry';
 import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
 import {
@@ -70,13 +59,13 @@ export default function Navigation() {
           try {
             const membership = await getMasjidMembership();
             setAuth(membership.masjid_id, membership.role);
-            identifyUser(session, membership.masjid_id, membership.role);
+            identifySentryUser(session, membership.masjid_id, membership.role);
             updateLastActive();
           } catch {
             // Fresh signup: no membership yet. Grant transient admin with
             // a null masjidId so onboarding (Settings → Profile) is reachable.
             setAuth(null, 'admin');
-            identifyUser(session, null, 'admin');
+            identifySentryUser(session, null, 'admin');
           }
         }
       } catch (error) {
@@ -97,14 +86,14 @@ export default function Navigation() {
         try {
           const membership = await getMasjidMembership();
           setAuth(membership.masjid_id, membership.role);
-          identifyUser(session, membership.masjid_id, membership.role);
+          identifySentryUser(session, membership.masjid_id, membership.role);
         } catch {
           setAuth(null, 'admin');
-          identifyUser(session, null, 'admin');
+          identifySentryUser(session, null, 'admin');
         }
       } else {
         clearAuth();
-        Sentry.setUser(null);
+        clearSentryUser();
       }
     });
 
