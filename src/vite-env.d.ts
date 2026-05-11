@@ -5,6 +5,8 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_PUBLISHABLE_KEY: string;
   readonly VITE_GEOAPIFY_API_KEY: string;
   readonly VITE_OPEN_WEATHER_API_KEY: string;
+  readonly VITE_SENTRY_DSN?: string;
+  readonly VITE_SENTRY_RELEASE?: string;
 }
 
 interface ImportMeta {
