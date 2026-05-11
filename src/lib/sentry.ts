@@ -25,4 +25,19 @@ export function initSentry(): void {
   });
 }
 
+type CaptureContext = {
+  operation: string;
+  source: 'supabase.postgrest' | 'supabase.auth' | 'supabase.storage' | 'supabase.functions';
+  extra?: Record<string, unknown>;
+};
+
+export function captureSupabaseError(error: unknown, context: CaptureContext): void {
+  Sentry.withScope(scope => {
+    scope.setTag('source', context.source);
+    scope.setTag('operation', context.operation);
+    if (context.extra) scope.setExtras(context.extra);
+    Sentry.captureException(error);
+  });
+}
+
 export { Sentry };
