@@ -1,3 +1,5 @@
+import { captureExternalFetchError } from '@/lib/sentry';
+
 const HADITH_BASE_URL = 'https://hadithapi.com/api';
 
 const API_KEY = import.meta.env.VITE_HADITH_API_KEY ?? '';
@@ -28,25 +30,34 @@ export async function fetchHadith(
   hadithNumber: string,
   signal?: AbortSignal
 ): Promise<HadithDetail> {
-  assertApiKey();
+  try {
+    assertApiKey();
 
-  const url = new URL(`${HADITH_BASE_URL}/hadiths`);
-  url.searchParams.set('apiKey', API_KEY);
-  url.searchParams.set('book', bookSlug);
-  url.searchParams.set('hadithNumber', hadithNumber);
+    const url = new URL(`${HADITH_BASE_URL}/hadiths`);
+    url.searchParams.set('apiKey', API_KEY);
+    url.searchParams.set('book', bookSlug);
+    url.searchParams.set('hadithNumber', hadithNumber);
 
-  const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error(`Failed to fetch hadith: ${response.status}`);
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error(`Failed to fetch hadith: ${response.status}`);
 
-  const body = (await response.json()) as { hadiths: { data: RawHadith[] } };
-  const raw = body.hadiths?.data?.[0];
-  if (!raw) throw new Error('Hadith not found');
+    const body = (await response.json()) as { hadiths: { data: RawHadith[] } };
+    const raw = body.hadiths?.data?.[0];
+    if (!raw) throw new Error('Hadith not found');
 
-  return {
-    hadith_number: raw.hadithNumber,
-    arabic: raw.hadithArabic ?? '',
-    urdu: raw.hadithUrdu ?? '',
-    english: raw.hadithEnglish ?? '',
-    narrator_english: raw.englishNarrator ?? '',
-  };
+    return {
+      hadith_number: raw.hadithNumber,
+      arabic: raw.hadithArabic ?? '',
+      urdu: raw.hadithUrdu ?? '',
+      english: raw.hadithEnglish ?? '',
+      narrator_english: raw.englishNarrator ?? '',
+    };
+  } catch (error) {
+    captureExternalFetchError(error, {
+      source: 'hadith',
+      operation: 'fetchHadith',
+      extra: { bookSlug, hadithNumber },
+    });
+    throw error;
+  }
 }

@@ -42,6 +42,25 @@ export function captureSupabaseError(error: unknown, context: CaptureContext): v
   });
 }
 
+type ExternalFetchSource = 'geoapify' | 'openweather' | 'aladhan' | 'hadith' | 'quran';
+
+type ExternalFetchContext = {
+  source: ExternalFetchSource;
+  operation: string;
+  extra?: Record<string, unknown>;
+};
+
+export function captureExternalFetchError(error: unknown, context: ExternalFetchContext): void {
+  // Aborted fetches are normal user navigation/cancellation, not bugs.
+  if (error instanceof DOMException && error.name === 'AbortError') return;
+  Sentry.withScope(scope => {
+    scope.setTag('source', context.source);
+    scope.setTag('operation', context.operation);
+    if (context.extra) scope.setExtras(context.extra);
+    Sentry.captureException(error);
+  });
+}
+
 export function identifySentryUser(
   session: Session,
   masjidId: string | null,
