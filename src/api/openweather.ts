@@ -1,4 +1,5 @@
 import type { OpenWeatherForecastResponse } from '@/types';
+import { captureExternalFetchError } from '@/lib/sentry';
 
 type WeatherForecastPayload = {
   lat: number;
@@ -17,19 +18,28 @@ export const fetchWeatherForecast = async ({
   lon,
   signal,
 }: WeatherForecastPayload): Promise<OpenWeatherForecastResponse> => {
-  const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
+  try {
+    const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
 
-  if (!apiKey) {
-    throw new Error('OpenWeather API key is not configured');
+    if (!apiKey) {
+      throw new Error('OpenWeather API key is not configured');
+    }
+
+    const url = new URL(`https://api.openweathermap.org/data/2.5/forecast`);
+    url.searchParams.set('lat', lat.toString());
+    url.searchParams.set('lon', lon.toString());
+    url.searchParams.set('appid', apiKey);
+    url.searchParams.set('units', 'metric');
+
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error(`Weather API error: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    captureExternalFetchError(error, {
+      source: 'openweather',
+      operation: 'fetchWeatherForecast',
+      extra: { lat, lon },
+    });
+    throw error;
   }
-
-  const url = new URL(`https://api.openweathermap.org/data/2.5/forecast`);
-  url.searchParams.set('lat', lat.toString());
-  url.searchParams.set('lon', lon.toString());
-  url.searchParams.set('appid', apiKey);
-  url.searchParams.set('units', 'metric');
-
-  const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error(`Weather API error: ${response.status}`);
-  return response.json();
 };

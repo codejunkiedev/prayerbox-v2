@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router';
 import { useEffect, useState, Suspense } from 'react';
 import { getCurrentSession, getMasjidMembership, updateLastActive } from '@/lib/supabase';
 import { subscribeToAuthChanges } from '@/lib/supabase';
+import { identifySentryUser, clearSentryUser } from '@/lib/sentry';
 import { AppRoutes, AuthRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
 import {
@@ -58,11 +59,13 @@ export default function Navigation() {
           try {
             const membership = await getMasjidMembership();
             setAuth(membership.masjid_id, membership.role);
+            identifySentryUser(session, membership.masjid_id, membership.role);
             updateLastActive();
           } catch {
             // Fresh signup: no membership yet. Grant transient admin with
             // a null masjidId so onboarding (Settings → Profile) is reachable.
             setAuth(null, 'admin');
+            identifySentryUser(session, null, 'admin');
           }
         }
       } catch (error) {
@@ -83,11 +86,14 @@ export default function Navigation() {
         try {
           const membership = await getMasjidMembership();
           setAuth(membership.masjid_id, membership.role);
+          identifySentryUser(session, membership.masjid_id, membership.role);
         } catch {
           setAuth(null, 'admin');
+          identifySentryUser(session, null, 'admin');
         }
       } else {
         clearAuth();
+        clearSentryUser();
       }
     });
 

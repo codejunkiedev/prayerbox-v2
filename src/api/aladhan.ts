@@ -1,6 +1,7 @@
 import type { HijriCalculationMethod } from '@/constants';
 import type { AlAdhanHijriDate, AlAdhanPrayerTimes } from '@/types';
 import { formatDate, getYearAndMonth } from '@/utils';
+import { captureExternalFetchError } from '@/lib/sentry';
 
 const AlAdhanBaseUrl = 'https://api.aladhan.com/v1';
 
@@ -33,18 +34,27 @@ export const fetchPrayerTimesForThisMonth = async ({
   school,
   signal,
 }: PrayerTimesPayload): Promise<ApiResponse<AlAdhanPrayerTimes[]>> => {
-  const [year, month] = getYearAndMonth(date);
+  try {
+    const [year, month] = getYearAndMonth(date);
 
-  const url = new URL(`${AlAdhanBaseUrl}/calendar/${year}/${month}`);
+    const url = new URL(`${AlAdhanBaseUrl}/calendar/${year}/${month}`);
 
-  url.searchParams.set('latitude', latitude.toString());
-  url.searchParams.set('longitude', longitude.toString());
-  url.searchParams.set('method', method.toString());
-  url.searchParams.set('school', school.toString());
+    url.searchParams.set('latitude', latitude.toString());
+    url.searchParams.set('longitude', longitude.toString());
+    url.searchParams.set('method', method.toString());
+    url.searchParams.set('school', school.toString());
 
-  const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error('Failed to fetch prayer times');
-  return response.json();
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error(`Failed to fetch prayer times: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    captureExternalFetchError(error, {
+      source: 'aladhan',
+      operation: 'fetchPrayerTimesForThisMonth',
+      extra: { date: date.toISOString(), latitude, longitude, method, school },
+    });
+    throw error;
+  }
 };
 
 /**
@@ -61,18 +71,27 @@ export const fetchPrayerTimesForDate = async ({
   school,
   signal,
 }: PrayerTimesPayload): Promise<ApiResponse<AlAdhanPrayerTimes>> => {
-  const dateString = formatDate(date);
+  try {
+    const dateString = formatDate(date);
 
-  const url = new URL(`${AlAdhanBaseUrl}/timings/${dateString}`);
+    const url = new URL(`${AlAdhanBaseUrl}/timings/${dateString}`);
 
-  url.searchParams.set('latitude', latitude.toString());
-  url.searchParams.set('longitude', longitude.toString());
-  url.searchParams.set('method', method.toString());
-  url.searchParams.set('school', school.toString());
+    url.searchParams.set('latitude', latitude.toString());
+    url.searchParams.set('longitude', longitude.toString());
+    url.searchParams.set('method', method.toString());
+    url.searchParams.set('school', school.toString());
 
-  const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error('Failed to fetch prayer times');
-  return response.json();
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error(`Failed to fetch prayer times: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    captureExternalFetchError(error, {
+      source: 'aladhan',
+      operation: 'fetchPrayerTimesForDate',
+      extra: { date: date.toISOString(), latitude, longitude, method, school },
+    });
+    throw error;
+  }
 };
 
 export interface HijriDatePayload {
@@ -92,13 +111,22 @@ export const fetchHijriDate = async ({
   method,
   signal,
 }: HijriDatePayload): Promise<ApiResponse<AlAdhanHijriDate>> => {
-  const dateString = formatDate(date);
+  try {
+    const dateString = formatDate(date);
 
-  const url = new URL(`${AlAdhanBaseUrl}/gToH/${dateString}`);
+    const url = new URL(`${AlAdhanBaseUrl}/gToH/${dateString}`);
 
-  url.searchParams.set('calendarMethod', method);
+    url.searchParams.set('calendarMethod', method);
 
-  const response = await fetch(url, { signal });
-  if (!response.ok) throw new Error('Failed to fetch Hijri date');
-  return response.json();
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error(`Failed to fetch Hijri date: ${response.status}`);
+    return response.json();
+  } catch (error) {
+    captureExternalFetchError(error, {
+      source: 'aladhan',
+      operation: 'fetchHijriDate',
+      extra: { date: date.toISOString(), method },
+    });
+    throw error;
+  }
 };

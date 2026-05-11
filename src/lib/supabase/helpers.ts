@@ -2,6 +2,18 @@ import { AppRoutes, AuthRoutes } from '@/constants';
 import supabase from './index';
 import { PostgrestError, type Session } from '@supabase/supabase-js';
 import type { MemberRole, SupabaseBuckets, SupabaseFolders } from '@/types';
+import { captureSupabaseError } from '@/lib/sentry';
+
+// Supabase auth statuses that are expected user-input errors (wrong password,
+// already-registered email, rate limited). Don't report these to Sentry —
+// they're not bugs.
+const EXPECTED_AUTH_STATUSES = new Set([400, 422, 429]);
+
+function isExpectedAuthError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false;
+  const status = (error as { status?: number }).status;
+  return typeof status === 'number' && EXPECTED_AUTH_STATUSES.has(status);
+}
 
 /**
  * Helper to subscribe to auth changes
@@ -83,6 +95,16 @@ export async function updateLastActive(): Promise<void> {
  */
 export function handleSupabaseError(error: PostgrestError, customMessage?: string): Error {
   console.error(customMessage || 'Supabase error:', error);
+
+  // PGRST116 = no rows returned for `.single()` — typically a normal flow,
+  // not a bug. Don't ship to Sentry.
+  if (error.code !== 'PGRST116') {
+    captureSupabaseError(error, {
+      source: 'supabase.postgrest',
+      operation: customMessage || 'postgrest_query',
+      extra: { code: error.code, details: error.details, hint: error.hint },
+    });
+  }
 
   // Handle specific error codes
   if (error.code === 'PGRST116') {
@@ -215,6 +237,11 @@ export async function listFiles(
 
   if (error) {
     console.error(`Error listing files from ${bucket}:`, error);
+    captureSupabaseError(error, {
+      source: 'supabase.storage',
+      operation: 'list_files',
+      extra: { bucket, folder },
+    });
     throw new Error(`Error listing files from ${bucket}: ${error.message}`);
   }
 
@@ -247,6 +274,11 @@ export async function uploadFile(bucket: string, file: File, path?: string): Pro
 
   if (error) {
     console.error(`Error uploading file to ${bucket}:`, error);
+    captureSupabaseError(error, {
+      source: 'supabase.storage',
+      operation: 'upload_file',
+      extra: { bucket, fileName, size: file.size, type: file.type },
+    });
     throw error;
   }
 
@@ -265,6 +297,9 @@ export async function signUpWithEmail(email: string, password: string) {
 
   if (error) {
     console.error('Error signing in:', error);
+    if (!isExpectedAuthError(error)) {
+      captureSupabaseError(error, { source: 'supabase.auth', operation: 'sign_up' });
+    }
     throw error;
   }
 
@@ -281,6 +316,9 @@ export async function signInWithEmail(email: string, password: string) {
 
   if (error) {
     console.error('Error signing in:', error);
+    if (!isExpectedAuthError(error)) {
+      captureSupabaseError(error, { source: 'supabase.auth', operation: 'sign_in' });
+    }
     throw error;
   }
 
@@ -296,6 +334,9 @@ export async function updateUserPassword(password: string) {
 
   if (error) {
     console.error('Error updating user password:', error);
+    if (!isExpectedAuthError(error)) {
+      captureSupabaseError(error, { source: 'supabase.auth', operation: 'update_password' });
+    }
     throw error;
   }
 
@@ -329,6 +370,12 @@ export async function updateUserPasswordWithVerification(
 
   if (error) {
     console.error('Error updating user password:', error);
+    if (!isExpectedAuthError(error)) {
+      captureSupabaseError(error, {
+        source: 'supabase.auth',
+        operation: 'update_password_with_verification',
+      });
+    }
     throw error;
   }
 
@@ -350,6 +397,9 @@ export async function updateUserEmail(newEmail: string) {
 
   if (error) {
     console.error('Error updating user email:', error);
+    if (!isExpectedAuthError(error)) {
+      captureSupabaseError(error, { source: 'supabase.auth', operation: 'update_email' });
+    }
     throw error;
   }
 
@@ -369,6 +419,9 @@ export async function resetPasswordForEmail(email: string) {
 
   if (error) {
     console.error('Error resetting user password:', error);
+    if (!isExpectedAuthError(error)) {
+      captureSupabaseError(error, { source: 'supabase.auth', operation: 'reset_password' });
+    }
     throw error;
   }
 }
@@ -381,6 +434,7 @@ export async function signOut() {
 
   if (error) {
     console.error('Error signing out:', error);
+    captureSupabaseError(error, { source: 'supabase.auth', operation: 'sign_out' });
     throw error;
   }
 

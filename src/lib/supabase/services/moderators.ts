@@ -1,9 +1,15 @@
 import type { MasjidMember } from '@/types';
 import supabase from '../index';
+import { captureSupabaseError } from '@/lib/sentry';
 
 export type ModeratorWithEmail = MasjidMember & { email: string };
 
-async function handleError(error: Error | null, fallback: string): Promise<never> {
+async function handleError(
+  error: Error | null,
+  fallback: string,
+  operation: string
+): Promise<never> {
+  captureSupabaseError(error, { source: 'supabase.functions', operation });
   // FunctionsHttpError stores the raw Response in error.context
   // We need to parse the JSON body to get the actual error message
   if (error && 'context' in error && error.context instanceof Response) {
@@ -20,7 +26,7 @@ async function handleError(error: Error | null, fallback: string): Promise<never
 export async function getModerators(): Promise<ModeratorWithEmail[]> {
   const { data, error } = await supabase.functions.invoke('get-moderators');
 
-  if (error) await handleError(error, 'Failed to fetch moderators');
+  if (error) await handleError(error, 'Failed to fetch moderators', 'get_moderators');
   if (data?.error) throw new Error(data.error);
   if (Array.isArray(data)) return data;
   return [];
@@ -34,7 +40,7 @@ export async function updateModerator(
     body: { user_id: userId, ...updates },
   });
 
-  if (error) await handleError(error, 'Failed to update moderator');
+  if (error) await handleError(error, 'Failed to update moderator', 'update_moderator');
   if (data?.error) throw new Error(data.error);
 }
 
@@ -47,7 +53,7 @@ export async function createModerator(
     body: { email, password, name },
   });
 
-  if (error) await handleError(error, 'Failed to create moderator');
+  if (error) await handleError(error, 'Failed to create moderator', 'create_moderator');
   if (data?.error) throw new Error(data.error);
 }
 
@@ -56,7 +62,7 @@ export async function resetModeratorPassword(userId: string, password: string): 
     body: { user_id: userId, password },
   });
 
-  if (error) await handleError(error, 'Failed to reset password');
+  if (error) await handleError(error, 'Failed to reset password', 'reset_moderator_password');
   if (data?.error) throw new Error(data.error);
 }
 
@@ -65,6 +71,6 @@ export async function revokeModerator(userId: string): Promise<void> {
     body: { user_id: userId },
   });
 
-  if (error) await handleError(error, 'Failed to revoke moderator');
+  if (error) await handleError(error, 'Failed to revoke moderator', 'revoke_moderator');
   if (data?.error) throw new Error(data.error);
 }
