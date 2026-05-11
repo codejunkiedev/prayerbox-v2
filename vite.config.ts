@@ -11,6 +11,7 @@ export default defineConfig(({ mode }) => {
   const sentryAuthToken = env.SENTRY_AUTH_TOKEN;
   const sentryOrg = env.SENTRY_ORG;
   const sentryProject = env.SENTRY_PROJECT;
+  const sentryRelease = env.VITE_SENTRY_RELEASE;
   const enableSentryPlugin = Boolean(sentryAuthToken && sentryOrg && sentryProject);
 
   return {
@@ -124,6 +125,7 @@ export default defineConfig(({ mode }) => {
           org: sentryOrg,
           project: sentryProject,
           authToken: sentryAuthToken,
+          release: sentryRelease ? { name: sentryRelease } : undefined,
           sourcemaps: {
             filesToDeleteAfterUpload: ['./dist/**/*.map'],
           },
