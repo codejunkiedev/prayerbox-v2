@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router';
+import { useParams, Link, useNavigate } from 'react-router';
 import {
   getScreenById,
   getScreenContentWithDetails,
   updateScreenContentOrder,
   toggleScreenContentVisibility,
+  deleteScreen,
   type ScreenContentWithDetails,
 } from '@/lib/supabase';
 import type { DisplayScreen } from '@/types';
@@ -18,8 +19,8 @@ import {
   type Column,
 } from '@/components/common';
 import { ThemeSection } from '@/components/settings';
-import { ScreenModal } from '@/components/modals';
-import { ArrowLeft, Monitor, Copy, Check, Pencil } from 'lucide-react';
+import { ScreenModal, DeleteConfirmationModal } from '@/components/modals';
+import { ArrowLeft, Monitor, Copy, Check, Pencil, Trash2 } from 'lucide-react';
 import { AppRoutes } from '@/constants';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ const CONTENT_TYPE_CONFIG: Record<string, { label: string; color: string }> = {
 
 export default function ScreenDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [screen, setScreen] = useState<DisplayScreen | null>(null);
   const [content, setContent] = useState<ScreenContentWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,8 @@ export default function ScreenDetail() {
   const [isUpdatingOrder, setIsUpdatingOrder] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -101,6 +105,24 @@ export default function ScreenDetail() {
       setContent(prev => prev.map(c => (c.id === item.id ? { ...c, visible: item.visible } : c)));
       console.error('Error toggling visibility:', err);
       toast.error('Failed to update visibility');
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!screen) return;
+
+    try {
+      setIsDeleting(true);
+      await deleteScreen(screen.id);
+      toast.success('Screen deleted successfully');
+      navigate(AppRoutes.Screens);
+    } catch (err) {
+      console.error('Error deleting screen:', err);
+      setError('Failed to delete screen. Please try again.');
+      toast.error('Failed to delete screen, please try again.');
+      setIsDeleteDialogOpen(false);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -197,16 +219,25 @@ export default function ScreenDetail() {
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
-      <ThemeSection screen={screen} onScreenChange={setScreen} />
-
       <Card>
         <CardHeader>
           <div className='flex justify-between items-center'>
             <CardTitle className='text-base'>Screen Info</CardTitle>
-            <Button variant='outline' size='sm' onClick={() => setIsEditModalOpen(true)}>
-              <Pencil className='h-4 w-4 mr-2' />
-              Edit
-            </Button>
+            <div className='flex items-center gap-2'>
+              <Button variant='outline' size='sm' onClick={() => setIsEditModalOpen(true)}>
+                <Pencil className='h-4 w-4 mr-2' />
+                Edit
+              </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setIsDeleteDialogOpen(true)}
+                className='text-destructive hover:bg-destructive/10 hover:text-destructive'
+              >
+                <Trash2 className='h-4 w-4 mr-2' />
+                Delete
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -248,6 +279,8 @@ export default function ScreenDetail() {
         </CardContent>
       </Card>
 
+      {screen.show_prayer_times && <ThemeSection screen={screen} onScreenChange={setScreen} />}
+
       {content.length === 0 ? (
         <EmptyState
           icon={<Monitor className='h-6 w-6 text-muted-foreground' />}
@@ -271,6 +304,16 @@ export default function ScreenDetail() {
         onClose={() => setIsEditModalOpen(false)}
         onSuccess={forceUpdate}
         initialData={screen}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        isDeleting={isDeleting}
+        itemType='screen'
+        itemTitle={screen.name}
+        itemSubtitle={screen.code}
       />
     </div>
   );

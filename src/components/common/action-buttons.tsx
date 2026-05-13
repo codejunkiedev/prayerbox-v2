@@ -1,24 +1,31 @@
 import { Button } from '@/components/ui';
-import { Edit, Trash2, Monitor } from 'lucide-react';
+import { ArrowRight, Edit, Trash2, Monitor } from 'lucide-react';
 
 type ActionButtonsProps = {
-  onEdit: () => void;
+  onEdit?: () => void;
   onDelete: () => void;
   onScreens?: () => void;
+  onGoto?: () => void;
   centered?: boolean;
 };
 
 /**
- * Renders action buttons for editing, deleting, and optionally assigning to screens
+ * Renders action buttons for opening, editing, deleting, and optionally assigning to screens
  */
 export function ActionButtons({
   onEdit,
   onDelete,
   onScreens,
+  onGoto,
   centered = true,
 }: ActionButtonsProps) {
   return (
     <div className={`flex ${centered ? 'justify-center' : ''} space-x-1`}>
+      {onGoto && (
+        <Button variant='ghost' size='sm' onClick={onGoto} title='Open' className='hover:bg-muted'>
+          <ArrowRight className='h-4 w-4' />
+        </Button>
+      )}
       {onScreens && (
         <Button
           variant='ghost'
@@ -30,9 +37,11 @@ export function ActionButtons({
           <Monitor className='h-4 w-4' />
         </Button>
       )}
-      <Button variant='ghost' size='sm' onClick={onEdit} title='Edit' className='hover:bg-muted'>
-        <Edit className='h-4 w-4' />
-      </Button>
+      {onEdit && (
+        <Button variant='ghost' size='sm' onClick={onEdit} title='Edit' className='hover:bg-muted'>
+          <Edit className='h-4 w-4' />
+        </Button>
+      )}
       <Button
         variant='ghost'
         size='sm'

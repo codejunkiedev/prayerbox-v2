@@ -23,7 +23,6 @@ export default function Screens() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<DisplayScreen | undefined>(undefined);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<DisplayScreen | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -51,18 +50,11 @@ export default function Screens() {
   }, [trigger]);
 
   const handleAddNew = () => {
-    setSelectedItem(undefined);
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (item: DisplayScreen) => {
-    setSelectedItem(item);
     setIsModalOpen(true);
   };
 
   const handleModalClose = () => {
     setIsModalOpen(false);
-    setSelectedItem(undefined);
   };
 
   const handleDeleteClick = (item: DisplayScreen) => {
@@ -193,19 +185,14 @@ export default function Screens() {
           onRowClick={item => navigate(`/admin/screens/${item.id}`)}
           renderActions={item => (
             <ActionButtons
-              onEdit={() => handleEdit(item)}
+              onGoto={() => navigate(`/admin/screens/${item.id}`)}
               onDelete={() => handleDeleteClick(item)}
             />
           )}
         />
       )}
 
-      <ScreenModal
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onSuccess={forceUpdate}
-        initialData={selectedItem}
-      />
+      <ScreenModal isOpen={isModalOpen} onClose={handleModalClose} onSuccess={forceUpdate} />
 
       <DeleteConfirmationModal
         isOpen={isDeleteDialogOpen}
