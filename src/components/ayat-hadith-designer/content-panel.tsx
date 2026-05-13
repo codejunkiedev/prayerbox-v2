@@ -382,7 +382,7 @@ export function ContentPanel({
         disabled={fetching}
       >
         {fetching && <Loader2 className='mr-2 h-3 w-3 animate-spin' />}
-        Re-fetch from API
+        Refresh
       </Button>
     </div>
   );
