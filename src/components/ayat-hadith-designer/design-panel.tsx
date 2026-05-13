@@ -17,9 +17,16 @@ interface DesignPanelProps {
   onChange: (next: AyatHadithStyle) => void;
   showUrdu: boolean;
   showEnglish: boolean;
+  showReference: boolean;
 }
 
-export function DesignPanel({ style, onChange, showUrdu, showEnglish }: DesignPanelProps) {
+export function DesignPanel({
+  style,
+  onChange,
+  showUrdu,
+  showEnglish,
+  showReference,
+}: DesignPanelProps) {
   const update = (patch: Partial<AyatHadithStyle>) => onChange({ ...style, ...patch });
 
   const images = BACKGROUNDS.filter(b => b.type === 'image');
@@ -117,6 +124,15 @@ export function DesignPanel({ style, onChange, showUrdu, showEnglish }: DesignPa
           category='english'
           style={style.english}
           onChange={next => update({ english: next })}
+        />
+      )}
+
+      {showReference && (
+        <TextStyleControls
+          label='Reference'
+          category='english'
+          style={style.reference}
+          onChange={next => update({ reference: next })}
         />
       )}
     </div>

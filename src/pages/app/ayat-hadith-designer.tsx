@@ -33,6 +33,7 @@ function makeInitialContentState(initial?: AyatAndHadith | null): ContentState {
       urduEdition: QURAN_TRANSLATIONS.urdu[0].id,
       showEnglish: true,
       englishEdition: QURAN_TRANSLATIONS.english[0].id,
+      showReference: true,
     };
   }
 
@@ -48,6 +49,7 @@ function makeInitialContentState(initial?: AyatAndHadith | null): ContentState {
       urduEdition: initial.cached_text.urdu?.edition ?? QURAN_TRANSLATIONS.urdu[0].id,
       showEnglish: !!initial.cached_text.english,
       englishEdition: initial.cached_text.english?.edition ?? QURAN_TRANSLATIONS.english[0].id,
+      showReference: !!initial.cached_text.reference,
     };
   }
 
@@ -62,6 +64,7 @@ function makeInitialContentState(initial?: AyatAndHadith | null): ContentState {
     urduEdition: 'hadithapi-urdu',
     showEnglish: !!initial.cached_text.english,
     englishEdition: 'hadithapi-english',
+    showReference: !!initial.cached_text.reference,
   };
 }
 
@@ -119,7 +122,11 @@ export default function AyatHadithDesigner() {
         setOrientation(slide.orientation);
         setContent(makeInitialContentState(slide));
         setCachedText(slide.cached_text);
-        setStyle(slide.style);
+        setStyle({
+          ...DEFAULT_STYLE,
+          ...slide.style,
+          reference: slide.style.reference ?? DEFAULT_STYLE.reference,
+        });
       })
       .catch(err => {
         console.error(err);
@@ -226,12 +233,11 @@ export default function AyatHadithDesigner() {
           <Canvas
             ref={canvasRef}
             orientation={orientation}
-            type={content.type}
-            source={buildSource()}
             style={style}
             cachedText={cachedText}
             showUrdu={content.showUrdu}
             showEnglish={content.showEnglish}
+            showReference={content.showReference}
           />
         </div>
         <div className='overflow-y-auto pr-2'>
@@ -254,6 +260,7 @@ export default function AyatHadithDesigner() {
                 onChange={setStyle}
                 showUrdu={content.showUrdu}
                 showEnglish={content.showEnglish}
+                showReference={content.showReference}
               />
             </TabsContent>
           </Tabs>

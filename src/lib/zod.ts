@@ -210,6 +210,7 @@ const ayatHadithStyleSchema = z.object({
   arabic: textStyleSchema,
   urdu: textStyleSchema,
   english: textStyleSchema,
+  reference: textStyleSchema,
 });
 
 const ayatSourceSchema = z.object({
@@ -226,6 +227,7 @@ const cachedTextSchema = z.object({
   arabic: z.string(),
   urdu: z.object({ edition: z.string(), text: z.string() }).optional(),
   english: z.object({ edition: z.string(), text: z.string() }).optional(),
+  reference: z.string().optional(),
 });
 
 export const ayatAndHadithSchema = z.object({

@@ -1,40 +1,19 @@
 import { forwardRef, useEffect, useRef, useState } from 'react';
-import { CANVAS_DIMENSIONS, HADITH_BOOKS, SURAHS } from '@/constants';
-import type {
-  AyatHadithCachedText,
-  AyatHadithStyle,
-  AyatHadithType,
-  AyatSource,
-  HadithSource,
-  ScreenOrientation,
-} from '@/types';
+import { CANVAS_DIMENSIONS } from '@/constants';
+import type { AyatHadithCachedText, AyatHadithStyle, ScreenOrientation } from '@/types';
 import { hexWithOpacity, resolveBackground, resolveFont } from './helpers';
 
 interface CanvasProps {
   orientation: ScreenOrientation;
-  type: AyatHadithType;
-  source: AyatSource | HadithSource;
   style: AyatHadithStyle;
   cachedText: AyatHadithCachedText;
   showUrdu: boolean;
   showEnglish: boolean;
-}
-
-function resolveSourceLine(type: AyatHadithType, source: AyatSource | HadithSource): string | null {
-  if (type === 'ayat') {
-    const s = source as AyatSource;
-    const surah = SURAHS.find(x => x.number === s.surah);
-    if (!surah) return null;
-    return `سُورَة ${surah.name_arabic} - ${surah.name_english} (Ch. ${surah.number})`;
-  }
-  const h = source as HadithSource;
-  const book = HADITH_BOOKS.find(b => b.slug === h.book);
-  if (!book || !h.hadith_number) return null;
-  return `${book.name_arabic} - ${book.name} (#${h.hadith_number})`;
+  showReference: boolean;
 }
 
 export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(function Canvas(
-  { orientation, type, source, style, cachedText, showUrdu, showEnglish },
+  { orientation, style, cachedText, showUrdu, showEnglish, showReference },
   ref
 ) {
   const [width, height] = CANVAS_DIMENSIONS[orientation];
@@ -62,7 +41,7 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(function Canvas(
   const arabicFont = resolveFont('arabic', style.arabic.font_id);
   const urduFont = resolveFont('urdu', style.urdu.font_id);
   const englishFont = resolveFont('english', style.english.font_id);
-  const sourceLine = resolveSourceLine(type, source);
+  const referenceFont = resolveFont('english', style.reference.font_id);
 
   const backgroundStyle: React.CSSProperties = (() => {
     if (bg.type === 'image') {
@@ -94,43 +73,6 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(function Canvas(
           ...backgroundStyle,
         }}
       >
-        <div
-          style={{
-            position: 'absolute',
-            top: '6%',
-            left: '6%',
-            right: '6%',
-            color: style.arabic.color,
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '0.4em',
-          }}
-        >
-          <div
-            style={{
-              fontFamily: englishFont.family,
-              fontSize: Math.round(style.english.size * 0.85),
-              fontWeight: 600,
-              lineHeight: 1.2,
-            }}
-          >
-            I made this on <span style={{ fontWeight: 800 }}>PrayerBox</span>
-          </div>
-          {sourceLine && (
-            <div
-              style={{
-                fontFamily: englishFont.family,
-                fontSize: Math.round(style.english.size * 0.7),
-                opacity: 0.9,
-                lineHeight: 1.2,
-              }}
-            >
-              {sourceLine}
-            </div>
-          )}
-        </div>
         <div
           style={{
             position: 'absolute',
@@ -187,6 +129,18 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(function Canvas(
               }}
             >
               {cachedText.english.text}
+            </div>
+          )}
+          {showReference && cachedText.reference && (
+            <div
+              style={{
+                fontFamily: referenceFont.family,
+                fontSize: style.reference.size,
+                color: style.reference.color,
+                lineHeight: style.reference.line_height,
+              }}
+            >
+              {cachedText.reference}
             </div>
           )}
         </div>

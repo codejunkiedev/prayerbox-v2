@@ -103,4 +103,5 @@ export const DEFAULT_STYLE = {
   arabic: { font_id: 'amiri', size: 72, color: '#ffffff', line_height: 1.6 },
   urdu: { font_id: 'noto-nastaliq', size: 40, color: '#ffffff', line_height: 1.8 },
   english: { font_id: 'inter', size: 36, color: '#ffffff', line_height: 1.5 },
+  reference: { font_id: 'inter', size: 28, color: '#ffffff', line_height: 1.3 },
 };

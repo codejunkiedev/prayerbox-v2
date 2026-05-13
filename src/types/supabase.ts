@@ -80,6 +80,7 @@ export interface AyatHadithCachedText {
   arabic: string;
   urdu?: { edition: string; text: string };
   english?: { edition: string; text: string };
+  reference?: string;
 }
 
 export interface AyatHadithTextStyle {
@@ -96,6 +97,7 @@ export interface AyatHadithStyle {
   arabic: AyatHadithTextStyle;
   urdu: AyatHadithTextStyle;
   english: AyatHadithTextStyle;
+  reference: AyatHadithTextStyle;
 }
 
 export interface AyatAndHadith extends Base {
