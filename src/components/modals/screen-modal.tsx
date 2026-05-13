@@ -10,6 +10,11 @@ import {
   DialogContent,
   DialogFooter,
   DialogClose,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui';
 import { screenSchema, type ScreenData } from '@/lib/zod';
 import { createScreen, updateScreen } from '@/lib/supabase';
@@ -58,6 +63,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
 
   const showPrayerTimes = watch('show_prayer_times');
   const showWeather = watch('show_weather');
+  const orientation = watch('orientation');
 
   useEffect(() => {
     if (isOpen) {
@@ -169,15 +175,19 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
 
           <div className='space-y-2'>
             <Label htmlFor='orientation'>Orientation</Label>
-            <select
-              id='orientation'
-              className='flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-              {...register('orientation')}
+            <Select
+              value={orientation}
+              onValueChange={v => setValue('orientation', v as ScreenData['orientation'])}
             >
-              <option value='landscape'>Landscape</option>
-              <option value='portrait'>Portrait</option>
-              <option value='mobile'>Mobile</option>
-            </select>
+              <SelectTrigger id='orientation' className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='landscape'>Landscape</SelectItem>
+                <SelectItem value='portrait'>Portrait</SelectItem>
+                <SelectItem value='mobile'>Mobile</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className='space-y-3'>
