@@ -125,7 +125,7 @@ export default function AyatHadithDesigner() {
         setStyle({
           ...DEFAULT_STYLE,
           ...slide.style,
-          reference: slide.style.reference ?? DEFAULT_STYLE.reference,
+          reference: { ...DEFAULT_STYLE.reference, ...(slide.style.reference ?? {}) },
         });
       })
       .catch(err => {

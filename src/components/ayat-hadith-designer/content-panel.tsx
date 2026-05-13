@@ -20,16 +20,25 @@ import type { AyatHadithCachedText, AyatHadithType } from '@/types';
 import { Check, Loader2 } from 'lucide-react';
 import { cn } from '@/utils';
 
-function buildAyatReference(surahNumber: number): string | undefined {
+function buildAyatReference(surahNumber: number): { arabic: string; english: string } | undefined {
   const surah = SURAHS.find(s => s.number === surahNumber);
   if (!surah) return undefined;
-  return `سُورَة ${surah.name_arabic} - ${surah.name_english} (Ch. ${surah.number})`;
+  return {
+    arabic: `سُورَة ${surah.name_arabic}`,
+    english: `${surah.name_english} (Ch. ${surah.number})`,
+  };
 }
 
-function buildHadithReference(bookSlug: string, hadithNumber: string): string | undefined {
+function buildHadithReference(
+  bookSlug: string,
+  hadithNumber: string
+): { arabic: string; english: string } | undefined {
   const book = HADITH_BOOKS.find(b => b.slug === bookSlug);
   if (!book || !hadithNumber) return undefined;
-  return `${book.name_arabic} - ${book.name} (#${hadithNumber})`;
+  return {
+    arabic: book.name_arabic,
+    english: `${book.name} (#${hadithNumber})`,
+  };
 }
 
 export interface ContentState {
