@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'dark' | 'light' | 'system';
+type ThemeOrigin = { x: number; y: number };
 
 type ThemeProviderProps = {
   children: React.ReactNode;
@@ -10,7 +11,7 @@ type ThemeProviderProps = {
 
 type ThemeProviderState = {
   theme: Theme;
-  setTheme: (theme: Theme) => void;
+  setTheme: (theme: Theme, origin?: ThemeOrigin) => void;
 };
 
 const initialState: ThemeProviderState = {
@@ -20,57 +21,74 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
+const resolveTheme = (theme: Theme): 'light' | 'dark' => {
+  if (theme === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return theme;
+};
+
+const applyThemeClass = (theme: Theme) => {
+  const root = document.documentElement;
+  root.classList.remove('light', 'dark');
+  root.classList.add(resolveTheme(theme));
+};
+
 export function ThemeProvider({
   children,
   defaultTheme = 'system',
   storageKey = 'prayerbox-ui-theme',
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
+  const [theme, setThemeState] = useState<Theme>(
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
   );
 
   useEffect(() => {
-    const root = window.document.documentElement;
-
-    root.classList.remove('light', 'dark');
-
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-        ? 'dark'
-        : 'light';
-
-      root.classList.add(systemTheme);
-      return;
-    }
-
-    root.classList.add(theme);
+    applyThemeClass(theme);
   }, [theme]);
 
   useEffect(() => {
     if (theme !== 'system') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      const root = window.document.documentElement;
-      root.classList.remove('light', 'dark');
-      root.classList.add(e.matches ? 'dark' : 'light');
-    };
+    const handleChange = () => applyThemeClass('system');
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
-  const value = {
-    theme,
-    setTheme: (newTheme: Theme) => {
-      localStorage.setItem(storageKey, newTheme);
-      setTheme(newTheme);
-    },
+  const setTheme = (newTheme: Theme, origin?: ThemeOrigin) => {
+    localStorage.setItem(storageKey, newTheme);
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const supportsViewTransitions = 'startViewTransition' in document;
+
+    if (!supportsViewTransitions || reducedMotion) {
+      applyThemeClass(newTheme);
+      setThemeState(newTheme);
+      return;
+    }
+
+    const x = origin?.x ?? window.innerWidth / 2;
+    const y = origin?.y ?? window.innerHeight / 2;
+    const radius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y)
+    );
+    const root = document.documentElement;
+    root.style.setProperty('--theme-x', `${x}px`);
+    root.style.setProperty('--theme-y', `${y}px`);
+    root.style.setProperty('--theme-radius', `${radius}px`);
+
+    document.startViewTransition(() => {
+      applyThemeClass(newTheme);
+      setThemeState(newTheme);
+    });
   };
 
   return (
-    <ThemeProviderContext.Provider {...props} value={value}>
+    <ThemeProviderContext.Provider {...props} value={{ theme, setTheme }}>
       {children}
     </ThemeProviderContext.Provider>
   );
