@@ -20,6 +20,27 @@ import type { AyatHadithCachedText, AyatHadithType } from '@/types';
 import { Check, Loader2 } from 'lucide-react';
 import { cn } from '@/utils';
 
+function buildAyatReference(surahNumber: number): { arabic: string; english: string } | undefined {
+  const surah = SURAHS.find(s => s.number === surahNumber);
+  if (!surah) return undefined;
+  return {
+    arabic: `سُورَة ${surah.name_arabic}`,
+    english: `${surah.name_english} (Ch. ${surah.number})`,
+  };
+}
+
+function buildHadithReference(
+  bookSlug: string,
+  hadithNumber: string
+): { arabic: string; english: string } | undefined {
+  const book = HADITH_BOOKS.find(b => b.slug === bookSlug);
+  if (!book || !hadithNumber) return undefined;
+  return {
+    arabic: book.name_arabic,
+    english: `${book.name} (#${hadithNumber})`,
+  };
+}
+
 export interface ContentState {
   type: AyatHadithType;
   surah: number;
@@ -30,6 +51,7 @@ export interface ContentState {
   urduEdition: string;
   showEnglish: boolean;
   englishEdition: string;
+  showReference: boolean;
 }
 
 interface ContentPanelProps {
@@ -41,8 +63,8 @@ interface ContentPanelProps {
 
 function fingerprint(s: ContentState): string {
   return s.type === 'ayat'
-    ? `ayat|${s.surah}|${s.ayah}|${s.showUrdu}|${s.urduEdition}|${s.showEnglish}|${s.englishEdition}`
-    : `hadith|${s.book}|${s.hadith_number}|${s.showUrdu}|${s.showEnglish}`;
+    ? `ayat|${s.surah}|${s.ayah}|${s.showUrdu}|${s.urduEdition}|${s.showEnglish}|${s.englishEdition}|${s.showReference}`
+    : `hadith|${s.book}|${s.hadith_number}|${s.showUrdu}|${s.showEnglish}|${s.showReference}`;
 }
 
 export function ContentPanel({
@@ -96,6 +118,10 @@ export function ContentPanel({
               text: result.translations[state.englishEdition],
             };
           }
+          if (state.showReference) {
+            const reference = buildAyatReference(state.surah);
+            if (reference) next.reference = reference;
+          }
           onCachedTextChange(next);
         } else {
           const hadith = await fetchHadith(state.book, state.hadith_number, controller.signal);
@@ -105,6 +131,10 @@ export function ContentPanel({
           }
           if (state.showEnglish && hadith.english) {
             next.english = { edition: 'hadithapi-english', text: hadith.english };
+          }
+          if (state.showReference) {
+            const reference = buildHadithReference(state.book, state.hadith_number);
+            if (reference) next.reference = reference;
           }
           onCachedTextChange(next);
         }
@@ -328,6 +358,27 @@ export function ContentPanel({
             </button>
           </div>
         )}
+
+        <button
+          type='button'
+          onClick={() => onChange({ ...state, showReference: !state.showReference })}
+          className={cn(
+            'w-full inline-flex items-center justify-center gap-2 rounded-md border px-4 py-2.5 text-sm font-medium transition',
+            state.showReference
+              ? 'border-primary bg-primary/10 text-foreground'
+              : 'border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground'
+          )}
+        >
+          <span
+            className={cn(
+              'flex h-4 w-4 items-center justify-center rounded-sm border transition',
+              state.showReference ? 'border-primary bg-primary' : 'border-muted-foreground/40'
+            )}
+          >
+            {state.showReference && <Check className='h-3 w-3 text-primary-foreground' />}
+          </span>
+          Reference
+        </button>
       </div>
 
       {error && <p className='text-destructive text-sm'>{error}</p>}
@@ -340,7 +391,7 @@ export function ContentPanel({
         disabled={fetching}
       >
         {fetching && <Loader2 className='mr-2 h-3 w-3 animate-spin' />}
-        Re-fetch from API
+        Refresh
       </Button>
     </div>
   );

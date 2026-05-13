@@ -9,7 +9,7 @@ import {
   Slider,
 } from '@/components/ui';
 import { BACKGROUNDS, FONTS } from '@/constants';
-import type { AyatHadithStyle } from '@/types';
+import type { AyatHadithReferenceStyle, AyatHadithStyle } from '@/types';
 import { cn } from '@/utils';
 
 interface DesignPanelProps {
@@ -17,9 +17,16 @@ interface DesignPanelProps {
   onChange: (next: AyatHadithStyle) => void;
   showUrdu: boolean;
   showEnglish: boolean;
+  showReference: boolean;
 }
 
-export function DesignPanel({ style, onChange, showUrdu, showEnglish }: DesignPanelProps) {
+export function DesignPanel({
+  style,
+  onChange,
+  showUrdu,
+  showEnglish,
+  showReference,
+}: DesignPanelProps) {
   const update = (patch: Partial<AyatHadithStyle>) => onChange({ ...style, ...patch });
 
   const images = BACKGROUNDS.filter(b => b.type === 'image');
@@ -119,7 +126,95 @@ export function DesignPanel({ style, onChange, showUrdu, showEnglish }: DesignPa
           onChange={next => update({ english: next })}
         />
       )}
+
+      {showReference && (
+        <ReferenceStyleControls
+          style={style.reference}
+          onChange={next => update({ reference: next })}
+        />
+      )}
     </div>
+  );
+}
+
+interface ReferenceStyleControlsProps {
+  style: AyatHadithReferenceStyle;
+  onChange: (next: AyatHadithReferenceStyle) => void;
+}
+
+function ReferenceStyleControls({ style, onChange }: ReferenceStyleControlsProps) {
+  return (
+    <section className='space-y-3 border-t pt-4'>
+      <Label className='text-sm font-semibold'>Reference</Label>
+      <div className='grid grid-cols-2 gap-3'>
+        <div className='space-y-2'>
+          <Label className='text-xs text-muted-foreground'>Arabic font</Label>
+          <Select
+            value={style.arabic_font_id}
+            onValueChange={v => onChange({ ...style, arabic_font_id: v })}
+          >
+            <SelectTrigger className='w-full'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FONTS.arabic.map(f => (
+                <SelectItem key={f.id} value={f.id}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className='space-y-2'>
+          <Label className='text-xs text-muted-foreground'>English font</Label>
+          <Select value={style.font_id} onValueChange={v => onChange({ ...style, font_id: v })}>
+            <SelectTrigger className='w-full'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FONTS.english.map(f => (
+                <SelectItem key={f.id} value={f.id}>
+                  {f.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className='flex items-center gap-3'>
+        <div className='flex-1 space-y-2'>
+          <Label className='text-xs text-muted-foreground'>Size: {style.size}px</Label>
+          <Slider
+            min={16}
+            max={200}
+            step={2}
+            value={[style.size]}
+            onValueChange={v => onChange({ ...style, size: v[0] })}
+          />
+        </div>
+        <div className='space-y-2'>
+          <Label className='text-xs text-muted-foreground'>Color</Label>
+          <Input
+            type='color'
+            value={style.color}
+            onChange={e => onChange({ ...style, color: e.target.value })}
+            className='h-9 w-14 p-1'
+          />
+        </div>
+      </div>
+      <div className='space-y-2'>
+        <Label className='text-xs text-muted-foreground'>
+          Line spacing: {style.line_height.toFixed(1)}
+        </Label>
+        <Slider
+          min={1}
+          max={3}
+          step={0.1}
+          value={[style.line_height]}
+          onValueChange={v => onChange({ ...style, line_height: v[0] })}
+        />
+      </div>
+    </section>
   );
 }
 
@@ -146,7 +241,7 @@ function TextStyleControls({ label, category, style, onChange }: TextStyleContro
       <div className='space-y-2'>
         <Label className='text-xs text-muted-foreground'>Font</Label>
         <Select value={style.font_id} onValueChange={v => onChange({ ...style, font_id: v })}>
-          <SelectTrigger>
+          <SelectTrigger className='w-full'>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

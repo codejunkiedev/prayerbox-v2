@@ -80,6 +80,7 @@ export interface AyatHadithCachedText {
   arabic: string;
   urdu?: { edition: string; text: string };
   english?: { edition: string; text: string };
+  reference?: { arabic: string; english: string };
 }
 
 export interface AyatHadithTextStyle {
@@ -89,6 +90,10 @@ export interface AyatHadithTextStyle {
   line_height: number;
 }
 
+export interface AyatHadithReferenceStyle extends AyatHadithTextStyle {
+  arabic_font_id: string;
+}
+
 export interface AyatHadithStyle {
   background_id: string;
   overlay_color: string;
@@ -96,6 +101,7 @@ export interface AyatHadithStyle {
   arabic: AyatHadithTextStyle;
   urdu: AyatHadithTextStyle;
   english: AyatHadithTextStyle;
+  reference: AyatHadithReferenceStyle;
 }
 
 export interface AyatAndHadith extends Base {

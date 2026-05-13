@@ -203,6 +203,14 @@ const textStyleSchema = z.object({
   line_height: z.number().min(0.8).max(4),
 });
 
+const referenceStyleSchema = z.object({
+  font_id: z.string(),
+  arabic_font_id: z.string(),
+  size: z.number().min(8).max(300),
+  color: z.string(),
+  line_height: z.number().min(0.8).max(4),
+});
+
 const ayatHadithStyleSchema = z.object({
   background_id: z.string(),
   overlay_color: z.string(),
@@ -210,6 +218,7 @@ const ayatHadithStyleSchema = z.object({
   arabic: textStyleSchema,
   urdu: textStyleSchema,
   english: textStyleSchema,
+  reference: referenceStyleSchema,
 });
 
 const ayatSourceSchema = z.object({
@@ -226,6 +235,7 @@ const cachedTextSchema = z.object({
   arabic: z.string(),
   urdu: z.object({ edition: z.string(), text: z.string() }).optional(),
   english: z.object({ edition: z.string(), text: z.string() }).optional(),
+  reference: z.object({ arabic: z.string(), english: z.string() }).optional(),
 });
 
 export const ayatAndHadithSchema = z.object({
