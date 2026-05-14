@@ -32,6 +32,12 @@ export default defineConfig(({ mode }) => {
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
           navigateFallback: '/index.html',
+          navigateFallbackDenylist: [
+            /^\/admin(\/|$)/,
+            /^\/login(\/|$)/,
+            /^\/register(\/|$)/,
+            /^\/forgot-password(\/|$)/,
+          ],
           // Display screens can build up a lot of large images over time
           // (announcements, posts, ayat-hadith canvases). Bump the precache
           // size limit so the build doesn't fail and let runtime caching pick
