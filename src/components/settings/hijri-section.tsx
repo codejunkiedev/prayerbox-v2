@@ -1,17 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from '@/components/ui';
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui';
 import { HijriCalculationMethod } from '@/constants';
 import { updateHijriSettings } from '@/lib/supabase';
 import { useAdjustedHijriDate } from '@/hooks';
@@ -86,84 +75,75 @@ export function HijriSection({ settings, onSettingsChange, isLoading }: HijriSec
   if (isLoading) return <div className='animate-pulse bg-muted rounded-lg h-48'></div>;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Hijri Date Adjustment</CardTitle>
-        <CardDescription>
-          Configure the Hijri calendar calculation method and date offset for accurate Islamic
-          dates.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className='space-y-6'>
-        <div className='space-y-4'>
-          <div>
-            <label className='block text-sm font-medium text-foreground mb-2'>
-              Current Hijri Date
-            </label>
-            <div className='p-3 bg-muted rounded-lg border'>
-              {isLoadingAdjustedHijriDate ? (
-                <div className='text-muted-foreground flex items-center gap-2'>
-                  <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
-                  Calculating...
-                </div>
-              ) : (
-                <div className='font-semibold text-foreground'>
-                  {adjustedHijriDate || 'Unable to fetch date'}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-            <div>
-              <label className='block text-sm font-medium text-foreground mb-2'>
-                Calculation Method
-              </label>
-              <Select value={selectedMethod} onValueChange={handleMethodChange} disabled={isSaving}>
-                <SelectTrigger className='w-full'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(HijriCalculationMethod).map(([key, value]) => (
-                    <SelectItem key={key} value={value}>
-                      {key.replace(/_/g, ' ')}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <label className='block text-sm font-medium text-foreground mb-2'>Date Offset</label>
-              <Select
-                value={selectedOffset.toString()}
-                onValueChange={handleOffsetChange}
-                disabled={isSaving}
-              >
-                <SelectTrigger className='w-full'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {offsetOptions.map(option => (
-                    <SelectItem key={option.value} value={option.value.toString()}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+    <div className='space-y-6'>
+      <div className='space-y-4'>
+        <div>
+          <label className='block text-sm font-medium text-foreground mb-2'>
+            Current Hijri Date
+          </label>
+          <div className='p-3 bg-muted rounded-lg border'>
+            {isLoadingAdjustedHijriDate ? (
+              <div className='text-muted-foreground flex items-center gap-2'>
+                <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
+                Calculating...
+              </div>
+            ) : (
+              <div className='font-semibold text-foreground'>
+                {adjustedHijriDate || 'Unable to fetch date'}
+              </div>
+            )}
           </div>
         </div>
 
-        {isSaving && (
-          <div className='flex items-center justify-center py-2'>
-            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-              <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
-              Saving settings...
-            </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <div>
+            <label className='block text-sm font-medium text-foreground mb-2'>
+              Calculation Method
+            </label>
+            <Select value={selectedMethod} onValueChange={handleMethodChange} disabled={isSaving}>
+              <SelectTrigger className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(HijriCalculationMethod).map(([key, value]) => (
+                  <SelectItem key={key} value={value}>
+                    {key.replace(/_/g, ' ')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          <div>
+            <label className='block text-sm font-medium text-foreground mb-2'>Date Offset</label>
+            <Select
+              value={selectedOffset.toString()}
+              onValueChange={handleOffsetChange}
+              disabled={isSaving}
+            >
+              <SelectTrigger className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {offsetOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value.toString()}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {isSaving && (
+        <div className='flex items-center justify-center py-2'>
+          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+            <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
+            Saving settings...
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

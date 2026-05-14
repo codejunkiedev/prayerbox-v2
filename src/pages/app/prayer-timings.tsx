@@ -3,6 +3,7 @@ import {
   PrayerTimingsModal,
   PrayerCalculationModal,
   SunriseSunsetModal,
+  HijriModal,
 } from '@/components/modals';
 import {
   getMasjidProfile,
@@ -15,7 +16,7 @@ import { useTrigger } from '@/hooks';
 import { fetchPrayerTimesForThisMonth } from '@/api';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@/components/ui';
-import { Calculator, Sunrise, Sliders } from 'lucide-react';
+import { Calculator, Sunrise, Sliders, CalendarDays } from 'lucide-react';
 import {
   PrayerTimesTable,
   PrayerTimesLoading,
@@ -36,6 +37,7 @@ export default function PrayerTimings() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isCalculationModalOpen, setIsCalculationModalOpen] = useState<boolean>(false);
   const [isSunriseSunsetModalOpen, setIsSunriseSunsetModalOpen] = useState<boolean>(false);
+  const [isHijriModalOpen, setIsHijriModalOpen] = useState<boolean>(false);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes[] | null>(null);
   const [masjidCoordinates, setMasjidCoordinates] = useState<MasjidCoordinates | null>(null);
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
@@ -157,6 +159,10 @@ export default function PrayerTimings() {
               <Calculator className='mr-2 h-4 w-4' />
               Calculation
             </Button>
+            <Button variant='outline' onClick={() => setIsHijriModalOpen(true)}>
+              <CalendarDays className='mr-2 h-4 w-4' />
+              Hijri
+            </Button>
             <Button variant='outline' onClick={() => setIsSunriseSunsetModalOpen(true)}>
               <Sunrise className='mr-2 h-4 w-4' />
               Sunrise &amp; Sunset
@@ -189,6 +195,12 @@ export default function PrayerTimings() {
         onSettingsChange={setUserSettings}
         todaySunrise={prayerTimes?.[getCurrentDay() - 1]?.timings.Sunrise}
         todaySunset={prayerTimes?.[getCurrentDay() - 1]?.timings.Sunset}
+      />
+      <HijriModal
+        isOpen={isHijriModalOpen}
+        onClose={() => setIsHijriModalOpen(false)}
+        settings={userSettings}
+        onSettingsChange={setUserSettings}
       />
     </div>
   );

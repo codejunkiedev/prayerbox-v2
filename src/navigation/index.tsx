@@ -22,7 +22,6 @@ import {
   ScreenDetail,
   Settings,
   SettingsProfile,
-  SettingsHijri,
   SettingsAccount,
   PrayerTimings,
   Display,
@@ -174,14 +173,6 @@ export default function Navigation() {
               element={
                 <RequireAdmin>
                   <SettingsProfile />
-                </RequireAdmin>
-              }
-            />
-            <Route
-              path={AppRoutes.SettingsHijri}
-              element={
-                <RequireAdmin>
-                  <SettingsHijri />
                 </RequireAdmin>
               }
             />

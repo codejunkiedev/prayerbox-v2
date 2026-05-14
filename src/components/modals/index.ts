@@ -21,6 +21,9 @@ export const PrayerCalculationModal = lazy(() =>
 export const SunriseSunsetModal = lazy(() =>
   import('./sunrise-sunset-modal').then(m => ({ default: m.SunriseSunsetModal }))
 );
+export const HijriModal = lazy(() =>
+  import('./hijri-modal').then(m => ({ default: m.HijriModal }))
+);
 export const ScreenModal = lazy(() =>
   import('./screen-modal').then(m => ({ default: m.ScreenModal }))
 );
