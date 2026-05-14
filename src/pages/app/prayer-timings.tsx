@@ -186,6 +186,7 @@ export default function PrayerTimings() {
       <PrayerCalculationModal
         isOpen={isCalculationModalOpen}
         onClose={() => setIsCalculationModalOpen(false)}
+        settings={userSettings}
         onSaved={() => forceUpdate()}
       />
       <SunriseSunsetModal
