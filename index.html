@@ -5,6 +5,31 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!--
+    Service worker recovery. Runs before any bundled module so that even if a
+    stale SW serves a cached index.html with broken asset hashes, admin users
+    still escape the cache instead of seeing a blank screen.
+  -->
+  <script>
+    (function () {
+      var displayPaths = ['/', '/logout', '/login-with-code'];
+      if (displayPaths.indexOf(window.location.pathname) !== -1) return;
+      if (!('serviceWorker' in navigator)) return;
+      navigator.serviceWorker.getRegistrations().then(function (regs) {
+        if (!regs.length) return;
+        Promise.all(regs.map(function (r) { return r.unregister(); }))
+          .then(function () {
+            if ('caches' in window) {
+              return caches.keys().then(function (keys) {
+                return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+              });
+            }
+          })
+          .then(function () { window.location.reload(); });
+      });
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
