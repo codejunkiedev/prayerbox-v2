@@ -16,7 +16,6 @@ export interface PrayerAdjustment {
 
 export interface PrayerAdjustments {
   fajr: PrayerAdjustment;
-  sunrise: PrayerAdjustment;
   dhuhr: PrayerAdjustment;
   asr: PrayerAdjustment;
   maghrib: PrayerAdjustment;

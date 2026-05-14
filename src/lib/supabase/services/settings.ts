@@ -1,4 +1,4 @@
-import { SupabaseTables, type Settings } from '@/types';
+import { SupabaseTables, type Settings, type SingleAdjustment } from '@/types';
 import { HijriCalculationMethod, CalculationMethod, JuristicSchool } from '@/constants';
 import {
   getCurrentUser,
@@ -70,6 +70,25 @@ export async function updateHijriSettings(
     });
   } catch (error) {
     console.error('Error in updateHijriSettings:', error);
+    throw error;
+  }
+}
+
+export async function updateSunriseSunsetAdjustments(
+  sunrise: SingleAdjustment,
+  sunset: SingleAdjustment
+): Promise<Settings> {
+  const settings = await getOrCreateSettings();
+  if (!settings) throw new Error('Failed to get or create settings');
+
+  try {
+    return await updateRecord<Settings>(SupabaseTables.Settings, settings.id, {
+      sunrise_adjustment: sunrise,
+      sunset_adjustment: sunset,
+      updated_at: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error('Error in updateSunriseSunsetAdjustments:', error);
     throw error;
   }
 }

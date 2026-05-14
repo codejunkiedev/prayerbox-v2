@@ -1,17 +1,17 @@
-import { Link } from 'react-router';
 import { Button } from '@/components/ui';
-import { AppRoutes } from '@/constants';
+
+interface PrayerTimingsSettingsNotSetProps {
+  onConfigure: () => void;
+}
 
 /**
  * Displays a message prompting users to configure their prayer time settings
  */
-export function PrayerTimingsSettingsNotSet() {
+export function PrayerTimingsSettingsNotSet({ onConfigure }: PrayerTimingsSettingsNotSetProps) {
   return (
     <div className='text-center py-8'>
       <p className='text-lg mb-4'>Please configure your prayer time calculation settings</p>
-      <Link to={AppRoutes.SettingsPrayerTimes}>
-        <Button>Configure Prayer Times</Button>
-      </Link>
+      <Button onClick={onConfigure}>Configure Prayer Times</Button>
     </div>
   );
 }

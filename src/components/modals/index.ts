@@ -15,6 +15,12 @@ export const MapModal = lazy(() => import('./map-modal').then(m => ({ default: m
 export const PrayerTimingsModal = lazy(() =>
   import('./prayer-timings-modal').then(m => ({ default: m.PrayerTimingsModal }))
 );
+export const PrayerCalculationModal = lazy(() =>
+  import('./prayer-calculation-modal').then(m => ({ default: m.PrayerCalculationModal }))
+);
+export const SunriseSunsetModal = lazy(() =>
+  import('./sunrise-sunset-modal').then(m => ({ default: m.SunriseSunsetModal }))
+);
 export const ScreenModal = lazy(() =>
   import('./screen-modal').then(m => ({ default: m.ScreenModal }))
 );

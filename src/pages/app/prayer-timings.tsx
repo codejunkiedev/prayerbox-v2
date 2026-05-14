@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
-import { PrayerTimingsModal } from '@/components/modals';
+import {
+  PrayerTimingsModal,
+  PrayerCalculationModal,
+  SunriseSunsetModal,
+} from '@/components/modals';
 import {
   getMasjidProfile,
   getOrCreatePrayerAdjustments,
@@ -10,6 +14,8 @@ import type { AlAdhanPrayerTimes, PrayerTimes, Settings } from '@/types';
 import { useTrigger } from '@/hooks';
 import { fetchPrayerTimesForThisMonth } from '@/api';
 import { PageHeader } from '@/components/common/page-header';
+import { Button } from '@/components/ui';
+import { Calculator, Sunrise, Sliders } from 'lucide-react';
 import {
   PrayerTimesTable,
   PrayerTimesLoading,
@@ -17,7 +23,7 @@ import {
   LocationNotSet,
   PrayerTimingsSettingsNotSet,
 } from '@/components/prayer-times';
-import { getCurrentDate, isNullOrUndefined } from '@/utils';
+import { getCurrentDate, getCurrentDay, isNullOrUndefined } from '@/utils';
 
 const currentDate = getCurrentDate();
 
@@ -28,6 +34,8 @@ interface MasjidCoordinates {
 
 export default function PrayerTimings() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isCalculationModalOpen, setIsCalculationModalOpen] = useState<boolean>(false);
+  const [isSunriseSunsetModalOpen, setIsSunriseSunsetModalOpen] = useState<boolean>(false);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes[] | null>(null);
   const [masjidCoordinates, setMasjidCoordinates] = useState<MasjidCoordinates | null>(null);
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
@@ -127,7 +135,7 @@ export default function PrayerTimings() {
       isNullOrUndefined(userSettings?.calculation_method) ||
       isNullOrUndefined(userSettings?.juristic_school)
     ) {
-      return <PrayerTimingsSettingsNotSet />;
+      return <PrayerTimingsSettingsNotSet onConfigure={() => setIsCalculationModalOpen(true)} />;
     }
 
     if (prayerTimes && prayerTimes.length > 0) {
@@ -143,8 +151,22 @@ export default function PrayerTimings() {
         title='Prayer Times'
         description='View and manage prayer times for your masjid'
         showAddButton={false}
-        showSettingsButton={true}
-        onSettingsClick={handleOpenModal}
+        actions={
+          <>
+            <Button variant='outline' onClick={() => setIsCalculationModalOpen(true)}>
+              <Calculator className='mr-2 h-4 w-4' />
+              Calculation
+            </Button>
+            <Button variant='outline' onClick={() => setIsSunriseSunsetModalOpen(true)}>
+              <Sunrise className='mr-2 h-4 w-4' />
+              Sunrise &amp; Sunset
+            </Button>
+            <Button onClick={handleOpenModal}>
+              <Sliders className='mr-2 h-4 w-4' />
+              Adjustments
+            </Button>
+          </>
+        }
       />
 
       {renderContent()}
@@ -154,6 +176,19 @@ export default function PrayerTimings() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={() => forceUpdate()}
         initialValues={savedSettings}
+      />
+      <PrayerCalculationModal
+        isOpen={isCalculationModalOpen}
+        onClose={() => setIsCalculationModalOpen(false)}
+        onSaved={() => forceUpdate()}
+      />
+      <SunriseSunsetModal
+        isOpen={isSunriseSunsetModalOpen}
+        onClose={() => setIsSunriseSunsetModalOpen(false)}
+        settings={userSettings}
+        onSettingsChange={setUserSettings}
+        todaySunrise={prayerTimes?.[getCurrentDay() - 1]?.timings.Sunrise}
+        todaySunset={prayerTimes?.[getCurrentDay() - 1]?.timings.Sunset}
       />
     </div>
   );

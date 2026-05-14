@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
   Select,
   SelectTrigger,
   SelectContent,
@@ -24,7 +19,11 @@ import { MapPin } from 'lucide-react';
 import { Link } from 'react-router';
 import { isNullOrUndefined } from '@/utils';
 
-export function PrayerTimesSection() {
+interface PrayerTimesSectionProps {
+  onSaved?: () => void;
+}
+
+export function PrayerTimesSection({ onSaved }: PrayerTimesSectionProps = {}) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [calculationMethod, setCalculationMethod] = useState<number>(
@@ -67,6 +66,7 @@ export function PrayerTimesSection() {
       setIsSaving(true);
       await updatePrayerCalculationSettings(method, school);
       toast.success('Prayer time settings updated successfully');
+      onSaved?.();
     } catch (error) {
       console.error('Error saving prayer time settings:', error);
       toast.error('Failed to save prayer time settings');
@@ -92,116 +92,105 @@ export function PrayerTimesSection() {
   if (isLoading) return <div className='animate-pulse bg-muted rounded-lg h-48'></div>;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Prayer Time Calculation</CardTitle>
-        <CardDescription>
-          Configure the calculation method, juristic school, and location used for prayer time
-          calculations.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className='space-y-6'>
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <div>
-            <label className='block text-sm font-medium text-foreground mb-2'>
-              Calculation Method
-            </label>
-            <Select
-              onValueChange={handleMethodChange}
-              value={calculationMethod.toString()}
-              disabled={isSaving}
-            >
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Select calculation method' />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(CalculationMethod)
-                  .filter(([key]) => isNaN(Number(key)))
-                  .map(([key, value]) => (
-                    <SelectItem key={key} value={value.toString()}>
-                      {key.replace(/_/g, ' ')}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className='block text-sm font-medium text-foreground mb-2'>
-              Juristic School
-            </label>
-            <Select
-              onValueChange={handleSchoolChange}
-              value={juristicSchool.toString()}
-              disabled={isSaving}
-            >
-              <SelectTrigger className='w-full'>
-                <SelectValue placeholder='Select juristic school' />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(JuristicSchool)
-                  .filter(([key]) => isNaN(Number(key)))
-                  .map(([key, value]) => (
-                    <SelectItem key={key} value={value.toString()}>
-                      {key}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <div className='space-y-6'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div>
+          <label className='block text-sm font-medium text-foreground mb-2'>
+            Calculation Method
+          </label>
+          <Select
+            onValueChange={handleMethodChange}
+            value={calculationMethod.toString()}
+            disabled={isSaving}
+          >
+            <SelectTrigger className='w-full'>
+              <SelectValue placeholder='Select calculation method' />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(CalculationMethod)
+                .filter(([key]) => isNaN(Number(key)))
+                .map(([key, value]) => (
+                  <SelectItem key={key} value={value.toString()}>
+                    {key.replace(/_/g, ' ')}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className='space-y-2'>
-          <div className='flex items-center gap-2'>
-            <MapPin size={16} />
-            <Label>Masjid Location</Label>
-          </div>
-          <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
-            <div>
-              <Label htmlFor='latitude' className='text-xs text-muted-foreground'>
-                Latitude
-              </Label>
-              <Input
-                id='latitude'
-                value={masjidCoordinates?.latitude.toFixed(3) || 'Not set'}
-                readOnly
-                className='bg-muted cursor-not-allowed'
-                autoFocus={false}
-              />
-            </div>
-            <div>
-              <Label htmlFor='longitude' className='text-xs text-muted-foreground'>
-                Longitude
-              </Label>
-              <Input
-                id='longitude'
-                value={masjidCoordinates?.longitude.toFixed(3) || 'Not set'}
-                readOnly
-                className='bg-muted cursor-not-allowed'
-                autoFocus={false}
-              />
-            </div>
-          </div>
-          <p className='text-xs text-muted-foreground mt-1'>
-            {masjidCoordinates
-              ? 'To update these coordinates, please visit the'
-              : 'To set these coordinates, please visit the'}{' '}
-            <Link to={AppRoutes.SettingsProfile} className='text-primary hover:underline'>
-              Profile page
-            </Link>
-            .
-          </p>
+        <div>
+          <label className='block text-sm font-medium text-foreground mb-2'>Juristic School</label>
+          <Select
+            onValueChange={handleSchoolChange}
+            value={juristicSchool.toString()}
+            disabled={isSaving}
+          >
+            <SelectTrigger className='w-full'>
+              <SelectValue placeholder='Select juristic school' />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(JuristicSchool)
+                .filter(([key]) => isNaN(Number(key)))
+                .map(([key, value]) => (
+                  <SelectItem key={key} value={value.toString()}>
+                    {key}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
         </div>
+      </div>
 
-        {isSaving && (
-          <div className='flex items-center justify-center py-2'>
-            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-              <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
-              Saving settings...
-            </div>
+      <div className='space-y-2'>
+        <div className='flex items-center gap-2'>
+          <MapPin size={16} />
+          <Label>Masjid Location</Label>
+        </div>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
+          <div>
+            <Label htmlFor='latitude' className='text-xs text-muted-foreground'>
+              Latitude
+            </Label>
+            <Input
+              id='latitude'
+              value={masjidCoordinates?.latitude.toFixed(3) || 'Not set'}
+              readOnly
+              className='bg-muted cursor-not-allowed'
+              autoFocus={false}
+            />
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <div>
+            <Label htmlFor='longitude' className='text-xs text-muted-foreground'>
+              Longitude
+            </Label>
+            <Input
+              id='longitude'
+              value={masjidCoordinates?.longitude.toFixed(3) || 'Not set'}
+              readOnly
+              className='bg-muted cursor-not-allowed'
+              autoFocus={false}
+            />
+          </div>
+        </div>
+        <p className='text-xs text-muted-foreground mt-1'>
+          {masjidCoordinates
+            ? 'To update these coordinates, please visit the'
+            : 'To set these coordinates, please visit the'}{' '}
+          <Link to={AppRoutes.SettingsProfile} className='text-primary hover:underline'>
+            Profile page
+          </Link>
+          .
+        </p>
+      </div>
+
+      {isSaving && (
+        <div className='flex items-center justify-center py-2'>
+          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+            <div className='animate-spin h-4 w-4 border-2 border-muted border-t-foreground rounded-full'></div>
+            Saving settings...
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
