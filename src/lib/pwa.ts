@@ -12,14 +12,29 @@ function isDisplayPath(pathname: string): boolean {
   return DISPLAY_PATHS.has(pathname);
 }
 
+// Kiosks may stay open for days. Check for a new service worker every 30 min
+// so deploys show up without waiting for the next manual navigation.
+const UPDATE_CHECK_INTERVAL_MS = 30 * 60 * 1000;
+
 export function registerServiceWorker(): void {
   if (!isDisplayPath(window.location.pathname)) {
     void unregisterServiceWorker();
     return;
   }
 
-  registerSW({
+  const updateSW = registerSW({
     immediate: true,
+    onNeedRefresh() {
+      void updateSW(true);
+    },
+    onRegisteredSW(_swUrl, registration) {
+      if (!registration) return;
+      setInterval(() => {
+        // Routine probe — offline kiosks will reject here, which is expected.
+        // Real registration failures surface via onRegisterError on app boot.
+        registration.update().catch(() => {});
+      }, UPDATE_CHECK_INTERVAL_MS);
+    },
     onRegisterError(error) {
       Sentry.withScope(scope => {
         scope.setTag('source', 'pwa');
