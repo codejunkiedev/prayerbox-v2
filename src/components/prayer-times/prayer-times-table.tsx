@@ -52,7 +52,6 @@ export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTabl
 
   const basePrayers: PrayerColumn[] = [
     { name: 'fajr', label: 'Fajr', getTime: d => d.timings.Fajr },
-    { name: 'sunrise', label: 'Sunrise', getTime: d => d.timings.Sunrise },
     { name: 'dhuhr', label: 'Dhuhr', getTime: d => d.timings.Dhuhr },
   ];
 
@@ -92,10 +91,10 @@ export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTabl
         </div>
       </CardHeader>
       <CardContent className='p-0 overflow-auto'>
-        <Table>
+        <Table className='table-fixed'>
           <TableHeader>
             <TableRow className='bg-muted/50'>
-              <TableHead className='w-[80px] text-center font-medium py-3'>Date</TableHead>
+              <TableHead className='text-center font-medium py-3'>Date</TableHead>
               {columns.map(col => (
                 <TableHead key={col.name} className='text-center font-semibold'>
                   {col.label}

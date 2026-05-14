@@ -1,4 +1,4 @@
-import type { PrayerAdjustments, Theme } from './common';
+import type { PrayerAdjustments, SingleAdjustment, Theme } from './common';
 import type { HijriCalculationMethod } from '@/constants';
 
 export enum SupabaseTables {
@@ -175,4 +175,6 @@ export interface Settings extends Base {
   hijri_offset?: number;
   calculation_method?: number;
   juristic_school?: number;
+  sunrise_adjustment?: SingleAdjustment;
+  sunset_adjustment?: SingleAdjustment;
 }

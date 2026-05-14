@@ -1,7 +1,7 @@
 import {
+  applySingleAdjustment,
   formatGregorianDate,
   formatHijriDate,
-  formatTime,
   getProcessedPrayerTimings,
 } from '@/utils';
 import {
@@ -52,8 +52,8 @@ export function PrayerTimingDisplay({
   const themeProps: ThemeProps = {
     gregorianDate: formatGregorianDate(date?.gregorian),
     hijriDate: adjustedHijriDate || formatHijriDate(date?.hijri),
-    sunrise: formatTime(timings?.Sunrise || ''),
-    sunset: formatTime(timings?.Sunset || ''),
+    sunrise: applySingleAdjustment(timings?.Sunrise || '', userSettings?.sunrise_adjustment),
+    sunset: applySingleAdjustment(timings?.Sunset || '', userSettings?.sunset_adjustment),
     currentTime,
     processedPrayerTimings,
     prayerTimeSettings,

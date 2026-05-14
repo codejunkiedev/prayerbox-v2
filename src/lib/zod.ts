@@ -140,7 +140,6 @@ export const prayerAdjustmentsFormSchema = z.object({
   prayer_adjustments: z
     .object({
       fajr: prayerAdjustmentSchema,
-      sunrise: prayerAdjustmentSchema,
       dhuhr: prayerAdjustmentSchema,
       asr: prayerAdjustmentSchema,
       maghrib: prayerAdjustmentSchema,
@@ -153,6 +152,13 @@ export const prayerAdjustmentsFormSchema = z.object({
 });
 
 export type PrayerAdjustmentsFormData = z.infer<typeof prayerAdjustmentsFormSchema>;
+
+export const sunriseSunsetAdjustmentsSchema = z.object({
+  sunrise_adjustment: singleAdjustmentSchema,
+  sunset_adjustment: singleAdjustmentSchema,
+});
+
+export type SunriseSunsetAdjustmentsData = z.infer<typeof sunriseSunsetAdjustmentsSchema>;
 
 export const screenSchema = z.object({
   name: z.string().min(1, 'Screen name is required'),

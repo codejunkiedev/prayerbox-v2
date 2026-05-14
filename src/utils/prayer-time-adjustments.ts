@@ -20,7 +20,6 @@ export const isFridayPrayer = (date: AlAdhanPrayerTimes['date'] | undefined): bo
 
 export const PRAYER_NAMES = {
   fajr: 'فجر',
-  sunrise: 'شروق',
   dhuhr: 'ظهر',
   asr: 'عصر',
   maghrib: 'مغرب',
@@ -34,8 +33,24 @@ export const PRAYER_NAMES = {
 const DEFAULT_SINGLE_ADJUSTMENT: SingleAdjustment = { type: 'default' };
 
 /**
- * Applies a single adjustment to a time string
+ * Applies a single adjustment to a time string and returns a formatted result.
+ * Exposed for times that aren't part of `prayer_adjustments` (e.g. sunrise/sunset).
  */
+export const applySingleAdjustment = (
+  originalTime: string,
+  adjustment: SingleAdjustment | undefined | null
+): string => {
+  const timeOnly = originalTime.includes(' ') ? originalTime.split(' ')[0] : originalTime;
+  if (!adjustment) return formatTime(timeOnly);
+
+  if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
+    return formatTime(addTimeMinutes(timeOnly, adjustment.offset));
+  } else if (adjustment.type === 'manual' && adjustment.manual_time) {
+    return formatTime(adjustment.manual_time);
+  }
+  return formatTime(timeOnly);
+};
+
 const applyAdjustment = (originalTime: string, adjustment: SingleAdjustment): string => {
   const timeOnly = originalTime.includes(' ') ? originalTime.split(' ')[0] : originalTime;
 

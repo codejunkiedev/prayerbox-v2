@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Button, Card, CardHeader, CardTitle, CardDescription } from '@/components/ui';
 import { Plus, Settings } from 'lucide-react';
 
@@ -9,6 +10,7 @@ type PageHeaderProps = {
   onAddClick?: () => void;
   showSettingsButton?: boolean;
   onSettingsClick?: () => void;
+  actions?: ReactNode;
 };
 
 /**
@@ -24,8 +26,9 @@ export function PageHeader({
   onAddClick,
   showSettingsButton = false,
   onSettingsClick,
+  actions,
 }: PageHeaderProps) {
-  const isRightContent = showAddButton || showSettingsButton;
+  const isRightContent = !!actions || showAddButton || showSettingsButton;
 
   return (
     <Card>
@@ -37,6 +40,7 @@ export function PageHeader({
           </div>
           {isRightContent && (
             <div className='flex gap-2'>
+              {actions}
               {showSettingsButton && onSettingsClick && (
                 <Button onClick={onSettingsClick}>
                   <Settings className='mr-2 h-4 w-4' />

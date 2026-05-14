@@ -41,7 +41,6 @@ type AdjustmentType = SingleAdjustment['type'];
 
 const PRAYER_LIST: { name: PrayerName; label: string }[] = [
   { name: 'fajr', label: 'Fajr' },
-  { name: 'sunrise', label: 'Sunrise' },
   { name: 'dhuhr', label: 'Dhuhr' },
   { name: 'jumma1', label: 'Jumma 1' },
   { name: 'jumma2', label: 'Jumma 2' },
@@ -61,7 +60,6 @@ const DEFAULT_SINGLE = { type: 'default' as const };
 
 const DEFAULT_ADJUSTMENT: PrayerAdjustmentsFormData['prayer_adjustments'] = {
   fajr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
-  sunrise: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
   dhuhr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
   asr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
   maghrib: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
