@@ -217,8 +217,19 @@ const referenceStyleSchema = z.object({
   line_height: z.number().min(0.8).max(4),
 });
 
+const backgroundSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('image'), url: z.string() }),
+  z.object({ type: z.literal('color'), color: z.string() }),
+  z.object({
+    type: z.literal('gradient'),
+    from: z.string(),
+    to: z.string(),
+    angle: z.number().min(0).max(360),
+  }),
+]);
+
 const ayatHadithStyleSchema = z.object({
-  background_id: z.string(),
+  background: backgroundSchema,
   overlay_color: z.string(),
   overlay_opacity: z.number().min(0).max(1),
   arabic: textStyleSchema,

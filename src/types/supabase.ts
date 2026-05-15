@@ -24,6 +24,7 @@ export enum SupabaseBuckets {
 
 export enum SupabaseFolders {
   PredesignedPosts = 'predesigned-posts',
+  AyatHadithBackgrounds = 'ayat-hadith-backgrounds',
 }
 
 export type MemberRole = 'admin' | 'moderator';
@@ -94,8 +95,13 @@ export interface AyatHadithReferenceStyle extends AyatHadithTextStyle {
   arabic_font_id: string;
 }
 
+export type AyatHadithBackground =
+  | { type: 'image'; url: string }
+  | { type: 'color'; color: string }
+  | { type: 'gradient'; from: string; to: string; angle: number };
+
 export interface AyatHadithStyle {
-  background_id: string;
+  background: AyatHadithBackground;
   overlay_color: string;
   overlay_opacity: number;
   arabic: AyatHadithTextStyle;

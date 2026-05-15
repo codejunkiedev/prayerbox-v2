@@ -28,3 +28,4 @@ export * from './checkbox';
 export * from './theme-toggle';
 export * from './validation-feedback';
 export * from './predesigned-image-selector';
+export * from './color-input';
