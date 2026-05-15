@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { isFriday, getCurrentDay, getAdjustedPrayerTime } from '@/utils';
+import { applySingleAdjustment, isFriday, getCurrentDay, getAdjustedPrayerTime } from '@/utils';
 import {
   Card,
   CardContent,
@@ -20,11 +20,13 @@ import type {
   AlAdhanPrayerTimes,
   PrayerAdjustments,
   PrayerTimes,
+  Settings,
 } from '@/types';
 
 interface PrayerTimesTableProps {
   prayerTimes: AlAdhanPrayerTimes[];
   savedSettings: PrayerTimes | null;
+  settings: Settings | null;
 }
 
 type JummaPrayer = 'jumma1' | 'jumma2' | 'jumma3';
@@ -37,7 +39,7 @@ type PrayerColumn = {
 
 const currentDay = getCurrentDay();
 
-export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTableProps) {
+export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: PrayerTimesTableProps) {
   const [category, setCategory] = useState<AdjustmentCategory>('starts');
 
   const isJummaActive = (jumma: JummaPrayer): boolean => {
@@ -95,7 +97,9 @@ export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTabl
           <TableHeader>
             <TableRow className='bg-muted/50'>
               <TableHead className='text-center font-medium py-3'>Date</TableHead>
-              {columns.map(col => (
+              <TableHead className='text-center font-semibold'>Fajr</TableHead>
+              <TableHead className='text-center font-semibold'>Sunrise</TableHead>
+              {columns.slice(1).map(col => (
                 <TableHead key={col.name} className='text-center font-semibold'>
                   {col.label}
                 </TableHead>
@@ -118,7 +122,13 @@ export function PrayerTimesTable({ prayerTimes, savedSettings }: PrayerTimesTabl
                     {day.date.gregorian.day}
                     {isJummaDay && <span className='ml-1 text-xs text-primary'>(Fri)</span>}
                   </TableCell>
-                  {columns.map(col => {
+                  <TableCell className='text-center'>
+                    {getAdjustedPrayerTime('fajr', day.timings.Fajr, savedSettings, category)}
+                  </TableCell>
+                  <TableCell className='text-center'>
+                    {applySingleAdjustment(day.timings.Sunrise, settings?.sunrise_adjustment)}
+                  </TableCell>
+                  {columns.slice(1).map(col => {
                     const isJumma = ['jumma1', 'jumma2', 'jumma3'].includes(col.name);
                     return (
                       <TableCell key={col.name} className='text-center'>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { Plus, Minus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -24,16 +25,17 @@ import {
   TabsTrigger,
 } from '@/components/ui';
 import { prayerAdjustmentsFormSchema, type PrayerAdjustmentsFormData } from '@/lib/zod';
-import { savePrayerAdjustments } from '@/lib/supabase';
-import { Plus, Minus } from 'lucide-react';
+import { savePrayerAdjustments, updateSunriseSunsetAdjustments } from '@/lib/supabase';
 import { parseTimeString, formatTimeString } from '@/utils';
-import type { AdjustmentCategory, PrayerAdjustments, SingleAdjustment } from '@/types';
+import type { AdjustmentCategory, PrayerAdjustments, Settings, SingleAdjustment } from '@/types';
 
 interface PrayerTimingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: () => void;
   initialValues: PrayerAdjustmentsFormData | null;
+  settings: Settings | null;
+  onSettingsChange: (settings: Settings) => void;
 }
 
 type PrayerName = keyof PrayerAdjustments;
@@ -56,7 +58,7 @@ const CATEGORIES: { key: AdjustmentCategory; label: string }[] = [
   { key: 'iqamah', label: 'Iqamah' },
 ];
 
-const DEFAULT_SINGLE = { type: 'default' as const };
+const DEFAULT_SINGLE: SingleAdjustment = { type: 'default' };
 
 const DEFAULT_ADJUSTMENT: PrayerAdjustmentsFormData['prayer_adjustments'] = {
   fajr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
@@ -74,8 +76,16 @@ export function PrayerTimingsModal({
   onClose,
   onSubmit,
   initialValues,
+  settings,
+  onSettingsChange,
 }: PrayerTimingsModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sunrise, setSunrise] = useState<SingleAdjustment>(
+    settings?.sunrise_adjustment ?? DEFAULT_SINGLE
+  );
+  const [sunset, setSunset] = useState<SingleAdjustment>(
+    settings?.sunset_adjustment ?? DEFAULT_SINGLE
+  );
 
   const { handleSubmit, setValue, watch } = useForm<PrayerAdjustmentsFormData>({
     resolver: zodResolver(prayerAdjustmentsFormSchema),
@@ -90,10 +100,18 @@ export function PrayerTimingsModal({
     }
   }, [initialValues, setValue]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    setSunrise(settings?.sunrise_adjustment ?? DEFAULT_SINGLE);
+    setSunset(settings?.sunset_adjustment ?? DEFAULT_SINGLE);
+  }, [isOpen, settings]);
+
   const onFormSubmit = async (data: PrayerAdjustmentsFormData) => {
     try {
       setIsSubmitting(true);
       await savePrayerAdjustments(data);
+      const updatedSettings = await updateSunriseSunsetAdjustments(sunrise, sunset);
+      onSettingsChange(updatedSettings);
       onSubmit();
       onClose();
       toast.success('Prayer time settings saved successfully');
@@ -138,84 +156,23 @@ export function PrayerTimingsModal({
     return 'Default';
   };
 
-  const renderAdjustmentControls = (prayer: PrayerName, category: AdjustmentCategory) => {
-    const adj = prayerAdjustments?.[prayer]?.[category];
-    const type = adj?.type || 'default';
-    const offset = adj?.offset || 0;
-    const manualTime = adj?.manual_time || '';
-    const id = `${prayer}-${category}`;
-
-    const offsetValue = Math.abs(offset);
-    const hours = Math.floor(offsetValue / 60);
-    const minutes = offsetValue % 60;
-
-    return (
-      <div className='space-y-3 pt-2'>
-        <RadioGroup
-          value={type}
-          onValueChange={value => handleTypeChange(prayer, category, value as AdjustmentType)}
-          className='flex flex-row gap-4'
-        >
-          <div className='flex items-center space-x-2'>
-            <RadioGroupItem value='default' id={`${id}-default`} />
-            <Label htmlFor={`${id}-default`}>Default</Label>
-          </div>
-          <div className='flex items-center space-x-2'>
-            <RadioGroupItem value='offset' id={`${id}-offset`} />
-            <Label htmlFor={`${id}-offset`}>Offset</Label>
-          </div>
-          <div className='flex items-center space-x-2'>
-            <RadioGroupItem value='manual' id={`${id}-manual`} />
-            <Label htmlFor={`${id}-manual`}>Manual</Label>
-          </div>
-        </RadioGroup>
-
-        {type === 'offset' && (
-          <div className='space-y-3'>
-            <div className='flex flex-row justify-between items-start gap-2'>
-              <Label>
-                {offset > 0 ? '+' : offset < 0 ? '-' : ''}
-                {hours > 0 ? `${hours.toString().padStart(2, '0')}h ` : ''}
-                {minutes.toString().padStart(2, '0')}m
-              </Label>
-              <div className='flex items-center gap-1 text-xs'>
-                <Minus className='h-3 w-3 text-muted-foreground' />
-                <span className='text-muted-foreground'>Earlier</span>
-                <span className='mx-1'>|</span>
-                <span className='text-muted-foreground'>Later</span>
-                <Plus className='h-3 w-3 text-muted-foreground' />
-              </div>
-            </div>
-            <Slider
-              defaultValue={[offset]}
-              min={-120}
-              max={120}
-              step={1}
-              onValueChange={value =>
-                setValue(`prayer_adjustments.${prayer}.${category}.offset`, value[0])
-              }
-            />
-          </div>
-        )}
-
-        {type === 'manual' && (
-          <div className='space-y-2'>
-            <Label htmlFor={`${id}-manual-time`}>Select Time</Label>
-            <TimePicker
-              time={parseTimeString(manualTime)}
-              setTime={time =>
-                setValue(
-                  `prayer_adjustments.${prayer}.${category}.manual_time`,
-                  formatTimeString(time)
-                )
-              }
-              minuteInterval={1}
-            />
-          </div>
-        )}
-      </div>
-    );
-  };
+  const renderAdjustmentControls = (prayer: PrayerName, category: AdjustmentCategory) =>
+    renderSingleAdjustmentControls({
+      idPrefix: `${prayer}-${category}`,
+      value: prayerAdjustments?.[prayer]?.[category],
+      onChange: next => {
+        handleTypeChange(prayer, category, next.type);
+        if (next.type === 'offset') {
+          setValue(`prayer_adjustments.${prayer}.${category}.offset`, next.offset ?? 0);
+        } else if (next.type === 'manual') {
+          setValue(`prayer_adjustments.${prayer}.${category}.manual_time`, next.manual_time ?? '');
+        }
+      },
+      onOffsetChange: v =>
+        setValue(`prayer_adjustments.${prayer}.${category}.offset`, v, { shouldDirty: true }),
+      onManualTimeChange: v =>
+        setValue(`prayer_adjustments.${prayer}.${category}.manual_time`, v, { shouldDirty: true }),
+    });
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
@@ -265,6 +222,25 @@ export function PrayerTimingsModal({
                       </AccordionItem>
                     );
                   })}
+
+                  {cat.key === 'starts' && (
+                    <>
+                      <SolarAccordionItem
+                        name='sunrise'
+                        label='Sunrise'
+                        adjustment={sunrise}
+                        onChange={setSunrise}
+                        summary={getAdjustmentSummary(sunrise)}
+                      />
+                      <SolarAccordionItem
+                        name='sunset'
+                        label='Sunset'
+                        adjustment={sunset}
+                        onChange={setSunset}
+                        summary={getAdjustmentSummary(sunset)}
+                      />
+                    </>
+                  )}
                 </Accordion>
               </TabsContent>
             ))}
@@ -286,5 +262,141 @@ export function PrayerTimingsModal({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+interface SolarAccordionItemProps {
+  name: 'sunrise' | 'sunset';
+  label: string;
+  adjustment: SingleAdjustment;
+  onChange: (next: SingleAdjustment) => void;
+  summary: string;
+}
+
+function SolarAccordionItem({
+  name,
+  label,
+  adjustment,
+  onChange,
+  summary,
+}: SolarAccordionItemProps) {
+  const isDefault = adjustment.type === 'default';
+  return (
+    <AccordionItem value={name}>
+      <AccordionTrigger className='py-2.5 hover:no-underline'>
+        <div className='flex items-center justify-between w-full pr-2'>
+          <span className='text-sm font-medium'>{label}</span>
+          <span
+            className={`text-xs ${isDefault ? 'text-muted-foreground' : 'text-primary font-medium'}`}
+          >
+            {summary}
+          </span>
+        </div>
+      </AccordionTrigger>
+      <AccordionContent>
+        {renderSingleAdjustmentControls({
+          idPrefix: name,
+          value: adjustment,
+          onChange,
+        })}
+      </AccordionContent>
+    </AccordionItem>
+  );
+}
+
+interface RenderControlsArgs {
+  idPrefix: string;
+  value: SingleAdjustment | undefined;
+  onChange: (next: SingleAdjustment) => void;
+  /** When provided, used instead of onChange for slider drag (RHF setValue without re-creating object). */
+  onOffsetChange?: (offset: number) => void;
+  onManualTimeChange?: (time: string) => void;
+}
+
+function renderSingleAdjustmentControls({
+  idPrefix,
+  value,
+  onChange,
+  onOffsetChange,
+  onManualTimeChange,
+}: RenderControlsArgs) {
+  const type = value?.type ?? 'default';
+  const offset = value?.offset ?? 0;
+  const manualTime = value?.manual_time ?? '';
+
+  const absOffset = Math.abs(offset);
+  const hours = Math.floor(absOffset / 60);
+  const minutes = absOffset % 60;
+
+  const handleTypeChange = (next: AdjustmentType) => {
+    if (next === 'default') onChange({ type: 'default' });
+    else if (next === 'offset') onChange({ type: 'offset', offset: value?.offset ?? 0 });
+    else onChange({ type: 'manual', manual_time: value?.manual_time ?? '' });
+  };
+
+  return (
+    <div className='space-y-3 pt-2'>
+      <RadioGroup
+        value={type}
+        onValueChange={v => handleTypeChange(v as AdjustmentType)}
+        className='flex flex-row gap-4'
+      >
+        <div className='flex items-center space-x-2'>
+          <RadioGroupItem value='default' id={`${idPrefix}-default`} />
+          <Label htmlFor={`${idPrefix}-default`}>Default</Label>
+        </div>
+        <div className='flex items-center space-x-2'>
+          <RadioGroupItem value='offset' id={`${idPrefix}-offset`} />
+          <Label htmlFor={`${idPrefix}-offset`}>Offset</Label>
+        </div>
+        <div className='flex items-center space-x-2'>
+          <RadioGroupItem value='manual' id={`${idPrefix}-manual`} />
+          <Label htmlFor={`${idPrefix}-manual`}>Manual</Label>
+        </div>
+      </RadioGroup>
+
+      {type === 'offset' && (
+        <div className='space-y-3'>
+          <div className='flex flex-row justify-between items-start gap-2'>
+            <Label>
+              {offset > 0 ? '+' : offset < 0 ? '-' : ''}
+              {hours > 0 ? `${hours.toString().padStart(2, '0')}h ` : ''}
+              {minutes.toString().padStart(2, '0')}m
+            </Label>
+            <div className='flex items-center gap-1 text-xs'>
+              <Minus className='h-3 w-3 text-muted-foreground' />
+              <span className='text-muted-foreground'>Earlier</span>
+              <span className='mx-1'>|</span>
+              <span className='text-muted-foreground'>Later</span>
+              <Plus className='h-3 w-3 text-muted-foreground' />
+            </div>
+          </div>
+          <Slider
+            value={[offset]}
+            min={-120}
+            max={120}
+            step={1}
+            onValueChange={v =>
+              onOffsetChange ? onOffsetChange(v[0]) : onChange({ type: 'offset', offset: v[0] })
+            }
+          />
+        </div>
+      )}
+
+      {type === 'manual' && (
+        <div className='space-y-2'>
+          <Label htmlFor={`${idPrefix}-manual-time`}>Select Time</Label>
+          <TimePicker
+            time={parseTimeString(manualTime)}
+            setTime={t => {
+              const formatted = formatTimeString(t);
+              if (onManualTimeChange) onManualTimeChange(formatted);
+              else onChange({ type: 'manual', manual_time: formatted });
+            }}
+            minuteInterval={1}
+          />
+        </div>
+      )}
+    </div>
   );
 }
