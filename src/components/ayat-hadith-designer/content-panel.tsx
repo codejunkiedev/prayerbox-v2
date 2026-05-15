@@ -17,8 +17,9 @@ import {
 import { HADITH_BOOKS, QURAN_ARABIC_EDITION, QURAN_TRANSLATIONS, SURAHS } from '@/constants';
 import { fetchAyahWithEditions, fetchHadith } from '@/api';
 import type { AyatHadithCachedText, AyatHadithType } from '@/types';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, Search } from 'lucide-react';
 import { cn } from '@/utils';
+import { HadithSearchDialog } from './hadith-search-dialog';
 
 function buildAyatReference(surahNumber: number): { arabic: string; english: string } | undefined {
   const surah = SURAHS.find(s => s.number === surahNumber);
@@ -76,6 +77,7 @@ export function ContentPanel({
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastKey, setLastKey] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const key = fingerprint(state);
@@ -208,6 +210,19 @@ export function ContentPanel({
         </TabsContent>
 
         <TabsContent value='hadith' className='space-y-4 pt-4'>
+          <button
+            type='button'
+            onClick={() => setSearchOpen(true)}
+            className={cn(
+              'flex h-9 w-full items-center gap-2 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors',
+              'text-muted-foreground hover:bg-accent hover:text-foreground',
+              'focus:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-inset'
+            )}
+          >
+            <Search className='h-4 w-4 shrink-0' />
+            <span className='flex-1 text-left'>Search hadiths by keyword…</span>
+          </button>
+
           <div className='grid grid-cols-[1fr_140px] gap-3'>
             <div className='space-y-2'>
               <Label>Book</Label>
@@ -393,6 +408,12 @@ export function ContentPanel({
         {fetching && <Loader2 className='mr-2 h-3 w-3 animate-spin' />}
         Refresh
       </Button>
+
+      <HadithSearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        onSelect={(book, hadith_number) => onChange({ ...state, book, hadith_number })}
+      />
     </div>
   );
 }
