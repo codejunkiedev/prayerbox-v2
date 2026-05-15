@@ -210,16 +210,18 @@ export function ContentPanel({
         </TabsContent>
 
         <TabsContent value='hadith' className='space-y-4 pt-4'>
-          <Button
+          <button
             type='button'
-            variant='outline'
-            size='sm'
-            className='w-full justify-start'
             onClick={() => setSearchOpen(true)}
+            className={cn(
+              'flex h-9 w-full items-center gap-2 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors',
+              'text-muted-foreground hover:bg-accent hover:text-foreground',
+              'focus:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-inset'
+            )}
           >
-            <Search className='mr-2 h-4 w-4' />
-            Search hadiths by keyword…
-          </Button>
+            <Search className='h-4 w-4 shrink-0' />
+            <span className='flex-1 text-left'>Search hadiths by keyword…</span>
+          </button>
 
           <div className='grid grid-cols-[1fr_140px] gap-3'>
             <div className='space-y-2'>

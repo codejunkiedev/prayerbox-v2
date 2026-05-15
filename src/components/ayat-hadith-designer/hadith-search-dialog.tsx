@@ -11,6 +11,7 @@ import {
   Label,
   ScrollArea,
   Select,
+  Skeleton,
   SelectContent,
   SelectItem,
   SelectTrigger,
@@ -179,7 +180,7 @@ export function HadithSearchDialog({ open, onOpenChange, onSelect }: HadithSearc
         </form>
 
         <div className='border-t pt-3'>
-          {error && <p className='text-destructive text-sm mb-2'>{error}</p>}
+          {error && !loading && <p className='text-destructive text-sm mb-2'>{error}</p>}
 
           {!submittedQuery && !loading && !error && (
             <p className='text-muted-foreground text-sm text-center py-8'>
@@ -187,13 +188,37 @@ export function HadithSearchDialog({ open, onOpenChange, onSelect }: HadithSearc
             </p>
           )}
 
-          {submittedQuery && !loading && !error && results.length === 0 && (
+          {loading && (
+            <>
+              <div className='flex items-center justify-between mb-2'>
+                <Skeleton className='h-3 w-40' />
+                <Skeleton className='h-3 w-20' />
+              </div>
+              <div className='h-80 rounded-md border overflow-hidden'>
+                <ul className='divide-y'>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <li key={i} className='p-3 space-y-2'>
+                      <div className='flex items-center gap-2'>
+                        <Skeleton className='h-4 w-32' />
+                        <Skeleton className='h-4 w-12 rounded-full' />
+                        <Skeleton className='h-3 w-24' />
+                      </div>
+                      <Skeleton className='h-3 w-full' />
+                      <Skeleton className='h-3 w-4/5' />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          )}
+
+          {!loading && submittedQuery && !error && results.length === 0 && (
             <p className='text-muted-foreground text-sm text-center py-8'>
               No hadiths found for &ldquo;{submittedQuery}&rdquo;.
             </p>
           )}
 
-          {results.length > 0 && (
+          {!loading && results.length > 0 && (
             <>
               <div className='flex items-center justify-between text-xs text-muted-foreground mb-2'>
                 <span>
