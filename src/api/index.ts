@@ -10,4 +10,12 @@ export { fetchWeatherForecast } from './openweather';
 
 export { fetchAyahWithEditions, type AyahResult } from './quran';
 
-export { fetchHadith, type HadithDetail } from './hadith';
+export {
+  fetchHadith,
+  searchHadith,
+  type HadithDetail,
+  type HadithSearchLanguage,
+  type HadithSearchParams,
+  type HadithSearchResponse,
+  type HadithSearchResult,
+} from './hadith';
