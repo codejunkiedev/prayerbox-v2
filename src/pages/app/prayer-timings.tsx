@@ -118,17 +118,14 @@ export default function PrayerTimings() {
   };
 
   const renderContent = () => {
-    if (isFetchingCoordinates || isFetchingTimes) {
-      return <PrayerTimesLoading />;
-    }
+    if (isFetchingCoordinates) return <PrayerTimesLoading />;
+    if (!masjidCoordinates) return <LocationNotSet />;
 
-    if (!masjidCoordinates) {
-      return <LocationNotSet />;
-    }
+    if (userSettings === null || isFetchingTimes) return <PrayerTimesLoading />;
 
     if (
-      isNullOrUndefined(userSettings?.calculation_method) ||
-      isNullOrUndefined(userSettings?.juristic_school)
+      isNullOrUndefined(userSettings.calculation_method) ||
+      isNullOrUndefined(userSettings.juristic_school)
     ) {
       return <PrayerTimingsSettingsNotSet onConfigure={() => setIsCalculationModalOpen(true)} />;
     }
