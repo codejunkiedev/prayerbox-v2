@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  PrayerTimingsModal,
-  PrayerCalculationModal,
-  SunriseSunsetModal,
-  HijriModal,
-} from '@/components/modals';
+import { PrayerTimingsModal, CalculationSettingsModal } from '@/components/modals';
 import {
   getMasjidProfile,
   getOrCreatePrayerAdjustments,
@@ -16,7 +11,7 @@ import { useTrigger } from '@/hooks';
 import { fetchPrayerTimesForThisMonth } from '@/api';
 import { PageHeader } from '@/components/common/page-header';
 import { Button } from '@/components/ui';
-import { Calculator, Sunrise, Sliders, CalendarDays } from 'lucide-react';
+import { Calculator, Sliders } from 'lucide-react';
 import {
   PrayerTimesTable,
   PrayerTimesLoading,
@@ -24,7 +19,7 @@ import {
   LocationNotSet,
   PrayerTimingsSettingsNotSet,
 } from '@/components/prayer-times';
-import { getCurrentDate, getCurrentDay, isNullOrUndefined } from '@/utils';
+import { getCurrentDate, isNullOrUndefined } from '@/utils';
 
 const currentDate = getCurrentDate();
 
@@ -36,8 +31,6 @@ interface MasjidCoordinates {
 export default function PrayerTimings() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isCalculationModalOpen, setIsCalculationModalOpen] = useState<boolean>(false);
-  const [isSunriseSunsetModalOpen, setIsSunriseSunsetModalOpen] = useState<boolean>(false);
-  const [isHijriModalOpen, setIsHijriModalOpen] = useState<boolean>(false);
   const [prayerTimes, setPrayerTimes] = useState<AlAdhanPrayerTimes[] | null>(null);
   const [masjidCoordinates, setMasjidCoordinates] = useState<MasjidCoordinates | null>(null);
   const [savedSettings, setSavedSettings] = useState<PrayerTimes | null>(null);
@@ -141,7 +134,13 @@ export default function PrayerTimings() {
     }
 
     if (prayerTimes && prayerTimes.length > 0) {
-      return <PrayerTimesTable prayerTimes={prayerTimes} savedSettings={savedSettings} />;
+      return (
+        <PrayerTimesTable
+          prayerTimes={prayerTimes}
+          savedSettings={savedSettings}
+          settings={userSettings}
+        />
+      );
     }
 
     return <PrayerTimesEmpty onConfigure={handleOpenModal} />;
@@ -159,14 +158,6 @@ export default function PrayerTimings() {
               <Calculator className='mr-2 h-4 w-4' />
               Calculation
             </Button>
-            <Button variant='outline' onClick={() => setIsHijriModalOpen(true)}>
-              <CalendarDays className='mr-2 h-4 w-4' />
-              Hijri
-            </Button>
-            <Button variant='outline' onClick={() => setIsSunriseSunsetModalOpen(true)}>
-              <Sunrise className='mr-2 h-4 w-4' />
-              Sunrise &amp; Sunset
-            </Button>
             <Button onClick={handleOpenModal}>
               <Sliders className='mr-2 h-4 w-4' />
               Adjustments
@@ -182,26 +173,17 @@ export default function PrayerTimings() {
         onClose={() => setIsModalOpen(false)}
         onSubmit={() => forceUpdate()}
         initialValues={savedSettings}
+        settings={userSettings}
+        onSettingsChange={setUserSettings}
       />
-      <PrayerCalculationModal
+      <CalculationSettingsModal
         isOpen={isCalculationModalOpen}
         onClose={() => setIsCalculationModalOpen(false)}
         settings={userSettings}
-        onSaved={() => forceUpdate()}
-      />
-      <SunriseSunsetModal
-        isOpen={isSunriseSunsetModalOpen}
-        onClose={() => setIsSunriseSunsetModalOpen(false)}
-        settings={userSettings}
-        onSettingsChange={setUserSettings}
-        todaySunrise={prayerTimes?.[getCurrentDay() - 1]?.timings.Sunrise}
-        todaySunset={prayerTimes?.[getCurrentDay() - 1]?.timings.Sunset}
-      />
-      <HijriModal
-        isOpen={isHijriModalOpen}
-        onClose={() => setIsHijriModalOpen(false)}
-        settings={userSettings}
-        onSettingsChange={setUserSettings}
+        onSettingsChange={updated => {
+          setUserSettings(updated);
+          forceUpdate();
+        }}
       />
     </div>
   );
