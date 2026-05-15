@@ -30,6 +30,7 @@ export default function YouTubeVideos() {
   const [itemToDelete, setItemToDelete] = useState<YouTubeVideo | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [screenAssignItem, setScreenAssignItem] = useState<YouTubeVideo | null>(null);
+  const [assignedFromCreate, setAssignedFromCreate] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -169,7 +170,14 @@ export default function YouTubeVideos() {
       <YouTubeVideoModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        onSuccess={forceUpdate}
+        onSuccess={created => {
+          if (created) {
+            setAssignedFromCreate(true);
+            setScreenAssignItem(created);
+          } else {
+            forceUpdate();
+          }
+        }}
         initialData={selectedItem}
       />
 
@@ -185,10 +193,17 @@ export default function YouTubeVideos() {
       {screenAssignItem && (
         <ScreenAssignmentModal
           isOpen={!!screenAssignItem}
-          onClose={() => setScreenAssignItem(null)}
+          onClose={() => {
+            setScreenAssignItem(null);
+            if (assignedFromCreate) {
+              forceUpdate();
+              setAssignedFromCreate(false);
+            }
+          }}
           contentId={screenAssignItem.id}
           contentType='youtube_videos'
           contentLabel={screenAssignItem.title}
+          dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}
         />
       )}
     </div>

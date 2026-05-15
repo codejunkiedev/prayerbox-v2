@@ -14,7 +14,7 @@ import { UploadForm } from './upload-form';
 type PostModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (createdPost?: Post) => void;
   initialData?: Post;
   presetOrientation?: PostOrientation;
 };
@@ -137,13 +137,16 @@ export function PostModal({
         imageToUse = new File([blob], fileName, { type: blob.type });
       }
 
-      await upsertPost({ ...data, ...(initialData?.id && { id: initialData.id }) }, imageToUse);
+      const saved = await upsertPost(
+        { ...data, ...(initialData?.id && { id: initialData.id }) },
+        imageToUse
+      );
       toast.success(`Post ${isEdit ? 'updated' : 'created'} successfully`);
 
       reset();
       resetSteps();
       setError(null);
-      onSuccess();
+      onSuccess(isEdit ? undefined : saved);
       onClose();
     } catch {
       setError('Failed to save post. Please try again.');

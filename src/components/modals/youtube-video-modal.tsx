@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Youtube } from 'lucide-react';
 import {
   Button,
   Input,
@@ -9,6 +10,7 @@ import {
   DialogFooter,
   DialogClose,
   Label,
+  RemoteImage,
   Switch,
 } from '@/components/ui';
 import { youtubeVideoSchema, type YouTubeVideoData } from '@/lib/zod';
@@ -35,7 +37,7 @@ function extractVideoId(url: string): string | null {
 type YouTubeVideoModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (createdVideo?: YouTubeVideo) => void;
   initialData?: YouTubeVideo;
 };
 
@@ -74,11 +76,14 @@ export function YouTubeVideoModal({
     try {
       setIsSubmitting(true);
       setError(null);
-      await upsertYouTubeVideo({ ...data, ...(initialData?.id && { id: initialData.id }) });
+      const saved = await upsertYouTubeVideo({
+        ...data,
+        ...(initialData?.id && { id: initialData.id }),
+      });
       toast.success(`YouTube video ${isEdit ? 'updated' : 'created'} successfully`);
 
       reset();
-      onSuccess();
+      onSuccess(isEdit ? undefined : saved);
       onClose();
     } catch (error) {
       console.error('Error saving YouTube video:', error);
@@ -91,72 +96,81 @@ export function YouTubeVideoModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[550px]'>
+      <DialogContent className='sm:max-w-[860px]'>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit YouTube Video' : 'Add YouTube Video'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 pt-4'>
+        <form onSubmit={handleSubmit(onSubmit)} className='pt-4'>
           {error && (
             <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded mb-4'>
               {error}
             </div>
           )}
 
-          <div className='space-y-2'>
-            <Label htmlFor='title'>Title</Label>
-            <Input
-              id='title'
-              placeholder='Enter a title for this video'
-              className={errors.title ? 'border-destructive' : ''}
-              {...register('title')}
-            />
-            {errors.title && <p className='text-destructive text-sm'>{errors.title.message}</p>}
-          </div>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div className='space-y-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='title'>Title</Label>
+                <Input
+                  id='title'
+                  placeholder='Enter a title for this video'
+                  className={errors.title ? 'border-destructive' : ''}
+                  {...register('title')}
+                />
+                {errors.title && <p className='text-destructive text-sm'>{errors.title.message}</p>}
+              </div>
 
-          <div className='space-y-2'>
-            <Label htmlFor='youtube_url'>YouTube URL</Label>
-            <Input
-              id='youtube_url'
-              placeholder='https://www.youtube.com/watch?v=...'
-              className={errors.youtube_url ? 'border-destructive' : ''}
-              {...register('youtube_url')}
-            />
-            {errors.youtube_url && (
-              <p className='text-destructive text-sm'>{errors.youtube_url.message}</p>
-            )}
-            <p className='text-xs text-muted-foreground'>
-              Paste a YouTube video URL (e.g. youtube.com/watch?v=... or youtu.be/...)
-            </p>
-            {thumbnailVideoId && (
-              <div className='relative rounded-lg overflow-hidden border bg-black'>
-                <img
-                  src={`https://img.youtube.com/vi/${thumbnailVideoId}/hqdefault.jpg`}
-                  alt='Video thumbnail'
-                  className='w-full h-auto object-cover'
+              <div className='space-y-2'>
+                <Label htmlFor='youtube_url'>YouTube URL</Label>
+                <Input
+                  id='youtube_url'
+                  placeholder='https://www.youtube.com/watch?v=...'
+                  className={errors.youtube_url ? 'border-destructive' : ''}
+                  {...register('youtube_url')}
+                />
+                {errors.youtube_url && (
+                  <p className='text-destructive text-sm'>{errors.youtube_url.message}</p>
+                )}
+                <p className='text-xs text-muted-foreground'>
+                  Paste a YouTube video URL (e.g. youtube.com/watch?v=... or youtu.be/...)
+                </p>
+              </div>
+
+              <div className='flex items-center justify-between'>
+                <Label htmlFor='loop_video'>Loop Video</Label>
+                <Controller
+                  name='loop_video'
+                  control={control}
+                  render={({ field }) => (
+                    <Switch
+                      id='loop_video'
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  )}
                 />
               </div>
-            )}
-          </div>
-
-          <div className='flex items-center justify-between rounded-lg border p-3'>
-            <div className='space-y-0.5'>
-              <Label htmlFor='loop_video'>Loop Video</Label>
-              <p className='text-xs text-muted-foreground'>
-                When enabled, video replays on completion. When disabled, slideshow advances to next
-                slide.
-              </p>
             </div>
-            <Controller
-              name='loop_video'
-              control={control}
-              render={({ field }) => (
-                <Switch id='loop_video' checked={field.value} onCheckedChange={field.onChange} />
+
+            <div className='space-y-2'>
+              <Label>Preview</Label>
+              {thumbnailVideoId ? (
+                <RemoteImage
+                  src={`https://img.youtube.com/vi/${thumbnailVideoId}/hqdefault.jpg`}
+                  alt='Video thumbnail'
+                  containerClassName='w-full aspect-video rounded-lg border'
+                />
+              ) : (
+                <div className='relative w-full aspect-video rounded-lg overflow-hidden border bg-muted flex flex-col items-center justify-center gap-2 text-muted-foreground'>
+                  <Youtube className='h-10 w-10' />
+                  <p className='text-xs text-center px-4'>Paste a YouTube URL to see the preview</p>
+                </div>
               )}
-            />
+            </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className='mt-6'>
             <DialogClose asChild>
               <Button type='button' variant='outline'>
                 Cancel

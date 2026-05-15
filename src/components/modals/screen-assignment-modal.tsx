@@ -22,6 +22,8 @@ type ScreenAssignmentModalProps = {
   contentLabel?: string;
   /** When provided (posts only), restricts which screens can be assigned */
   contentOrientation?: PostOrientation;
+  /** Label for the dismiss button. Defaults to "Cancel". Use "Skip" in creation flows. */
+  dismissLabel?: string;
 };
 
 /** Returns true if the screen's orientation is compatible with the post orientation */
@@ -46,6 +48,7 @@ export function ScreenAssignmentModal({
   contentType,
   contentLabel,
   contentOrientation,
+  dismissLabel = 'Cancel',
 }: ScreenAssignmentModalProps) {
   const [screens, setScreens] = useState<DisplayScreen[]>([]);
   const [selectedScreenIds, setSelectedScreenIds] = useState<Set<string>>(new Set());
@@ -184,7 +187,7 @@ export function ScreenAssignmentModal({
         <DialogFooter>
           <DialogClose asChild>
             <Button type='button' variant='outline'>
-              Cancel
+              {dismissLabel}
             </Button>
           </DialogClose>
           <Button

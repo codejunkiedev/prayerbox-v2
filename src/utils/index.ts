@@ -13,3 +13,4 @@ export * from './online-status';
 export * from './prayer-card-images';
 export * from './image-validation';
 export * from './password-strength';
+export * from './ayat-hadith';

@@ -8,6 +8,7 @@ import {
   useCanvasSnapshot,
   type ContentState,
 } from '@/components/ayat-hadith-designer';
+import { ScreenAssignmentModal } from '@/components/modals';
 import { AppRoutes, DEFAULT_STYLE, QURAN_TRANSLATIONS } from '@/constants';
 import { getAyatAndHadithById, upsertAyatAndHadith } from '@/lib/supabase';
 import type {
@@ -18,6 +19,7 @@ import type {
   HadithSource,
   ScreenOrientation,
 } from '@/types';
+import { formatSlideReference, slideToPostOrientation } from '@/utils';
 import { toast } from 'sonner';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
@@ -98,6 +100,7 @@ export default function AyatHadithDesigner() {
   const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
+  const [screenAssignTarget, setScreenAssignTarget] = useState<AyatAndHadith | null>(null);
 
   // Redirect to listing if create mode is missing the orientation query param
   useEffect(() => {
@@ -164,7 +167,7 @@ export default function AyatHadithDesigner() {
     setError(null);
     try {
       const blob = await snapshot(canvasRef.current);
-      await upsertAyatAndHadith({
+      const saved = await upsertAyatAndHadith({
         id: initialData?.id,
         type: content.type,
         orientation,
@@ -175,7 +178,11 @@ export default function AyatHadithDesigner() {
         previousImagePath: initialData?.image_path,
       });
       toast.success(`Slide ${isEdit ? 'updated' : 'created'} successfully`);
-      navigate(AppRoutes.AyatAndHadith);
+      if (isEdit) {
+        navigate(AppRoutes.AyatAndHadith);
+      } else {
+        setScreenAssignTarget(saved);
+      }
     } catch (err) {
       console.error('Error saving slide:', err);
       setError((err as Error).message ?? 'Failed to save slide');
@@ -266,6 +273,21 @@ export default function AyatHadithDesigner() {
           </Tabs>
         </div>
       </div>
+
+      {screenAssignTarget && (
+        <ScreenAssignmentModal
+          isOpen={!!screenAssignTarget}
+          onClose={() => {
+            setScreenAssignTarget(null);
+            navigate(AppRoutes.AyatAndHadith);
+          }}
+          contentId={screenAssignTarget.id}
+          contentType='ayat_and_hadith'
+          contentLabel={formatSlideReference(screenAssignTarget)}
+          contentOrientation={slideToPostOrientation(screenAssignTarget.orientation)}
+          dismissLabel='Skip'
+        />
+      )}
     </div>
   );
 }

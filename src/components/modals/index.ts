@@ -27,9 +27,7 @@ export const HijriModal = lazy(() =>
 export const ScreenModal = lazy(() =>
   import('./screen-modal').then(m => ({ default: m.ScreenModal }))
 );
-export const ScreenAssignmentModal = lazy(() =>
-  import('./screen-assignment-modal').then(m => ({ default: m.ScreenAssignmentModal }))
-);
+export { ScreenAssignmentModal } from './screen-assignment-modal';
 export const YouTubeVideoModal = lazy(() =>
   import('./youtube-video-modal').then(m => ({ default: m.YouTubeVideoModal }))
 );

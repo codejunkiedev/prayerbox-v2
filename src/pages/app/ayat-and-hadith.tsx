@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { deleteAyatAndHadith, getAyatAndHadith } from '@/lib/supabase';
-import type { AyatAndHadith, AyatSource, HadithSource, PostOrientation } from '@/types';
-import { AppRoutes, SURAHS, HADITH_BOOKS } from '@/constants';
+import type { AyatAndHadith } from '@/types';
+import { AppRoutes } from '@/constants';
 import { TableSkeleton } from '@/components/skeletons';
 import {
   DeleteConfirmationModal,
@@ -18,27 +18,13 @@ import {
   OrientationBadge,
   type Column,
 } from '@/components/common';
-import { Badge, Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
+import { Badge, Popover, PopoverContent, PopoverTrigger, RemoteImage } from '@/components/ui';
 import { BookOpen } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
+import { formatSlideReference, slideToPostOrientation } from '@/utils';
 
 const SLIDE_ORIENTATIONS = ['landscape', 'portrait'] as const;
-
-function formatReference(item: AyatAndHadith): string {
-  if (item.type === 'ayat') {
-    const src = item.source as AyatSource;
-    const surah = SURAHS.find(s => s.number === src.surah);
-    return `Surah ${surah?.name_english ?? src.surah} ${src.surah}:${src.ayah}`;
-  }
-  const src = item.source as HadithSource;
-  const book = HADITH_BOOKS.find(b => b.slug === src.book);
-  return `${book?.name ?? src.book} #${src.hadith_number}`;
-}
-
-function slideToPostOrientation(o: AyatAndHadith['orientation']): PostOrientation {
-  return o === 'landscape' ? 'landscape' : 'portrait';
-}
 
 export default function AyatAndHadithPage() {
   const navigate = useNavigate();
@@ -117,10 +103,10 @@ export default function AyatAndHadithPage() {
         <Popover>
           <PopoverTrigger asChild>
             <button type='button' className='cursor-zoom-in'>
-              <img
+              <RemoteImage
                 src={value as string}
                 alt='Slide preview'
-                className='h-14 w-24 object-cover rounded border'
+                containerClassName='h-14 w-24 rounded border'
               />
             </button>
           </PopoverTrigger>
@@ -145,7 +131,7 @@ export default function AyatAndHadithPage() {
       key: 'id',
       name: 'Reference',
       width: 'w-auto',
-      render: (_, item) => <span>{formatReference(item)}</span>,
+      render: (_, item) => <span>{formatSlideReference(item)}</span>,
     },
     {
       key: 'orientation',
@@ -217,7 +203,7 @@ export default function AyatAndHadithPage() {
         onConfirm={handleDeleteConfirm}
         isDeleting={isDeleting}
         itemType='slide'
-        itemTitle={itemToDelete ? formatReference(itemToDelete) : undefined}
+        itemTitle={itemToDelete ? formatSlideReference(itemToDelete) : undefined}
       />
 
       {screenAssignItem && (
@@ -226,7 +212,7 @@ export default function AyatAndHadithPage() {
           onClose={() => setScreenAssignItem(null)}
           contentId={screenAssignItem.id}
           contentType='ayat_and_hadith'
-          contentLabel={formatReference(screenAssignItem)}
+          contentLabel={formatSlideReference(screenAssignItem)}
           contentOrientation={slideToPostOrientation(screenAssignItem.orientation)}
         />
       )}

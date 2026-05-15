@@ -22,7 +22,7 @@ import { toast } from 'sonner';
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (createdEvent?: Event) => void;
   initialData?: Event;
 }
 
@@ -90,12 +90,15 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
     try {
       setIsSubmitting(true);
       setError(null);
-      await upsertEvent({ ...data, ...(initialData?.id && { id: initialData.id }) });
+      const saved = await upsertEvent({
+        ...data,
+        ...(initialData?.id && { id: initialData.id }),
+      });
       toast.success(`Event ${isEdit ? 'updated' : 'created'} successfully`);
 
       reset();
       setDateTime(undefined);
-      onSuccess();
+      onSuccess(isEdit ? undefined : saved);
       onClose();
     } catch (error) {
       console.error('Error saving event:', error);
