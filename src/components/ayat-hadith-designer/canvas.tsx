@@ -132,24 +132,29 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(function Canvas(
               {cachedText.english.text}
             </div>
           )}
-          {showReference && cachedText.reference && (
-            <div
-              style={{
-                fontSize: style.reference.size,
-                color: style.reference.color,
-                lineHeight: style.reference.line_height,
-              }}
-            >
-              <span dir='rtl' style={{ fontFamily: referenceArabicFont.family }}>
-                {cachedText.reference.arabic}
-              </span>
-              {' - '}
-              <span dir='ltr' style={{ fontFamily: referenceEnglishFont.family }}>
-                {cachedText.reference.english}
-              </span>
-            </div>
-          )}
         </div>
+        {showReference && cachedText.reference && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '6%',
+              left: '10%',
+              right: '10%',
+              textAlign: 'center',
+              fontSize: style.reference.size,
+              color: style.reference.color,
+              lineHeight: style.reference.line_height,
+            }}
+          >
+            <span dir='rtl' style={{ fontFamily: referenceArabicFont.family }}>
+              {cachedText.reference.arabic}
+            </span>
+            {' - '}
+            <span dir='ltr' style={{ fontFamily: referenceEnglishFont.family }}>
+              {cachedText.reference.english}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
