@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useRef, useState } from 'react';
 import { CANVAS_DIMENSIONS } from '@/constants';
 import type { AyatHadithCachedText, AyatHadithStyle, ScreenOrientation } from '@/types';
-import { hexWithOpacity, resolveBackground, resolveFont } from './helpers';
+import { backgroundCss, hexWithOpacity, resolveFont } from './helpers';
 
 interface CanvasProps {
   orientation: ScreenOrientation;
@@ -37,24 +37,13 @@ export const Canvas = forwardRef<HTMLDivElement, CanvasProps>(function Canvas(
     return () => ro.disconnect();
   }, [width, height]);
 
-  const bg = resolveBackground(style.background_id);
   const arabicFont = resolveFont('arabic', style.arabic.font_id);
   const urduFont = resolveFont('urdu', style.urdu.font_id);
   const englishFont = resolveFont('english', style.english.font_id);
   const referenceEnglishFont = resolveFont('english', style.reference.font_id);
   const referenceArabicFont = resolveFont('arabic', style.reference.arabic_font_id);
 
-  const backgroundStyle: React.CSSProperties = (() => {
-    if (bg.type === 'image') {
-      return {
-        backgroundImage: `url(${bg.value})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      };
-    }
-    if (bg.type === 'gradient') return { backgroundImage: bg.value };
-    return { backgroundColor: bg.value };
-  })();
+  const backgroundStyle = backgroundCss(style.background);
 
   return (
     <div
