@@ -29,6 +29,7 @@ export default function Announcements() {
   const [itemToDelete, setItemToDelete] = useState<Announcement | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [screenAssignItem, setScreenAssignItem] = useState<Announcement | null>(null);
+  const [assignedFromCreate, setAssignedFromCreate] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -145,7 +146,14 @@ export default function Announcements() {
       <AnnouncementModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        onSuccess={forceUpdate}
+        onSuccess={created => {
+          if (created) {
+            setAssignedFromCreate(true);
+            setScreenAssignItem(created);
+          } else {
+            forceUpdate();
+          }
+        }}
         initialData={selectedItem}
       />
 
@@ -161,10 +169,17 @@ export default function Announcements() {
       {screenAssignItem && (
         <ScreenAssignmentModal
           isOpen={!!screenAssignItem}
-          onClose={() => setScreenAssignItem(null)}
+          onClose={() => {
+            setScreenAssignItem(null);
+            if (assignedFromCreate) {
+              forceUpdate();
+              setAssignedFromCreate(false);
+            }
+          }}
           contentId={screenAssignItem.id}
           contentType='announcements'
           contentLabel={screenAssignItem.description}
+          dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}
         />
       )}
     </div>

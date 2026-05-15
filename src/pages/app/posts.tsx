@@ -19,7 +19,7 @@ import {
 } from '@/components/common';
 import { FileImage } from 'lucide-react';
 import { useTrigger } from '@/hooks';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
+import { Popover, PopoverContent, PopoverTrigger, RemoteImage } from '@/components/ui';
 import { toast } from 'sonner';
 
 const POST_ORIENTATIONS = ['landscape', 'portrait'] as const;
@@ -34,6 +34,7 @@ export default function Posts() {
   const [itemToDelete, setItemToDelete] = useState<Post | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [screenAssignItem, setScreenAssignItem] = useState<Post | null>(null);
+  const [assignedFromCreate, setAssignedFromCreate] = useState(false);
   const [orientationPickerOpen, setOrientationPickerOpen] = useState(false);
   const [pendingOrientation, setPendingOrientation] = useState<PostOrientation | null>(null);
 
@@ -117,10 +118,10 @@ export default function Posts() {
           <Popover>
             <PopoverTrigger asChild>
               <button type='button' className='cursor-zoom-in'>
-                <img
+                <RemoteImage
                   src={value as string}
                   alt='Post preview'
-                  className='h-14 w-24 object-cover rounded border'
+                  containerClassName='h-14 w-24 rounded border'
                 />
               </button>
             </PopoverTrigger>
@@ -199,7 +200,14 @@ export default function Posts() {
       <PostModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        onSuccess={forceUpdate}
+        onSuccess={created => {
+          if (created) {
+            setAssignedFromCreate(true);
+            setScreenAssignItem(created);
+          } else {
+            forceUpdate();
+          }
+        }}
         initialData={selectedItem}
         presetOrientation={pendingOrientation ?? undefined}
       />
@@ -225,11 +233,18 @@ export default function Posts() {
       {screenAssignItem && (
         <ScreenAssignmentModal
           isOpen={!!screenAssignItem}
-          onClose={() => setScreenAssignItem(null)}
+          onClose={() => {
+            setScreenAssignItem(null);
+            if (assignedFromCreate) {
+              forceUpdate();
+              setAssignedFromCreate(false);
+            }
+          }}
           contentId={screenAssignItem.id}
           contentType='posts'
           contentLabel={screenAssignItem.title}
           contentOrientation={screenAssignItem.orientation}
+          dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}
         />
       )}
     </div>

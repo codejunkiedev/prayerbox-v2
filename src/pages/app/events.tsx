@@ -26,6 +26,7 @@ export default function Events() {
   const [itemToDelete, setItemToDelete] = useState<Event | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [screenAssignItem, setScreenAssignItem] = useState<Event | null>(null);
+  const [assignedFromCreate, setAssignedFromCreate] = useState(false);
 
   const [trigger, forceUpdate] = useTrigger();
 
@@ -163,7 +164,14 @@ export default function Events() {
       <EventModal
         isOpen={isModalOpen}
         onClose={handleModalClose}
-        onSuccess={forceUpdate}
+        onSuccess={created => {
+          if (created) {
+            setAssignedFromCreate(true);
+            setScreenAssignItem(created);
+          } else {
+            forceUpdate();
+          }
+        }}
         initialData={selectedItem}
       />
 
@@ -180,10 +188,17 @@ export default function Events() {
       {screenAssignItem && (
         <ScreenAssignmentModal
           isOpen={!!screenAssignItem}
-          onClose={() => setScreenAssignItem(null)}
+          onClose={() => {
+            setScreenAssignItem(null);
+            if (assignedFromCreate) {
+              forceUpdate();
+              setAssignedFromCreate(false);
+            }
+          }}
           contentId={screenAssignItem.id}
           contentType='events'
           contentLabel={screenAssignItem.title}
+          dismissLabel={assignedFromCreate ? 'Skip' : 'Cancel'}
         />
       )}
     </div>

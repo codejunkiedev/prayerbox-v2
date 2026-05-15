@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { listFiles } from '@/lib/supabase/helpers';
 import { SupabaseBuckets, SupabaseFolders } from '@/types';
+import { RemoteImage } from './remote-image';
 
 type PredesignedImage = {
   id: string;
@@ -103,16 +104,7 @@ export function PredesignedImageSelector({
             }`}
             onClick={() => onImageSelect(image.src)}
           >
-            <div className='aspect-video'>
-              <img
-                src={image.src}
-                alt={image.alt}
-                className='w-full h-full object-cover'
-                onError={e => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
+            <RemoteImage src={image.src} alt={image.alt} containerClassName='aspect-video' />
             {selectedImage === image.src && (
               <div className='absolute top-2 right-2 bg-primary text-white rounded-full p-1'>
                 <CheckCircle className='w-4 h-4' />

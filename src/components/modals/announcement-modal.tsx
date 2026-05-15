@@ -20,7 +20,7 @@ import { toast } from 'sonner';
 type AnnouncementModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (createdAnnouncement?: Announcement) => void;
   initialData?: Announcement;
 };
 
@@ -57,11 +57,14 @@ export function AnnouncementModal({
     try {
       setIsSubmitting(true);
       setError(null);
-      await upsertAnnouncement({ ...data, ...(initialData?.id && { id: initialData.id }) });
+      const saved = await upsertAnnouncement({
+        ...data,
+        ...(initialData?.id && { id: initialData.id }),
+      });
       toast.success(`Announcement ${isEdit ? 'updated' : 'created'} successfully`);
 
       reset();
-      onSuccess();
+      onSuccess(isEdit ? undefined : saved);
       onClose();
     } catch (error) {
       console.error('Error saving announcement:', error);
