@@ -228,7 +228,8 @@ export default function TermsConditions() {
       <h2>18. Contact Us</h2>
       <p>
         If you have any questions about these Terms, please contact us through the in-app Support
-        page or by email at <strong>[Contact Email]</strong>.
+        page or by email at{' '}
+        <a href='mailto:admin@shaykhrahmatalamjan.com'>admin@shaykhrahmatalamjan.com</a>.
       </p>
     </LegalLayout>
   );

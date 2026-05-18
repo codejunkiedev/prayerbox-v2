@@ -19,7 +19,8 @@ export default function PrivacyPolicy() {
       </p>
       <p>
         If you have questions about this Privacy Policy or your data, you can contact us through the
-        in-app Support page or by email at <strong>[Contact Email]</strong>.
+        in-app Support page or by email at{' '}
+        <a href='mailto:admin@shaykhrahmatalamjan.com'>admin@shaykhrahmatalamjan.com</a>.
       </p>
 
       <h2>2. Information We Collect</h2>
@@ -228,8 +229,8 @@ export default function PrivacyPolicy() {
       </ul>
       <p>
         To exercise these rights, contact us through the Support page or at{' '}
-        <strong>[Contact Email]</strong>. We may need to verify your identity before fulfilling your
-        request.
+        <a href='mailto:admin@shaykhrahmatalamjan.com'>admin@shaykhrahmatalamjan.com</a>. We may
+        need to verify your identity before fulfilling your request.
       </p>
 
       <h2>12. Children's Privacy</h2>
@@ -261,7 +262,8 @@ export default function PrivacyPolicy() {
       </p>
       <ul>
         <li>
-          <strong>Email:</strong> [Contact Email]
+          <strong>Email:</strong>{' '}
+          <a href='mailto:admin@shaykhrahmatalamjan.com'>admin@shaykhrahmatalamjan.com</a>
         </li>
         <li>
           <strong>Support:</strong> Through the Support page in your PrayerBox account.
