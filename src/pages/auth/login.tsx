@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Label, ErrorBox } from '@/components/ui';
+import { AuthLegalLinks } from '@/components/common';
 import { cn } from '@/utils';
 import { Eye, EyeOff } from 'lucide-react';
 import { loginFormSchema, type LoginFormData } from '@/lib/zod';
@@ -123,6 +124,7 @@ export default function Login() {
               Create an account
             </Link>
           </div>
+          <AuthLegalLinks />
         </div>
       </div>
     </div>

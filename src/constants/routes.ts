@@ -5,6 +5,11 @@ export enum AuthRoutes {
   ForgotPassword = '/forgot-password',
 }
 
+export enum PublicRoutes {
+  PrivacyPolicy = '/privacy',
+  TermsConditions = '/terms',
+}
+
 export enum AppRoutes {
   Display = '/',
   DisplayLogout = '/logout',

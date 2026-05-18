@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Label, ErrorBox } from '@/components/ui';
+import { AuthLegalLinks } from '@/components/common';
 import { cn } from '@/utils';
 import { loginWithCodeSchema, type LoginWithCodeData } from '@/lib/zod';
 import { Link, useSearchParams } from 'react-router';
@@ -102,6 +103,7 @@ export default function LoginWithCode() {
               </Button>
             </div>
           </form>
+          <AuthLegalLinks />
         </div>
       </div>
     </div>

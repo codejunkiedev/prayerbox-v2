@@ -3,7 +3,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { getCurrentSession, getMasjidMembership, updateLastActive } from '@/lib/supabase';
 import { subscribeToAuthChanges } from '@/lib/supabase';
 import { identifySentryUser, clearSentryUser } from '@/lib/sentry';
-import { AppRoutes, AuthRoutes } from '@/constants';
+import { AppRoutes, AuthRoutes, PublicRoutes } from '@/constants';
 import { AppLayout } from '@/components/layout';
 import {
   Announcements,
@@ -29,6 +29,8 @@ import {
   LoginWithCode,
   YouTubeVideos,
   Support,
+  PrivacyPolicy,
+  TermsConditions,
 } from '@/pages';
 import { useDisplayStore, useAuthStore } from '@/store';
 
@@ -108,6 +110,10 @@ export default function Navigation() {
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
         <Routes>
+          {/* Public legal routes - accessible without authentication */}
+          <Route path={PublicRoutes.PrivacyPolicy} element={<PrivacyPolicy />} />
+          <Route path={PublicRoutes.TermsConditions} element={<TermsConditions />} />
+
           {/* Email auth routes - only accessible when not logged in with email */}
           <Route element={isLoggedInWithEmail ? <Navigate to={AppRoutes.Home} /> : <Outlet />}>
             <Route path={AuthRoutes.Login} element={<Login />} />
