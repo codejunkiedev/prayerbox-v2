@@ -3,3 +3,4 @@
 export { default as Loading } from './loading-page';
 export * from './auth';
 export * from './app';
+export * from './legal';

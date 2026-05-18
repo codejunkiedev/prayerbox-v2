@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Input, Label, ErrorBox } from '@/components/ui';
+import { AuthLegalLinks } from '@/components/common';
 import { cn } from '@/utils';
 import { forgotPasswordSchema, type ForgotPasswordData } from '@/lib/zod';
 import { Link } from 'react-router';
@@ -90,6 +91,7 @@ export default function ForgotPassword() {
               Sign in
             </Link>
           </div>
+          <AuthLegalLinks />
         </div>
       </div>
     </div>
