@@ -1,5 +1,6 @@
-import { CheckCircle } from 'lucide-react';
+import { AlignCenter, AlignLeft, AlignRight, RotateCcw } from 'lucide-react';
 import {
+  Button,
   ColorInput,
   Label,
   Select,
@@ -8,35 +9,37 @@ import {
   SelectTrigger,
   SelectValue,
   Slider,
+  Switch,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from '@/components/ui';
 import {
   DEFAULT_CUSTOM_COLOR,
   DEFAULT_GRADIENT_ANGLE,
   DEFAULT_GRADIENT_FROM,
   DEFAULT_GRADIENT_TO,
+  DEFAULT_POSITIONS,
   FONTS,
 } from '@/constants';
 import {
   SupabaseBuckets,
   SupabaseFolders,
+  type AyatHadithAlign,
   type AyatHadithBackground,
+  type AyatHadithLayerKey,
   type AyatHadithReferenceStyle,
   type AyatHadithStyle,
 } from '@/types';
 import { cn } from '@/utils';
 import { gradientCss } from './helpers';
 import { ImageTile } from './image-tile';
-import { useBackgroundImages } from './use-background-images';
+import { useBackgroundImages } from '@/hooks';
 
-const ACTIVE_RING = 'border-primary ring-2 ring-primary/40';
-const INACTIVE_RING = 'border-transparent hover:border-muted-foreground/50';
+type DesignTab = 'canvas' | 'arabic' | 'urdu' | 'english' | 'reference';
 
-function SelectedBadge() {
-  return (
-    <div className='absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5 shadow'>
-      <CheckCircle className='h-3.5 w-3.5' />
-    </div>
-  );
+function tabToLayer(tab: DesignTab): AyatHadithLayerKey | null {
+  return tab === 'canvas' ? null : tab;
 }
 
 interface DesignPanelProps {
@@ -45,6 +48,14 @@ interface DesignPanelProps {
   showUrdu: boolean;
   showEnglish: boolean;
   showReference: boolean;
+  selected: AyatHadithLayerKey | null;
+  onSelectedChange: (next: AyatHadithLayerKey | null) => void;
+}
+
+function layerToTab(selected: AyatHadithLayerKey | null): DesignTab {
+  if (!selected) return 'canvas';
+  if (selected === 'overlay') return 'canvas';
+  return selected;
 }
 
 export function DesignPanel({
@@ -53,6 +64,8 @@ export function DesignPanel({
   showUrdu,
   showEnglish,
   showReference,
+  selected,
+  onSelectedChange,
 }: DesignPanelProps) {
   const update = (patch: Partial<AyatHadithStyle>) => onChange({ ...style, ...patch });
   const setBackground = (background: AyatHadithBackground) => update({ background });
@@ -65,174 +78,248 @@ export function DesignPanel({
 
   const { images, loading: imagesLoading, error: imagesError } = useBackgroundImages();
 
+  const activeTab = layerToTab(selected);
+  const tabs: { key: DesignTab; label: string }[] = [
+    { key: 'canvas', label: 'Canvas' },
+    { key: 'arabic', label: 'Arabic' },
+    ...(showUrdu ? [{ key: 'urdu' as const, label: 'Urdu' }] : []),
+    ...(showEnglish ? [{ key: 'english' as const, label: 'English' }] : []),
+    ...(showReference ? [{ key: 'reference' as const, label: 'Reference' }] : []),
+  ];
+
   return (
     <div className='space-y-6'>
-      <section className='space-y-4'>
-        <Label className='text-sm font-semibold'>Background</Label>
+      <div className='flex items-center gap-2'>
+        <Label className='text-xs text-muted-foreground shrink-0'>Editing</Label>
+        <Select value={activeTab} onValueChange={v => onSelectedChange(tabToLayer(v as DesignTab))}>
+          <SelectTrigger size='sm' className='flex-1'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {tabs.map(t => (
+              <SelectItem key={t.key} value={t.key}>
+                {t.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          type='button'
+          variant='outline'
+          size='sm'
+          onClick={() => {
+            update({ positions: DEFAULT_POSITIONS });
+            onSelectedChange(null);
+          }}
+        >
+          <RotateCcw className='h-3.5 w-3.5 mr-1.5' />
+          Reset
+        </Button>
+      </div>
 
-        <div className='space-y-1.5'>
-          <Label className='text-xs text-muted-foreground'>Images</Label>
-          {imagesLoading ? (
-            <div className='grid grid-cols-3 gap-2'>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className='aspect-video rounded bg-muted animate-pulse' />
-              ))}
-            </div>
-          ) : imagesError ? (
-            <p className='text-xs text-destructive'>{imagesError}</p>
-          ) : images.length === 0 ? (
-            <p className='text-xs text-muted-foreground'>
-              No images available. Upload images to the{' '}
-              <span className='font-mono'>{SupabaseFolders.AyatHadithBackgrounds}</span> folder in
-              the <span className='font-mono'>{SupabaseBuckets.Assets}</span> bucket.
-            </p>
-          ) : (
-            <div className='grid grid-cols-3 gap-2'>
-              {images.map(img => (
-                <ImageTile
-                  key={img.url}
-                  image={img}
-                  selected={bg.type === 'image' && bg.url === img.url}
-                  onSelect={() => setBackground({ type: 'image', url: img.url })}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+      {activeTab === 'canvas' && (
+        <>
+          <section className='space-y-4'>
+            <Label className='text-sm font-semibold'>Background</Label>
 
-        <div className='space-y-2'>
-          <Label className='text-xs text-muted-foreground'>Solid color</Label>
-          <button
-            type='button'
-            onClick={() => setBackground({ type: 'color', color: colorValue })}
-            className={cn(
-              'relative w-full aspect-[3/1] rounded border-2 transition cursor-pointer',
-              bg.type === 'color' ? ACTIVE_RING : INACTIVE_RING
-            )}
-            style={{ backgroundColor: colorValue }}
-            title='Use solid color'
-          >
-            {bg.type === 'color' && <SelectedBadge />}
-          </button>
-          <div className='space-y-1'>
-            <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-              Color
-            </Label>
-            <ColorInput
-              value={colorValue}
-              onChange={v => setBackground({ type: 'color', color: v })}
-              className='h-9 w-full p-1'
-            />
-          </div>
-        </div>
-
-        <div className='space-y-2'>
-          <Label className='text-xs text-muted-foreground'>Gradient</Label>
-          <button
-            type='button'
-            onClick={() =>
-              setBackground({
-                type: 'gradient',
-                from: gradientFrom,
-                to: gradientTo,
-                angle: gradientAngle,
-              })
-            }
-            className={cn(
-              'relative w-full aspect-[3/1] rounded border-2 transition cursor-pointer',
-              bg.type === 'gradient' ? ACTIVE_RING : INACTIVE_RING
-            )}
-            style={{ backgroundImage: gradientCss(gradientFrom, gradientTo, gradientAngle) }}
-            title='Use gradient'
-          >
-            {bg.type === 'gradient' && <SelectedBadge />}
-          </button>
-          <div className='flex items-center gap-3'>
-            <div className='space-y-1 flex-1'>
-              <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-                From
-              </Label>
-              <ColorInput
-                value={gradientFrom}
-                onChange={v =>
-                  setBackground({
-                    type: 'gradient',
-                    from: v,
-                    to: gradientTo,
-                    angle: gradientAngle,
-                  })
-                }
-                className='h-9 w-full p-1'
-              />
-            </div>
-            <div className='space-y-1 flex-1'>
-              <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-                To
-              </Label>
-              <ColorInput
-                value={gradientTo}
-                onChange={v =>
+            <Tabs
+              value={bg.type}
+              onValueChange={v => {
+                const t = v as AyatHadithBackground['type'];
+                if (t === bg.type) return;
+                if (t === 'image') {
+                  const firstUrl = (bg.type === 'image' && bg.url) || images[0]?.url;
+                  setBackground(
+                    firstUrl ? { type: 'image', url: firstUrl } : { type: 'image', url: '' }
+                  );
+                } else if (t === 'color') {
+                  setBackground({ type: 'color', color: colorValue });
+                } else {
                   setBackground({
                     type: 'gradient',
                     from: gradientFrom,
-                    to: v,
+                    to: gradientTo,
                     angle: gradientAngle,
-                  })
+                  });
                 }
-                className='h-9 w-full p-1'
-              />
+              }}
+            >
+              <TabsList className='grid w-full grid-cols-3'>
+                <TabsTrigger value='image'>Image</TabsTrigger>
+                <TabsTrigger value='color'>Color</TabsTrigger>
+                <TabsTrigger value='gradient'>Gradient</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {bg.type === 'image' && (
+              <div className='space-y-1.5'>
+                {imagesLoading ? (
+                  <div className='grid grid-cols-3 gap-2 max-h-80 overflow-y-auto pr-1'>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div key={i} className='aspect-video rounded bg-muted animate-pulse' />
+                    ))}
+                  </div>
+                ) : imagesError ? (
+                  <p className='text-xs text-destructive'>{imagesError}</p>
+                ) : images.length === 0 ? (
+                  <p className='text-xs text-muted-foreground'>
+                    No images available. Upload images to the{' '}
+                    <span className='font-mono'>{SupabaseFolders.AyatHadithBackgrounds}</span>{' '}
+                    folder in the <span className='font-mono'>{SupabaseBuckets.Assets}</span>{' '}
+                    bucket.
+                  </p>
+                ) : (
+                  <div className='grid grid-cols-3 gap-2 max-h-80 overflow-y-auto pr-1'>
+                    {images.map(img => (
+                      <ImageTile
+                        key={img.url}
+                        image={img}
+                        selected={bg.url === img.url}
+                        onSelect={() => setBackground({ type: 'image', url: img.url })}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {bg.type === 'color' && (
+              <div className='space-y-2'>
+                <div
+                  className='w-full aspect-[3/1] rounded border'
+                  style={{ backgroundColor: colorValue }}
+                />
+                <div className='space-y-1'>
+                  <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+                    Color
+                  </Label>
+                  <ColorInput
+                    value={colorValue}
+                    onChange={v => setBackground({ type: 'color', color: v })}
+                    className='h-9 w-full p-1'
+                  />
+                </div>
+              </div>
+            )}
+
+            {bg.type === 'gradient' && (
+              <div className='space-y-2'>
+                <div
+                  className='w-full aspect-[3/1] rounded border'
+                  style={{
+                    backgroundImage: gradientCss(gradientFrom, gradientTo, gradientAngle),
+                  }}
+                />
+                <div className='flex items-center gap-3'>
+                  <div className='space-y-1 flex-1'>
+                    <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+                      From
+                    </Label>
+                    <ColorInput
+                      value={gradientFrom}
+                      onChange={v =>
+                        setBackground({
+                          type: 'gradient',
+                          from: v,
+                          to: gradientTo,
+                          angle: gradientAngle,
+                        })
+                      }
+                      className='h-9 w-full p-1'
+                    />
+                  </div>
+                  <div className='space-y-1 flex-1'>
+                    <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+                      To
+                    </Label>
+                    <ColorInput
+                      value={gradientTo}
+                      onChange={v =>
+                        setBackground({
+                          type: 'gradient',
+                          from: gradientFrom,
+                          to: v,
+                          angle: gradientAngle,
+                        })
+                      }
+                      className='h-9 w-full p-1'
+                    />
+                  </div>
+                </div>
+                <div className='space-y-1'>
+                  <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+                    Angle: {gradientAngle}°
+                  </Label>
+                  <Slider
+                    min={0}
+                    max={360}
+                    step={1}
+                    value={[gradientAngle]}
+                    onValueChange={v =>
+                      setBackground({
+                        type: 'gradient',
+                        from: gradientFrom,
+                        to: gradientTo,
+                        angle: v[0],
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            )}
+          </section>
+
+          <section className='space-y-3 pt-2'>
+            <div className='flex items-center justify-between'>
+              <Label className='text-sm font-semibold'>Overlay</Label>
+              <div className='flex items-center gap-2'>
+                <Label
+                  htmlFor='show-overlay'
+                  className='text-xs text-muted-foreground cursor-pointer'
+                >
+                  Show
+                </Label>
+                <Switch
+                  id='show-overlay'
+                  checked={style.show_overlay}
+                  onCheckedChange={v => update({ show_overlay: v })}
+                />
+              </div>
             </div>
-          </div>
-          <div className='space-y-1'>
-            <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-              Angle: {gradientAngle}°
-            </Label>
-            <Slider
-              min={0}
-              max={360}
-              step={1}
-              value={[gradientAngle]}
-              onValueChange={v =>
-                setBackground({
-                  type: 'gradient',
-                  from: gradientFrom,
-                  to: gradientTo,
-                  angle: v[0],
-                })
-              }
-            />
-          </div>
-        </div>
-      </section>
+            {style.show_overlay && (
+              <>
+                <ColorPickerField
+                  value={style.overlay_color}
+                  onChange={v => update({ overlay_color: v })}
+                />
+                <div className='space-y-2'>
+                  <Label className='text-xs text-muted-foreground'>
+                    Opacity: {Math.round(style.overlay_opacity * 100)}%
+                  </Label>
+                  <Slider
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={[style.overlay_opacity * 100]}
+                    onValueChange={v => update({ overlay_opacity: v[0] / 100 })}
+                  />
+                </div>
+              </>
+            )}
+          </section>
+        </>
+      )}
 
-      <section className='space-y-2'>
-        <Label className='text-sm font-semibold'>Overlay</Label>
-        <ColorPickerField
-          value={style.overlay_color}
-          onChange={v => update({ overlay_color: v })}
+      {activeTab === 'arabic' && (
+        <TextStyleControls
+          label='Arabic text'
+          category='arabic'
+          style={style.arabic}
+          onChange={next => update({ arabic: next })}
         />
-        <div className='space-y-2'>
-          <Label className='text-xs text-muted-foreground'>
-            Opacity: {Math.round(style.overlay_opacity * 100)}%
-          </Label>
-          <Slider
-            min={0}
-            max={100}
-            step={1}
-            value={[style.overlay_opacity * 100]}
-            onValueChange={v => update({ overlay_opacity: v[0] / 100 })}
-          />
-        </div>
-      </section>
+      )}
 
-      <TextStyleControls
-        label='Arabic text'
-        category='arabic'
-        style={style.arabic}
-        onChange={next => update({ arabic: next })}
-      />
-
-      {showUrdu && (
+      {activeTab === 'urdu' && showUrdu && (
         <TextStyleControls
           label='Urdu translation'
           category='urdu'
@@ -241,7 +328,7 @@ export function DesignPanel({
         />
       )}
 
-      {showEnglish && (
+      {activeTab === 'english' && showEnglish && (
         <TextStyleControls
           label='English translation'
           category='english'
@@ -250,7 +337,7 @@ export function DesignPanel({
         />
       )}
 
-      {showReference && (
+      {activeTab === 'reference' && showReference && (
         <ReferenceStyleControls
           style={style.reference}
           onChange={next => update({ reference: next })}
@@ -296,7 +383,7 @@ function SizeSlider({ size, onChange }: SizeSliderProps) {
   return (
     <div className='space-y-2'>
       <Label className='text-xs text-muted-foreground'>Size: {size}px</Label>
-      <Slider min={16} max={200} step={2} value={[size]} onValueChange={v => onChange(v[0])} />
+      <Slider min={16} max={100} step={2} value={[size]} onValueChange={v => onChange(v[0])} />
     </div>
   );
 }
@@ -329,6 +416,46 @@ function LineHeightSlider({ value, onChange }: LineHeightSliderProps) {
   );
 }
 
+interface AlignmentToggleProps {
+  value: AyatHadithAlign;
+  onChange: (next: AyatHadithAlign) => void;
+}
+
+function AlignmentToggle({ value, onChange }: AlignmentToggleProps) {
+  const options: { value: AyatHadithAlign; icon: typeof AlignLeft; label: string }[] = [
+    { value: 'left', icon: AlignLeft, label: 'Left' },
+    { value: 'center', icon: AlignCenter, label: 'Center' },
+    { value: 'right', icon: AlignRight, label: 'Right' },
+  ];
+  return (
+    <div className='space-y-2'>
+      <Label className='text-xs text-muted-foreground'>Alignment</Label>
+      <div className='grid grid-cols-3 gap-1'>
+        {options.map(opt => {
+          const Icon = opt.icon;
+          const active = value === opt.value;
+          return (
+            <button
+              key={opt.value}
+              type='button'
+              onClick={() => onChange(opt.value)}
+              aria-label={opt.label}
+              className={cn(
+                'inline-flex items-center justify-center h-9 rounded-md border text-sm transition cursor-pointer',
+                active
+                  ? 'border-primary bg-primary/10 text-foreground'
+                  : 'border-border bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}
+            >
+              <Icon className='h-4 w-4' />
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 interface ReferenceStyleControlsProps {
   style: AyatHadithReferenceStyle;
   onChange: (next: AyatHadithReferenceStyle) => void;
@@ -336,7 +463,7 @@ interface ReferenceStyleControlsProps {
 
 function ReferenceStyleControls({ style, onChange }: ReferenceStyleControlsProps) {
   return (
-    <section className='space-y-3 border-t pt-4'>
+    <section className='space-y-3'>
       <Label className='text-sm font-semibold'>Reference</Label>
       <div className='grid grid-cols-2 gap-3'>
         <FontSelect
@@ -358,6 +485,7 @@ function ReferenceStyleControls({ style, onChange }: ReferenceStyleControlsProps
         value={style.line_height}
         onChange={v => onChange({ ...style, line_height: v })}
       />
+      <AlignmentToggle value={style.align} onChange={v => onChange({ ...style, align: v })} />
     </section>
   );
 }
@@ -367,6 +495,7 @@ interface TextStyle {
   size: number;
   color: string;
   line_height: number;
+  align: AyatHadithAlign;
 }
 
 interface TextStyleControlsProps {
@@ -378,7 +507,7 @@ interface TextStyleControlsProps {
 
 function TextStyleControls({ label, category, style, onChange }: TextStyleControlsProps) {
   return (
-    <section className='space-y-3 border-t pt-4'>
+    <section className='space-y-3'>
       <Label className='text-sm font-semibold'>{label}</Label>
       <FontSelect
         label='Font'
@@ -392,6 +521,7 @@ function TextStyleControls({ label, category, style, onChange }: TextStyleContro
         value={style.line_height}
         onChange={v => onChange({ ...style, line_height: v })}
       />
+      <AlignmentToggle value={style.align} onChange={v => onChange({ ...style, align: v })} />
     </section>
   );
 }

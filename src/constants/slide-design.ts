@@ -36,18 +36,47 @@ export const CANVAS_DIMENSIONS: Record<'landscape' | 'portrait' | 'mobile', [num
   mobile: [1080, 1920],
 };
 
+export const DEFAULT_POSITIONS = {
+  overlay: { x: 10, y: 30, width: 80, height: 40 },
+  arabic: { x: 15, y: 36, width: 70, height: 14 },
+  urdu: { x: 15, y: 50, width: 70, height: 10 },
+  english: { x: 15, y: 60, width: 70, height: 8 },
+  reference: { x: 10, y: 88, width: 80, height: 6 },
+};
+
 export const DEFAULT_STYLE = {
   background: { type: 'color' as const, color: DEFAULT_CUSTOM_COLOR },
   overlay_color: '#000000',
   overlay_opacity: 0.4,
-  arabic: { font_id: 'amiri', size: 72, color: '#ffffff', line_height: 1.6 },
-  urdu: { font_id: 'noto-nastaliq', size: 40, color: '#ffffff', line_height: 1.8 },
-  english: { font_id: 'inter', size: 36, color: '#ffffff', line_height: 1.5 },
+  show_overlay: true,
+  arabic: {
+    font_id: 'amiri',
+    size: 72,
+    color: '#ffffff',
+    line_height: 1.6,
+    align: 'center' as const,
+  },
+  urdu: {
+    font_id: 'noto-nastaliq',
+    size: 40,
+    color: '#ffffff',
+    line_height: 1.8,
+    align: 'center' as const,
+  },
+  english: {
+    font_id: 'inter',
+    size: 36,
+    color: '#ffffff',
+    line_height: 1.5,
+    align: 'center' as const,
+  },
   reference: {
     font_id: 'inter',
     arabic_font_id: 'amiri',
     size: 28,
     color: '#ffffff',
     line_height: 1.3,
+    align: 'center' as const,
   },
+  positions: DEFAULT_POSITIONS,
 };

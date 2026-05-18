@@ -1,7 +1,7 @@
 import { CheckCircle } from 'lucide-react';
 import { RemoteImage } from '@/components/ui';
 import { cn } from '@/utils';
-import type { BackgroundImage } from './use-background-images';
+import type { BackgroundImage } from '@/types';
 
 interface ImageTileProps {
   image: BackgroundImage;

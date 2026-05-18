@@ -13,3 +13,5 @@ export * from './useOrientationMismatch';
 export * from './useWakeLock';
 export * from './useOnlineStatus';
 export * from './useRealtimeRefresh';
+export * from './useBackgroundImages';
+export * from './useCanvasSnapshot';
