@@ -214,19 +214,10 @@ export default function TermsConditions() {
         Services at any time, with or without notice, if we reasonably believe you have violated
         these Terms or if we are required to do so by law. Upon termination, the sections of these
         Terms that by their nature should survive (including intellectual property, disclaimers,
-        limitation of liability, indemnity, and governing law) will continue to apply.
+        limitation of liability, and indemnity) will continue to apply.
       </p>
 
-      <h2>17. Governing Law and Dispute Resolution</h2>
-      <p>
-        These Terms and any dispute arising out of or relating to the Services shall be governed by
-        and construed in accordance with the laws of <strong>[Jurisdiction]</strong>, without regard
-        to its conflict-of-law principles. The parties agree to the exclusive jurisdiction of the
-        courts located in <strong>[Venue]</strong>, except where mandatory local law provides
-        otherwise.
-      </p>
-
-      <h2>18. Changes to These Terms</h2>
+      <h2>17. Changes to These Terms</h2>
       <p>
         We may update these Terms from time to time. When we do, we will revise the "Last updated"
         date at the top of this page. For material changes, we will take reasonable steps to notify
@@ -234,7 +225,7 @@ export default function TermsConditions() {
         updated Terms.
       </p>
 
-      <h2>19. Contact Us</h2>
+      <h2>18. Contact Us</h2>
       <p>
         If you have any questions about these Terms, please contact us through the in-app Support
         page or by email at <strong>[Contact Email]</strong>.
