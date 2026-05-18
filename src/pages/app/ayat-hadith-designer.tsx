@@ -5,15 +5,16 @@ import {
   Canvas,
   ContentPanel,
   DesignPanel,
-  useCanvasSnapshot,
   type ContentState,
 } from '@/components/ayat-hadith-designer';
+import { useCanvasSnapshot } from '@/hooks';
 import { ScreenAssignmentModal } from '@/components/modals';
 import { AppRoutes, DEFAULT_STYLE, QURAN_TRANSLATIONS } from '@/constants';
 import { getAyatAndHadithById, upsertAyatAndHadith } from '@/lib/supabase';
 import type {
   AyatAndHadith,
   AyatHadithCachedText,
+  AyatHadithLayerKey,
   AyatHadithStyle,
   AyatSource,
   HadithSource,
@@ -101,6 +102,14 @@ export default function AyatHadithDesigner() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'content' | 'design'>('content');
   const [screenAssignTarget, setScreenAssignTarget] = useState<AyatAndHadith | null>(null);
+  const [snapshotMode, setSnapshotMode] = useState(false);
+  const [selectedLayer, setSelectedLayer] = useState<AyatHadithLayerKey | null>(null);
+
+  // When the user clicks a layer on the canvas, jump to the Design tab so the
+  // matching controls become visible immediately.
+  useEffect(() => {
+    if (selectedLayer) setActiveTab('design');
+  }, [selectedLayer]);
 
   // Redirect to listing if create mode is missing the orientation query param
   useEffect(() => {
@@ -128,7 +137,11 @@ export default function AyatHadithDesigner() {
         setStyle({
           ...DEFAULT_STYLE,
           ...slide.style,
+          arabic: { ...DEFAULT_STYLE.arabic, ...(slide.style.arabic ?? {}) },
+          urdu: { ...DEFAULT_STYLE.urdu, ...(slide.style.urdu ?? {}) },
+          english: { ...DEFAULT_STYLE.english, ...(slide.style.english ?? {}) },
           reference: { ...DEFAULT_STYLE.reference, ...(slide.style.reference ?? {}) },
+          positions: { ...DEFAULT_STYLE.positions, ...(slide.style.positions ?? {}) },
         });
       })
       .catch(err => {
@@ -166,7 +179,14 @@ export default function AyatHadithDesigner() {
     setIsSubmitting(true);
     setError(null);
     try {
+      setSnapshotMode(true);
+      // Two rAFs: first lets React commit the snapshotMode state, second lets
+      // the browser paint the new frame (without selection outlines / handles)
+      // before html-to-image samples the DOM.
+      await new Promise(r => requestAnimationFrame(() => r(null)));
+      await new Promise(r => requestAnimationFrame(() => r(null)));
       const blob = await snapshot(canvasRef.current);
+      setSnapshotMode(false);
       const saved = await upsertAyatAndHadith({
         id: initialData?.id,
         type: content.type,
@@ -187,6 +207,7 @@ export default function AyatHadithDesigner() {
       console.error('Error saving slide:', err);
       setError((err as Error).message ?? 'Failed to save slide');
       toast.error(`Failed to ${isEdit ? 'update' : 'create'} slide`);
+      setSnapshotMode(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -245,6 +266,10 @@ export default function AyatHadithDesigner() {
             showUrdu={content.showUrdu}
             showEnglish={content.showEnglish}
             showReference={content.showReference}
+            selected={selectedLayer}
+            onSelectedChange={setSelectedLayer}
+            onPositionsChange={positions => setStyle(prev => ({ ...prev, positions }))}
+            snapshotMode={snapshotMode}
           />
         </div>
         <div className='overflow-y-auto pr-2'>
@@ -268,6 +293,8 @@ export default function AyatHadithDesigner() {
                 showUrdu={content.showUrdu}
                 showEnglish={content.showEnglish}
                 showReference={content.showReference}
+                selected={selectedLayer}
+                onSelectedChange={setSelectedLayer}
               />
             </TabsContent>
           </Tabs>

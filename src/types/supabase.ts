@@ -84,11 +84,19 @@ export interface AyatHadithCachedText {
   reference?: { arabic: string; english: string };
 }
 
+export interface BackgroundImage {
+  name: string;
+  url: string;
+}
+
+export type AyatHadithAlign = 'left' | 'center' | 'right';
+
 export interface AyatHadithTextStyle {
   font_id: string;
   size: number;
   color: string;
   line_height: number;
+  align: AyatHadithAlign;
 }
 
 export interface AyatHadithReferenceStyle extends AyatHadithTextStyle {
@@ -100,14 +108,34 @@ export type AyatHadithBackground =
   | { type: 'color'; color: string }
   | { type: 'gradient'; from: string; to: string; angle: number };
 
+/** Position + size of a layer, as percentages (0–100) of the canvas. */
+export interface AyatHadithBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export type AyatHadithLayerKey = 'overlay' | 'arabic' | 'urdu' | 'english' | 'reference';
+
+export interface AyatHadithPositions {
+  overlay: AyatHadithBox;
+  arabic: AyatHadithBox;
+  urdu: AyatHadithBox;
+  english: AyatHadithBox;
+  reference: AyatHadithBox;
+}
+
 export interface AyatHadithStyle {
   background: AyatHadithBackground;
   overlay_color: string;
   overlay_opacity: number;
+  show_overlay: boolean;
   arabic: AyatHadithTextStyle;
   urdu: AyatHadithTextStyle;
   english: AyatHadithTextStyle;
   reference: AyatHadithReferenceStyle;
+  positions: AyatHadithPositions;
 }
 
 export interface AyatAndHadith extends Base {

@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 import { listFiles } from '@/lib/supabase/helpers';
-import { SupabaseBuckets, SupabaseFolders } from '@/types';
-
-export interface BackgroundImage {
-  name: string;
-  url: string;
-}
+import { SupabaseBuckets, SupabaseFolders, type BackgroundImage } from '@/types';
 
 const SUPPORTED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
