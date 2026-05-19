@@ -149,6 +149,8 @@ export interface AyatAndHadith extends Base {
   archived: boolean;
 }
 
+export type DisplayLanguage = 'en' | 'ur' | 'ar';
+
 export interface DisplayScreen extends Base {
   name: string;
   code: string;
@@ -156,6 +158,7 @@ export interface DisplayScreen extends Base {
   show_prayer_times: boolean;
   show_weather: boolean;
   theme: Theme;
+  language: DisplayLanguage;
 }
 
 export interface ScreenContent {
