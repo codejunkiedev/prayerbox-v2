@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchWeatherForecast } from '@/api';
-import type { WeatherForecast } from '@/types';
+import type { DisplayLanguage, WeatherForecast } from '@/types';
 import type { ErrorMessage } from '@/components/display';
 import { useDisplayStore } from '@/store';
 import {
@@ -16,7 +16,7 @@ import {
  * Automatically refreshes data every 30 minutes
  * @returns Object containing weather forecast, loading state, and error messages
  */
-export function useWeatherData(enabled: boolean = true) {
+export function useWeatherData(enabled: boolean = true, language: DisplayLanguage = 'en') {
   const [weatherForecast, setWeatherForecast] = useState<WeatherForecast | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
@@ -41,7 +41,7 @@ export function useWeatherData(enabled: boolean = true) {
 
     // Hydrate from cache so the slide can render before the network call resolves.
     // If the API later fails, the user keeps seeing this stale-but-valid forecast.
-    const cached = readWeatherCache(latitude, longitude);
+    const cached = readWeatherCache(latitude, longitude, language);
     const hadCachedData = cached !== null;
     if (cached) setWeatherForecast(parseOpenWeatherForecast(cached));
 
@@ -55,10 +55,10 @@ export function useWeatherData(enabled: boolean = true) {
       setErrorMessage(null);
 
       try {
-        const data = await fetchWeatherForecast({ lat, lon, signal });
+        const data = await fetchWeatherForecast({ lat, lon, signal, language });
         if (data) {
           setWeatherForecast(parseOpenWeatherForecast(data));
-          writeWeatherCache(lat, lon, data);
+          writeWeatherCache(lat, lon, language, data);
         }
       } catch (error) {
         if (error instanceof DOMException && error.name === 'AbortError') return;
@@ -87,7 +87,7 @@ export function useWeatherData(enabled: boolean = true) {
       abortController.abort();
       clearInterval(interval);
     };
-  }, [enabled, masjidProfile]);
+  }, [enabled, masjidProfile, language]);
 
   return { weatherForecast, isLoading, errorMessage };
 }

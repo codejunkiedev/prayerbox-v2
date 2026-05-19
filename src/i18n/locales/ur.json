@@ -1,0 +1,35 @@
+{
+  "weather": {
+    "feelsLike": "محسوس ہوتا ہے",
+    "humidity": "نمی",
+    "wind": "ہوا",
+    "windSpeed": "{{value}} کلومیٹر/گھنٹہ",
+    "forecastUnavailable": "پیش گوئی دستیاب نہیں"
+  },
+  "weatherCondition": {
+    "thunderstorm": "گرج چمک کے ساتھ بارش",
+    "drizzle": "ہلکی پھوار",
+    "lightRain": "ہلکی بارش",
+    "moderateRain": "درمیانی بارش",
+    "heavyRain": "تیز بارش",
+    "freezingRain": "جمی ہوئی بارش",
+    "showerRain": "تیز بوچھاڑ",
+    "lightSnow": "ہلکی برف باری",
+    "snow": "برف باری",
+    "heavySnow": "تیز برف باری",
+    "sleet": "بارش اور برف",
+    "mist": "دھند",
+    "smoke": "دھواں",
+    "haze": "غبار",
+    "dust": "گرد",
+    "fog": "گہری دھند",
+    "ash": "راکھ",
+    "squall": "تیز جھکڑ",
+    "tornado": "طوفان",
+    "clearSky": "صاف آسمان",
+    "fewClouds": "ہلکے بادل",
+    "scatteredClouds": "بکھرے بادل",
+    "brokenClouds": "ٹوٹے بادل",
+    "overcastClouds": "گہرے بادل"
+  }
+}
