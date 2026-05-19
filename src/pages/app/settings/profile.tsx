@@ -45,7 +45,14 @@ export default function Profile() {
     watch,
   } = useForm<MasjidProfileData>({
     resolver: zodResolver(masjidProfileSchema),
-    defaultValues: { name: '', area: '', latitude: 0, longitude: 0 },
+    defaultValues: {
+      name: '',
+      area: '',
+      area_ur: '',
+      area_ar: '',
+      latitude: 0,
+      longitude: 0,
+    },
   });
 
   const latitude = watch('latitude');
@@ -62,6 +69,8 @@ export default function Profile() {
           reset({
             name: profile.name,
             area: profile.area || '',
+            area_ur: profile.area_ur || '',
+            area_ar: profile.area_ar || '',
             latitude: profile.latitude || 0,
             longitude: profile.longitude || 0,
           });
@@ -227,6 +236,42 @@ export default function Profile() {
                   {(errors.latitude || errors.longitude) && (
                     <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
                   )}
+                </div>
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                <div className='space-y-2'>
+                  <label htmlFor='area_ur' className='block text-sm font-medium text-foreground'>
+                    Area (Urdu)
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>
+                      Optional — shown on Urdu display screens
+                    </span>
+                  </label>
+                  <Input
+                    id='area_ur'
+                    {...register('area_ur')}
+                    dir='rtl'
+                    lang='ur'
+                    placeholder='مثلاً گلشنِ اقبال، کراچی'
+                    className='font-urdu text-right'
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <label htmlFor='area_ar' className='block text-sm font-medium text-foreground'>
+                    Area (Arabic)
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>
+                      Optional — shown on Arabic display screens
+                    </span>
+                  </label>
+                  <Input
+                    id='area_ar'
+                    {...register('area_ar')}
+                    dir='rtl'
+                    lang='ar'
+                    placeholder='مثال: حي جلشن إقبال، كراتشي'
+                    className='font-arabic text-right'
+                  />
                 </div>
               </div>
 

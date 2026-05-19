@@ -54,6 +54,12 @@ export default function Display() {
   const showWeather = displayScreen?.show_weather ?? true;
   const language = displayScreen?.language ?? 'en';
 
+  // Localized area name with English fallback when a translation is blank.
+  const localizedArea =
+    (language === 'ur' && masjidProfile?.area_ur) ||
+    (language === 'ar' && masjidProfile?.area_ar) ||
+    masjidProfile?.area;
+
   useEffect(() => {
     if (i18n.language !== language) {
       void i18n.changeLanguage(language);
@@ -250,7 +256,7 @@ export default function Display() {
           <SwiperSlide>
             <WeatherDisplay
               weatherForecast={weatherForecast}
-              area={masjidProfile?.area}
+              area={localizedArea}
               orientation={displayScreen?.orientation ?? 'landscape'}
             />
           </SwiperSlide>
