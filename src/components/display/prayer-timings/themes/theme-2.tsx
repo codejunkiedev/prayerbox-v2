@@ -154,7 +154,7 @@ export function Theme2({
                   alt='border'
                   className='absolute inset-0 w-full h-full object-contain'
                 />
-                <div className='relative px-4 py-2 flex items-center justify-center gap-[0.5vw]'>
+                <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'>
                   <span className='text-[2vw] clash-display-semibold text-white'>Sunrise:</span>
                   <span className='text-[2vw] clash-display-semibold text-white lowercase'>
                     {sunrise}
@@ -167,7 +167,7 @@ export function Theme2({
                   alt='border'
                   className='absolute inset-0 w-full h-full object-contain'
                 />
-                <div className='relative px-4 py-2 flex items-center justify-center gap-[0.5vw]'>
+                <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'>
                   <span className='text-[2vw] clash-display-semibold text-white'>Sunset: </span>
                   <span className='text-[2vw] clash-display-semibold text-white lowercase'>
                     {sunset}
@@ -181,11 +181,11 @@ export function Theme2({
                     alt='border'
                     className='absolute inset-0 w-full h-full object-contain'
                   />
-                  <div className='relative px-4 py-2 flex items-center justify-center gap-[0.5vw]'>
-                    <span className='text-[2vw] clash-display-semibold text-white capitalize'>
+                  <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw] whitespace-nowrap'>
+                    <span className='text-[1.5vw] clash-display-semibold text-white capitalize'>
                       {nextPrayer?.name} starts in:{' '}
                     </span>
-                    <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                    <span className='text-[1.5vw] clash-display-semibold text-white lowercase'>
                       {nextPrayer?.timeBefore}
                     </span>
                   </div>
@@ -282,7 +282,7 @@ export function Theme2PrayerCard({
       >
         <div
           className={cn(
-            `flex flex-row items-end transition-all duration-300 px-6 py-1 gap-1`,
+            `flex flex-col items-center transition-all duration-300 px-6 py-1 gap-1`,
             highlight ? 'bg-amber-600 rounded-full' : '',
             isAnimating ? 'opacity-0 transform scale-95' : 'opacity-100 transform scale-100'
           )}
@@ -293,7 +293,7 @@ export function Theme2PrayerCard({
             {timeNumber}
           </span>
           <span
-            className={`${isPortrait ? 'text-[3vw]' : 'text-[2vw]'} text-white drop-shadow-2xl clash-grotesk-semibold lowercase leading-none`}
+            className={`${isPortrait ? 'text-[3vw]' : 'text-[2vw]'} text-white drop-shadow-2xl clash-grotesk-semibold uppercase leading-none`}
           >
             {amPm}
           </span>
