@@ -31,5 +31,20 @@
     "scatteredClouds": "بکھرے بادل",
     "brokenClouds": "ٹوٹے بادل",
     "overcastClouds": "گہرے بادل"
+  },
+  "prayer": {
+    "sunrise": "طلوعِ آفتاب",
+    "sunset": "غروبِ آفتاب",
+    "startsIn": "{{prayer}} شروع ہونے میں",
+    "names": {
+      "fajr": "فجر",
+      "dhuhr": "ظہر",
+      "asr": "عصر",
+      "maghrib": "مغرب",
+      "isha": "عشاء",
+      "jumma1": "جمعہ 1",
+      "jumma2": "جمعہ 2",
+      "jumma3": "جمعہ 3"
+    }
   }
 }

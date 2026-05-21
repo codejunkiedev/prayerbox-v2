@@ -31,5 +31,20 @@
     "scatteredClouds": "غيوم متفرقة",
     "brokenClouds": "غيوم متكسرة",
     "overcastClouds": "غيوم كثيفة"
+  },
+  "prayer": {
+    "sunrise": "الشروق",
+    "sunset": "الغروب",
+    "startsIn": "{{prayer}} تبدأ بعد",
+    "names": {
+      "fajr": "الفجر",
+      "dhuhr": "الظهر",
+      "asr": "العصر",
+      "maghrib": "المغرب",
+      "isha": "العشاء",
+      "jumma1": "الجمعة 1",
+      "jumma2": "الجمعة 2",
+      "jumma3": "الجمعة 3"
+    }
   }
 }

@@ -2,9 +2,16 @@ import { cn, formatTimeNumber, getPrayerCardImage, getTimeBeforeNextPrayer } fro
 import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme1Background from '@/assets/themes/theme-1/background.jpg';
-import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
+import {
+  Theme,
+  type DisplayLanguage,
+  type PrayerAdjustments,
+  type ProcessedPrayerTiming,
+} from '@/types';
 import { useTextTransition } from '@/hooks';
 import { CurrentTime } from '@/components/display/shared';
+import { getDir, getFontClass } from '@/i18n';
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 
 /**
@@ -21,6 +28,11 @@ export function Theme1({
   orientation,
 }: ThemeProps) {
   const isPortrait = orientation === 'portrait';
+
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as DisplayLanguage;
+  const dir = getDir(lang);
+  const fontClass = getFontClass(lang);
 
   const nextPrayer = useMemo(() => {
     return getTimeBeforeNextPrayer(processedPrayerTimings);
@@ -48,23 +60,27 @@ export function Theme1({
 
             <div className='flex flex-col items-center text-white'>
               <div className='flex items-center gap-[2vw]'>
-                <div>
-                  <span className='text-[2.5vw] barlow-regular'>Sunrise: </span>
+                <div dir={dir}>
+                  <span className={`text-[2.5vw] barlow-regular ${fontClass}`}>
+                    {t('prayer.sunrise')}:{' '}
+                  </span>
                   <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
                     {sunrise}
                   </span>
                 </div>
-                <div>
-                  <span className='text-[2.5vw] barlow-regular'>Sunset: </span>
+                <div dir={dir}>
+                  <span className={`text-[2.5vw] barlow-regular ${fontClass}`}>
+                    {t('prayer.sunset')}:{' '}
+                  </span>
                   <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
                     {sunset}
                   </span>
                 </div>
               </div>
               {nextPrayer && (
-                <div>
-                  <span className='text-[2.5vw] barlow-regular capitalize'>
-                    {nextPrayer?.name} starts in:{' '}
+                <div dir={dir}>
+                  <span className={`text-[2.5vw] barlow-regular ${fontClass}`}>
+                    {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
                   </span>
                   <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
                     {nextPrayer?.timeBefore}
@@ -136,22 +152,26 @@ export function Theme1({
           <CurrentTime currentTime={currentTime} variant={Theme.Theme1} />
 
           <div className='flex flex-col items-end text-white gap-[0.5vh]'>
-            <div className='text-right'>
-              <span className='text-[1.6vw] barlow-regular'>Sunrise: </span>
+            <div className='text-right' dir={dir}>
+              <span className={`text-[1.6vw] barlow-regular ${fontClass}`}>
+                {t('prayer.sunrise')}:{' '}
+              </span>
               <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
                 {sunrise}
               </span>
             </div>
-            <div className='text-right'>
-              <span className='text-[1.6vw] barlow-regular'>Sunset: </span>
+            <div className='text-right' dir={dir}>
+              <span className={`text-[1.6vw] barlow-regular ${fontClass}`}>
+                {t('prayer.sunset')}:{' '}
+              </span>
               <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
                 {sunset}
               </span>
             </div>
             {nextPrayer && (
-              <div className='text-right'>
-                <span className='text-[1.6vw] barlow-regular capitalize'>
-                  {nextPrayer?.name} starts in:{' '}
+              <div className='text-right' dir={dir}>
+                <span className={`text-[1.6vw] barlow-regular ${fontClass}`}>
+                  {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
                 </span>
                 <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
                   {nextPrayer?.timeBefore}

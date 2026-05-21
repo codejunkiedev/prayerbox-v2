@@ -31,5 +31,20 @@
     "scatteredClouds": "Scattered clouds",
     "brokenClouds": "Broken clouds",
     "overcastClouds": "Overcast clouds"
+  },
+  "prayer": {
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "startsIn": "{{prayer}} starts in",
+    "names": {
+      "fajr": "Fajr",
+      "dhuhr": "Dhuhr",
+      "asr": "Asr",
+      "maghrib": "Maghrib",
+      "isha": "Isha",
+      "jumma1": "Jumma 1",
+      "jumma2": "Jumma 2",
+      "jumma3": "Jumma 3"
+    }
   }
 }
