@@ -98,7 +98,9 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
             <TableRow className='bg-muted/50'>
               <TableHead className='text-center font-medium py-3'>Date</TableHead>
               <TableHead className='text-center font-semibold'>Fajr</TableHead>
-              <TableHead className='text-center font-semibold'>Sunrise</TableHead>
+              {category === 'starts' && (
+                <TableHead className='text-center font-semibold'>Sunrise</TableHead>
+              )}
               {columns.slice(1).map(col => (
                 <TableHead key={col.name} className='text-center font-semibold'>
                   {col.label}
@@ -125,9 +127,11 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
                   <TableCell className='text-center'>
                     {getAdjustedPrayerTime('fajr', day.timings.Fajr, savedSettings, category)}
                   </TableCell>
-                  <TableCell className='text-center'>
-                    {applySingleAdjustment(day.timings.Sunrise, settings?.sunrise_adjustment)}
-                  </TableCell>
+                  {category === 'starts' && (
+                    <TableCell className='text-center'>
+                      {applySingleAdjustment(day.timings.Sunrise, settings?.sunrise_adjustment)}
+                    </TableCell>
+                  )}
                   {columns.slice(1).map(col => {
                     const isJumma = ['jumma1', 'jumma2', 'jumma3'].includes(col.name);
                     return (
