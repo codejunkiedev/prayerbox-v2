@@ -1,10 +1,9 @@
 import { DisplayContainer } from '../shared';
 import { AnimationProvider } from '../shared/animation-provider';
 import type { DisplayLanguage, WeatherForecast, ScreenOrientation } from '@/types';
-import bgImage from '@/assets/backgrounds/weather.jpg';
 import { useTranslation } from 'react-i18next';
 import { formatNumber, getDir, getFontClass, getLocale, getWeatherConditionKey } from '@/i18n';
-import { getWeatherIconWithTimeContext } from '@/utils';
+import { getWeatherBackgroundImage, getWeatherIconWithTimeContext } from '@/utils';
 import raindropIcon from '@/assets/icons/weather/raindrop.svg';
 import windIcon from '@/assets/icons/weather/wind.svg';
 
@@ -15,7 +14,8 @@ interface WeatherDisplayProps {
 }
 
 /**
- * Displays current weather conditions and forecast with animated background video and weather icons
+ * Displays current weather conditions and forecast with a weather-specific
+ * background image and weather icons
  */
 export function WeatherDisplay({
   weatherForecast,
@@ -28,6 +28,7 @@ export function WeatherDisplay({
   const lang = i18n.language as DisplayLanguage;
   const dir = getDir(lang);
   const fontClass = getFontClass(lang);
+  const bgImage = getWeatherBackgroundImage(current.icon, orientation);
 
   // OpenWeather returns descriptions in the requested locale only patchily
   // (clear sky, broken clouds etc. often stay English even with lang=ur).
