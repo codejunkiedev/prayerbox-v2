@@ -5,10 +5,19 @@ import {
   formatTimeNumber,
 } from '@/utils';
 import type { ThemeProps } from './types';
-import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
+import {
+  Theme,
+  type DisplayLanguage,
+  type PrayerAdjustments,
+  type ProcessedPrayerTiming,
+} from '@/types';
 import { CurrentTime } from '@/components/display/shared';
+import { getDir, getFontClass } from '@/i18n';
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 
+// Authentic Arabic prayer names, shown as a secondary label alongside the
+// localized name on English screens only.
 const ARABIC_NAMES: Record<string, string> = {
   fajr: 'الفجر',
   dhuhr: 'الظهر',
@@ -18,17 +27,6 @@ const ARABIC_NAMES: Record<string, string> = {
   jumma1: 'الجمعة',
   jumma2: 'الجمعة',
   jumma3: 'الجمعة',
-};
-
-const ENGLISH_NAMES: Record<string, string> = {
-  fajr: 'FAJR',
-  dhuhr: 'DHUHR',
-  asr: 'ASR',
-  maghrib: 'MAGHRIB',
-  isha: 'ISHA',
-  jumma1: 'JUMMA 1',
-  jumma2: 'JUMMA 2',
-  jumma3: 'JUMMA 3',
 };
 
 export function Theme3({
@@ -42,6 +40,12 @@ export function Theme3({
   orientation,
 }: ThemeProps) {
   const isPortrait = orientation === 'portrait';
+
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as DisplayLanguage;
+  const dir = getDir(lang);
+  const fontClass = getFontClass(lang);
+  const isEnglish = lang === 'en';
 
   const nextIqamah = useMemo(() => {
     return getTimeBeforeNextIqamah(processedPrayerTimings);
@@ -88,28 +92,68 @@ export function Theme3({
     );
   };
 
+  // Letter-spacing breaks the cursive joins of Arabic/Urdu script, so tracking
+  // is applied for English only.
+  const colHeader = (text: string, size: string, center = false) => (
+    <span
+      className={`${size} font-bold text-white uppercase ${isEnglish ? 'tracking-wider ' : ''}${fontClass}${
+        center ? ' text-center' : ''
+      }`}
+    >
+      {text}
+    </span>
+  );
+
+  const prayerNameCell = (
+    name: keyof PrayerAdjustments,
+    gap: string,
+    mainSize: string,
+    arabicSize: string
+  ) => (
+    <div className={`flex items-center ${gap}`} dir={dir}>
+      <span className={`${mainSize} font-extrabold text-gray-800 uppercase ${fontClass}`}>
+        {t(`prayer.names.${name}`)}
+      </span>
+      {isEnglish && (
+        <span className={`${arabicSize} font-semibold text-emerald-600/70`} dir='rtl'>
+          {ARABIC_NAMES[name]}
+        </span>
+      )}
+    </div>
+  );
+
   if (isPortrait) {
     return (
       <div className='w-full h-screen bg-[#f8faf9] flex flex-col overflow-hidden'>
         {/* Top bar */}
         <div className='flex-shrink-0 bg-emerald-800 px-[5vw] py-[1.8vh] flex items-center justify-between'>
-          <div className='flex flex-col'>
-            <span className='text-[3.2vw] font-semibold text-white/90 uppercase tracking-wide'>
+          <div className='flex flex-col' dir={dir}>
+            <span
+              className={`text-[3.2vw] font-semibold text-white/90 uppercase ${
+                isEnglish ? 'tracking-wide ' : ''
+              }${fontClass}`}
+            >
               {gregorianDate}
             </span>
-            <span className='text-[2.8vw] font-medium text-emerald-300'>{hijriDate}</span>
+            <span className={`text-[2.8vw] font-medium text-emerald-300 ${fontClass}`}>
+              {hijriDate}
+            </span>
           </div>
 
           <CurrentTime currentTime={currentTime} variant={Theme.Theme3} orientation={orientation} />
 
           <div className='flex flex-col items-end gap-[0.4vh]'>
             <div className='flex items-baseline gap-[0.8vw]'>
-              <span className='text-[2.2vw] text-emerald-300 uppercase font-medium'>Sunrise</span>
+              <span className={`text-[2.2vw] text-emerald-300 uppercase font-medium ${fontClass}`}>
+                {t('prayer.sunrise')}
+              </span>
               <span className='text-[3vw] font-bold text-amber-400'>{sunriseNum}</span>
               <span className='text-[1.8vw] text-amber-400/80'>{sunriseAmPm}</span>
             </div>
             <div className='flex items-baseline gap-[0.8vw]'>
-              <span className='text-[2.2vw] text-emerald-300 uppercase font-medium'>Sunset</span>
+              <span className={`text-[2.2vw] text-emerald-300 uppercase font-medium ${fontClass}`}>
+                {t('prayer.sunset')}
+              </span>
               <span className='text-[3vw] font-bold text-orange-400'>{sunsetNum}</span>
               <span className='text-[1.8vw] text-orange-400/80'>{sunsetAmPm}</span>
             </div>
@@ -120,18 +164,10 @@ export function Theme3({
         <div className='flex-1 flex flex-col min-h-0 px-[4vw] py-[1.5vh]'>
           {/* Column headers */}
           <div className='flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] bg-emerald-700 rounded-t-xl py-[1.5vh] px-[3vw]'>
-            <span className='text-[3.2vw] font-bold text-white uppercase tracking-wider'>
-              Prayer
-            </span>
-            <span className='text-[3.2vw] font-bold text-white uppercase tracking-wider text-center'>
-              Starts
-            </span>
-            <span className='text-[3.2vw] font-bold text-white uppercase tracking-wider text-center'>
-              Athan
-            </span>
-            <span className='text-[3.2vw] font-bold text-white uppercase tracking-wider text-center'>
-              Iqamah
-            </span>
+            {colHeader(t('prayer.columns.prayer'), 'text-[3.2vw]')}
+            {colHeader(t('prayer.columns.starts'), 'text-[3.2vw]', true)}
+            {colHeader(t('prayer.columns.athan'), 'text-[3.2vw]', true)}
+            {colHeader(t('prayer.columns.iqamah'), 'text-[3.2vw]', true)}
           </div>
 
           {/* Rows */}
@@ -151,14 +187,7 @@ export function Theme3({
                         : 'bg-gray-50/70'
                   }`}
                 >
-                  <div className='flex items-center gap-[2vw]'>
-                    <span className='text-[4vw] font-extrabold text-gray-800 uppercase'>
-                      {ENGLISH_NAMES[prayer.name]}
-                    </span>
-                    <span className='text-[3.2vw] font-semibold text-emerald-600/70' dir='rtl'>
-                      {ARABIC_NAMES[prayer.name]}
-                    </span>
-                  </div>
+                  {prayerNameCell(prayer.name, 'gap-[2vw]', 'text-[4vw]', 'text-[3.2vw]')}
                   {renderTimeCell(prayer.starts, 'text-[4vw]', 'text-[2.2vw]')}
                   {renderTimeCell(prayer.athan, 'text-[4vw]', 'text-[2.2vw]')}
                   {renderTimeCell(prayer.iqamah, 'text-[4vw]', 'text-[2.2vw]')}
@@ -173,11 +202,15 @@ export function Theme3({
           <div className='flex-shrink-0 px-[4vw] pb-[2vh]'>
             <div className='bg-emerald-700 rounded-xl py-[2.5vh] flex items-center justify-center gap-[4vw] shadow-md'>
               <div className='flex flex-col items-center'>
-                <span className='text-[2.5vw] font-bold text-emerald-200 uppercase tracking-[0.2em]'>
-                  Next Iqamah
+                <span
+                  className={`text-[2.5vw] font-bold text-emerald-200 uppercase ${
+                    isEnglish ? 'tracking-[0.2em] ' : ''
+                  }${fontClass}`}
+                >
+                  {t('prayer.nextIqamah')}
                 </span>
-                <span className='text-[3vw] font-semibold text-white uppercase'>
-                  {ENGLISH_NAMES[nextIqamah.name]}
+                <span className={`text-[3vw] font-semibold text-white uppercase ${fontClass}`}>
+                  {t(`prayer.names.${nextIqamah.name}`)}
                 </span>
               </div>
               <div className='w-[1px] h-[5vh] bg-emerald-500/50' />
@@ -187,13 +220,19 @@ export function Theme3({
                     <span className='text-[12vw] font-black text-white leading-none'>
                       {nextIqamah.hours}
                     </span>
-                    <span className='text-[3.5vw] font-bold text-emerald-300 uppercase'>hr</span>
+                    <span
+                      className={`text-[3.5vw] font-bold text-emerald-300 uppercase ${fontClass}`}
+                    >
+                      {t('prayer.hr')}
+                    </span>
                   </>
                 )}
                 <span className='text-[12vw] font-black text-white leading-none'>
                   {nextIqamah.minutes}
                 </span>
-                <span className='text-[3.5vw] font-bold text-emerald-300 uppercase'>min</span>
+                <span className={`text-[3.5vw] font-bold text-emerald-300 uppercase ${fontClass}`}>
+                  {t('prayer.min')}
+                </span>
               </div>
             </div>
           </div>
@@ -207,23 +246,33 @@ export function Theme3({
     <div className='w-full h-screen bg-[#f8faf9] flex flex-col overflow-hidden'>
       {/* Top bar */}
       <div className='flex-shrink-0 bg-emerald-800 px-[3vw] py-[1.2vh] flex items-center justify-between'>
-        <div className='flex flex-col'>
-          <span className='text-[1.3vw] font-semibold text-white/90 uppercase tracking-wide'>
+        <div className='flex flex-col' dir={dir}>
+          <span
+            className={`text-[1.3vw] font-semibold text-white/90 uppercase ${
+              isEnglish ? 'tracking-wide ' : ''
+            }${fontClass}`}
+          >
             {gregorianDate}
           </span>
-          <span className='text-[1.1vw] font-medium text-emerald-300'>{hijriDate}</span>
+          <span className={`text-[1.1vw] font-medium text-emerald-300 ${fontClass}`}>
+            {hijriDate}
+          </span>
         </div>
 
         <CurrentTime currentTime={currentTime} variant={Theme.Theme3} orientation={orientation} />
 
         <div className='flex items-center gap-[2vw]'>
           <div className='flex items-baseline gap-[0.4vw]'>
-            <span className='text-[0.9vw] text-emerald-300 uppercase font-medium'>Sunrise</span>
+            <span className={`text-[0.9vw] text-emerald-300 uppercase font-medium ${fontClass}`}>
+              {t('prayer.sunrise')}
+            </span>
             <span className='text-[1.3vw] font-bold text-amber-400'>{sunriseNum}</span>
             <span className='text-[0.7vw] text-amber-400/80'>{sunriseAmPm}</span>
           </div>
           <div className='flex items-baseline gap-[0.4vw]'>
-            <span className='text-[0.9vw] text-emerald-300 uppercase font-medium'>Sunset</span>
+            <span className={`text-[0.9vw] text-emerald-300 uppercase font-medium ${fontClass}`}>
+              {t('prayer.sunset')}
+            </span>
             <span className='text-[1.3vw] font-bold text-orange-400'>{sunsetNum}</span>
             <span className='text-[0.7vw] text-orange-400/80'>{sunsetAmPm}</span>
           </div>
@@ -236,18 +285,10 @@ export function Theme3({
         <div className='flex-[3] flex flex-col min-h-0'>
           {/* Column headers */}
           <div className='flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] bg-emerald-700 rounded-t-xl py-[1vh] px-[1.5vw]'>
-            <span className='text-[1.3vw] font-bold text-white uppercase tracking-wider'>
-              Prayer
-            </span>
-            <span className='text-[1.3vw] font-bold text-white uppercase tracking-wider text-center'>
-              Starts
-            </span>
-            <span className='text-[1.3vw] font-bold text-white uppercase tracking-wider text-center'>
-              Athan
-            </span>
-            <span className='text-[1.3vw] font-bold text-white uppercase tracking-wider text-center'>
-              Iqamah
-            </span>
+            {colHeader(t('prayer.columns.prayer'), 'text-[1.3vw]')}
+            {colHeader(t('prayer.columns.starts'), 'text-[1.3vw]', true)}
+            {colHeader(t('prayer.columns.athan'), 'text-[1.3vw]', true)}
+            {colHeader(t('prayer.columns.iqamah'), 'text-[1.3vw]', true)}
           </div>
 
           {/* Rows */}
@@ -267,14 +308,7 @@ export function Theme3({
                         : 'bg-gray-50/70'
                   }`}
                 >
-                  <div className='flex items-center gap-[0.8vw]'>
-                    <span className='text-[1.7vw] font-extrabold text-gray-800 uppercase'>
-                      {ENGLISH_NAMES[prayer.name]}
-                    </span>
-                    <span className='text-[1.3vw] font-semibold text-emerald-600/70' dir='rtl'>
-                      {ARABIC_NAMES[prayer.name]}
-                    </span>
-                  </div>
+                  {prayerNameCell(prayer.name, 'gap-[0.8vw]', 'text-[1.7vw]', 'text-[1.3vw]')}
                   {renderTimeCell(prayer.starts, 'text-[1.8vw]', 'text-[0.9vw]')}
                   {renderTimeCell(prayer.athan, 'text-[1.8vw]', 'text-[0.9vw]')}
                   {renderTimeCell(prayer.iqamah, 'text-[1.8vw]', 'text-[0.9vw]')}
@@ -288,11 +322,17 @@ export function Theme3({
         {nextIqamah && (
           <div className='flex-[1] flex items-center justify-center'>
             <div className='bg-emerald-700 rounded-2xl flex flex-col items-center justify-center w-full h-[70%] px-[1vw] shadow-md'>
-              <span className='text-[0.9vw] font-bold text-emerald-200 uppercase tracking-[0.2em]'>
-                Next Iqamah
+              <span
+                className={`text-[0.9vw] font-bold text-emerald-200 uppercase ${
+                  isEnglish ? 'tracking-[0.2em] ' : ''
+                }${fontClass}`}
+              >
+                {t('prayer.nextIqamah')}
               </span>
-              <span className='text-[1.2vw] font-semibold text-white uppercase mt-[0.3vh]'>
-                {ENGLISH_NAMES[nextIqamah.name]}
+              <span
+                className={`text-[1.2vw] font-semibold text-white uppercase mt-[0.3vh] ${fontClass}`}
+              >
+                {t(`prayer.names.${nextIqamah.name}`)}
               </span>
               <div className='w-[60%] h-[1px] bg-emerald-500/50 my-[1vh]' />
               <div className='flex items-baseline gap-[0.4vw]'>
@@ -301,13 +341,19 @@ export function Theme3({
                     <span className='text-[4.5vw] font-black text-white leading-none'>
                       {nextIqamah.hours}
                     </span>
-                    <span className='text-[1.1vw] font-bold text-emerald-300 uppercase'>hr</span>
+                    <span
+                      className={`text-[1.1vw] font-bold text-emerald-300 uppercase ${fontClass}`}
+                    >
+                      {t('prayer.hr')}
+                    </span>
                   </>
                 )}
                 <span className='text-[4.5vw] font-black text-white leading-none'>
                   {nextIqamah.minutes}
                 </span>
-                <span className='text-[1.1vw] font-bold text-emerald-300 uppercase'>min</span>
+                <span className={`text-[1.1vw] font-bold text-emerald-300 uppercase ${fontClass}`}>
+                  {t('prayer.min')}
+                </span>
               </div>
             </div>
           </div>

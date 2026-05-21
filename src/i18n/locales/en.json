@@ -45,6 +45,15 @@
       "jumma1": "Jumma 1",
       "jumma2": "Jumma 2",
       "jumma3": "Jumma 3"
-    }
+    },
+    "columns": {
+      "prayer": "Prayer",
+      "starts": "Starts",
+      "athan": "Athan",
+      "iqamah": "Iqamah"
+    },
+    "nextIqamah": "Next Iqamah",
+    "hr": "hr",
+    "min": "min"
   }
 }
