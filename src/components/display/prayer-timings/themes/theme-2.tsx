@@ -165,11 +165,11 @@ export function Theme2({
         <div className='w-[65vw] h-full flex flex-col px-[2.5vw]'>
           {/* Header Section */}
           <div className='flex-shrink-0 flex flex-row items-center justify-between py-[3vh]'>
-            <div className='flex flex-col items-start justify-start text-white gap-[1vh]'>
+            <div className='flex flex-col items-start justify-start text-white gap-[0.3vh]'>
               <div className='relative text-left w-[24vw]'>
                 <div
                   dir={dir}
-                  className='relative px-4 py-1 flex items-baseline justify-start gap-[0.5vw]'
+                  className='relative px-4 flex items-baseline justify-start gap-[0.5vw] leading-[1.2]'
                 >
                   <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
                     {t('prayer.sunrise')}:
@@ -185,7 +185,7 @@ export function Theme2({
               <div className='relative text-left w-[24vw]'>
                 <div
                   dir={dir}
-                  className='relative px-4 py-1 flex items-baseline justify-start gap-[0.5vw]'
+                  className='relative px-4 flex items-baseline justify-start gap-[0.5vw] leading-[1.2]'
                 >
                   <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
                     {t('prayer.sunset')}:
@@ -202,7 +202,7 @@ export function Theme2({
                 <div className='relative text-left w-[24vw]'>
                   <div
                     dir={dir}
-                    className='relative px-4 py-1 flex items-baseline justify-start gap-[0.5vw] whitespace-nowrap'
+                    className='relative px-4 flex items-baseline justify-start gap-[0.5vw] leading-[1.2] whitespace-nowrap'
                   >
                     <span className={`text-[1.5vw] clash-display-semibold text-white ${fontClass}`}>
                       {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
