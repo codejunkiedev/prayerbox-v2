@@ -1,60 +1,47 @@
-// Weather Background Videos
-import clearNightVideo from '@/assets/backgrounds/weather/clear-night.mp4';
-import cloudyWeatherVideo from '@/assets/backgrounds/weather/cloudy-day.mp4';
-import rainyNightVideo from '@/assets/backgrounds/weather/rainy-night.mp4';
-import rainyDayVideo from '@/assets/backgrounds/weather/rainy-day.mp4';
-import cloudyNightVideo from '@/assets/backgrounds/weather/cloudy-night.mp4';
-import sunnyDayVideo from '@/assets/backgrounds/weather/sunny-day.mp4';
+import type { ScreenOrientation } from '@/types';
 
 /**
- * Maps weather condition ID and time context to appropriate background video
- * @param conditionId OpenWeather condition ID
- * @param iconCode OpenWeather icon code (contains day/night context)
- * @returns Path to the appropriate background video
+ * Weather background images, bundled locally. Vite resolves each glob entry to
+ * a hashed asset URL at build time. Files are named by OpenWeather icon code
+ * (e.g. `01d`, `10n`) — the complete set of codes the API can return — and
+ * exist in both `landscape` and `portrait` orientations.
  */
-export function getWeatherBackgroundVideo(conditionId: number, iconCode: string): string {
-  const isDay = iconCode.endsWith('d');
-  const conditionGroup = Math.floor(conditionId / 100);
+const landscapeImages = import.meta.glob<string>('../assets/backgrounds/weather/landscape/*.jpg', {
+  eager: true,
+  import: 'default',
+});
+const portraitImages = import.meta.glob<string>('../assets/backgrounds/weather/portrait/*.jpg', {
+  eager: true,
+  import: 'default',
+});
 
-  switch (conditionGroup) {
-    case 2: // Thunderstorms (200-299)
-      return isDay ? rainyDayVideo : rainyNightVideo;
+/** Icon code used when the API returns an unrecognised code. */
+const FALLBACK_ICON_CODE = '01d';
 
-    case 3: // Drizzle (300-399)
-    case 5: // Rain (500-599)
-      return isDay ? rainyDayVideo : rainyNightVideo;
-
-    case 6: // Snow (600-699)
-      // Use cloudy weather for snow as it's similar conditions
-      return isDay ? cloudyWeatherVideo : cloudyNightVideo;
-
-    case 7: // Atmosphere (700-799) - fog, mist, haze, etc.
-      return isDay ? cloudyWeatherVideo : cloudyNightVideo;
-
-    case 8: // Clear and Clouds (800-899)
-      if (conditionId === 800) {
-        // Clear sky
-        return isDay ? sunnyDayVideo : clearNightVideo;
-      } else if (conditionId === 801) {
-        // Few clouds - still mostly clear
-        return isDay ? sunnyDayVideo : clearNightVideo;
-      } else {
-        // More clouds (802-804)
-        return isDay ? cloudyWeatherVideo : cloudyNightVideo;
-      }
-
-    default:
-      // Fallback based on time of day
-      return isDay ? sunnyDayVideo : clearNightVideo;
+/** Builds an `iconCode -> asset URL` lookup from a glob import map. */
+function indexByIconCode(images: Record<string, string>): Record<string, string> {
+  const byCode: Record<string, string> = {};
+  for (const [path, url] of Object.entries(images)) {
+    const code = path.slice(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
+    byCode[code] = url;
   }
+  return byCode;
 }
 
+const landscapeByCode = indexByIconCode(landscapeImages);
+const portraitByCode = indexByIconCode(portraitImages);
+
 /**
- * Determines if current time is during morning/sunrise hours
- * @param currentHour Current hour (0-23)
- * @returns boolean indicating if it's morning time
+ * Returns the bundled weather background image for an OpenWeather icon code.
+ *
+ * @param iconCode OpenWeather icon code (e.g. '01d', '50n')
+ * @param orientation Screen orientation; only 'portrait' uses portrait images
+ * @returns Asset URL of the appropriate background image
  */
-export function isMorningTime(currentHour: number): boolean {
-  // Consider 5 AM to 9 AM as morning/sunrise time
-  return currentHour >= 5 && currentHour <= 9;
+export function getWeatherBackgroundImage(
+  iconCode: string,
+  orientation: ScreenOrientation = 'landscape'
+): string {
+  const byCode = orientation === 'portrait' ? portraitByCode : landscapeByCode;
+  return byCode[iconCode] ?? byCode[FALLBACK_ICON_CODE];
 }
