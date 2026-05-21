@@ -64,7 +64,11 @@ export function Theme1({
                   <span className={`text-[2.5vw] barlow-regular ${fontClass}`}>
                     {t('prayer.sunrise')}:{' '}
                   </span>
-                  <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
+                  <span
+                    dir='ltr'
+                    className='text-[2.5vw] barlow-medium'
+                    style={{ color: '#E0B05C' }}
+                  >
                     {sunrise}
                   </span>
                 </div>
@@ -72,7 +76,11 @@ export function Theme1({
                   <span className={`text-[2.5vw] barlow-regular ${fontClass}`}>
                     {t('prayer.sunset')}:{' '}
                   </span>
-                  <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
+                  <span
+                    dir='ltr'
+                    className='text-[2.5vw] barlow-medium'
+                    style={{ color: '#E0B05C' }}
+                  >
                     {sunset}
                   </span>
                 </div>
@@ -82,7 +90,11 @@ export function Theme1({
                   <span className={`text-[2.5vw] barlow-regular ${fontClass}`}>
                     {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
                   </span>
-                  <span className='text-[2.5vw] barlow-medium' style={{ color: '#E0B05C' }}>
+                  <span
+                    dir='ltr'
+                    className='text-[2.5vw] barlow-medium'
+                    style={{ color: '#E0B05C' }}
+                  >
                     {nextPrayer?.timeBefore}
                   </span>
                 </div>
@@ -156,7 +168,7 @@ export function Theme1({
               <span className={`text-[1.6vw] barlow-regular ${fontClass}`}>
                 {t('prayer.sunrise')}:{' '}
               </span>
-              <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
+              <span dir='ltr' className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
                 {sunrise}
               </span>
             </div>
@@ -164,7 +176,7 @@ export function Theme1({
               <span className={`text-[1.6vw] barlow-regular ${fontClass}`}>
                 {t('prayer.sunset')}:{' '}
               </span>
-              <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
+              <span dir='ltr' className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
                 {sunset}
               </span>
             </div>
@@ -173,7 +185,7 @@ export function Theme1({
                 <span className={`text-[1.6vw] barlow-regular ${fontClass}`}>
                   {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
                 </span>
-                <span className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
+                <span dir='ltr' className='text-[1.6vw] barlow-medium' style={{ color: '#E0B05C' }}>
                   {nextPrayer?.timeBefore}
                 </span>
               </div>
