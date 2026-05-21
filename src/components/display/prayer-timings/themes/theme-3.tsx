@@ -85,7 +85,7 @@ export function Theme3({
   const renderTimeCell = (time: string, sizeNum: string, sizeAmPm: string) => {
     const { timeNumber, amPm } = formatTimeNumber(time);
     return (
-      <div className='flex items-baseline justify-center gap-[0.2vw]'>
+      <div dir='ltr' className='flex items-baseline justify-center gap-[0.2vw]'>
         <span className={`${sizeNum} font-bold text-gray-800`}>{timeNumber}</span>
         <span className={`${sizeAmPm} font-medium text-gray-400 uppercase`}>{amPm}</span>
       </div>
