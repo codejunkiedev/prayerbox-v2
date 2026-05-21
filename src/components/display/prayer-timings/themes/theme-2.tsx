@@ -2,7 +2,6 @@ import { cn, formatTimeNumber, getPrayerCardImage, getTimeBeforeNextPrayer } fro
 import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
-import borderSvg from '@/assets/themes/theme-2/border.svg';
 import {
   Theme,
   type DisplayLanguage,
@@ -64,11 +63,6 @@ export function Theme2({
             {/* Right - Sunrise, Sunset, Next Prayer */}
             <div className='flex flex-col items-end text-white gap-[0.3vh]'>
               <div className='relative text-center w-[30vw]'>
-                <img
-                  src={borderSvg}
-                  alt='border'
-                  className='absolute inset-0 w-full h-full object-contain'
-                />
                 <div
                   dir={dir}
                   className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
@@ -85,11 +79,6 @@ export function Theme2({
                 </div>
               </div>
               <div className='relative text-center w-[30vw]'>
-                <img
-                  src={borderSvg}
-                  alt='border'
-                  className='absolute inset-0 w-full h-full object-contain'
-                />
                 <div
                   dir={dir}
                   className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
@@ -107,11 +96,6 @@ export function Theme2({
               </div>
               {nextPrayer && (
                 <div className='relative text-center w-[30vw]'>
-                  <img
-                    src={borderSvg}
-                    alt='border'
-                    className='absolute inset-0 w-full h-full object-contain'
-                  />
                   <div
                     dir={dir}
                     className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
@@ -183,11 +167,6 @@ export function Theme2({
           <div className='flex-shrink-0 flex flex-row items-center justify-between py-[3vh]'>
             <div className='flex flex-col items-start justify-start text-white gap-[1vh]'>
               <div className='relative text-left w-[24vw]'>
-                <img
-                  src={borderSvg}
-                  alt='border'
-                  className='absolute inset-0 w-full h-full object-contain'
-                />
                 <div
                   dir={dir}
                   className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'
@@ -204,11 +183,6 @@ export function Theme2({
                 </div>
               </div>
               <div className='relative text-left w-[24vw]'>
-                <img
-                  src={borderSvg}
-                  alt='border'
-                  className='absolute inset-0 w-full h-full object-contain'
-                />
                 <div
                   dir={dir}
                   className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'
@@ -226,11 +200,6 @@ export function Theme2({
               </div>
               {nextPrayer && (
                 <div className='relative text-left w-[24vw]'>
-                  <img
-                    src={borderSvg}
-                    alt='border'
-                    className='absolute inset-0 w-full h-full object-contain'
-                  />
                   <div
                     dir={dir}
                     className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw] whitespace-nowrap'
