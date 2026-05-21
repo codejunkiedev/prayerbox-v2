@@ -65,7 +65,7 @@ export function Theme2({
               <div className='relative text-center w-[30vw]'>
                 <div
                   dir={dir}
-                  className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
+                  className='relative px-3 py-1 flex items-center justify-start gap-[0.3vw]'
                 >
                   <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
                     {t('prayer.sunrise')}:
@@ -81,7 +81,7 @@ export function Theme2({
               <div className='relative text-center w-[30vw]'>
                 <div
                   dir={dir}
-                  className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
+                  className='relative px-3 py-1 flex items-center justify-start gap-[0.3vw]'
                 >
                   <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
                     {t('prayer.sunset')}:
@@ -98,7 +98,7 @@ export function Theme2({
                 <div className='relative text-center w-[30vw]'>
                   <div
                     dir={dir}
-                    className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
+                    className='relative px-3 py-1 flex items-center justify-start gap-[0.3vw]'
                   >
                     <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
                       {t(`prayer.names.${nextPrayer.name}`)}:{' '}
@@ -169,7 +169,7 @@ export function Theme2({
               <div className='relative text-left w-[24vw]'>
                 <div
                   dir={dir}
-                  className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'
+                  className='relative px-4 h-[3.3vw] flex items-center justify-start gap-[0.5vw]'
                 >
                   <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
                     {t('prayer.sunrise')}:
@@ -185,7 +185,7 @@ export function Theme2({
               <div className='relative text-left w-[24vw]'>
                 <div
                   dir={dir}
-                  className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'
+                  className='relative px-4 h-[3.3vw] flex items-center justify-start gap-[0.5vw]'
                 >
                   <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
                     {t('prayer.sunset')}:
@@ -202,7 +202,7 @@ export function Theme2({
                 <div className='relative text-left w-[24vw]'>
                   <div
                     dir={dir}
-                    className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw] whitespace-nowrap'
+                    className='relative px-4 h-[3.3vw] flex items-center justify-start gap-[0.5vw] whitespace-nowrap'
                   >
                     <span className={`text-[1.5vw] clash-display-semibold text-white ${fontClass}`}>
                       {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
