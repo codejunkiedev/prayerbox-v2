@@ -3,9 +3,16 @@ import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
 import borderSvg from '@/assets/themes/theme-2/border.svg';
-import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
+import {
+  Theme,
+  type DisplayLanguage,
+  type PrayerAdjustments,
+  type ProcessedPrayerTiming,
+} from '@/types';
 import { useTextTransition } from '@/hooks';
 import { CurrentTime } from '@/components/display/shared';
+import { getDir, getFontClass } from '@/i18n';
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 
 /**
@@ -22,6 +29,11 @@ export function Theme2({
   orientation,
 }: ThemeProps) {
   const isPortrait = orientation === 'portrait';
+
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as DisplayLanguage;
+  const dir = getDir(lang);
+  const fontClass = getFontClass(lang);
 
   const nextPrayer = useMemo(() => {
     return getTimeBeforeNextPrayer(processedPrayerTimings);
@@ -43,9 +55,9 @@ export function Theme2({
                 variant={Theme.Theme2}
                 orientation={orientation}
               />
-              <div className='flex flex-col items-center text-white'>
-                <span className='text-[2.5vw] font-bold'>{gregorianDate}</span>
-                <span className='text-[2.5vw] font-bold'>{hijriDate}</span>
+              <div className='flex flex-col items-center text-white' dir={dir}>
+                <span className={`text-[2.5vw] font-bold ${fontClass}`}>{gregorianDate}</span>
+                <span className={`text-[2.5vw] font-bold ${fontClass}`}>{hijriDate}</span>
               </div>
             </div>
 
@@ -57,9 +69,17 @@ export function Theme2({
                   alt='border'
                   className='absolute inset-0 w-full h-full object-contain'
                 />
-                <div className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'>
-                  <span className='text-[2vw] clash-display-semibold text-white'>Sunrise:</span>
-                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                <div
+                  dir={dir}
+                  className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
+                >
+                  <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                    {t('prayer.sunrise')}:
+                  </span>
+                  <span
+                    dir='ltr'
+                    className='text-[2vw] clash-display-semibold text-white lowercase'
+                  >
                     {sunrise}
                   </span>
                 </div>
@@ -70,9 +90,17 @@ export function Theme2({
                   alt='border'
                   className='absolute inset-0 w-full h-full object-contain'
                 />
-                <div className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'>
-                  <span className='text-[2vw] clash-display-semibold text-white'>Sunset:</span>
-                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                <div
+                  dir={dir}
+                  className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
+                >
+                  <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                    {t('prayer.sunset')}:
+                  </span>
+                  <span
+                    dir='ltr'
+                    className='text-[2vw] clash-display-semibold text-white lowercase'
+                  >
                     {sunset}
                   </span>
                 </div>
@@ -84,11 +112,17 @@ export function Theme2({
                     alt='border'
                     className='absolute inset-0 w-full h-full object-contain'
                   />
-                  <div className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'>
-                    <span className='text-[2vw] clash-display-semibold text-white capitalize'>
-                      {nextPrayer?.name}:{' '}
+                  <div
+                    dir={dir}
+                    className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'
+                  >
+                    <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                      {t(`prayer.names.${nextPrayer.name}`)}:{' '}
                     </span>
-                    <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                    <span
+                      dir='ltr'
+                      className='text-[2vw] clash-display-semibold text-white lowercase'
+                    >
                       {nextPrayer?.timeBefore}
                     </span>
                   </div>
@@ -154,9 +188,17 @@ export function Theme2({
                   alt='border'
                   className='absolute inset-0 w-full h-full object-contain'
                 />
-                <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'>
-                  <span className='text-[2vw] clash-display-semibold text-white'>Sunrise:</span>
-                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                <div
+                  dir={dir}
+                  className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'
+                >
+                  <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                    {t('prayer.sunrise')}:
+                  </span>
+                  <span
+                    dir='ltr'
+                    className='text-[2vw] clash-display-semibold text-white lowercase'
+                  >
                     {sunrise}
                   </span>
                 </div>
@@ -167,9 +209,17 @@ export function Theme2({
                   alt='border'
                   className='absolute inset-0 w-full h-full object-contain'
                 />
-                <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'>
-                  <span className='text-[2vw] clash-display-semibold text-white'>Sunset: </span>
-                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                <div
+                  dir={dir}
+                  className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'
+                >
+                  <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                    {t('prayer.sunset')}:
+                  </span>
+                  <span
+                    dir='ltr'
+                    className='text-[2vw] clash-display-semibold text-white lowercase'
+                  >
                     {sunset}
                   </span>
                 </div>
@@ -181,11 +231,17 @@ export function Theme2({
                     alt='border'
                     className='absolute inset-0 w-full h-full object-contain'
                   />
-                  <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw] whitespace-nowrap'>
-                    <span className='text-[1.5vw] clash-display-semibold text-white capitalize'>
-                      {nextPrayer?.name} starts in:{' '}
+                  <div
+                    dir={dir}
+                    className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw] whitespace-nowrap'
+                  >
+                    <span className={`text-[1.5vw] clash-display-semibold text-white ${fontClass}`}>
+                      {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
                     </span>
-                    <span className='text-[1.5vw] clash-display-semibold text-white lowercase'>
+                    <span
+                      dir='ltr'
+                      className='text-[1.5vw] clash-display-semibold text-white lowercase'
+                    >
                       {nextPrayer?.timeBefore}
                     </span>
                   </div>
@@ -193,9 +249,11 @@ export function Theme2({
               )}
             </div>
 
-            <div className='flex flex-col items-center text-white gap-[0.5vh]'>
-              <span className='text-[1.8vw] font-bold text-center'>{gregorianDate}</span>
-              <span className='text-[1.8vw] font-bold text-center'>{hijriDate}</span>
+            <div className='flex flex-col items-center text-white gap-[0.5vh]' dir={dir}>
+              <span className={`text-[1.8vw] font-bold text-center ${fontClass}`}>
+                {gregorianDate}
+              </span>
+              <span className={`text-[1.8vw] font-bold text-center ${fontClass}`}>{hijriDate}</span>
             </div>
           </div>
 
