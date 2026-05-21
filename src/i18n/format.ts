@@ -6,15 +6,6 @@ const LOCALES: Record<DisplayLanguage, string> = {
   ar: 'ar-SA',
 };
 
-// V8/ICU defaults `ur-PK` and `ar-SA` to Latin digits, so we pin the
-// numbering system explicitly. `arabext` → ۰۱۲۳۴۵۶۷۸۹ (Urdu / Persian),
-// `arab` → ٠١٢٣٤٥٦٧٨٩ (Arabic).
-const NUMBERING_SYSTEM: Record<DisplayLanguage, string | undefined> = {
-  en: undefined,
-  ur: 'arabext',
-  ar: 'arab',
-};
-
 /** BCP-47 locale tag for a display language. Used by Intl formatters. */
 export function getLocale(lang: DisplayLanguage): string {
   return LOCALES[lang];
@@ -26,16 +17,16 @@ export function getDir(lang: DisplayLanguage): 'ltr' | 'rtl' {
 }
 
 /**
- * Localizes a number into the script appropriate for the language. Accepts
+ * Formats a number for display. Digits are always rendered in Latin script
+ * (0-9) regardless of language — Urdu/Arabic screens keep Western numerals so
+ * temperatures, percentages, and times stay legible to all viewers. Accepts
  * strings so callers can pass pre-formatted values (e.g. "85%") and only the
- * digits inside are transformed.
+ * digits inside are normalized.
  */
 export function formatNumber(value: number | string, lang: DisplayLanguage): string {
-  const locale = getLocale(lang);
-  const numberingSystem = NUMBERING_SYSTEM[lang];
-  const formatter = new Intl.NumberFormat(locale, {
+  const formatter = new Intl.NumberFormat(getLocale(lang), {
     useGrouping: false,
-    ...(numberingSystem ? { numberingSystem } : {}),
+    numberingSystem: 'latn',
   });
 
   if (typeof value === 'number') return formatter.format(value);
