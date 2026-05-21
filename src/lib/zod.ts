@@ -66,6 +66,8 @@ export type ChangeEmailData = z.infer<typeof changeEmailSchema>;
 export const masjidProfileSchema = z.object({
   name: z.string().min(1, 'Masjid name is required'),
   area: z.string().min(1, 'Area is required'),
+  area_ur: z.string(),
+  area_ar: z.string(),
   latitude: z.number(),
   longitude: z.number(),
 });
@@ -165,6 +167,7 @@ export const screenSchema = z.object({
   orientation: z.enum(['landscape', 'portrait', 'mobile']),
   show_prayer_times: z.boolean(),
   show_weather: z.boolean(),
+  language: z.enum(['en', 'ur', 'ar']),
 });
 
 export type ScreenData = z.infer<typeof screenSchema>;

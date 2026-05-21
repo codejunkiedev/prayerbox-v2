@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { addOrSubtractDays, formatHijriDate } from '@/utils';
 import { HijriCalculationMethod } from '@/constants';
 import { fetchHijriDate } from '@/api/aladhan';
+import type { DisplayLanguage } from '@/types';
 
 /**
  * Props for the useAdjustedHijriDate hook
@@ -9,6 +10,7 @@ import { fetchHijriDate } from '@/api/aladhan';
 interface Props {
   calculationMethod: HijriCalculationMethod;
   offset: number;
+  lang?: DisplayLanguage;
 }
 
 /**
@@ -28,6 +30,7 @@ interface ReturnType {
 export const useAdjustedHijriDate = ({
   calculationMethod = HijriCalculationMethod.Umm_al_Qura,
   offset = 0,
+  lang = 'en',
 }: Props): ReturnType => {
   const [adjustedHijriDate, setAdjustedHijriDate] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +53,7 @@ export const useAdjustedHijriDate = ({
 
         if (response.data?.hijri) {
           const hijriData = response.data.hijri;
-          const adjustedDate = formatHijriDate(hijriData);
+          const adjustedDate = formatHijriDate(hijriData, lang);
           setAdjustedHijriDate(adjustedDate);
         }
       } catch (error) {
@@ -71,7 +74,7 @@ export const useAdjustedHijriDate = ({
     return () => {
       abortController.abort();
     };
-  }, [calculationMethod, offset]);
+  }, [calculationMethod, offset, lang]);
 
   return { adjustedHijriDate, isLoading };
 };

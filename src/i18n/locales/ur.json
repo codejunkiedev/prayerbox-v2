@@ -1,0 +1,59 @@
+{
+  "weather": {
+    "feelsLike": "محسوس ہوتا ہے",
+    "humidity": "نمی",
+    "wind": "ہوا",
+    "windSpeed": "{{value}} کلومیٹر/گھنٹہ",
+    "forecastUnavailable": "پیش گوئی دستیاب نہیں"
+  },
+  "weatherCondition": {
+    "thunderstorm": "گرج چمک کے ساتھ بارش",
+    "drizzle": "ہلکی پھوار",
+    "lightRain": "ہلکی بارش",
+    "moderateRain": "درمیانی بارش",
+    "heavyRain": "تیز بارش",
+    "freezingRain": "جمی ہوئی بارش",
+    "showerRain": "تیز بوچھاڑ",
+    "lightSnow": "ہلکی برف باری",
+    "snow": "برف باری",
+    "heavySnow": "تیز برف باری",
+    "sleet": "بارش اور برف",
+    "mist": "دھند",
+    "smoke": "دھواں",
+    "haze": "غبار",
+    "dust": "گرد",
+    "fog": "گہری دھند",
+    "ash": "راکھ",
+    "squall": "تیز جھکڑ",
+    "tornado": "طوفان",
+    "clearSky": "صاف آسمان",
+    "fewClouds": "ہلکے بادل",
+    "scatteredClouds": "بکھرے بادل",
+    "brokenClouds": "ٹوٹے بادل",
+    "overcastClouds": "گہرے بادل"
+  },
+  "prayer": {
+    "sunrise": "طلوعِ آفتاب",
+    "sunset": "غروبِ آفتاب",
+    "startsIn": "{{prayer}} شروع ہونے میں",
+    "names": {
+      "fajr": "فجر",
+      "dhuhr": "ظہر",
+      "asr": "عصر",
+      "maghrib": "مغرب",
+      "isha": "عشاء",
+      "jumma1": "جمعہ 1",
+      "jumma2": "جمعہ 2",
+      "jumma3": "جمعہ 3"
+    },
+    "columns": {
+      "prayer": "نماز",
+      "starts": "آغاز",
+      "athan": "اذان",
+      "iqamah": "اقامت"
+    },
+    "nextIqamah": "اگلی اقامت",
+    "hr": "گھنٹے",
+    "min": "منٹ"
+  }
+}

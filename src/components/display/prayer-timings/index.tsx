@@ -7,6 +7,7 @@ import {
 import {
   Theme,
   type AlAdhanPrayerTimes,
+  type DisplayLanguage,
   type PrayerTimes,
   type ScreenOrientation,
   type Settings,
@@ -15,6 +16,7 @@ import { Theme1, Theme2, Theme3 } from './themes';
 import type { ThemeProps } from './themes/types';
 import { useCurrentTime, useAdjustedHijriDate } from '@/hooks';
 import { HijriCalculationMethod } from '@/constants';
+import { useTranslation } from 'react-i18next';
 
 interface PrayerTimingDisplayProps {
   prayerTimes: AlAdhanPrayerTimes | null;
@@ -35,10 +37,13 @@ export function PrayerTimingDisplay({
   theme,
 }: PrayerTimingDisplayProps) {
   const { currentTime } = useCurrentTime();
+  const { i18n } = useTranslation();
+  const lang = i18n.language as DisplayLanguage;
 
   const { adjustedHijriDate } = useAdjustedHijriDate({
     calculationMethod: userSettings?.hijri_calculation_method || HijriCalculationMethod.Umm_al_Qura,
     offset: userSettings?.hijri_offset || 0,
+    lang,
   });
 
   if (!prayerTimes || !userSettings) return null;
@@ -50,8 +55,8 @@ export function PrayerTimingDisplay({
   const processedPrayerTimings = getProcessedPrayerTimings(prayerTimes, prayerTimeSettings);
 
   const themeProps: ThemeProps = {
-    gregorianDate: formatGregorianDate(date?.gregorian),
-    hijriDate: adjustedHijriDate || formatHijriDate(date?.hijri),
+    gregorianDate: formatGregorianDate(date?.gregorian, lang),
+    hijriDate: adjustedHijriDate || formatHijriDate(date?.hijri, lang),
     sunrise: applySingleAdjustment(timings?.Sunrise || '', userSettings?.sunrise_adjustment),
     sunset: applySingleAdjustment(timings?.Sunset || '', userSettings?.sunset_adjustment),
     currentTime,

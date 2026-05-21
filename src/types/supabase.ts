@@ -52,6 +52,8 @@ export interface MasjidProfile extends Base {
   logo_url: string;
   name: string;
   area: string;
+  area_ur: string;
+  area_ar: string;
   latitude: number | null;
   longitude: number | null;
 }
@@ -149,6 +151,8 @@ export interface AyatAndHadith extends Base {
   archived: boolean;
 }
 
+export type DisplayLanguage = 'en' | 'ur' | 'ar';
+
 export interface DisplayScreen extends Base {
   name: string;
   code: string;
@@ -156,6 +160,7 @@ export interface DisplayScreen extends Base {
   show_prayer_times: boolean;
   show_weather: boolean;
   theme: Theme;
+  language: DisplayLanguage;
 }
 
 export interface ScreenContent {

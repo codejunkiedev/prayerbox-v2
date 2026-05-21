@@ -1,0 +1,59 @@
+{
+  "weather": {
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "windSpeed": "{{value}} km/h",
+    "forecastUnavailable": "Forecast data unavailable"
+  },
+  "weatherCondition": {
+    "thunderstorm": "Thunderstorm",
+    "drizzle": "Drizzle",
+    "lightRain": "Light rain",
+    "moderateRain": "Moderate rain",
+    "heavyRain": "Heavy rain",
+    "freezingRain": "Freezing rain",
+    "showerRain": "Shower rain",
+    "lightSnow": "Light snow",
+    "snow": "Snow",
+    "heavySnow": "Heavy snow",
+    "sleet": "Sleet",
+    "mist": "Mist",
+    "smoke": "Smoke",
+    "haze": "Haze",
+    "dust": "Dust",
+    "fog": "Fog",
+    "ash": "Ash",
+    "squall": "Squall",
+    "tornado": "Tornado",
+    "clearSky": "Clear sky",
+    "fewClouds": "Few clouds",
+    "scatteredClouds": "Scattered clouds",
+    "brokenClouds": "Broken clouds",
+    "overcastClouds": "Overcast clouds"
+  },
+  "prayer": {
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "startsIn": "{{prayer}} starts in",
+    "names": {
+      "fajr": "Fajr",
+      "dhuhr": "Dhuhr",
+      "asr": "Asr",
+      "maghrib": "Maghrib",
+      "isha": "Isha",
+      "jumma1": "Jumma 1",
+      "jumma2": "Jumma 2",
+      "jumma3": "Jumma 3"
+    },
+    "columns": {
+      "prayer": "Prayer",
+      "starts": "Starts",
+      "athan": "Athan",
+      "iqamah": "Iqamah"
+    },
+    "nextIqamah": "Next Iqamah",
+    "hr": "hr",
+    "min": "min"
+  }
+}

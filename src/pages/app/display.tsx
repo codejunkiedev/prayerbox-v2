@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useFetchDisplayData,
   useOnlineStatus,
@@ -41,6 +42,7 @@ export default function Display() {
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   const { masjidProfile, displayScreen } = useDisplayStore();
+  const { i18n } = useTranslation();
 
   const {
     mismatch: orientationMismatch,
@@ -50,6 +52,19 @@ export default function Display() {
 
   const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
   const showWeather = displayScreen?.show_weather ?? true;
+  const language = displayScreen?.language ?? 'en';
+
+  // Localized area name with English fallback when a translation is blank.
+  const localizedArea =
+    (language === 'ur' && masjidProfile?.area_ur) ||
+    (language === 'ar' && masjidProfile?.area_ar) ||
+    masjidProfile?.area;
+
+  useEffect(() => {
+    if (i18n.language !== language) {
+      void i18n.changeLanguage(language);
+    }
+  }, [i18n, language]);
 
   const isOnline = useOnlineStatus();
 
@@ -81,7 +96,7 @@ export default function Display() {
     weatherForecast,
     isLoading: isWeatherLoading,
     errorMessage: weatherErrorMessage,
-  } = useWeatherData(showWeather);
+  } = useWeatherData(showWeather, language);
 
   // Build a set of slide indices that are YouTube videos (offset by prayer/weather slides)
   const youtubeSlideIndices = useMemo(() => {
@@ -241,7 +256,7 @@ export default function Display() {
           <SwiperSlide>
             <WeatherDisplay
               weatherForecast={weatherForecast}
-              area={masjidProfile?.area}
+              area={localizedArea}
               orientation={displayScreen?.orientation ?? 'landscape'}
             />
           </SwiperSlide>

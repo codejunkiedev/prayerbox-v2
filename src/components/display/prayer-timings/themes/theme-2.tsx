@@ -2,10 +2,16 @@ import { cn, formatTimeNumber, getPrayerCardImage, getTimeBeforeNextPrayer } fro
 import { getFilteredJummaPrayerNames } from '@/utils';
 import type { ThemeProps } from './types';
 import theme2Background from '@/assets/themes/theme-2/background.jpg';
-import borderSvg from '@/assets/themes/theme-2/border.svg';
-import { Theme, type PrayerAdjustments, type ProcessedPrayerTiming } from '@/types';
+import {
+  Theme,
+  type DisplayLanguage,
+  type PrayerAdjustments,
+  type ProcessedPrayerTiming,
+} from '@/types';
 import { useTextTransition } from '@/hooks';
 import { CurrentTime } from '@/components/display/shared';
+import { getDir, getFontClass } from '@/i18n';
+import { useTranslation } from 'react-i18next';
 import { useMemo } from 'react';
 
 /**
@@ -22,6 +28,11 @@ export function Theme2({
   orientation,
 }: ThemeProps) {
   const isPortrait = orientation === 'portrait';
+
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as DisplayLanguage;
+  const dir = getDir(lang);
+  const fontClass = getFontClass(lang);
 
   const nextPrayer = useMemo(() => {
     return getTimeBeforeNextPrayer(processedPrayerTimings);
@@ -43,52 +54,59 @@ export function Theme2({
                 variant={Theme.Theme2}
                 orientation={orientation}
               />
-              <div className='flex flex-col items-center text-white'>
-                <span className='text-[2.5vw] font-bold'>{gregorianDate}</span>
-                <span className='text-[2.5vw] font-bold'>{hijriDate}</span>
+              <div className='flex flex-col items-center text-white' dir={dir}>
+                <span className={`text-[2.5vw] font-bold ${fontClass}`}>{gregorianDate}</span>
+                <span className={`text-[2.5vw] font-bold ${fontClass}`}>{hijriDate}</span>
               </div>
             </div>
 
             {/* Right - Sunrise, Sunset, Next Prayer */}
             <div className='flex flex-col items-end text-white gap-[0.3vh]'>
-              <div className='relative text-center w-[30vw]'>
-                <img
-                  src={borderSvg}
-                  alt='border'
-                  className='absolute inset-0 w-full h-full object-contain'
-                />
-                <div className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'>
-                  <span className='text-[2vw] clash-display-semibold text-white'>Sunrise:</span>
-                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+              <div className='relative text-center'>
+                <div
+                  dir={dir}
+                  className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw] whitespace-nowrap'
+                >
+                  <span className={`text-[1.6vw] clash-display-semibold text-white ${fontClass}`}>
+                    {t('prayer.sunrise')}:
+                  </span>
+                  <span
+                    dir='ltr'
+                    className='text-[1.6vw] clash-display-semibold text-white lowercase'
+                  >
                     {sunrise}
                   </span>
                 </div>
               </div>
-              <div className='relative text-center w-[30vw]'>
-                <img
-                  src={borderSvg}
-                  alt='border'
-                  className='absolute inset-0 w-full h-full object-contain'
-                />
-                <div className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'>
-                  <span className='text-[2vw] clash-display-semibold text-white'>Sunset:</span>
-                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+              <div className='relative text-center'>
+                <div
+                  dir={dir}
+                  className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw] whitespace-nowrap'
+                >
+                  <span className={`text-[1.6vw] clash-display-semibold text-white ${fontClass}`}>
+                    {t('prayer.sunset')}:
+                  </span>
+                  <span
+                    dir='ltr'
+                    className='text-[1.6vw] clash-display-semibold text-white lowercase'
+                  >
                     {sunset}
                   </span>
                 </div>
               </div>
               {nextPrayer && (
-                <div className='relative text-center w-[30vw]'>
-                  <img
-                    src={borderSvg}
-                    alt='border'
-                    className='absolute inset-0 w-full h-full object-contain'
-                  />
-                  <div className='relative px-3 py-1 flex items-center justify-center gap-[0.3vw]'>
-                    <span className='text-[2vw] clash-display-semibold text-white capitalize'>
-                      {nextPrayer?.name}:{' '}
+                <div className='relative text-center'>
+                  <div
+                    dir={dir}
+                    className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw] whitespace-nowrap'
+                  >
+                    <span className={`text-[1.6vw] clash-display-semibold text-white ${fontClass}`}>
+                      {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
                     </span>
-                    <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                    <span
+                      dir='ltr'
+                      className='text-[1.6vw] clash-display-semibold text-white lowercase'
+                    >
                       {nextPrayer?.timeBefore}
                     </span>
                   </div>
@@ -147,45 +165,52 @@ export function Theme2({
         <div className='w-[65vw] h-full flex flex-col px-[2.5vw]'>
           {/* Header Section */}
           <div className='flex-shrink-0 flex flex-row items-center justify-between py-[3vh]'>
-            <div className='flex flex-col items-start justify-start text-white gap-[1vh]'>
+            <div className='flex flex-col items-start justify-start text-white gap-[0.3vh]'>
               <div className='relative text-left w-[24vw]'>
-                <img
-                  src={borderSvg}
-                  alt='border'
-                  className='absolute inset-0 w-full h-full object-contain'
-                />
-                <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'>
-                  <span className='text-[2vw] clash-display-semibold text-white'>Sunrise:</span>
-                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                <div
+                  dir={dir}
+                  className='relative px-4 flex items-baseline justify-center gap-[0.5vw] leading-[1.2]'
+                >
+                  <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                    {t('prayer.sunrise')}:
+                  </span>
+                  <span
+                    dir='ltr'
+                    className='text-[2vw] clash-display-semibold text-white lowercase'
+                  >
                     {sunrise}
                   </span>
                 </div>
               </div>
               <div className='relative text-left w-[24vw]'>
-                <img
-                  src={borderSvg}
-                  alt='border'
-                  className='absolute inset-0 w-full h-full object-contain'
-                />
-                <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw]'>
-                  <span className='text-[2vw] clash-display-semibold text-white'>Sunset: </span>
-                  <span className='text-[2vw] clash-display-semibold text-white lowercase'>
+                <div
+                  dir={dir}
+                  className='relative px-4 flex items-baseline justify-center gap-[0.5vw] leading-[1.2]'
+                >
+                  <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                    {t('prayer.sunset')}:
+                  </span>
+                  <span
+                    dir='ltr'
+                    className='text-[2vw] clash-display-semibold text-white lowercase'
+                  >
                     {sunset}
                   </span>
                 </div>
               </div>
               {nextPrayer && (
                 <div className='relative text-left w-[24vw]'>
-                  <img
-                    src={borderSvg}
-                    alt='border'
-                    className='absolute inset-0 w-full h-full object-contain'
-                  />
-                  <div className='relative px-4 h-[3.3vw] flex items-center justify-center gap-[0.5vw] whitespace-nowrap'>
-                    <span className='text-[1.5vw] clash-display-semibold text-white capitalize'>
-                      {nextPrayer?.name} starts in:{' '}
+                  <div
+                    dir={dir}
+                    className='relative px-4 flex items-baseline justify-center gap-[0.5vw] leading-[1.2] whitespace-nowrap'
+                  >
+                    <span className={`text-[1.5vw] clash-display-semibold text-white ${fontClass}`}>
+                      {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
                     </span>
-                    <span className='text-[1.5vw] clash-display-semibold text-white lowercase'>
+                    <span
+                      dir='ltr'
+                      className='text-[1.5vw] clash-display-semibold text-white lowercase'
+                    >
                       {nextPrayer?.timeBefore}
                     </span>
                   </div>
@@ -193,9 +218,11 @@ export function Theme2({
               )}
             </div>
 
-            <div className='flex flex-col items-center text-white gap-[0.5vh]'>
-              <span className='text-[1.8vw] font-bold text-center'>{gregorianDate}</span>
-              <span className='text-[1.8vw] font-bold text-center'>{hijriDate}</span>
+            <div className='flex flex-col items-center text-white gap-[0.5vh]' dir={dir}>
+              <span className={`text-[1.8vw] font-bold text-center ${fontClass}`}>
+                {gregorianDate}
+              </span>
+              <span className={`text-[1.8vw] font-bold text-center ${fontClass}`}>{hijriDate}</span>
             </div>
           </div>
 

@@ -52,18 +52,21 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
           orientation: initialData.orientation,
           show_prayer_times: initialData.show_prayer_times,
           show_weather: initialData.show_weather,
+          language: initialData.language ?? 'en',
         }
       : {
           name: '',
           orientation: 'landscape',
           show_prayer_times: true,
           show_weather: true,
+          language: 'en',
         },
   });
 
   const showPrayerTimes = watch('show_prayer_times');
   const showWeather = watch('show_weather');
   const orientation = watch('orientation');
+  const language = watch('language');
 
   useEffect(() => {
     if (isOpen) {
@@ -74,12 +77,14 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
               orientation: initialData.orientation,
               show_prayer_times: initialData.show_prayer_times,
               show_weather: initialData.show_weather,
+              language: initialData.language ?? 'en',
             }
           : {
               name: '',
               orientation: 'landscape',
               show_prayer_times: true,
               show_weather: true,
+              language: 'en',
             }
       );
       setIsCopied(false);
@@ -188,6 +193,26 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                 <SelectItem value='mobile'>Mobile</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className='space-y-2'>
+            <Label htmlFor='language'>Display Language</Label>
+            <Select
+              value={language}
+              onValueChange={v => setValue('language', v as ScreenData['language'])}
+            >
+              <SelectTrigger id='language' className='w-full'>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='en'>English</SelectItem>
+                <SelectItem value='ur'>اردو (Urdu)</SelectItem>
+                <SelectItem value='ar'>العربية (Arabic)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className='text-sm text-muted-foreground'>
+              Applies to prayer times and the weather slide on this screen.
+            </p>
           </div>
 
           <div className='space-y-3'>

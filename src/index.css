@@ -405,6 +405,15 @@
   font-weight: 700;
 }
 
+/* Localized script fonts for display slides */
+.font-urdu {
+  font-family: 'Noto Nastaliq Urdu', 'Gulzar', serif;
+}
+
+.font-arabic {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+}
+
 /* ClashGrotesk font utilities */
 .clash-grotesk {
   font-family: 'ClashGrotesk', sans-serif;

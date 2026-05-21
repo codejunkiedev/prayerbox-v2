@@ -1,0 +1,59 @@
+{
+  "weather": {
+    "feelsLike": "الإحساس",
+    "humidity": "الرطوبة",
+    "wind": "الرياح",
+    "windSpeed": "{{value}} كم/س",
+    "forecastUnavailable": "بيانات التوقعات غير متاحة"
+  },
+  "weatherCondition": {
+    "thunderstorm": "عاصفة رعدية",
+    "drizzle": "رذاذ",
+    "lightRain": "مطر خفيف",
+    "moderateRain": "مطر متوسط",
+    "heavyRain": "مطر غزير",
+    "freezingRain": "مطر متجمد",
+    "showerRain": "زخات مطر",
+    "lightSnow": "ثلج خفيف",
+    "snow": "ثلج",
+    "heavySnow": "ثلج غزير",
+    "sleet": "مطر ثلجي",
+    "mist": "ضباب خفيف",
+    "smoke": "دخان",
+    "haze": "غبار خفيف",
+    "dust": "غبار",
+    "fog": "ضباب كثيف",
+    "ash": "رماد",
+    "squall": "عاصفة",
+    "tornado": "إعصار",
+    "clearSky": "سماء صافية",
+    "fewClouds": "غيوم قليلة",
+    "scatteredClouds": "غيوم متفرقة",
+    "brokenClouds": "غيوم متكسرة",
+    "overcastClouds": "غيوم كثيفة"
+  },
+  "prayer": {
+    "sunrise": "الشروق",
+    "sunset": "الغروب",
+    "startsIn": "{{prayer}} تبدأ بعد",
+    "names": {
+      "fajr": "الفجر",
+      "dhuhr": "الظهر",
+      "asr": "العصر",
+      "maghrib": "المغرب",
+      "isha": "العشاء",
+      "jumma1": "الجمعة 1",
+      "jumma2": "الجمعة 2",
+      "jumma3": "الجمعة 3"
+    },
+    "columns": {
+      "prayer": "الصلاة",
+      "starts": "البداية",
+      "athan": "الأذان",
+      "iqamah": "الإقامة"
+    },
+    "nextIqamah": "الإقامة القادمة",
+    "hr": "ساعة",
+    "min": "دقيقة"
+  }
+}
