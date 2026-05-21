@@ -62,50 +62,50 @@ export function Theme2({
 
             {/* Right - Sunrise, Sunset, Next Prayer */}
             <div className='flex flex-col items-end text-white gap-[0.3vh]'>
-              <div className='relative text-center w-[30vw]'>
+              <div className='relative text-center'>
                 <div
                   dir={dir}
-                  className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw]'
+                  className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw] whitespace-nowrap'
                 >
-                  <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                  <span className={`text-[1.6vw] clash-display-semibold text-white ${fontClass}`}>
                     {t('prayer.sunrise')}:
                   </span>
                   <span
                     dir='ltr'
-                    className='text-[2vw] clash-display-semibold text-white lowercase'
+                    className='text-[1.6vw] clash-display-semibold text-white lowercase'
                   >
                     {sunrise}
                   </span>
                 </div>
               </div>
-              <div className='relative text-center w-[30vw]'>
+              <div className='relative text-center'>
                 <div
                   dir={dir}
-                  className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw]'
+                  className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw] whitespace-nowrap'
                 >
-                  <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
+                  <span className={`text-[1.6vw] clash-display-semibold text-white ${fontClass}`}>
                     {t('prayer.sunset')}:
                   </span>
                   <span
                     dir='ltr'
-                    className='text-[2vw] clash-display-semibold text-white lowercase'
+                    className='text-[1.6vw] clash-display-semibold text-white lowercase'
                   >
                     {sunset}
                   </span>
                 </div>
               </div>
               {nextPrayer && (
-                <div className='relative text-center w-[30vw]'>
+                <div className='relative text-center'>
                   <div
                     dir={dir}
-                    className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw]'
+                    className='relative px-3 py-1 flex items-baseline justify-start gap-[0.3vw] whitespace-nowrap'
                   >
-                    <span className={`text-[2vw] clash-display-semibold text-white ${fontClass}`}>
-                      {t(`prayer.names.${nextPrayer.name}`)}:{' '}
+                    <span className={`text-[1.6vw] clash-display-semibold text-white ${fontClass}`}>
+                      {t('prayer.startsIn', { prayer: t(`prayer.names.${nextPrayer.name}`) })}:{' '}
                     </span>
                     <span
                       dir='ltr'
-                      className='text-[2vw] clash-display-semibold text-white lowercase'
+                      className='text-[1.6vw] clash-display-semibold text-white lowercase'
                     >
                       {nextPrayer?.timeBefore}
                     </span>
