@@ -47,9 +47,9 @@ export function Theme1({
         <div className='w-[90vw] h-full flex flex-col px-[5vw]'>
           {/* Header Section - Stacked vertically */}
           <div className='flex-shrink-0 flex flex-col items-center gap-[0.5vh] pt-[1vh]'>
-            <div className='flex flex-col items-center text-white'>
-              <span className='text-[3vw] barlow-regular'>{gregorianDate}</span>
-              <span className='text-[3vw] barlow-regular'>{hijriDate}</span>
+            <div className='flex flex-col items-center text-white' dir={dir}>
+              <span className={`text-[3vw] barlow-regular ${fontClass}`}>{gregorianDate}</span>
+              <span className={`text-[3vw] barlow-regular ${fontClass}`}>{hijriDate}</span>
             </div>
 
             <CurrentTime
@@ -156,9 +156,9 @@ export function Theme1({
       <div className='w-[90vw] h-full flex flex-col px-[5vw]'>
         {/* Header Section */}
         <div className='flex-shrink-0 flex flex-row items-center justify-between'>
-          <div className='flex flex-col items-start text-white gap-[0.5vh]'>
-            <span className='text-[2vw] barlow-regular'>{gregorianDate}</span>
-            <span className='text-[2vw] barlow-regular'>{hijriDate}</span>
+          <div className='flex flex-col items-start text-white gap-[0.5vh]' dir={dir}>
+            <span className={`text-[2vw] barlow-regular ${fontClass}`}>{gregorianDate}</span>
+            <span className={`text-[2vw] barlow-regular ${fontClass}`}>{hijriDate}</span>
           </div>
 
           <CurrentTime currentTime={currentTime} variant={Theme.Theme1} />

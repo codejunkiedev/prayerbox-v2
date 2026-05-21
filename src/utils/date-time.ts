@@ -1,4 +1,5 @@
-import type { AlAdhanPrayerTimes } from '@/types';
+import type { AlAdhanPrayerTimes, DisplayLanguage } from '@/types';
+import { getLocale } from '@/i18n';
 import {
   getMonth,
   getYear,
@@ -144,21 +145,86 @@ export const formatDate = (date: Date): string => {
 };
 
 /**
- * Formats a gregorian date
+ * Hijri month names by 1-indexed month number. The AlAdhan API only localizes
+ * hijri months to English and Arabic, so Urdu is supplied here. Keying by the
+ * API's `month.number` keeps the displayed month consistent with the API's
+ * day/year regardless of calendar-conversion differences.
+ */
+const HIJRI_MONTHS: Record<'ur' | 'ar', string[]> = {
+  ur: [
+    'محرم',
+    'صفر',
+    'ربیع الاول',
+    'ربیع الثانی',
+    'جمادی الاول',
+    'جمادی الثانی',
+    'رجب',
+    'شعبان',
+    'رمضان',
+    'شوال',
+    'ذوالقعدہ',
+    'ذوالحجہ',
+  ],
+  ar: [
+    'محرم',
+    'صفر',
+    'ربيع الأول',
+    'ربيع الآخر',
+    'جمادى الأولى',
+    'جمادى الآخرة',
+    'رجب',
+    'شعبان',
+    'رمضان',
+    'شوال',
+    'ذو القعدة',
+    'ذو الحجة',
+  ],
+};
+
+/** Hijri era marker per language. */
+const HIJRI_ERA: Record<DisplayLanguage, string> = { en: 'AH', ur: 'ھ', ar: 'هـ' };
+
+/**
+ * Formats a gregorian date for display.
  * @param date AlAdhanPrayerTimes['date']['gregorian']
+ * @param lang Display language; non-English uses Intl with Latin digits
  * @returns Formatted gregorian date string (weekday, day month year)
  */
-export const formatGregorianDate = (date: AlAdhanPrayerTimes['date']['gregorian']): string => {
-  return `${date.weekday.en}, ${date.day} ${date.month.en} ${date.year}`;
+export const formatGregorianDate = (
+  date: AlAdhanPrayerTimes['date']['gregorian'],
+  lang: DisplayLanguage = 'en'
+): string => {
+  const fallback = `${date.weekday.en}, ${date.day} ${date.month.en} ${date.year}`;
+  if (lang === 'en') return fallback;
+  try {
+    const dateObj = new Date(Number(date.year), date.month.number - 1, Number(date.day));
+    return new Intl.DateTimeFormat(getLocale(lang), {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      numberingSystem: 'latn',
+    }).format(dateObj);
+  } catch {
+    return fallback;
+  }
 };
 
 /**
- * Formats a hijri date
+ * Formats a hijri date for display.
  * @param date AlAdhanPrayerTimes['date']['hijri']
- * @returns Formatted hijri date string (month day, year designation)
+ * @param lang Display language; non-English localizes the month name and era
+ * @returns Formatted hijri date string
  */
-export const formatHijriDate = (date: AlAdhanPrayerTimes['date']['hijri']): string => {
-  return `${date.month.en} ${date.day}, ${date.year} ${date.designation.abbreviated}`;
+export const formatHijriDate = (
+  date: AlAdhanPrayerTimes['date']['hijri'],
+  lang: DisplayLanguage = 'en'
+): string => {
+  if (lang === 'en') {
+    return `${date.month.en} ${date.day}, ${date.year} ${date.designation.abbreviated}`;
+  }
+  const monthName = HIJRI_MONTHS[lang][date.month.number - 1] ?? date.month.en;
+  return `${date.day} ${monthName} ${date.year} ${HIJRI_ERA[lang]}`;
 };
 
 /**
