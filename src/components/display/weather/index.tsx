@@ -1,9 +1,8 @@
 import { DisplayContainer } from '../shared';
 import { AnimationProvider } from '../shared/animation-provider';
 import type { WeatherForecast, ScreenOrientation } from '@/types';
-import bgImage from '@/assets/backgrounds/weather.jpg';
 import { format } from 'date-fns';
-import { getWeatherIconWithTimeContext } from '@/utils';
+import { getWeatherBackgroundImage, getWeatherIconWithTimeContext } from '@/utils';
 import raindropIcon from '@/assets/icons/weather/raindrop.svg';
 import windIcon from '@/assets/icons/weather/wind.svg';
 
@@ -14,7 +13,8 @@ interface WeatherDisplayProps {
 }
 
 /**
- * Displays current weather conditions and forecast with animated background video and weather icons
+ * Displays current weather conditions and forecast with a weather-specific
+ * background image and weather icons
  */
 export function WeatherDisplay({
   weatherForecast,
@@ -23,6 +23,7 @@ export function WeatherDisplay({
 }: WeatherDisplayProps) {
   const { current, forecast } = weatherForecast;
   const isPortrait = orientation === 'portrait';
+  const bgImage = getWeatherBackgroundImage(current.icon, orientation);
 
   const formatDescription = (description: string) => {
     return description
