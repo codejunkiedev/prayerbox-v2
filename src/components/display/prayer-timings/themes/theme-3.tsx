@@ -163,7 +163,10 @@ export function Theme3({
         {/* Prayer table */}
         <div className='flex-1 flex flex-col min-h-0 px-[4vw] py-[1.5vh]'>
           {/* Column headers */}
-          <div className='flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] bg-emerald-700 rounded-t-xl py-[1.5vh] px-[3vw]'>
+          <div
+            dir={dir}
+            className='flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] bg-emerald-700 rounded-t-xl py-[1.5vh] px-[3vw]'
+          >
             {colHeader(t('prayer.columns.prayer'), 'text-[3.2vw]')}
             {colHeader(t('prayer.columns.starts'), 'text-[3.2vw]', true)}
             {colHeader(t('prayer.columns.athan'), 'text-[3.2vw]', true)}
@@ -179,9 +182,14 @@ export function Theme3({
               return (
                 <div
                   key={prayer.name}
+                  dir={dir}
                   className={`grid grid-cols-[2.5fr_1fr_1fr_1fr] flex-1 items-center px-[3vw] border-b border-gray-100 last:border-b-0 ${
                     isNext
-                      ? 'bg-emerald-50 border-l-[5px] border-l-emerald-500'
+                      ? `bg-emerald-50 ${
+                          isEnglish
+                            ? 'border-l-[5px] border-l-emerald-500'
+                            : 'border-r-[5px] border-r-emerald-500'
+                        }`
                       : isEven
                         ? 'bg-white'
                         : 'bg-gray-50/70'
@@ -284,7 +292,10 @@ export function Theme3({
         {/* Prayer Table */}
         <div className='flex-[3] flex flex-col min-h-0'>
           {/* Column headers */}
-          <div className='flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] bg-emerald-700 rounded-t-xl py-[1vh] px-[1.5vw]'>
+          <div
+            dir={dir}
+            className='flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] bg-emerald-700 rounded-t-xl py-[1vh] px-[1.5vw]'
+          >
             {colHeader(t('prayer.columns.prayer'), 'text-[1.3vw]')}
             {colHeader(t('prayer.columns.starts'), 'text-[1.3vw]', true)}
             {colHeader(t('prayer.columns.athan'), 'text-[1.3vw]', true)}
@@ -300,9 +311,14 @@ export function Theme3({
               return (
                 <div
                   key={prayer.name}
+                  dir={dir}
                   className={`grid grid-cols-[2.5fr_1fr_1fr_1fr] flex-1 items-center px-[1.5vw] border-b border-gray-100 last:border-b-0 ${
                     isNext
-                      ? 'bg-emerald-50 border-l-[4px] border-l-emerald-500'
+                      ? `bg-emerald-50 ${
+                          isEnglish
+                            ? 'border-l-[4px] border-l-emerald-500'
+                            : 'border-r-[4px] border-r-emerald-500'
+                        }`
                       : isEven
                         ? 'bg-white'
                         : 'bg-gray-50/70'
