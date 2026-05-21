@@ -66,8 +66,8 @@ export type ChangeEmailData = z.infer<typeof changeEmailSchema>;
 export const masjidProfileSchema = z.object({
   name: z.string().min(1, 'Masjid name is required'),
   area: z.string().min(1, 'Area is required'),
-  area_ur: z.string().default(''),
-  area_ar: z.string().default(''),
+  area_ur: z.string(),
+  area_ar: z.string(),
   latitude: z.number(),
   longitude: z.number(),
 });
