@@ -30,7 +30,11 @@ export default defineConfig(({ mode }) => {
         // service-worker registration / update failures to Sentry.
         injectRegister: false,
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
+          // jpg/jpeg must be included: weather and theme backgrounds ship as
+          // .jpg. Without them in the precache they are the only app resource
+          // with no service-worker caching, so a network blip on a kiosk
+          // leaves a permanently broken (gray) background until reload.
+          globPatterns: ['**/*.{js,css,html,ico,png,jpg,jpeg,svg,webp,woff,woff2}'],
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [
             /^\/admin(\/|$)/,
