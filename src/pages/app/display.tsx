@@ -33,7 +33,7 @@ import {
 } from '@/types';
 import './display.css';
 
-const SLIDE_DELAY = 9000;
+const DEFAULT_SLIDE_DELAY = 5000;
 
 export default function Display() {
   useWakeLock();
@@ -53,6 +53,9 @@ export default function Display() {
   const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
   const showWeather = displayScreen?.show_weather ?? true;
   const language = displayScreen?.language ?? 'en';
+  const slideDelay = displayScreen?.slide_interval_seconds
+    ? displayScreen.slide_interval_seconds * 1000
+    : DEFAULT_SLIDE_DELAY;
 
   // Localized area name with English fallback when a translation is blank.
   const localizedArea =
@@ -131,10 +134,10 @@ export default function Display() {
       } else {
         swiper.slideNext();
       }
-    }, SLIDE_DELAY);
+    }, slideDelay);
 
     return () => clearInterval(interval);
-  }, [youtubeSlideIndices]);
+  }, [youtubeSlideIndices, slideDelay]);
 
   const isPageLoading =
     isLoading || (showPrayerTimes && isPrayerTimingsLoading) || (showWeather && isWeatherLoading);

@@ -168,6 +168,11 @@ export const screenSchema = z.object({
   show_prayer_times: z.boolean(),
   show_weather: z.boolean(),
   language: z.enum(['en', 'ur', 'ar']),
+  slide_interval_seconds: z
+    .number({ invalid_type_error: 'Slide interval is required' })
+    .int('Slide interval must be a whole number')
+    .min(3, 'Slide interval must be at least 3 seconds')
+    .max(60, 'Slide interval must be at most 60 seconds'),
 });
 
 export type ScreenData = z.infer<typeof screenSchema>;
