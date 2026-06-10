@@ -161,6 +161,7 @@ export interface DisplayScreen extends Base {
   show_weather: boolean;
   theme: Theme;
   language: DisplayLanguage;
+  slide_interval_seconds: number;
 }
 
 export interface ScreenContent {

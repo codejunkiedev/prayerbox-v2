@@ -133,8 +133,14 @@ export default function Screens() {
     {
       key: 'orientation',
       name: 'Orientation',
-      width: 'w-[15%]',
+      width: 'w-[14%]',
       render: value => <OrientationBadge orientation={value as DisplayScreen['orientation']} />,
+    },
+    {
+      key: 'slide_interval_seconds',
+      name: 'Interval',
+      width: 'w-[10%]',
+      render: value => <span className='text-sm'>{(value as number) ?? 5}s</span>,
     },
     {
       key: 'show_prayer_times',

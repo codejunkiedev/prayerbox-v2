@@ -53,6 +53,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
           show_prayer_times: initialData.show_prayer_times,
           show_weather: initialData.show_weather,
           language: initialData.language ?? 'en',
+          slide_interval_seconds: initialData.slide_interval_seconds ?? 5,
         }
       : {
           name: '',
@@ -60,6 +61,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
           show_prayer_times: true,
           show_weather: true,
           language: 'en',
+          slide_interval_seconds: 5,
         },
   });
 
@@ -78,6 +80,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
               show_prayer_times: initialData.show_prayer_times,
               show_weather: initialData.show_weather,
               language: initialData.language ?? 'en',
+              slide_interval_seconds: initialData.slide_interval_seconds ?? 5,
             }
           : {
               name: '',
@@ -85,6 +88,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
               show_prayer_times: true,
               show_weather: true,
               language: 'en',
+              slide_interval_seconds: 5,
             }
       );
       setIsCopied(false);
@@ -129,20 +133,20 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>
-      <DialogContent className='sm:max-w-[500px]' onOpenAutoFocus={e => e.preventDefault()}>
+      <DialogContent className='sm:max-w-[640px]' onOpenAutoFocus={e => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Screen' : 'Add New Screen'}</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 pt-4'>
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 pt-2'>
           {error && (
-            <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded mb-4'>
+            <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded'>
               {error}
             </div>
           )}
 
           {isEdit && initialData?.code && (
-            <div className='space-y-2'>
+            <div className='space-y-1.5'>
               <Label>Screen Code</Label>
               <div className='flex relative'>
                 <Input
@@ -161,85 +165,105 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                   <Copy size={16} className={isCopied ? 'text-green-500' : ''} />
                 </Button>
               </div>
-              <p className='text-sm text-muted-foreground'>
+              <p className='text-xs text-muted-foreground'>
                 Use this code to connect a display to this screen.
               </p>
             </div>
           )}
 
-          <div className='space-y-2'>
-            <Label htmlFor='name'>Name</Label>
-            <Input
-              id='name'
-              placeholder='e.g. Main Hall, Entrance'
-              className={errors.name ? 'border-destructive' : ''}
-              {...register('name')}
-            />
-            {errors.name && <p className='text-destructive text-sm'>{errors.name.message}</p>}
+          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+            <div className='space-y-1.5'>
+              <Label htmlFor='name'>Name</Label>
+              <Input
+                id='name'
+                placeholder='e.g. Main Hall, Entrance'
+                className={errors.name ? 'border-destructive' : ''}
+                {...register('name')}
+              />
+              {errors.name && <p className='text-destructive text-sm'>{errors.name.message}</p>}
+            </div>
+
+            <div className='space-y-1.5'>
+              <Label htmlFor='orientation'>Orientation</Label>
+              <Select
+                value={orientation}
+                onValueChange={v => setValue('orientation', v as ScreenData['orientation'])}
+              >
+                <SelectTrigger id='orientation' className='w-full'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='landscape'>Landscape</SelectItem>
+                  <SelectItem value='portrait'>Portrait</SelectItem>
+                  <SelectItem value='mobile'>Mobile</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className='space-y-1.5'>
+              <Label htmlFor='language'>Display Language</Label>
+              <Select
+                value={language}
+                onValueChange={v => setValue('language', v as ScreenData['language'])}
+              >
+                <SelectTrigger id='language' className='w-full'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='en'>English</SelectItem>
+                  <SelectItem value='ur'>اردو (Urdu)</SelectItem>
+                  <SelectItem value='ar'>العربية (Arabic)</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className='text-xs text-muted-foreground'>Used for prayer times & weather.</p>
+            </div>
+
+            <div className='space-y-1.5'>
+              <Label htmlFor='slide_interval_seconds'>Slide Interval (seconds)</Label>
+              <Input
+                id='slide_interval_seconds'
+                type='number'
+                min={3}
+                max={60}
+                step={1}
+                className={errors.slide_interval_seconds ? 'border-destructive' : ''}
+                {...register('slide_interval_seconds', { valueAsNumber: true })}
+              />
+              {errors.slide_interval_seconds ? (
+                <p className='text-destructive text-sm'>{errors.slide_interval_seconds.message}</p>
+              ) : (
+                <p className='text-xs text-muted-foreground'>3–60s. Videos ignore this.</p>
+              )}
+            </div>
           </div>
 
           <div className='space-y-2'>
-            <Label htmlFor='orientation'>Orientation</Label>
-            <Select
-              value={orientation}
-              onValueChange={v => setValue('orientation', v as ScreenData['orientation'])}
-            >
-              <SelectTrigger id='orientation' className='w-full'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='landscape'>Landscape</SelectItem>
-                <SelectItem value='portrait'>Portrait</SelectItem>
-                <SelectItem value='mobile'>Mobile</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='language'>Display Language</Label>
-            <Select
-              value={language}
-              onValueChange={v => setValue('language', v as ScreenData['language'])}
-            >
-              <SelectTrigger id='language' className='w-full'>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='en'>English</SelectItem>
-                <SelectItem value='ur'>اردو (Urdu)</SelectItem>
-                <SelectItem value='ar'>العربية (Arabic)</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className='text-sm text-muted-foreground'>
-              Applies to prayer times and the weather slide on this screen.
-            </p>
-          </div>
-
-          <div className='space-y-3'>
             <Label>Default Slides</Label>
-            <div className='flex items-center space-x-2'>
-              <Checkbox
-                id='show_prayer_times'
-                checked={showPrayerTimes}
-                onCheckedChange={checked => setValue('show_prayer_times', !!checked)}
-              />
-              <label htmlFor='show_prayer_times' className='text-sm cursor-pointer'>
-                Show Prayer Times
-              </label>
-            </div>
-            <div className='flex items-center space-x-2'>
-              <Checkbox
-                id='show_weather'
-                checked={showWeather}
-                onCheckedChange={checked => setValue('show_weather', !!checked)}
-              />
-              <label htmlFor='show_weather' className='text-sm cursor-pointer'>
-                Show Weather
-              </label>
+            <div className='flex items-center gap-6'>
+              <div className='flex items-center space-x-2'>
+                <Checkbox
+                  id='show_prayer_times'
+                  checked={showPrayerTimes}
+                  onCheckedChange={checked => setValue('show_prayer_times', !!checked)}
+                />
+                <label htmlFor='show_prayer_times' className='text-sm cursor-pointer'>
+                  Show Prayer Times
+                </label>
+              </div>
+              <div className='flex items-center space-x-2'>
+                <Checkbox
+                  id='show_weather'
+                  checked={showWeather}
+                  onCheckedChange={checked => setValue('show_weather', !!checked)}
+                />
+                <label htmlFor='show_weather' className='text-sm cursor-pointer'>
+                  Show Weather
+                </label>
+              </div>
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className='pt-2'>
             <DialogClose asChild>
               <Button type='button' variant='outline'>
                 Cancel
