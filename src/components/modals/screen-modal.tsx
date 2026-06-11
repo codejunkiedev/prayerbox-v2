@@ -223,7 +223,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
               <Input
                 id='slide_interval_seconds'
                 type='number'
-                min={3}
+                min={5}
                 max={60}
                 step={1}
                 className={errors.slide_interval_seconds ? 'border-destructive' : ''}
@@ -232,7 +232,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
               {errors.slide_interval_seconds ? (
                 <p className='text-destructive text-sm'>{errors.slide_interval_seconds.message}</p>
               ) : (
-                <p className='text-xs text-muted-foreground'>3–60s. Videos ignore this.</p>
+                <p className='text-xs text-muted-foreground'>5–60s. Videos ignore this.</p>
               )}
             </div>
           </div>
