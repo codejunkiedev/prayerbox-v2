@@ -12,6 +12,7 @@ import type { PostOrientation } from '@/types';
 import type { ValidationState } from '@/types/validation';
 import { OrientationBadge } from './orientation-badge';
 import { ModalError } from './modal-error';
+import { ImageRequirements } from './image-requirements';
 
 type UploadFormProps = {
   orientation: PostOrientation;
@@ -44,8 +45,6 @@ export function UploadForm({
   onSubmit,
   error,
 }: UploadFormProps) {
-  const ratioLabel = orientation === 'portrait' ? '9:16' : '16:9';
-
   return (
     <form onSubmit={onSubmit} className='space-y-4 pt-4'>
       <ModalError message={error} />
@@ -63,40 +62,29 @@ export function UploadForm({
         {errors.title && <p className='text-destructive text-sm'>{errors.title.message}</p>}
       </div>
 
-      <div className='space-y-2'>
-        <ImageUpload
-          label={`Image (${orientation === 'portrait' ? 'Portrait' : 'Landscape'} Full-Screen)`}
-          onChange={onImageChange}
-          value={existingImageUrl}
-          disabled={isSubmitting}
-          orientation={orientation}
-        />
-
-        {(validationState || isValidating) && (
-          <ValidationFeedback
-            isValid={validationState?.isValid ?? false}
-            dimensions={validationState?.dimensions}
-            recommendation={validationState?.recommendation}
-            validationError={imageError ?? undefined}
-            isLoading={isValidating}
+      <div className='grid grid-cols-1 gap-4 sm:grid-cols-[1fr_15rem]'>
+        <div className='flex flex-col gap-2'>
+          <ImageUpload
+            label={`Image (${orientation === 'portrait' ? 'Portrait' : 'Landscape'} Full-Screen)`}
+            onChange={onImageChange}
+            value={existingImageUrl}
+            disabled={isSubmitting}
+            orientation={orientation}
+            className='flex-1'
           />
-        )}
 
-        <p className='text-xs text-muted-foreground'>
-          <strong>Strict requirement:</strong> Only {ratioLabel} aspect ratio images accepted. Max
-          file size: 5MB.
-        </p>
-        <p className='text-xs text-muted-foreground mt-1'>
-          Need to resize your image? Try{' '}
-          <a
-            href='https://imageresizer.com/'
-            target='_blank'
-            rel='noopener noreferrer'
-            className='text-primary hover:underline'
-          >
-            imageresizer.com
-          </a>
-        </p>
+          {(validationState || isValidating) && (
+            <ValidationFeedback
+              isValid={validationState?.isValid ?? false}
+              dimensions={validationState?.dimensions}
+              recommendation={validationState?.recommendation}
+              validationError={imageError ?? undefined}
+              isLoading={isValidating}
+            />
+          )}
+        </div>
+
+        <ImageRequirements orientation={orientation} />
       </div>
 
       <DialogFooter>

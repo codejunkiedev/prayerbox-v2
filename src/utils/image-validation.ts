@@ -7,8 +7,10 @@ import type {
   ImageQuality,
   ImageOrientation,
   ResolutionName,
+  ImageRequirement,
 } from '@/types/validation';
 import type { PostOrientation } from '@/types';
+import { MAX_FILE_SIZE, VALID_IMAGE_TYPES } from '@/lib/zod';
 
 const LANDSCAPE_CONFIG: ValidationConfig = {
   ratio: 16 / 9,
@@ -45,6 +47,45 @@ const PORTRAIT_RESOLUTIONS = {
   FULL_HD: '1080×1920',
   UHD_4K: '2160×3840',
 } as const;
+
+const IMAGE_TYPE_LABELS: Record<string, string> = {
+  'image/jpeg': 'JPEG',
+  'image/png': 'PNG',
+  'image/gif': 'GIF',
+  'image/webp': 'WebP',
+};
+
+/**
+ * Builds the human-readable list of upload requirements for an orientation.
+ * Derived from the same constants the validator enforces, so the UI can never
+ * advertise a limit that differs from what is actually checked.
+ */
+export function getImageRequirements(
+  orientation: PostOrientation = 'landscape'
+): ImageRequirement[] {
+  const config = orientation === 'portrait' ? PORTRAIT_CONFIG : LANDSCAPE_CONFIG;
+  const limits = orientation === 'portrait' ? PORTRAIT_LIMITS : LANDSCAPE_LIMITS;
+  const { min, recommended, max } = limits;
+
+  const formats = VALID_IMAGE_TYPES.map(type => IMAGE_TYPE_LABELS[type] ?? type).join(', ');
+  const maxSizeMb = Math.round(MAX_FILE_SIZE / (1024 * 1024));
+
+  return [
+    {
+      key: 'ratio',
+      label: 'Aspect ratio',
+      value: `${config.name} exactly`,
+    },
+    { key: 'formats', label: 'Formats', value: formats },
+    { key: 'size', label: 'Max file size', value: `${maxSizeMb}MB` },
+    {
+      key: 'resolution',
+      label: 'Resolution',
+      value: `${min.width}×${min.height} to ${max.width}×${max.height}`,
+      hint: `${recommended.width}×${recommended.height} recommended for best quality.`,
+    },
+  ];
+}
 
 /**
  * Validates if an image file is suitable for full-screen display

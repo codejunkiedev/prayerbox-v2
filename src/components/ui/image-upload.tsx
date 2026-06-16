@@ -68,20 +68,19 @@ export function ImageUpload({
   };
 
   return (
-    <div className={className}>
+    <div className={cn('flex flex-col', className)}>
       {label && <Label className='mb-2 block'>{label}</Label>}
 
       <div
         {...getRootProps()}
         className={cn(
-          'border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors',
+          'flex flex-1 flex-col items-center justify-center min-h-[160px] border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors',
           isDragActive
             ? 'border-primary bg-primary/5'
             : error || fileRejectionError
               ? 'border-red-500'
               : 'border-gray-300 hover:border-primary',
-          disabled && 'opacity-50 cursor-not-allowed',
-          className
+          disabled && 'opacity-50 cursor-not-allowed'
         )}
         {...props}
       >
@@ -120,11 +119,8 @@ export function ImageUpload({
             </p>
             <p className='text-xs text-gray-500'>or click to select</p>
             <p className='text-xs text-gray-400 mt-1'>
-              Supported formats: JPEG, PNG, GIF, WebP (Max: 5MB)
-            </p>
-            <p className='text-xs text-gray-400 mt-1'>
-              <strong>{orientation === 'portrait' ? '9:16' : '16:9'} aspect ratio only</strong> -{' '}
-              Perfect for full-screen display
+              {orientation === 'portrait' ? '9:16 portrait' : '16:9 landscape'} · full-screen
+              display
             </p>
           </div>
         )}

@@ -111,6 +111,8 @@ export function PostModal({
   const activeOrientation: PostOrientation =
     (isEdit ? initialData?.orientation : selectedOrientation) ?? 'landscape';
 
+  const isUploadStep = isEdit || imageSource === 'upload';
+
   const onSubmit = async (data: PostData) => {
     if (!imageFile && !selectedPredesignedImage && !initialData?.image_url) {
       setError('Image is required');
@@ -158,7 +160,7 @@ export function PostModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && handleClose()}>
-      <DialogContent className='sm:max-w-[550px]'>
+      <DialogContent className={isUploadStep ? 'sm:max-w-[760px]' : 'sm:max-w-[550px]'}>
         <DialogHeader>
           <DialogTitle>{isEdit ? 'Edit Post' : 'Add New Post'}</DialogTitle>
         </DialogHeader>

@@ -70,3 +70,11 @@ export type ImageOrientation = 'landscape' | 'portrait' | 'square';
 
 // Standard resolution names
 export type ResolutionName = 'HD' | 'Full HD' | '1440p' | '4K UHD' | '';
+
+// A single human-readable upload requirement, shown in the post modal
+export interface ImageRequirement {
+  key: 'ratio' | 'formats' | 'size' | 'resolution';
+  label: string;
+  value: string;
+  hint?: string;
+}
