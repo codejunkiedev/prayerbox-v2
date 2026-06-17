@@ -6,10 +6,10 @@ import {
   getFilteredJummaPrayerNames,
   isFridayPrayer,
   formatTimeNumber,
-  formatTimePickerTime,
 } from '@/utils';
 import type { ThemeProps } from './types';
 import {
+  Theme,
   type CustomThemeConfig,
   type CustomThemeTextGroup,
   type DisplayLanguage,
@@ -18,6 +18,7 @@ import {
 } from '@/types';
 import { DEFAULT_CUSTOM_THEME } from '@/constants';
 import { backgroundCss, resolveFont } from '@/components/ayat-hadith-designer/helpers';
+import { CurrentTime } from '@/components/display/shared';
 import { getDir, getFontClass } from '@/i18n';
 
 // Authentic Arabic prayer names, shown as a secondary label alongside the
@@ -73,11 +74,6 @@ const BASE_SIZES = {
     ciUnit: 3.5,
   },
 } as const;
-
-const blinkStyle = `
-  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-  .blink-colon { animation: blink 1s infinite; }
-`;
 
 /**
  * Custom theme — reuses Theme 3's layout and typographic hierarchy as a fixed
@@ -148,38 +144,15 @@ export function Theme4({
     return { sunsetNum: parsed.timeNumber, sunsetAmPm: parsed.amPm };
   }, [sunset]);
 
-  const { clockHours, clockMinutes, clockAmPm } = useMemo(() => {
-    const { timeNumber, amPm } = formatTimeNumber(formatTimePickerTime(currentTime));
-    const [hours, minutes] = timeNumber.split(':');
-    return { clockHours: hours, clockMinutes: minutes, clockAmPm: amPm };
-  }, [currentTime]);
-
   const clock = (
-    <div className='flex items-baseline gap-[0.3cqw]'>
-      <span
-        className='font-bold'
-        style={{
-          fontSize: fs(S.clockNum, 'times'),
-          color: color('times'),
-          fontFamily: latinFamily,
-        }}
-      >
-        {clockHours}
-        <span className='blink-colon'>:</span>
-        {clockMinutes}
-      </span>
-      <span
-        className='font-semibold'
-        style={{
-          fontSize: fs(S.clockAmPm, 'times'),
-          color: color('times'),
-          opacity: 0.75,
-          fontFamily: latinFamily,
-        }}
-      >
-        {clockAmPm}
-      </span>
-    </div>
+    <CurrentTime
+      variant={Theme.Theme4}
+      currentTime={currentTime}
+      color={color('times')}
+      fontFamily={latinFamily}
+      numberFontSize={fs(S.clockNum, 'times')}
+      amPmFontSize={fs(S.clockAmPm, 'times')}
+    />
   );
 
   const sunRow = (
@@ -338,7 +311,6 @@ export function Theme4({
       className='relative w-full h-full overflow-hidden'
       style={{ ...backgroundCss(cfg.background), containerType: 'size' }}
     >
-      <style>{blinkStyle}</style>
       {cfg.overlay.enabled && (
         <div
           className='absolute inset-0'

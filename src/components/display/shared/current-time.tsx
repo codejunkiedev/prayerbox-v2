@@ -7,6 +7,11 @@ interface CurrentTimeProps {
   variant?: Theme;
   orientation?: ScreenOrientation;
   className?: string;
+  /** Theme 4 only: drives the custom theme's color, font and scaled sizes. */
+  color?: string;
+  fontFamily?: string;
+  numberFontSize?: string;
+  amPmFontSize?: string;
 }
 
 const animationStyle = `
@@ -30,6 +35,10 @@ export function CurrentTime({
   variant = Theme.Theme1,
   orientation = 'landscape',
   className = '',
+  color,
+  fontFamily,
+  numberFontSize,
+  amPmFontSize,
 }: CurrentTimeProps) {
   const { timeNumber, amPm } = formatTimeNumber(formatTimePickerTime(currentTime));
   const [hours, minutes] = timeNumber.split(':');
@@ -104,6 +113,25 @@ export function CurrentTime({
             </span>
             <span
               className={`${isPortrait ? 'text-[4vw]' : 'text-[2vw]'} text-emerald-300 font-semibold`}
+            >
+              {amPm}
+            </span>
+          </div>
+        </React.Fragment>
+      );
+    case Theme.Theme4:
+      return (
+        <React.Fragment>
+          <style>{animationStyle}</style>
+          <div className={`flex items-baseline gap-[0.3cqw] ${className}`}>
+            <span className='font-bold' style={{ fontSize: numberFontSize, color, fontFamily }}>
+              {hours}
+              <span className='blink-colon'>:</span>
+              {minutes}
+            </span>
+            <span
+              className='font-semibold'
+              style={{ fontSize: amPmFontSize, color, opacity: 0.75, fontFamily }}
             >
               {amPm}
             </span>
