@@ -1,0 +1,185 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router';
+import { ArrowLeft, Loader2, RotateCcw } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui';
+import { CustomThemeControls } from '@/components/settings/custom-theme-controls';
+import { Theme4 } from '@/components/display/prayer-timings/themes';
+import type { ThemeProps } from '@/components/display/prayer-timings/themes/types';
+import { getScreenById, updateScreenCustomTheme } from '@/lib/supabase';
+import { AppRoutes, DEFAULT_CUSTOM_THEME } from '@/constants';
+import type { CustomThemeConfig, DisplayScreen, ProcessedPrayerTiming } from '@/types';
+
+// Representative timings so the preview shows a populated layout. Isha iqamah is
+// late so there is always an upcoming iqamah to render in the countdown card.
+const SAMPLE_TIMINGS: ProcessedPrayerTiming[] = [
+  { name: 'fajr', starts: '04:45', athan: '05:00', iqamah: '05:15', arabicName: '' },
+  { name: 'dhuhr', starts: '12:15', athan: '12:30', iqamah: '12:45', arabicName: '' },
+  { name: 'jumma1', starts: '13:00', athan: '13:15', iqamah: '13:30', arabicName: '' },
+  { name: 'asr', starts: '15:45', athan: '16:00', iqamah: '16:15', arabicName: '' },
+  { name: 'maghrib', starts: '19:30', athan: '19:30', iqamah: '19:40', arabicName: '' },
+  { name: 'isha', starts: '21:00', athan: '21:15', iqamah: '23:59', arabicName: '' },
+];
+
+export default function CustomThemeEditor() {
+  const navigate = useNavigate();
+  const params = useParams<{ id?: string }>();
+  const screenId = params.id;
+
+  const [screen, setScreen] = useState<DisplayScreen | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [config, setConfig] = useState<CustomThemeConfig>(() =>
+    structuredClone(DEFAULT_CUSTOM_THEME)
+  );
+  const [dirty, setDirty] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load the screen and seed the config from its saved custom theme.
+  useEffect(() => {
+    if (!screenId) {
+      setNotFound(true);
+      setLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    getScreenById(screenId)
+      .then(result => {
+        if (cancelled) return;
+        if (!result) {
+          setNotFound(true);
+          return;
+        }
+        setScreen(result);
+        setConfig(result.custom_theme ?? structuredClone(DEFAULT_CUSTOM_THEME));
+        setDirty(false);
+      })
+      .catch(error => {
+        console.error('Error loading screen:', error);
+        if (!cancelled) setNotFound(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [screenId]);
+
+  const previewProps: ThemeProps | null = useMemo(() => {
+    if (!screen) return null;
+    return {
+      gregorianDate: 'Monday, 17 June 2026',
+      hijriDate: '1 Muharram 1448',
+      sunrise: '04:30',
+      sunset: '19:45',
+      currentTime: new Date(),
+      processedPrayerTimings: SAMPLE_TIMINGS,
+      prayerTimeSettings: null,
+      orientation: screen.orientation,
+      customTheme: config,
+    };
+  }, [config, screen]);
+
+  const goBack = () =>
+    navigate(screenId ? AppRoutes.ScreenDetail.replace(':id', screenId) : AppRoutes.Screens);
+
+  const handleChange = (next: CustomThemeConfig) => {
+    setConfig(next);
+    setDirty(true);
+  };
+
+  const handleReset = () => {
+    setConfig(structuredClone(DEFAULT_CUSTOM_THEME));
+    setDirty(true);
+  };
+
+  const handleSave = async () => {
+    if (!screen) return;
+    setIsSubmitting(true);
+    try {
+      await updateScreenCustomTheme(screen.id, config);
+      toast.success('Theme saved');
+      goBack();
+    } catch (error) {
+      console.error('Error saving custom theme:', error);
+      toast.error('Failed to save customization');
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className='flex h-screen items-center justify-center bg-background'>
+        <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
+      </div>
+    );
+  }
+
+  if (notFound || !screen || !previewProps) {
+    return (
+      <div className='container mx-auto py-12 text-center space-y-4'>
+        <h1 className='text-2xl font-semibold'>Screen not found</h1>
+        <p className='text-muted-foreground'>This screen may have been deleted.</p>
+        <Button onClick={() => navigate(AppRoutes.Screens)}>Back to screens</Button>
+      </div>
+    );
+  }
+
+  const isPortrait = screen.orientation === 'portrait';
+
+  return (
+    <div className='flex flex-col h-screen bg-background'>
+      <header className='flex items-center justify-between gap-4 px-6 py-4 border-b'>
+        <div className='flex items-center gap-3'>
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={goBack}
+            aria-label='Back'
+            disabled={isSubmitting}
+          >
+            <ArrowLeft className='h-5 w-5' />
+          </Button>
+          <div>
+            <h1 className='text-xl font-semibold'>Customize Theme</h1>
+            <p className='text-xs text-muted-foreground capitalize'>
+              {screen.name} · {screen.orientation}
+            </p>
+          </div>
+        </div>
+        <div className='flex items-center gap-2'>
+          <Button variant='ghost' onClick={handleReset} disabled={isSubmitting}>
+            <RotateCcw className='h-4 w-4 mr-2' />
+            Reset
+          </Button>
+          <Button variant='outline' onClick={goBack} disabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={isSubmitting || !dirty}>
+            {isSubmitting ? 'Saving...' : 'Save'}
+          </Button>
+        </div>
+      </header>
+
+      <div className='flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 p-6'>
+        {/* Live preview */}
+        <div className='flex items-center justify-center min-h-[300px]'>
+          <div
+            className={`w-full overflow-hidden rounded-lg border bg-muted ${
+              isPortrait ? 'max-w-[420px] aspect-[9/16]' : 'max-w-full aspect-video'
+            }`}
+          >
+            <Theme4 {...previewProps} />
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className='overflow-y-auto pr-2'>
+          <CustomThemeControls config={config} onChange={handleChange} />
+        </div>
+      </div>
+    </div>
+  );
+}

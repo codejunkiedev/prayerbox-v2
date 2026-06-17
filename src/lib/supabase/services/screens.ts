@@ -1,5 +1,6 @@
 import {
   SupabaseTables,
+  type CustomThemeConfig,
   type DisplayScreen,
   type ScreenContent,
   type ScreenContentType,
@@ -59,6 +60,16 @@ export async function updateScreen(id: string, data: ScreenData): Promise<Displa
 export async function updateScreenTheme(id: string, theme: Theme): Promise<DisplayScreen> {
   return await updateRecord<DisplayScreen>(SupabaseTables.DisplayScreens, id, {
     theme,
+    updated_at: new Date().toISOString(),
+  });
+}
+
+export async function updateScreenCustomTheme(
+  id: string,
+  customTheme: CustomThemeConfig
+): Promise<DisplayScreen> {
+  return await updateRecord<DisplayScreen>(SupabaseTables.DisplayScreens, id, {
+    custom_theme: customTheme,
     updated_at: new Date().toISOString(),
   });
 }

@@ -9,6 +9,7 @@ import {
   Announcements,
   AyatAndHadith,
   AyatHadithDesigner,
+  CustomThemeEditor,
   Events,
   ForgotPassword,
   Home,
@@ -130,6 +131,7 @@ export default function Navigation() {
           <Route element={isLoggedInWithEmail ? <Outlet /> : <Navigate to={AuthRoutes.Login} />}>
             <Route path={AppRoutes.AyatAndHadithNew} element={<AyatHadithDesigner />} />
             <Route path={AppRoutes.AyatAndHadithEdit} element={<AyatHadithDesigner />} />
+            <Route path={AppRoutes.ScreenCustomTheme} element={<CustomThemeEditor />} />
           </Route>
 
           {/* Admin routes with layout - require authentication */}

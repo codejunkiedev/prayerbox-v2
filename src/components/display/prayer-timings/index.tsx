@@ -7,12 +7,13 @@ import {
 import {
   Theme,
   type AlAdhanPrayerTimes,
+  type CustomThemeConfig,
   type DisplayLanguage,
   type PrayerTimes,
   type ScreenOrientation,
   type Settings,
 } from '@/types';
-import { Theme1, Theme2, Theme3 } from './themes';
+import { Theme1, Theme2, Theme3, Theme4 } from './themes';
 import type { ThemeProps } from './themes/types';
 import { useCurrentTime, useAdjustedHijriDate } from '@/hooks';
 import { HijriCalculationMethod } from '@/constants';
@@ -24,6 +25,7 @@ interface PrayerTimingDisplayProps {
   userSettings: Settings | null;
   orientation: ScreenOrientation;
   theme: Theme;
+  customTheme?: CustomThemeConfig | null;
 }
 
 /**
@@ -35,6 +37,7 @@ export function PrayerTimingDisplay({
   userSettings,
   orientation,
   theme,
+  customTheme,
 }: PrayerTimingDisplayProps) {
   const { currentTime } = useCurrentTime();
   const { i18n } = useTranslation();
@@ -63,6 +66,7 @@ export function PrayerTimingDisplay({
     processedPrayerTimings,
     prayerTimeSettings,
     orientation,
+    customTheme,
   };
 
   const getPage = () => {
@@ -73,6 +77,8 @@ export function PrayerTimingDisplay({
         return <Theme2 {...themeProps} />;
       case Theme.Theme3:
         return <Theme3 {...themeProps} />;
+      case Theme.Theme4:
+        return <Theme4 {...themeProps} />;
       default:
         return <Theme1 {...themeProps} />;
     }

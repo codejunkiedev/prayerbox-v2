@@ -1,0 +1,558 @@
+import type { CSSProperties, ReactNode } from 'react';
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+  getTimeBeforeNextIqamah,
+  getFilteredJummaPrayerNames,
+  isFridayPrayer,
+  formatTimeNumber,
+  formatTimePickerTime,
+} from '@/utils';
+import type { ThemeProps } from './types';
+import {
+  type AyatHadithBackground,
+  type CustomThemeConfig,
+  type CustomThemeTextGroup,
+  type DisplayLanguage,
+  type PrayerAdjustments,
+  type ProcessedPrayerTiming,
+} from '@/types';
+import { DEFAULT_CUSTOM_THEME, FONTS } from '@/constants';
+import { getDir, getFontClass } from '@/i18n';
+
+// Authentic Arabic prayer names, shown as a secondary label alongside the
+// localized name on English screens only (matches Theme 3).
+const ARABIC_NAMES: Record<string, string> = {
+  fajr: 'الفجر',
+  dhuhr: 'الظهر',
+  asr: 'العصر',
+  maghrib: 'المغرب',
+  isha: 'العشاء',
+  jumma1: 'الجمعة',
+  jumma2: 'الجمعة',
+  jumma3: 'الجمعة',
+};
+
+// Theme 3's base font sizes (in vw) per orientation. The custom theme scales
+// these by the global scale × the per-group multiplier, preserving hierarchy.
+const BASE_SIZES = {
+  landscape: {
+    greg: 1.3,
+    hijri: 1.1,
+    clockNum: 5,
+    clockAmPm: 2,
+    sunLabel: 0.9,
+    sunNum: 1.3,
+    sunAmPm: 0.7,
+    colHeader: 1.3,
+    nameMain: 1.7,
+    nameArabic: 1.3,
+    timeNum: 1.8,
+    timeAmPm: 0.9,
+    ciLabel: 0.9,
+    ciName: 1.2,
+    ciBig: 4.5,
+    ciUnit: 1.1,
+  },
+  portrait: {
+    greg: 3.2,
+    hijri: 2.8,
+    clockNum: 10,
+    clockAmPm: 4,
+    sunLabel: 2.2,
+    sunNum: 3,
+    sunAmPm: 1.8,
+    colHeader: 3.2,
+    nameMain: 4,
+    nameArabic: 3.2,
+    timeNum: 4,
+    timeAmPm: 2.2,
+    ciLabel: 2.5,
+    ciName: 3,
+    ciBig: 12,
+    ciUnit: 3.5,
+  },
+} as const;
+
+const blinkStyle = `
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .blink-colon { animation: blink 1s infinite; }
+`;
+
+function backgroundStyle(bg: AyatHadithBackground): CSSProperties {
+  if (bg.type === 'image') {
+    return {
+      backgroundImage: `url(${bg.url})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    };
+  }
+  if (bg.type === 'gradient') {
+    return { backgroundImage: `linear-gradient(${bg.angle}deg, ${bg.from} 0%, ${bg.to} 100%)` };
+  }
+  return { backgroundColor: bg.color };
+}
+
+function resolveFamily(category: 'english' | 'arabic', id: string): string {
+  return (FONTS[category].find(f => f.id === id) ?? FONTS[category][0]).family;
+}
+
+/**
+ * Custom theme — reuses Theme 3's layout and typographic hierarchy as a fixed
+ * base, but renders with transparent chrome over a user-chosen background, and
+ * applies the per-screen font family / size multipliers / semantic color slots.
+ */
+export function Theme4({
+  gregorianDate,
+  hijriDate,
+  sunrise,
+  sunset,
+  currentTime,
+  processedPrayerTimings,
+  prayerTimeSettings,
+  orientation,
+  customTheme,
+}: ThemeProps) {
+  const cfg: CustomThemeConfig = customTheme ?? DEFAULT_CUSTOM_THEME;
+  const isPortrait = orientation === 'portrait';
+  const S = isPortrait ? BASE_SIZES.portrait : BASE_SIZES.landscape;
+
+  const { t, i18n } = useTranslation();
+  const lang = i18n.language as DisplayLanguage;
+  const dir = getDir(lang);
+  const fontClass = getFontClass(lang);
+  const isEnglish = lang === 'en';
+
+  const latinFamily = resolveFamily('english', cfg.fonts.latin);
+  const arabicFamily = resolveFamily('arabic', cfg.fonts.arabic);
+
+  // Effective font size for an element = base × global scale × group multiplier.
+  // Container-query width units (cqw) so the theme scales to its container,
+  // letting it render full-screen on the display and inside the settings preview.
+  const fs = (baseVw: number, group: CustomThemeTextGroup): string =>
+    `${(baseVw * cfg.size.scale * cfg.size.groups[group]).toFixed(3)}cqw`;
+  const color = (group: CustomThemeTextGroup) => cfg.colors[group];
+  // Localized text keeps the i18n font on non-English screens (so Arabic/Urdu
+  // scripts render correctly); the chosen Latin family applies on English only.
+  const latinOnEnglish = isEnglish ? latinFamily : undefined;
+
+  const nextIqamah = useMemo(
+    () => getTimeBeforeNextIqamah(processedPrayerTimings),
+    [processedPrayerTimings]
+  );
+
+  const isFriday = useMemo(() => isFridayPrayer(undefined), []);
+
+  const displayPrayers = useMemo(() => {
+    const base: (keyof PrayerAdjustments)[] = ['fajr'];
+    if (isFriday) {
+      base.push(...getFilteredJummaPrayerNames(prayerTimeSettings));
+    } else {
+      base.push('dhuhr');
+    }
+    base.push('asr', 'maghrib', 'isha');
+    return base
+      .map(name => processedPrayerTimings.find(p => p.name === name))
+      .filter((p): p is ProcessedPrayerTiming => !!p);
+  }, [processedPrayerTimings, prayerTimeSettings, isFriday]);
+
+  const { sunriseNum, sunriseAmPm } = useMemo(() => {
+    const parsed = formatTimeNumber(sunrise);
+    return { sunriseNum: parsed.timeNumber, sunriseAmPm: parsed.amPm };
+  }, [sunrise]);
+
+  const { sunsetNum, sunsetAmPm } = useMemo(() => {
+    const parsed = formatTimeNumber(sunset);
+    return { sunsetNum: parsed.timeNumber, sunsetAmPm: parsed.amPm };
+  }, [sunset]);
+
+  const { clockHours, clockMinutes, clockAmPm } = useMemo(() => {
+    const { timeNumber, amPm } = formatTimeNumber(formatTimePickerTime(currentTime));
+    const [hours, minutes] = timeNumber.split(':');
+    return { clockHours: hours, clockMinutes: minutes, clockAmPm: amPm };
+  }, [currentTime]);
+
+  const clock = (
+    <div className='flex items-baseline gap-[0.3cqw]'>
+      <span
+        className='font-bold'
+        style={{
+          fontSize: fs(S.clockNum, 'times'),
+          color: color('times'),
+          fontFamily: latinFamily,
+        }}
+      >
+        {clockHours}
+        <span className='blink-colon'>:</span>
+        {clockMinutes}
+      </span>
+      <span
+        className='font-semibold'
+        style={{
+          fontSize: fs(S.clockAmPm, 'times'),
+          color: color('times'),
+          opacity: 0.75,
+          fontFamily: latinFamily,
+        }}
+      >
+        {clockAmPm}
+      </span>
+    </div>
+  );
+
+  const sunRow = (
+    label: string,
+    num: string,
+    amPm: string,
+    numClass: string,
+    amPmClass: string
+  ) => (
+    <div className='flex items-baseline gap-[0.4cqw]'>
+      <span
+        className={`uppercase font-medium ${fontClass}`}
+        style={{
+          fontSize: fs(S.sunLabel, 'date'),
+          color: color('date'),
+          fontFamily: latinOnEnglish,
+        }}
+      >
+        {label}
+      </span>
+      <span className={`font-bold ${numClass}`} style={{ fontSize: fs(S.sunNum, 'date') }}>
+        {num}
+      </span>
+      <span className={amPmClass} style={{ fontSize: fs(S.sunAmPm, 'date') }}>
+        {amPm}
+      </span>
+    </div>
+  );
+
+  const colHeader = (text: string, center = false) => (
+    <span
+      className={`font-bold uppercase ${isEnglish ? 'tracking-wider ' : ''}${fontClass}${
+        center ? ' text-center' : ''
+      }`}
+      style={{
+        fontSize: fs(S.colHeader, 'header'),
+        color: color('header'),
+        fontFamily: latinOnEnglish,
+      }}
+    >
+      {text}
+    </span>
+  );
+
+  const renderTimeCell = (time: string) => {
+    const { timeNumber, amPm } = formatTimeNumber(time);
+    return (
+      <div dir='ltr' className='flex items-baseline justify-center gap-[0.2cqw]'>
+        <span
+          className='font-bold'
+          style={{
+            fontSize: fs(S.timeNum, 'times'),
+            color: color('times'),
+            fontFamily: latinFamily,
+          }}
+        >
+          {timeNumber}
+        </span>
+        <span
+          className='font-medium uppercase'
+          style={{
+            fontSize: fs(S.timeAmPm, 'times'),
+            color: color('times'),
+            opacity: 0.6,
+            fontFamily: latinFamily,
+          }}
+        >
+          {amPm}
+        </span>
+      </div>
+    );
+  };
+
+  const prayerNameCell = (name: keyof PrayerAdjustments, gap: string) => (
+    <div className={`flex items-center ${gap}`} dir={dir}>
+      <span
+        className={`font-extrabold uppercase ${fontClass}`}
+        style={{
+          fontSize: fs(S.nameMain, 'names'),
+          color: color('names'),
+          fontFamily: latinOnEnglish,
+        }}
+      >
+        {t(`prayer.names.${name}`)}
+      </span>
+      {isEnglish && (
+        <span
+          className='font-semibold'
+          dir='rtl'
+          style={{
+            fontSize: fs(S.nameArabic, 'names'),
+            color: color('names'),
+            opacity: 0.7,
+            fontFamily: arabicFamily,
+          }}
+        >
+          {ARABIC_NAMES[name]}
+        </span>
+      )}
+    </div>
+  );
+
+  const rows = (rowPadX: string) => (
+    <div className='flex-1 flex flex-col rounded-b-xl overflow-hidden'>
+      {displayPrayers.map(prayer => {
+        const isNext = nextIqamah?.name === prayer.name;
+        const rowStyle: CSSProperties = isNext
+          ? {
+              backgroundColor: 'rgba(255,255,255,0.10)',
+              [isEnglish ? 'borderLeft' : 'borderRight']: `4px solid ${color('times')}`,
+            }
+          : {};
+        return (
+          <div
+            key={prayer.name}
+            dir={dir}
+            className={`grid grid-cols-[2.5fr_1fr_1fr_1fr] flex-1 items-center ${rowPadX} border-b border-white/10 last:border-b-0`}
+            style={rowStyle}
+          >
+            {prayerNameCell(prayer.name, isPortrait ? 'gap-[2cqw]' : 'gap-[0.8cqw]')}
+            {renderTimeCell(prayer.starts)}
+            {renderTimeCell(prayer.athan)}
+            {renderTimeCell(prayer.iqamah)}
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  const colHeaders = (headerPadY: string, headerPadX: string) => (
+    <div
+      dir={dir}
+      className={`flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] border-b border-white/20 ${headerPadY} ${headerPadX}`}
+    >
+      {colHeader(t('prayer.columns.prayer'))}
+      {colHeader(t('prayer.columns.starts'), true)}
+      {colHeader(t('prayer.columns.athan'), true)}
+      {colHeader(t('prayer.columns.iqamah'), true)}
+    </div>
+  );
+
+  const ciLabel = (uppercaseTrack = false) => ({
+    fontSize: fs(S.ciLabel, 'countdown'),
+    color: color('countdown'),
+    opacity: 0.8,
+    letterSpacing: uppercaseTrack && isEnglish ? '0.2em' : undefined,
+  });
+
+  const root = (children: ReactNode) => (
+    <div
+      className='relative w-full h-full overflow-hidden'
+      style={{ ...backgroundStyle(cfg.background), containerType: 'size' }}
+    >
+      <style>{blinkStyle}</style>
+      {cfg.overlay.enabled && (
+        <div
+          className='absolute inset-0'
+          style={{ backgroundColor: cfg.overlay.color, opacity: cfg.overlay.opacity }}
+        />
+      )}
+      <div className='relative z-10 w-full h-full flex flex-col'>{children}</div>
+    </div>
+  );
+
+  if (isPortrait) {
+    return root(
+      <>
+        {/* Top bar */}
+        <div className='flex-shrink-0 px-[5cqw] py-[1.8cqh] flex items-center justify-between'>
+          <div className='flex flex-col' dir={dir}>
+            <span
+              className={`font-semibold uppercase ${isEnglish ? 'tracking-wide ' : ''}${fontClass}`}
+              style={{
+                fontSize: fs(S.greg, 'date'),
+                color: color('date'),
+                fontFamily: latinOnEnglish,
+              }}
+            >
+              {gregorianDate}
+            </span>
+            <span
+              className={`font-medium ${fontClass}`}
+              style={{ fontSize: fs(S.hijri, 'date'), color: color('date'), opacity: 0.85 }}
+            >
+              {hijriDate}
+            </span>
+          </div>
+
+          {clock}
+
+          <div className='flex flex-col items-end gap-[0.4cqh]'>
+            {sunRow(
+              t('prayer.sunrise'),
+              sunriseNum,
+              sunriseAmPm,
+              'text-amber-400',
+              'text-amber-400/80'
+            )}
+            {sunRow(
+              t('prayer.sunset'),
+              sunsetNum,
+              sunsetAmPm,
+              'text-orange-400',
+              'text-orange-400/80'
+            )}
+          </div>
+        </div>
+
+        {/* Prayer table */}
+        <div className='flex-1 flex flex-col min-h-0 px-[4cqw] py-[1.5cqh]'>
+          {colHeaders('py-[1.5cqh]', 'px-[3cqw]')}
+          {rows('px-[3cqw]')}
+        </div>
+
+        {/* Next Iqamah */}
+        {nextIqamah && (
+          <div className='flex-shrink-0 px-[4cqw] pb-[2cqh]'>
+            <div className='bg-white/10 rounded-xl py-[2.5cqh] flex items-center justify-center gap-[4cqw]'>
+              <div className='flex flex-col items-center'>
+                <span className={`font-bold uppercase ${fontClass}`} style={ciLabel(true)}>
+                  {t('prayer.nextIqamah')}
+                </span>
+                <span
+                  className={`font-semibold uppercase ${fontClass}`}
+                  style={{ fontSize: fs(S.ciName, 'countdown'), color: color('countdown') }}
+                >
+                  {t(`prayer.names.${nextIqamah.name}`)}
+                </span>
+              </div>
+              <div className='w-[1px] h-[5cqh] bg-white/30' />
+              <div className='flex items-baseline gap-[1.5cqw]'>
+                {nextIqamah.hours > 0 && (
+                  <>
+                    <span
+                      className='font-black leading-none'
+                      style={{ fontSize: fs(S.ciBig, 'countdown'), color: color('countdown') }}
+                    >
+                      {nextIqamah.hours}
+                    </span>
+                    <span className={`font-bold uppercase ${fontClass}`} style={ciLabel()}>
+                      {t('prayer.hr')}
+                    </span>
+                  </>
+                )}
+                <span
+                  className='font-black leading-none'
+                  style={{ fontSize: fs(S.ciBig, 'countdown'), color: color('countdown') }}
+                >
+                  {nextIqamah.minutes}
+                </span>
+                <span className={`font-bold uppercase ${fontClass}`} style={ciLabel()}>
+                  {t('prayer.min')}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // Landscape layout
+  return root(
+    <>
+      {/* Top bar */}
+      <div className='flex-shrink-0 px-[3cqw] py-[1.2cqh] flex items-center justify-between'>
+        <div className='flex flex-col' dir={dir}>
+          <span
+            className={`font-semibold uppercase ${isEnglish ? 'tracking-wide ' : ''}${fontClass}`}
+            style={{
+              fontSize: fs(S.greg, 'date'),
+              color: color('date'),
+              fontFamily: latinOnEnglish,
+            }}
+          >
+            {gregorianDate}
+          </span>
+          <span
+            className={`font-medium ${fontClass}`}
+            style={{ fontSize: fs(S.hijri, 'date'), color: color('date'), opacity: 0.85 }}
+          >
+            {hijriDate}
+          </span>
+        </div>
+
+        {clock}
+
+        <div className='flex items-center gap-[2cqw]'>
+          {sunRow(
+            t('prayer.sunrise'),
+            sunriseNum,
+            sunriseAmPm,
+            'text-amber-400',
+            'text-amber-400/80'
+          )}
+          {sunRow(
+            t('prayer.sunset'),
+            sunsetNum,
+            sunsetAmPm,
+            'text-orange-400',
+            'text-orange-400/80'
+          )}
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className='flex-1 flex flex-row px-[2.5cqw] py-[1.5cqh] gap-[2cqw] min-h-0'>
+        {/* Prayer Table */}
+        <div className='flex-[3] flex flex-col min-h-0'>
+          {colHeaders('py-[1cqh]', 'px-[1.5cqw]')}
+          {rows('px-[1.5cqw]')}
+        </div>
+
+        {/* Next Iqamah Card */}
+        {nextIqamah && (
+          <div className='flex-[1] flex items-center justify-center'>
+            <div className='bg-white/10 rounded-2xl flex flex-col items-center justify-center w-full h-[70%] px-[1cqw]'>
+              <span className={`font-bold uppercase ${fontClass}`} style={ciLabel(true)}>
+                {t('prayer.nextIqamah')}
+              </span>
+              <span
+                className={`font-semibold uppercase mt-[0.3cqh] ${fontClass}`}
+                style={{ fontSize: fs(S.ciName, 'countdown'), color: color('countdown') }}
+              >
+                {t(`prayer.names.${nextIqamah.name}`)}
+              </span>
+              <div className='w-[60%] h-[1px] bg-white/30 my-[1cqh]' />
+              <div className='flex items-baseline gap-[0.4cqw]'>
+                {nextIqamah.hours > 0 && (
+                  <>
+                    <span
+                      className='font-black leading-none'
+                      style={{ fontSize: fs(S.ciBig, 'countdown'), color: color('countdown') }}
+                    >
+                      {nextIqamah.hours}
+                    </span>
+                    <span className={`font-bold uppercase ${fontClass}`} style={ciLabel()}>
+                      {t('prayer.hr')}
+                    </span>
+                  </>
+                )}
+                <span
+                  className='font-black leading-none'
+                  style={{ fontSize: fs(S.ciBig, 'countdown'), color: color('countdown') }}
+                >
+                  {nextIqamah.minutes}
+                </span>
+                <span className={`font-bold uppercase ${fontClass}`} style={ciLabel()}>
+                  {t('prayer.min')}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}

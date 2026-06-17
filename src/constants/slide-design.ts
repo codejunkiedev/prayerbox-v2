@@ -1,7 +1,32 @@
+import type { CustomThemeConfig } from '@/types';
+
 export const DEFAULT_CUSTOM_COLOR = '#064e3b';
 export const DEFAULT_GRADIENT_FROM = '#f97316';
 export const DEFAULT_GRADIENT_TO = '#dc2626';
 export const DEFAULT_GRADIENT_ANGLE = 135;
+
+/**
+ * Seed config applied the first time a screen switches to the custom prayer
+ * theme: a dark green gradient + light overlay with white text, which reads well
+ * over Theme 3's transparent-chrome layout. Multipliers default to 1.0 so the
+ * base Theme 3 hierarchy is preserved until the user changes something.
+ */
+export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
+  background: { type: 'gradient', from: '#064e3b', to: '#022c22', angle: 135 },
+  overlay: { enabled: true, color: '#000000', opacity: 0.3 },
+  fonts: { latin: 'inter', arabic: 'amiri' },
+  size: {
+    scale: 1,
+    groups: { header: 1, names: 1, times: 1, countdown: 1, date: 1 },
+  },
+  colors: {
+    header: '#ffffff',
+    names: '#ffffff',
+    times: '#ffffff',
+    countdown: '#ffffff',
+    date: '#ffffff',
+  },
+};
 
 export interface FontOption {
   id: string;
