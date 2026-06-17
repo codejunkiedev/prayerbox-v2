@@ -33,7 +33,7 @@ import {
 } from '@/types';
 import { cn } from '@/utils';
 import { gradientCss } from '@/helpers';
-import { ImageTile } from './image-tile';
+import { ImageTile } from '@/components/common';
 import { useBackgroundImages } from '@/hooks';
 
 type DesignTab = 'canvas' | 'arabic' | 'urdu' | 'english' | 'reference';

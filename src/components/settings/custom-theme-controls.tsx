@@ -27,7 +27,7 @@ import {
   type CustomThemeTextGroup,
 } from '@/types';
 import { useBackgroundImages } from '@/hooks';
-import { ImageTile } from '@/components/ayat-hadith-designer/image-tile';
+import { ImageTile } from '@/components/common';
 
 interface CustomThemeControlsProps {
   config: CustomThemeConfig;
