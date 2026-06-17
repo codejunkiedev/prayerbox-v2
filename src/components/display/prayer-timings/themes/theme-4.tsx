@@ -345,6 +345,11 @@ export function Theme4({
     opacity: 0.8,
     letterSpacing: uppercaseTrack && isEnglish ? '0.2em' : undefined,
   });
+  const ciUnitStyle: CSSProperties = {
+    fontSize: fs(S.ciUnit, 'countdown'),
+    color: color('countdown'),
+    opacity: 0.8,
+  };
 
   const root = (children: ReactNode) => (
     <div
@@ -437,7 +442,7 @@ export function Theme4({
                     >
                       {nextIqamah.hours}
                     </span>
-                    <span className={`font-bold uppercase ${fontClass}`} style={ciLabel()}>
+                    <span className={`font-bold uppercase ${fontClass}`} style={ciUnitStyle}>
                       {t('prayer.hr')}
                     </span>
                   </>
@@ -448,7 +453,7 @@ export function Theme4({
                 >
                   {nextIqamah.minutes}
                 </span>
-                <span className={`font-bold uppercase ${fontClass}`} style={ciLabel()}>
+                <span className={`font-bold uppercase ${fontClass}`} style={ciUnitStyle}>
                   {t('prayer.min')}
                 </span>
               </div>
@@ -534,7 +539,7 @@ export function Theme4({
                     >
                       {nextIqamah.hours}
                     </span>
-                    <span className={`font-bold uppercase ${fontClass}`} style={ciLabel()}>
+                    <span className={`font-bold uppercase ${fontClass}`} style={ciUnitStyle}>
                       {t('prayer.hr')}
                     </span>
                   </>
@@ -545,7 +550,7 @@ export function Theme4({
                 >
                   {nextIqamah.minutes}
                 </span>
-                <span className={`font-bold uppercase ${fontClass}`} style={ciLabel()}>
+                <span className={`font-bold uppercase ${fontClass}`} style={ciUnitStyle}>
                   {t('prayer.min')}
                 </span>
               </div>
