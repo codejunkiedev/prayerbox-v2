@@ -12,16 +12,19 @@ import type {
 import type { PostOrientation } from '@/types';
 import { MAX_FILE_SIZE, VALID_IMAGE_TYPES } from '@/lib/zod';
 
+/** Allowed deviation from the target aspect ratio, as a fraction of the ratio. */
+const RATIO_TOLERANCE = 0.05;
+
 const LANDSCAPE_CONFIG: ValidationConfig = {
   ratio: 16 / 9,
   name: '16:9',
-  tolerance: 0,
+  tolerance: (16 / 9) * RATIO_TOLERANCE,
 } as const;
 
 const PORTRAIT_CONFIG: ValidationConfig = {
   ratio: 9 / 16,
   name: '9:16',
-  tolerance: 0,
+  tolerance: (9 / 16) * RATIO_TOLERANCE,
 } as const;
 
 const LANDSCAPE_LIMITS: DimensionLimits = {
@@ -74,7 +77,7 @@ export function getImageRequirements(
     {
       key: 'ratio',
       label: 'Aspect ratio',
-      value: `${config.name} exactly`,
+      value: `${config.name} (±${Math.round(RATIO_TOLERANCE * 100)}% tolerance)`,
     },
     { key: 'formats', label: 'Formats', value: formats },
     { key: 'size', label: 'Max file size', value: `${maxSizeMb}MB` },
