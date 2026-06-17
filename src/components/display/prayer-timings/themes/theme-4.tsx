@@ -10,14 +10,14 @@ import {
 } from '@/utils';
 import type { ThemeProps } from './types';
 import {
-  type AyatHadithBackground,
   type CustomThemeConfig,
   type CustomThemeTextGroup,
   type DisplayLanguage,
   type PrayerAdjustments,
   type ProcessedPrayerTiming,
 } from '@/types';
-import { DEFAULT_CUSTOM_THEME, FONTS } from '@/constants';
+import { DEFAULT_CUSTOM_THEME } from '@/constants';
+import { backgroundCss, resolveFont } from '@/components/ayat-hadith-designer/helpers';
 import { getDir, getFontClass } from '@/i18n';
 
 // Authentic Arabic prayer names, shown as a secondary label alongside the
@@ -79,24 +79,6 @@ const blinkStyle = `
   .blink-colon { animation: blink 1s infinite; }
 `;
 
-function backgroundStyle(bg: AyatHadithBackground): CSSProperties {
-  if (bg.type === 'image') {
-    return {
-      backgroundImage: `url(${bg.url})`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    };
-  }
-  if (bg.type === 'gradient') {
-    return { backgroundImage: `linear-gradient(${bg.angle}deg, ${bg.from} 0%, ${bg.to} 100%)` };
-  }
-  return { backgroundColor: bg.color };
-}
-
-function resolveFamily(category: 'english' | 'arabic', id: string): string {
-  return (FONTS[category].find(f => f.id === id) ?? FONTS[category][0]).family;
-}
-
 /**
  * Custom theme — reuses Theme 3's layout and typographic hierarchy as a fixed
  * base, but renders with transparent chrome over a user-chosen background, and
@@ -123,8 +105,8 @@ export function Theme4({
   const fontClass = getFontClass(lang);
   const isEnglish = lang === 'en';
 
-  const latinFamily = resolveFamily('english', cfg.fonts.latin);
-  const arabicFamily = resolveFamily('arabic', cfg.fonts.arabic);
+  const latinFamily = resolveFont('english', cfg.fonts.latin).family;
+  const arabicFamily = resolveFont('arabic', cfg.fonts.arabic).family;
 
   // Effective font size for an element = base × global scale × group multiplier.
   // Container-query width units (cqw) so the theme scales to its container,
@@ -354,7 +336,7 @@ export function Theme4({
   const root = (children: ReactNode) => (
     <div
       className='relative w-full h-full overflow-hidden'
-      style={{ ...backgroundStyle(cfg.background), containerType: 'size' }}
+      style={{ ...backgroundCss(cfg.background), containerType: 'size' }}
     >
       <style>{blinkStyle}</style>
       {cfg.overlay.enabled && (
