@@ -3,3 +3,4 @@ export * from './config';
 export * from './quran';
 export * from './hadith';
 export * from './slide-design';
+export * from './custom-theme';
