@@ -17,7 +17,7 @@ import type {
   AyatHadithStyle,
   ScreenOrientation,
 } from '@/types';
-import { backgroundCss, resolveFont } from './helpers';
+import { backgroundCss, resolveFont } from '@/helpers';
 import { OverlayLayer, ReferenceLayer, TextLayer } from './layers';
 
 interface CanvasProps {

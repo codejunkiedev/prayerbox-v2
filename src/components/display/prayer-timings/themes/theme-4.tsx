@@ -17,7 +17,7 @@ import {
   type ProcessedPrayerTiming,
 } from '@/types';
 import { DEFAULT_CUSTOM_THEME } from '@/constants';
-import { backgroundCss, resolveFont } from '@/components/ayat-hadith-designer/helpers';
+import { backgroundCss, resolveFont } from '@/helpers';
 import { CurrentTime } from '@/components/display/shared';
 import { getDir, getFontClass } from '@/i18n';
 

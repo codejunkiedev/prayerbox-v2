@@ -32,7 +32,7 @@ import {
   type AyatHadithStyle,
 } from '@/types';
 import { cn } from '@/utils';
-import { gradientCss } from './helpers';
+import { gradientCss } from '@/helpers';
 import { ImageTile } from './image-tile';
 import { useBackgroundImages } from '@/hooks';
 
