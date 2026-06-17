@@ -427,7 +427,11 @@ export function Theme4({
                 </span>
                 <span
                   className={`font-semibold uppercase ${fontClass}`}
-                  style={{ fontSize: fs(S.ciName, 'countdown'), color: color('countdown') }}
+                  style={{
+                    fontSize: fs(S.ciName, 'countdown'),
+                    color: color('countdown'),
+                    fontFamily: latinOnEnglish,
+                  }}
                 >
                   {t(`prayer.names.${nextIqamah.name}`)}
                 </span>
@@ -525,7 +529,11 @@ export function Theme4({
               </span>
               <span
                 className={`font-semibold uppercase mt-[0.3cqh] ${fontClass}`}
-                style={{ fontSize: fs(S.ciName, 'countdown'), color: color('countdown') }}
+                style={{
+                  fontSize: fs(S.ciName, 'countdown'),
+                  color: color('countdown'),
+                  fontFamily: latinOnEnglish,
+                }}
               >
                 {t(`prayer.names.${nextIqamah.name}`)}
               </span>
