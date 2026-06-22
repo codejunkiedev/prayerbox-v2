@@ -153,6 +153,27 @@ export interface AyatAndHadith extends Base {
 
 export type DisplayLanguage = 'en' | 'ur' | 'ar';
 
+/**
+ * Text groups for the custom prayer-timings theme. Each group is an independent
+ * unit for the per-group size multiplier and the semantic color slot, mapped to
+ * Theme 3's typographic roles.
+ */
+export type CustomThemeTextGroup = 'header' | 'names' | 'times' | 'countdown' | 'date';
+
+/**
+ * Per-screen config for the custom prayer-timings theme (theme-4). Reuses
+ * Theme 3's layout/hierarchy as the fixed base; these controls affect
+ * appearance only. `size.scale` is a global multiplier on Theme 3's base sizes,
+ * `size.groups` are per-group fine-tune multipliers on top of it.
+ */
+export interface CustomThemeConfig {
+  background: AyatHadithBackground;
+  overlay: { enabled: boolean; color: string; opacity: number };
+  fonts: { latin: string; arabic: string };
+  size: { scale: number; groups: Record<CustomThemeTextGroup, number> };
+  colors: Record<CustomThemeTextGroup, string>;
+}
+
 export interface DisplayScreen extends Base {
   name: string;
   code: string;
@@ -160,6 +181,7 @@ export interface DisplayScreen extends Base {
   show_prayer_times: boolean;
   show_weather: boolean;
   theme: Theme;
+  custom_theme: CustomThemeConfig | null;
   language: DisplayLanguage;
   slide_interval_seconds: number;
 }

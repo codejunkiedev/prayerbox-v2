@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { hexWithOpacity } from '../helpers';
+import { hexWithOpacity } from '@/helpers';
 import { baseLayerStyle, type BoxPx } from './base';
 
 interface OverlayLayerProps {

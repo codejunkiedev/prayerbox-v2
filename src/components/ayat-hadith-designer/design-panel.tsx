@@ -32,8 +32,8 @@ import {
   type AyatHadithStyle,
 } from '@/types';
 import { cn } from '@/utils';
-import { gradientCss } from './helpers';
-import { ImageTile } from './image-tile';
+import { gradientCss } from '@/helpers';
+import { ImageTile } from '@/components/common';
 import { useBackgroundImages } from '@/hooks';
 
 type DesignTab = 'canvas' | 'arabic' | 'urdu' | 'english' | 'reference';

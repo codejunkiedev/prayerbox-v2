@@ -19,3 +19,4 @@ export const Moderators = lazy(() => import('./moderators'));
 export const Support = lazy(() => import('./support'));
 export const AyatAndHadith = lazy(() => import('./ayat-and-hadith'));
 export const AyatHadithDesigner = lazy(() => import('./ayat-hadith-designer'));
+export const CustomThemeEditor = lazy(() => import('./custom-theme-editor'));

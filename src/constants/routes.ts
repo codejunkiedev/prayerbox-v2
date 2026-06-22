@@ -22,6 +22,7 @@ export enum AppRoutes {
   PrayerTimings = '/admin/prayer-timings',
   Screens = '/admin/screens',
   ScreenDetail = '/admin/screens/:id',
+  ScreenCustomTheme = '/admin/screens/:id/customize-theme',
   Settings = '/admin/settings',
   SettingsProfile = '/admin/settings/profile',
 

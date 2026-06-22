@@ -252,6 +252,7 @@ export default function Display() {
               userSettings={userSettings}
               orientation={displayScreen?.orientation ?? 'landscape'}
               theme={displayScreen?.theme ?? Theme.Theme1}
+              customTheme={displayScreen?.custom_theme}
             />
           </SwiperSlide>
         )}
