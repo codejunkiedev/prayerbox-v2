@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import {
   ColorInput,
@@ -27,6 +27,7 @@ import {
   type AyatHadithBackground,
   type CustomThemeConfig,
   type CustomThemeTextGroup,
+  type CustomThemeVisibility,
   type PostOrientation,
 } from '@/types';
 import { useBackgroundImages, useUserBackgrounds } from '@/hooks';
@@ -48,6 +49,22 @@ const SIZE_GROUPS: { key: CustomThemeTextGroup; label: string }[] = [
   { key: 'countdown', label: 'Next Iqamah' },
   { key: 'header', label: 'Column headers' },
   { key: 'date', label: 'Date & sun times' },
+];
+
+// The three optional prayer-time columns. The prayer-name column is always
+// shown, and at least one of these must stay visible.
+const COLUMN_TOGGLES: { key: keyof CustomThemeVisibility; label: string }[] = [
+  { key: 'columnStarts', label: 'Starts' },
+  { key: 'columnAthan', label: 'Athan' },
+  { key: 'columnIqamah', label: 'Iqamah' },
+];
+
+const FIELD_TOGGLES: { key: keyof CustomThemeVisibility; label: string }[] = [
+  { key: 'clock', label: 'Clock' },
+  { key: 'gregorianDate', label: 'Gregorian date' },
+  { key: 'hijriDate', label: 'Hijri date' },
+  { key: 'sunriseSunset', label: 'Sunrise & sunset' },
+  { key: 'nextIqamahCard', label: 'Next Iqamah card' },
 ];
 
 export function CustomThemeControls({ config, onChange, orientation }: CustomThemeControlsProps) {
@@ -72,6 +89,10 @@ export function CustomThemeControls({ config, onChange, orientation }: CustomThe
     update({ size: { ...config.size, groups: { ...config.size.groups, [group]: value } } });
   const setColor = (group: CustomThemeTextGroup, value: string) =>
     update({ colors: { ...config.colors, [group]: value } });
+  const setVisibility = (key: keyof CustomThemeVisibility, value: boolean) =>
+    update({ visibility: { ...config.visibility, [key]: value } });
+
+  const visibleColumnCount = COLUMN_TOGGLES.filter(c => config.visibility[c.key]).length;
 
   const bg = config.background;
   const colorValue = bg.type === 'color' ? bg.color : DEFAULT_CUSTOM_COLOR;
@@ -363,6 +384,67 @@ export function CustomThemeControls({ config, onChange, orientation }: CustomThe
           ))}
         </div>
       </section>
+
+      {/* Visible elements */}
+      <section className='space-y-3'>
+        <Label className='text-sm font-semibold'>Visible elements</Label>
+
+        <div className='space-y-2'>
+          <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+            Prayer time columns
+          </Label>
+          {COLUMN_TOGGLES.map(c => {
+            const checked = config.visibility[c.key];
+            // Don't let the user hide the last remaining time column.
+            const lockOn = checked && visibleColumnCount === 1;
+            return (
+              <ToggleRow
+                key={c.key}
+                label={c.label}
+                checked={checked}
+                disabled={lockOn}
+                onChange={v => setVisibility(c.key, v)}
+              />
+            );
+          })}
+          <p className='text-[10px] text-muted-foreground'>
+            At least one prayer time column must stay visible.
+          </p>
+        </div>
+
+        <div className='space-y-2 pt-1'>
+          <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+            Other fields
+          </Label>
+          {FIELD_TOGGLES.map(f => (
+            <ToggleRow
+              key={f.key}
+              label={f.label}
+              checked={config.visibility[f.key]}
+              onChange={v => setVisibility(f.key, v)}
+            />
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+interface ToggleRowProps {
+  label: string;
+  checked: boolean;
+  onChange: (value: boolean) => void;
+  disabled?: boolean;
+}
+
+function ToggleRow({ label, checked, onChange, disabled }: ToggleRowProps) {
+  const id = useId();
+  return (
+    <div className='flex items-center justify-between'>
+      <Label htmlFor={id} className='text-xs text-muted-foreground cursor-pointer'>
+        {label}
+      </Label>
+      <Switch id={id} checked={checked} onCheckedChange={onChange} disabled={disabled} />
     </div>
   );
 }

@@ -162,10 +162,27 @@ export type DisplayLanguage = 'en' | 'ur' | 'ar';
 export type CustomThemeTextGroup = 'header' | 'names' | 'times' | 'countdown' | 'date';
 
 /**
+ * Per-element show/hide flags for the custom theme. The prayer-name column is
+ * always shown; at least one of the three time columns must stay visible
+ * (enforced in the controls). Hidden elements reflow within Theme 3's layout.
+ */
+export interface CustomThemeVisibility {
+  columnStarts: boolean;
+  columnAthan: boolean;
+  columnIqamah: boolean;
+  sunriseSunset: boolean;
+  nextIqamahCard: boolean;
+  hijriDate: boolean;
+  gregorianDate: boolean;
+  clock: boolean;
+}
+
+/**
  * Per-screen config for the custom prayer-timings theme (theme-4). Reuses
  * Theme 3's layout/hierarchy as the fixed base; these controls affect
- * appearance only. `size.scale` is a global multiplier on Theme 3's base sizes,
- * `size.groups` are per-group fine-tune multipliers on top of it.
+ * appearance and element visibility only — never positioning. `size.scale` is
+ * a global multiplier on Theme 3's base sizes, `size.groups` are per-group
+ * fine-tune multipliers on top of it.
  */
 export interface CustomThemeConfig {
   background: AyatHadithBackground;
@@ -173,6 +190,7 @@ export interface CustomThemeConfig {
   fonts: { latin: string; arabic: string };
   size: { scale: number; groups: Record<CustomThemeTextGroup, number> };
   colors: Record<CustomThemeTextGroup, string>;
+  visibility: CustomThemeVisibility;
 }
 
 export interface DisplayScreen extends Base {
