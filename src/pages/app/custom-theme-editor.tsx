@@ -7,7 +7,7 @@ import { CustomThemeControls } from '@/components/settings/custom-theme-controls
 import { Theme4 } from '@/components/display/prayer-timings/themes';
 import type { ThemeProps } from '@/components/display/prayer-timings/themes/types';
 import { getScreenById, updateScreenCustomTheme } from '@/lib/supabase';
-import { AppRoutes, DEFAULT_CUSTOM_THEME, normalizeCustomTheme } from '@/constants';
+import { AppRoutes, DEFAULT_CUSTOM_THEME } from '@/constants';
 import type { CustomThemeConfig, DisplayScreen, ProcessedPrayerTiming } from '@/types';
 
 // Representative timings so the preview shows a populated layout. Isha iqamah is
@@ -52,7 +52,7 @@ export default function CustomThemeEditor() {
           return;
         }
         setScreen(result);
-        setConfig(normalizeCustomTheme(result.custom_theme));
+        setConfig(result.custom_theme ?? structuredClone(DEFAULT_CUSTOM_THEME));
         setDirty(false);
       })
       .catch(error => {

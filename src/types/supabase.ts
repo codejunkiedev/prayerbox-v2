@@ -178,6 +178,15 @@ export interface CustomThemeVisibility {
 }
 
 /**
+ * Text colors for the custom theme: one `global` color plus optional per-group
+ * overrides. A null override means that group inherits `global`.
+ */
+export interface CustomThemeColors {
+  global: string;
+  overrides: Record<CustomThemeTextGroup, string | null>;
+}
+
+/**
  * Per-screen config for the custom prayer-timings theme (theme-4). Reuses
  * Theme 3's layout/hierarchy as the fixed base; these controls affect
  * appearance and element visibility only — never positioning. `size.scale` is
@@ -189,7 +198,7 @@ export interface CustomThemeConfig {
   overlay: { enabled: boolean; color: string; opacity: number };
   fonts: { latin: string; arabic: string };
   size: { scale: number; groups: Record<CustomThemeTextGroup, number> };
-  colors: Record<CustomThemeTextGroup, string>;
+  colors: CustomThemeColors;
   visibility: CustomThemeVisibility;
 }
 

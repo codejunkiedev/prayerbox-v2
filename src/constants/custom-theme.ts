@@ -15,11 +15,8 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
     groups: { header: 1, names: 1, times: 1, countdown: 1, date: 1 },
   },
   colors: {
-    header: '#ffffff',
-    names: '#ffffff',
-    times: '#ffffff',
-    countdown: '#ffffff',
-    date: '#ffffff',
+    global: '#ffffff',
+    overrides: { header: null, names: null, times: null, countdown: null, date: null },
   },
   // Everything on by default — users hide what they don't want.
   visibility: {
@@ -33,26 +30,3 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
     clock: true,
   },
 };
-
-/**
- * Fills any missing keys on a saved custom-theme config from the defaults, so
- * configs persisted before a field existed (e.g. `visibility`) still render and
- * edit correctly. Returns a fresh object; never mutates the input.
- */
-export function normalizeCustomTheme(cfg?: CustomThemeConfig | null): CustomThemeConfig {
-  const base = DEFAULT_CUSTOM_THEME;
-  if (!cfg) return structuredClone(base);
-  return {
-    ...base,
-    ...cfg,
-    background: cfg.background ?? base.background,
-    overlay: { ...base.overlay, ...cfg.overlay },
-    fonts: { ...base.fonts, ...cfg.fonts },
-    size: {
-      scale: cfg.size?.scale ?? base.size.scale,
-      groups: { ...base.size.groups, ...cfg.size?.groups },
-    },
-    colors: { ...base.colors, ...cfg.colors },
-    visibility: { ...base.visibility, ...cfg.visibility },
-  };
-}

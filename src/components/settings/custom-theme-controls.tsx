@@ -92,8 +92,11 @@ export function CustomThemeControls({ config, onChange, orientation }: CustomThe
     update({ overlay: { ...config.overlay, ...patch } });
   const setGroupSize = (group: CustomThemeTextGroup, value: number) =>
     update({ size: { ...config.size, groups: { ...config.size.groups, [group]: value } } });
-  const setColor = (group: CustomThemeTextGroup, value: string) =>
-    update({ colors: { ...config.colors, [group]: value } });
+  const setGlobalColor = (value: string) => update({ colors: { ...config.colors, global: value } });
+  const setColorOverride = (group: CustomThemeTextGroup, value: string | null) =>
+    update({
+      colors: { ...config.colors, overrides: { ...config.colors.overrides, [group]: value } },
+    });
   const setVisibility = (key: keyof CustomThemeVisibility, value: boolean) =>
     update({ visibility: { ...config.visibility, [key]: value } });
 
@@ -375,19 +378,50 @@ export function CustomThemeControls({ config, onChange, orientation }: CustomThe
       {/* Colors */}
       <section className='space-y-3'>
         <Label className='text-sm font-semibold'>Text colors</Label>
-        <div className='grid grid-cols-2 gap-3'>
-          {SIZE_GROUPS.map(g => (
-            <div key={g.key} className='space-y-1'>
-              <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-                {g.label}
-              </Label>
-              <ColorInput
-                value={config.colors[g.key]}
-                onChange={v => setColor(g.key, v)}
-                className='h-9 w-full p-1'
-              />
-            </div>
-          ))}
+
+        <div className='space-y-1'>
+          <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+            Global
+          </Label>
+          <ColorInput
+            value={config.colors.global}
+            onChange={setGlobalColor}
+            className='h-9 w-full p-1'
+          />
+        </div>
+
+        <div className='space-y-3 pt-1'>
+          <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+            Per-group overrides
+          </Label>
+          {SIZE_GROUPS.map(g => {
+            const override = config.colors.overrides[g.key];
+            const isCustom = override !== null;
+            return (
+              <div key={g.key} className='space-y-1'>
+                <div className='flex items-center justify-between'>
+                  <Label className='text-xs text-muted-foreground'>{g.label}</Label>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-[10px] text-muted-foreground'>Custom</span>
+                    <Switch
+                      aria-label={`Custom ${g.label} color`}
+                      checked={isCustom}
+                      onCheckedChange={on =>
+                        setColorOverride(g.key, on ? config.colors.global : null)
+                      }
+                    />
+                  </div>
+                </div>
+                {isCustom && (
+                  <ColorInput
+                    value={override}
+                    onChange={v => setColorOverride(g.key, v)}
+                    className='h-9 w-full p-1'
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 

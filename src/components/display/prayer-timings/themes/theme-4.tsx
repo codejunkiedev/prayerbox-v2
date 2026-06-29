@@ -16,7 +16,7 @@ import {
   type PrayerAdjustments,
   type ProcessedPrayerTiming,
 } from '@/types';
-import { normalizeCustomTheme } from '@/constants';
+import { DEFAULT_CUSTOM_THEME } from '@/constants';
 import { backgroundCss, resolveFont } from '@/helpers';
 import { CurrentTime } from '@/components/display/shared';
 import { getDir, getFontClass } from '@/i18n';
@@ -91,7 +91,7 @@ export function Theme4({
   orientation,
   customTheme,
 }: ThemeProps) {
-  const cfg: CustomThemeConfig = normalizeCustomTheme(customTheme);
+  const cfg: CustomThemeConfig = customTheme ?? DEFAULT_CUSTOM_THEME;
   const vis = cfg.visibility;
   const isPortrait = orientation === 'portrait';
   const S = isPortrait ? BASE_SIZES.portrait : BASE_SIZES.landscape;
@@ -110,7 +110,7 @@ export function Theme4({
   // letting it render full-screen on the display and inside the settings preview.
   const fs = (baseVw: number, group: CustomThemeTextGroup): string =>
     `${(baseVw * cfg.size.scale * cfg.size.groups[group]).toFixed(3)}cqw`;
-  const color = (group: CustomThemeTextGroup) => cfg.colors[group];
+  const color = (group: CustomThemeTextGroup) => cfg.colors.overrides[group] ?? cfg.colors.global;
   // Localized text keeps the i18n font on non-English screens (so Arabic/Urdu
   // scripts render correctly); the chosen Latin family applies on English only.
   const latinOnEnglish = isEnglish ? latinFamily : undefined;
