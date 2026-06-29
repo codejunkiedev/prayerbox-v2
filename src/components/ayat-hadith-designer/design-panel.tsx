@@ -9,32 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
   Slider,
-  Switch,
-  Tabs,
-  TabsList,
-  TabsTrigger,
 } from '@/components/ui';
+import { DEFAULT_POSITIONS, FONTS } from '@/constants';
 import {
-  DEFAULT_CUSTOM_COLOR,
-  DEFAULT_GRADIENT_ANGLE,
-  DEFAULT_GRADIENT_FROM,
-  DEFAULT_GRADIENT_TO,
-  DEFAULT_POSITIONS,
-  FONTS,
-} from '@/constants';
-import {
-  SupabaseBuckets,
-  SupabaseFolders,
   type AyatHadithAlign,
   type AyatHadithBackground,
   type AyatHadithLayerKey,
   type AyatHadithReferenceStyle,
   type AyatHadithStyle,
+  type PostOrientation,
 } from '@/types';
 import { cn } from '@/utils';
-import { gradientCss } from '@/helpers';
-import { ImageTile } from '@/components/common';
-import { useBackgroundImages } from '@/hooks';
+import { BackgroundControl } from '@/components/common';
 
 type DesignTab = 'canvas' | 'arabic' | 'urdu' | 'english' | 'reference';
 
@@ -50,6 +36,8 @@ interface DesignPanelProps {
   showReference: boolean;
   selected: AyatHadithLayerKey | null;
   onSelectedChange: (next: AyatHadithLayerKey | null) => void;
+  /** Orientation that uploaded background images are validated against. */
+  orientation: PostOrientation;
 }
 
 function layerToTab(selected: AyatHadithLayerKey | null): DesignTab {
@@ -66,17 +54,10 @@ export function DesignPanel({
   showReference,
   selected,
   onSelectedChange,
+  orientation,
 }: DesignPanelProps) {
   const update = (patch: Partial<AyatHadithStyle>) => onChange({ ...style, ...patch });
   const setBackground = (background: AyatHadithBackground) => update({ background });
-
-  const bg = style.background;
-  const colorValue = bg.type === 'color' ? bg.color : DEFAULT_CUSTOM_COLOR;
-  const gradientFrom = bg.type === 'gradient' ? bg.from : DEFAULT_GRADIENT_FROM;
-  const gradientTo = bg.type === 'gradient' ? bg.to : DEFAULT_GRADIENT_TO;
-  const gradientAngle = bg.type === 'gradient' ? bg.angle : DEFAULT_GRADIENT_ANGLE;
-
-  const { images, loading: imagesLoading, error: imagesError } = useBackgroundImages();
 
   const activeTab = layerToTab(selected);
   const tabs: { key: DesignTab; label: string }[] = [
@@ -118,196 +99,23 @@ export function DesignPanel({
       </div>
 
       {activeTab === 'canvas' && (
-        <>
-          <section className='space-y-4'>
-            <Label className='text-sm font-semibold'>Background</Label>
-
-            <Tabs
-              value={bg.type}
-              onValueChange={v => {
-                const t = v as AyatHadithBackground['type'];
-                if (t === bg.type) return;
-                if (t === 'image') {
-                  const firstUrl = (bg.type === 'image' && bg.url) || images[0]?.url;
-                  setBackground(
-                    firstUrl ? { type: 'image', url: firstUrl } : { type: 'image', url: '' }
-                  );
-                } else if (t === 'color') {
-                  setBackground({ type: 'color', color: colorValue });
-                } else {
-                  setBackground({
-                    type: 'gradient',
-                    from: gradientFrom,
-                    to: gradientTo,
-                    angle: gradientAngle,
-                  });
-                }
-              }}
-            >
-              <TabsList className='grid w-full grid-cols-3'>
-                <TabsTrigger value='image'>Image</TabsTrigger>
-                <TabsTrigger value='color'>Color</TabsTrigger>
-                <TabsTrigger value='gradient'>Gradient</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            {bg.type === 'image' && (
-              <div className='space-y-1.5'>
-                {imagesLoading ? (
-                  <div className='grid grid-cols-3 gap-2 max-h-80 overflow-y-auto pr-1'>
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <div key={i} className='aspect-video rounded bg-muted animate-pulse' />
-                    ))}
-                  </div>
-                ) : imagesError ? (
-                  <p className='text-xs text-destructive'>{imagesError}</p>
-                ) : images.length === 0 ? (
-                  <p className='text-xs text-muted-foreground'>
-                    No images available. Upload images to the{' '}
-                    <span className='font-mono'>{SupabaseFolders.AyatHadithBackgrounds}</span>{' '}
-                    folder in the <span className='font-mono'>{SupabaseBuckets.Assets}</span>{' '}
-                    bucket.
-                  </p>
-                ) : (
-                  <div className='grid grid-cols-3 gap-2 max-h-80 overflow-y-auto pr-1'>
-                    {images.map(img => (
-                      <ImageTile
-                        key={img.url}
-                        image={img}
-                        selected={bg.url === img.url}
-                        onSelect={() => setBackground({ type: 'image', url: img.url })}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {bg.type === 'color' && (
-              <div className='space-y-2'>
-                <div
-                  className='w-full aspect-[3/1] rounded border'
-                  style={{ backgroundColor: colorValue }}
-                />
-                <div className='space-y-1'>
-                  <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-                    Color
-                  </Label>
-                  <ColorInput
-                    value={colorValue}
-                    onChange={v => setBackground({ type: 'color', color: v })}
-                    className='h-9 w-full p-1'
-                  />
-                </div>
-              </div>
-            )}
-
-            {bg.type === 'gradient' && (
-              <div className='space-y-2'>
-                <div
-                  className='w-full aspect-[3/1] rounded border'
-                  style={{
-                    backgroundImage: gradientCss(gradientFrom, gradientTo, gradientAngle),
-                  }}
-                />
-                <div className='flex items-center gap-3'>
-                  <div className='space-y-1 flex-1'>
-                    <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-                      From
-                    </Label>
-                    <ColorInput
-                      value={gradientFrom}
-                      onChange={v =>
-                        setBackground({
-                          type: 'gradient',
-                          from: v,
-                          to: gradientTo,
-                          angle: gradientAngle,
-                        })
-                      }
-                      className='h-9 w-full p-1'
-                    />
-                  </div>
-                  <div className='space-y-1 flex-1'>
-                    <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-                      To
-                    </Label>
-                    <ColorInput
-                      value={gradientTo}
-                      onChange={v =>
-                        setBackground({
-                          type: 'gradient',
-                          from: gradientFrom,
-                          to: v,
-                          angle: gradientAngle,
-                        })
-                      }
-                      className='h-9 w-full p-1'
-                    />
-                  </div>
-                </div>
-                <div className='space-y-1'>
-                  <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-                    Angle: {gradientAngle}°
-                  </Label>
-                  <Slider
-                    min={0}
-                    max={360}
-                    step={1}
-                    value={[gradientAngle]}
-                    onValueChange={v =>
-                      setBackground({
-                        type: 'gradient',
-                        from: gradientFrom,
-                        to: gradientTo,
-                        angle: v[0],
-                      })
-                    }
-                  />
-                </div>
-              </div>
-            )}
-          </section>
-
-          <section className='space-y-3 pt-2'>
-            <div className='flex items-center justify-between'>
-              <Label className='text-sm font-semibold'>Overlay</Label>
-              <div className='flex items-center gap-2'>
-                <Label
-                  htmlFor='show-overlay'
-                  className='text-xs text-muted-foreground cursor-pointer'
-                >
-                  Show
-                </Label>
-                <Switch
-                  id='show-overlay'
-                  checked={style.show_overlay}
-                  onCheckedChange={v => update({ show_overlay: v })}
-                />
-              </div>
-            </div>
-            {style.show_overlay && (
-              <>
-                <ColorPickerField
-                  value={style.overlay_color}
-                  onChange={v => update({ overlay_color: v })}
-                />
-                <div className='space-y-2'>
-                  <Label className='text-xs text-muted-foreground'>
-                    Opacity: {Math.round(style.overlay_opacity * 100)}%
-                  </Label>
-                  <Slider
-                    min={0}
-                    max={100}
-                    step={1}
-                    value={[style.overlay_opacity * 100]}
-                    onValueChange={v => update({ overlay_opacity: v[0] / 100 })}
-                  />
-                </div>
-              </>
-            )}
-          </section>
-        </>
+        <BackgroundControl
+          background={style.background}
+          onBackgroundChange={setBackground}
+          overlay={{
+            enabled: style.show_overlay,
+            color: style.overlay_color,
+            opacity: style.overlay_opacity,
+          }}
+          onOverlayChange={overlay =>
+            update({
+              show_overlay: overlay.enabled,
+              overlay_color: overlay.color,
+              overlay_opacity: overlay.opacity,
+            })
+          }
+          uploadOrientation={orientation}
+        />
       )}
 
       {activeTab === 'arabic' && (

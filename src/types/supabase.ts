@@ -20,6 +20,7 @@ export enum SupabaseBuckets {
   MasjidPosts = 'masjid-posts',
   Assets = 'assets',
   AyatHadithSlides = 'ayat-hadith-slides',
+  UserBackgrounds = 'user-backgrounds',
 }
 
 export enum SupabaseFolders {
@@ -161,17 +162,44 @@ export type DisplayLanguage = 'en' | 'ur' | 'ar';
 export type CustomThemeTextGroup = 'header' | 'names' | 'times' | 'countdown' | 'date';
 
 /**
+ * Per-element show/hide flags for the custom theme. The prayer-name column is
+ * always shown; at least one of the three time columns must stay visible
+ * (enforced in the controls). Hidden elements reflow within Theme 3's layout.
+ */
+export interface CustomThemeVisibility {
+  columnStarts: boolean;
+  columnAthan: boolean;
+  columnIqamah: boolean;
+  sunriseSunset: boolean;
+  nextIqamahCard: boolean;
+  hijriDate: boolean;
+  gregorianDate: boolean;
+  clock: boolean;
+}
+
+/**
+ * Text colors for the custom theme: one `global` color plus optional per-group
+ * overrides. A null override means that group inherits `global`.
+ */
+export interface CustomThemeColors {
+  global: string;
+  overrides: Record<CustomThemeTextGroup, string | null>;
+}
+
+/**
  * Per-screen config for the custom prayer-timings theme (theme-4). Reuses
  * Theme 3's layout/hierarchy as the fixed base; these controls affect
- * appearance only. `size.scale` is a global multiplier on Theme 3's base sizes,
- * `size.groups` are per-group fine-tune multipliers on top of it.
+ * appearance and element visibility only — never positioning. `size.scale` is
+ * a global multiplier on Theme 3's base sizes, `size.groups` are per-group
+ * fine-tune multipliers on top of it.
  */
 export interface CustomThemeConfig {
   background: AyatHadithBackground;
   overlay: { enabled: boolean; color: string; opacity: number };
-  fonts: { latin: string; arabic: string };
+  fonts: { english: string; arabic: string; urdu: string };
   size: { scale: number; groups: Record<CustomThemeTextGroup, number> };
-  colors: Record<CustomThemeTextGroup, string>;
+  colors: CustomThemeColors;
+  visibility: CustomThemeVisibility;
 }
 
 export interface DisplayScreen extends Base {

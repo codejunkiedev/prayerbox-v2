@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getTimeBeforeNextIqamah,
@@ -21,19 +21,6 @@ import { backgroundCss, resolveFont } from '@/helpers';
 import { CurrentTime } from '@/components/display/shared';
 import { getDir, getFontClass } from '@/i18n';
 
-// Authentic Arabic prayer names, shown as a secondary label alongside the
-// localized name on English screens only (matches Theme 3).
-const ARABIC_NAMES: Record<string, string> = {
-  fajr: 'الفجر',
-  dhuhr: 'الظهر',
-  asr: 'العصر',
-  maghrib: 'المغرب',
-  isha: 'العشاء',
-  jumma1: 'الجمعة',
-  jumma2: 'الجمعة',
-  jumma3: 'الجمعة',
-};
-
 // Theme 3's base font sizes (in vw) per orientation. The custom theme scales
 // these by the global scale × the per-group multiplier, preserving hierarchy.
 const BASE_SIZES = {
@@ -47,7 +34,6 @@ const BASE_SIZES = {
     sunAmPm: 0.7,
     colHeader: 1.3,
     nameMain: 1.7,
-    nameArabic: 1.3,
     timeNum: 1.8,
     timeAmPm: 0.9,
     ciLabel: 0.9,
@@ -65,7 +51,6 @@ const BASE_SIZES = {
     sunAmPm: 1.8,
     colHeader: 3.2,
     nameMain: 4,
-    nameArabic: 3.2,
     timeNum: 4,
     timeAmPm: 2.2,
     ciLabel: 2.5,
@@ -90,29 +75,59 @@ export function Theme4({
   prayerTimeSettings,
   orientation,
   customTheme,
+  previewLanguage,
 }: ThemeProps) {
   const cfg: CustomThemeConfig = customTheme ?? DEFAULT_CUSTOM_THEME;
+  const vis = cfg.visibility;
   const isPortrait = orientation === 'portrait';
   const S = isPortrait ? BASE_SIZES.portrait : BASE_SIZES.landscape;
 
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language as DisplayLanguage;
+  // Follows the screen's Display Language, unless the editor forces a preview
+  // language (which uses a language-bound `t` so the global i18n is untouched).
+  const { t: globalT, i18n } = useTranslation();
+  const lang: DisplayLanguage = previewLanguage ?? (i18n.language as DisplayLanguage);
+  const t = previewLanguage ? i18n.getFixedT(previewLanguage) : globalT;
   const dir = getDir(lang);
   const fontClass = getFontClass(lang);
   const isEnglish = lang === 'en';
 
-  const latinFamily = resolveFont('english', cfg.fonts.latin).family;
+  const englishFamily = resolveFont('english', cfg.fonts.english).family;
   const arabicFamily = resolveFont('arabic', cfg.fonts.arabic).family;
+  const urduFamily = resolveFont('urdu', cfg.fonts.urdu).family;
 
   // Effective font size for an element = base × global scale × group multiplier.
   // Container-query width units (cqw) so the theme scales to its container,
   // letting it render full-screen on the display and inside the settings preview.
   const fs = (baseVw: number, group: CustomThemeTextGroup): string =>
     `${(baseVw * cfg.size.scale * cfg.size.groups[group]).toFixed(3)}cqw`;
-  const color = (group: CustomThemeTextGroup) => cfg.colors[group];
-  // Localized text keeps the i18n font on non-English screens (so Arabic/Urdu
-  // scripts render correctly); the chosen Latin family applies on English only.
-  const latinOnEnglish = isEnglish ? latinFamily : undefined;
+  const color = (group: CustomThemeTextGroup) => cfg.colors.overrides[group] ?? cfg.colors.global;
+  // Primary text uses the per-language font the user chose: English on English,
+  // Arabic on Arabic, Urdu on Urdu.
+  const primaryFamily = isEnglish ? englishFamily : lang === 'ar' ? arabicFamily : urduFamily;
+
+  // Visible time columns drive a dynamic grid template shared by the header and
+  // every row, so hiding a column reflows the table without breaking alignment.
+  // The prayer-name column (2.5fr) is always present.
+  const timeColumns = (
+    [
+      ['starts', vis.columnStarts],
+      ['athan', vis.columnAthan],
+      ['iqamah', vis.columnIqamah],
+    ] as const
+  )
+    .filter(([, on]) => on)
+    .map(([col]) => col);
+  // minmax(0, …) so columns keep their proportions at any text scale — without
+  // it, oversized text would grow tracks by content and drift the header out of
+  // alignment with the rows (both share this template).
+  const gridTemplateColumns = `minmax(0, 2.5fr) ${timeColumns
+    .map(() => 'minmax(0, 1fr)')
+    .join(' ')}`;
+  const columnLabelKey = {
+    starts: 'prayer.columns.starts',
+    athan: 'prayer.columns.athan',
+    iqamah: 'prayer.columns.iqamah',
+  } as const;
 
   const nextIqamah = useMemo(
     () => getTimeBeforeNextIqamah(processedPrayerTimings),
@@ -149,7 +164,7 @@ export function Theme4({
       variant={Theme.Theme4}
       currentTime={currentTime}
       color={color('times')}
-      fontFamily={latinFamily}
+      fontFamily={englishFamily}
       numberFontSize={fs(S.clockNum, 'times')}
       amPmFontSize={fs(S.clockAmPm, 'times')}
     />
@@ -168,7 +183,7 @@ export function Theme4({
         style={{
           fontSize: fs(S.sunLabel, 'date'),
           color: color('date'),
-          fontFamily: latinOnEnglish,
+          fontFamily: primaryFamily,
         }}
       >
         {label}
@@ -190,7 +205,7 @@ export function Theme4({
       style={{
         fontSize: fs(S.colHeader, 'header'),
         color: color('header'),
-        fontFamily: latinOnEnglish,
+        fontFamily: primaryFamily,
       }}
     >
       {text}
@@ -206,7 +221,7 @@ export function Theme4({
           style={{
             fontSize: fs(S.timeNum, 'times'),
             color: color('times'),
-            fontFamily: latinFamily,
+            fontFamily: englishFamily,
           }}
         >
           {timeNumber}
@@ -217,7 +232,7 @@ export function Theme4({
             fontSize: fs(S.timeAmPm, 'times'),
             color: color('times'),
             opacity: 0.6,
-            fontFamily: latinFamily,
+            fontFamily: englishFamily,
           }}
         >
           {amPm}
@@ -233,25 +248,11 @@ export function Theme4({
         style={{
           fontSize: fs(S.nameMain, 'names'),
           color: color('names'),
-          fontFamily: latinOnEnglish,
+          fontFamily: primaryFamily,
         }}
       >
         {t(`prayer.names.${name}`)}
       </span>
-      {isEnglish && (
-        <span
-          className='font-semibold'
-          dir='rtl'
-          style={{
-            fontSize: fs(S.nameArabic, 'names'),
-            color: color('names'),
-            opacity: 0.7,
-            fontFamily: arabicFamily,
-          }}
-        >
-          {ARABIC_NAMES[name]}
-        </span>
-      )}
     </div>
   );
 
@@ -269,13 +270,13 @@ export function Theme4({
           <div
             key={prayer.name}
             dir={dir}
-            className={`grid grid-cols-[2.5fr_1fr_1fr_1fr] flex-1 items-center ${rowPadX} border-b border-white/10 last:border-b-0`}
-            style={rowStyle}
+            className={`grid flex-1 items-center ${rowPadX} border-b border-white/10 last:border-b-0`}
+            style={{ ...rowStyle, gridTemplateColumns }}
           >
             {prayerNameCell(prayer.name, isPortrait ? 'gap-[2cqw]' : 'gap-[0.8cqw]')}
-            {renderTimeCell(prayer.starts)}
-            {renderTimeCell(prayer.athan)}
-            {renderTimeCell(prayer.iqamah)}
+            {timeColumns.map(col => (
+              <Fragment key={col}>{renderTimeCell(prayer[col])}</Fragment>
+            ))}
           </div>
         );
       })}
@@ -285,12 +286,13 @@ export function Theme4({
   const colHeaders = (headerPadY: string, headerPadX: string) => (
     <div
       dir={dir}
-      className={`flex-shrink-0 grid grid-cols-[2.5fr_1fr_1fr_1fr] border-b border-white/20 ${headerPadY} ${headerPadX}`}
+      className={`flex-shrink-0 grid border-b border-white/20 ${headerPadY} ${headerPadX}`}
+      style={{ gridTemplateColumns }}
     >
       {colHeader(t('prayer.columns.prayer'))}
-      {colHeader(t('prayer.columns.starts'), true)}
-      {colHeader(t('prayer.columns.athan'), true)}
-      {colHeader(t('prayer.columns.iqamah'), true)}
+      {timeColumns.map(col => (
+        <Fragment key={col}>{colHeader(t(columnLabelKey[col]), true)}</Fragment>
+      ))}
     </div>
   );
 
@@ -308,7 +310,7 @@ export function Theme4({
 
   const root = (children: ReactNode) => (
     <div
-      className='relative w-full h-full overflow-hidden'
+      className='relative w-full h-full overflow-hidden select-none'
       style={{ ...backgroundCss(cfg.background), containerType: 'size' }}
     >
       {cfg.overlay.enabled && (
@@ -325,42 +327,50 @@ export function Theme4({
     return root(
       <>
         {/* Top bar */}
-        <div className='flex-shrink-0 px-[5cqw] py-[1.8cqh] flex items-center justify-between'>
-          <div className='flex flex-col' dir={dir}>
-            <span
-              className={`font-semibold uppercase ${isEnglish ? 'tracking-wide ' : ''}${fontClass}`}
-              style={{
-                fontSize: fs(S.greg, 'date'),
-                color: color('date'),
-                fontFamily: latinOnEnglish,
-              }}
-            >
-              {gregorianDate}
-            </span>
-            <span
-              className={`font-medium ${fontClass}`}
-              style={{ fontSize: fs(S.hijri, 'date'), color: color('date'), opacity: 0.85 }}
-            >
-              {hijriDate}
-            </span>
+        <div className='flex-shrink-0 px-[5cqw] py-[1.8cqh] grid grid-cols-3 items-center'>
+          <div className='flex flex-col justify-self-start' dir={dir}>
+            {vis.gregorianDate && (
+              <span
+                className={`font-semibold uppercase ${isEnglish ? 'tracking-wide ' : ''}${fontClass}`}
+                style={{
+                  fontSize: fs(S.greg, 'date'),
+                  color: color('date'),
+                  fontFamily: primaryFamily,
+                }}
+              >
+                {gregorianDate}
+              </span>
+            )}
+            {vis.hijriDate && (
+              <span
+                className={`font-medium ${fontClass}`}
+                style={{ fontSize: fs(S.hijri, 'date'), color: color('date'), opacity: 0.85 }}
+              >
+                {hijriDate}
+              </span>
+            )}
           </div>
 
-          {clock}
+          <div className='justify-self-center'>{vis.clock ? clock : null}</div>
 
-          <div className='flex flex-col items-end gap-[0.4cqh]'>
-            {sunRow(
-              t('prayer.sunrise'),
-              sunriseNum,
-              sunriseAmPm,
-              'text-amber-400',
-              'text-amber-400/80'
-            )}
-            {sunRow(
-              t('prayer.sunset'),
-              sunsetNum,
-              sunsetAmPm,
-              'text-orange-400',
-              'text-orange-400/80'
+          <div className='flex flex-col items-end gap-[0.4cqh] justify-self-end'>
+            {vis.sunriseSunset && (
+              <>
+                {sunRow(
+                  t('prayer.sunrise'),
+                  sunriseNum,
+                  sunriseAmPm,
+                  'text-amber-400',
+                  'text-amber-400/80'
+                )}
+                {sunRow(
+                  t('prayer.sunset'),
+                  sunsetNum,
+                  sunsetAmPm,
+                  'text-orange-400',
+                  'text-orange-400/80'
+                )}
+              </>
             )}
           </div>
         </div>
@@ -372,7 +382,7 @@ export function Theme4({
         </div>
 
         {/* Next Iqamah */}
-        {nextIqamah && (
+        {nextIqamah && vis.nextIqamahCard && (
           <div className='flex-shrink-0 px-[4cqw] pb-[2cqh]'>
             <div className='bg-white/10 rounded-xl py-[2.5cqh] flex items-center justify-center gap-[4cqw]'>
               <div className='flex flex-col items-center'>
@@ -384,7 +394,7 @@ export function Theme4({
                   style={{
                     fontSize: fs(S.ciName, 'countdown'),
                     color: color('countdown'),
-                    fontFamily: latinOnEnglish,
+                    fontFamily: primaryFamily,
                   }}
                 >
                   {t(`prayer.names.${nextIqamah.name}`)}
@@ -426,42 +436,50 @@ export function Theme4({
   return root(
     <>
       {/* Top bar */}
-      <div className='flex-shrink-0 px-[3cqw] py-[1.2cqh] flex items-center justify-between'>
-        <div className='flex flex-col' dir={dir}>
-          <span
-            className={`font-semibold uppercase ${isEnglish ? 'tracking-wide ' : ''}${fontClass}`}
-            style={{
-              fontSize: fs(S.greg, 'date'),
-              color: color('date'),
-              fontFamily: latinOnEnglish,
-            }}
-          >
-            {gregorianDate}
-          </span>
-          <span
-            className={`font-medium ${fontClass}`}
-            style={{ fontSize: fs(S.hijri, 'date'), color: color('date'), opacity: 0.85 }}
-          >
-            {hijriDate}
-          </span>
+      <div className='flex-shrink-0 px-[3cqw] py-[1.2cqh] grid grid-cols-3 items-center'>
+        <div className='flex flex-col justify-self-start' dir={dir}>
+          {vis.gregorianDate && (
+            <span
+              className={`font-semibold uppercase ${isEnglish ? 'tracking-wide ' : ''}${fontClass}`}
+              style={{
+                fontSize: fs(S.greg, 'date'),
+                color: color('date'),
+                fontFamily: primaryFamily,
+              }}
+            >
+              {gregorianDate}
+            </span>
+          )}
+          {vis.hijriDate && (
+            <span
+              className={`font-medium ${fontClass}`}
+              style={{ fontSize: fs(S.hijri, 'date'), color: color('date'), opacity: 0.85 }}
+            >
+              {hijriDate}
+            </span>
+          )}
         </div>
 
-        {clock}
+        <div className='justify-self-center'>{vis.clock ? clock : null}</div>
 
-        <div className='flex items-center gap-[2cqw]'>
-          {sunRow(
-            t('prayer.sunrise'),
-            sunriseNum,
-            sunriseAmPm,
-            'text-amber-400',
-            'text-amber-400/80'
-          )}
-          {sunRow(
-            t('prayer.sunset'),
-            sunsetNum,
-            sunsetAmPm,
-            'text-orange-400',
-            'text-orange-400/80'
+        <div className='flex items-center gap-[2cqw] justify-self-end'>
+          {vis.sunriseSunset && (
+            <>
+              {sunRow(
+                t('prayer.sunrise'),
+                sunriseNum,
+                sunriseAmPm,
+                'text-amber-400',
+                'text-amber-400/80'
+              )}
+              {sunRow(
+                t('prayer.sunset'),
+                sunsetNum,
+                sunsetAmPm,
+                'text-orange-400',
+                'text-orange-400/80'
+              )}
+            </>
           )}
         </div>
       </div>
@@ -475,7 +493,7 @@ export function Theme4({
         </div>
 
         {/* Next Iqamah Card */}
-        {nextIqamah && (
+        {nextIqamah && vis.nextIqamahCard && (
           <div className='flex-[1] flex items-center justify-center'>
             <div className='bg-white/10 rounded-2xl flex flex-col items-center justify-center w-full h-[70%] px-[1cqw]'>
               <span className={`font-bold uppercase ${fontClass}`} style={ciLabel(true)}>
@@ -486,7 +504,7 @@ export function Theme4({
                 style={{
                   fontSize: fs(S.ciName, 'countdown'),
                   color: color('countdown'),
-                  fontFamily: latinOnEnglish,
+                  fontFamily: primaryFamily,
                 }}
               >
                 {t(`prayer.names.${nextIqamah.name}`)}
