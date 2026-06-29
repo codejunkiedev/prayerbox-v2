@@ -295,6 +295,7 @@ export default function AyatHadithDesigner() {
                 showReference={content.showReference}
                 selected={selectedLayer}
                 onSelectedChange={setSelectedLayer}
+                orientation={slideToPostOrientation(orientation)}
               />
             </TabsContent>
           </Tabs>
