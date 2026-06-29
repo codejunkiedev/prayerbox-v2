@@ -6,14 +6,9 @@ import { captureSupabaseError } from '@/lib/sentry';
 /** Extensions we surface in the uploaded-backgrounds grid. */
 const SUPPORTED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
-/**
- * Storage prefix that scopes a masjid's uploaded backgrounds to its own folder.
- * RLS keeps the bucket writable by any authenticated user; this path prefix is
- * what isolates one masjid's uploads from another's at the application layer.
- */
-function masjidFolder(masjidId: string): string {
-  return masjidId;
-}
+// Uploads are scoped to a `<masjid_id>/` path prefix. RLS keeps the bucket
+// writable by any authenticated user; this prefix isolates one masjid's
+// uploads from another's at the application layer.
 
 /**
  * Uploads a background image to the per-masjid `user-backgrounds` folder and
@@ -23,7 +18,7 @@ function masjidFolder(masjidId: string): string {
 export async function uploadBackgroundImage(file: File): Promise<string> {
   const { masjid_id } = await getMasjidMembership();
   const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-  const path = `${masjidFolder(masjid_id)}/${Date.now()}.${ext}`;
+  const path = `${masjid_id}/${Date.now()}.${ext}`;
   return uploadFile(SupabaseBuckets.UserBackgrounds, file, path);
 }
 
@@ -32,11 +27,10 @@ export async function uploadBackgroundImage(file: File): Promise<string> {
  */
 export async function listUserBackgrounds(): Promise<BackgroundImage[]> {
   const { masjid_id } = await getMasjidMembership();
-  const folder = masjidFolder(masjid_id);
 
   const { data, error } = await supabase.storage
     .from(SupabaseBuckets.UserBackgrounds)
-    .list(folder, { limit: 100, offset: 0, sortBy: { column: 'created_at', order: 'desc' } });
+    .list(masjid_id, { limit: 100, offset: 0, sortBy: { column: 'created_at', order: 'desc' } });
 
   if (error) {
     console.error('Error listing user backgrounds:', error);
@@ -55,7 +49,7 @@ export async function listUserBackgrounds(): Promise<BackgroundImage[]> {
       return SUPPORTED_EXTENSIONS.includes(ext || '');
     })
     .map(item => {
-      const filePath = `${folder}/${item.name}`;
+      const filePath = `${masjid_id}/${item.name}`;
       const { data: urlData } = supabase.storage
         .from(SupabaseBuckets.UserBackgrounds)
         .getPublicUrl(filePath);
@@ -70,7 +64,7 @@ export async function deleteUserBackground(name: string): Promise<void> {
   const { masjid_id } = await getMasjidMembership();
   const { error } = await supabase.storage
     .from(SupabaseBuckets.UserBackgrounds)
-    .remove([`${masjidFolder(masjid_id)}/${name}`]);
+    .remove([`${masjid_id}/${name}`]);
 
   if (error) {
     console.error('Error deleting user background:', error);
