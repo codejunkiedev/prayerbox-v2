@@ -93,7 +93,7 @@ export function Theme4({
   const fontClass = getFontClass(lang);
   const isEnglish = lang === 'en';
 
-  const latinFamily = resolveFont('english', cfg.fonts.latin).family;
+  const englishFamily = resolveFont('english', cfg.fonts.english).family;
   const arabicFamily = resolveFont('arabic', cfg.fonts.arabic).family;
   const urduFamily = resolveFont('urdu', cfg.fonts.urdu).family;
 
@@ -103,9 +103,9 @@ export function Theme4({
   const fs = (baseVw: number, group: CustomThemeTextGroup): string =>
     `${(baseVw * cfg.size.scale * cfg.size.groups[group]).toFixed(3)}cqw`;
   const color = (group: CustomThemeTextGroup) => cfg.colors.overrides[group] ?? cfg.colors.global;
-  // Primary text uses the per-language font the user chose: Latin on English,
+  // Primary text uses the per-language font the user chose: English on English,
   // Arabic on Arabic, Urdu on Urdu.
-  const primaryFamily = isEnglish ? latinFamily : lang === 'ar' ? arabicFamily : urduFamily;
+  const primaryFamily = isEnglish ? englishFamily : lang === 'ar' ? arabicFamily : urduFamily;
 
   // Visible time columns drive a dynamic grid template shared by the header and
   // every row, so hiding a column reflows the table without breaking alignment.
@@ -166,7 +166,7 @@ export function Theme4({
       variant={Theme.Theme4}
       currentTime={currentTime}
       color={color('times')}
-      fontFamily={latinFamily}
+      fontFamily={englishFamily}
       numberFontSize={fs(S.clockNum, 'times')}
       amPmFontSize={fs(S.clockAmPm, 'times')}
     />
@@ -223,7 +223,7 @@ export function Theme4({
           style={{
             fontSize: fs(S.timeNum, 'times'),
             color: color('times'),
-            fontFamily: latinFamily,
+            fontFamily: englishFamily,
           }}
         >
           {timeNumber}
@@ -234,7 +234,7 @@ export function Theme4({
             fontSize: fs(S.timeAmPm, 'times'),
             color: color('times'),
             opacity: 0.6,
-            fontFamily: latinFamily,
+            fontFamily: englishFamily,
           }}
         >
           {amPm}

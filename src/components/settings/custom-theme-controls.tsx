@@ -46,14 +46,11 @@ interface CustomThemeControlsProps {
   previewLanguage: DisplayLanguage;
 }
 
-// Which font (config key + FONTS category + label) applies per language.
-const FONT_BY_LANGUAGE: Record<
-  DisplayLanguage,
-  { key: 'latin' | 'arabic' | 'urdu'; category: 'english' | 'arabic' | 'urdu'; label: string }
-> = {
-  en: { key: 'latin', category: 'english', label: 'Latin font' },
-  ar: { key: 'arabic', category: 'arabic', label: 'Arabic font' },
-  ur: { key: 'urdu', category: 'urdu', label: 'Urdu font' },
+// Each language maps to one font category, which is also its key in config.fonts.
+const FONT_CATEGORY_BY_LANGUAGE: Record<DisplayLanguage, 'english' | 'arabic' | 'urdu'> = {
+  en: 'english',
+  ar: 'arabic',
+  ur: 'urdu',
 };
 
 // The Overall scale is the primary size knob and reaches well above 1× so a
@@ -355,15 +352,14 @@ export function CustomThemeControls({
 
       {/* Fonts — only the previewed language's font is shown */}
       {(() => {
-        const f = FONT_BY_LANGUAGE[previewLanguage];
+        const category = FONT_CATEGORY_BY_LANGUAGE[previewLanguage];
         return (
           <section className='space-y-3'>
-            <Label className='text-sm font-semibold'>Fonts</Label>
+            <Label className='text-sm font-semibold'>Font</Label>
             <FontSelect
-              label={f.label}
-              category={f.category}
-              value={config.fonts[f.key]}
-              onChange={v => update({ fonts: { ...config.fonts, [f.key]: v } })}
+              category={category}
+              value={config.fonts[category]}
+              onChange={v => update({ fonts: { ...config.fonts, [category]: v } })}
             />
           </section>
         );
@@ -505,7 +501,7 @@ function ToggleRow({ label, checked, onChange, disabled }: ToggleRowProps) {
 }
 
 interface FontSelectProps {
-  label: string;
+  label?: string;
   category: 'english' | 'arabic' | 'urdu';
   value: string;
   onChange: (id: string) => void;
@@ -514,7 +510,9 @@ interface FontSelectProps {
 function FontSelect({ label, category, value, onChange }: FontSelectProps) {
   return (
     <div className='space-y-1'>
-      <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>{label}</Label>
+      {label && (
+        <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>{label}</Label>
+      )}
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger className='w-full'>
           <SelectValue />
