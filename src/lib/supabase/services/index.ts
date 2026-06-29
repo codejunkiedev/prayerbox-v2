@@ -8,3 +8,4 @@ export * from './screens';
 export * from './youtube-videos';
 export * from './moderators';
 export * from './ayat-and-hadith';
+export * from './backgrounds';

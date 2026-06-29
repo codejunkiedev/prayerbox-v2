@@ -20,6 +20,7 @@ export enum SupabaseBuckets {
   MasjidPosts = 'masjid-posts',
   Assets = 'assets',
   AyatHadithSlides = 'ayat-hadith-slides',
+  UserBackgrounds = 'user-backgrounds',
 }
 
 export enum SupabaseFolders {

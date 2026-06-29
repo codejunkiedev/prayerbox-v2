@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import {
   ColorInput,
   Label,
@@ -25,13 +27,19 @@ import {
   type AyatHadithBackground,
   type CustomThemeConfig,
   type CustomThemeTextGroup,
+  type PostOrientation,
 } from '@/types';
-import { useBackgroundImages } from '@/hooks';
-import { ImageTile } from '@/components/common';
+import { useBackgroundImages, useUserBackgrounds } from '@/hooks';
+import { deleteUserBackground } from '@/lib/supabase';
+import { BackgroundUploadTile, ImageTile } from '@/components/common';
+
+type ImageSource = 'library' | 'upload';
 
 interface CustomThemeControlsProps {
   config: CustomThemeConfig;
   onChange: (next: CustomThemeConfig) => void;
+  /** Orientation used to validate uploaded images (16:9 vs 9:16). */
+  orientation: PostOrientation;
 }
 
 const SIZE_GROUPS: { key: CustomThemeTextGroup; label: string }[] = [
@@ -42,8 +50,19 @@ const SIZE_GROUPS: { key: CustomThemeTextGroup; label: string }[] = [
   { key: 'date', label: 'Date & sun times' },
 ];
 
-export function CustomThemeControls({ config, onChange }: CustomThemeControlsProps) {
+export function CustomThemeControls({ config, onChange, orientation }: CustomThemeControlsProps) {
   const { images, loading: imagesLoading, error: imagesError } = useBackgroundImages();
+  const {
+    images: userImages,
+    loading: userImagesLoading,
+    error: userImagesError,
+    refetch: refetchUserImages,
+  } = useUserBackgrounds();
+
+  const [imageSource, setImageSource] = useState<ImageSource>('library');
+  // Once uploads load, default the sub-tab to "Upload" if the saved background
+  // is one of the masjid's own uploads. Runs only until the user picks a tab.
+  const sourceResolved = useRef(false);
 
   const update = (patch: Partial<CustomThemeConfig>) => onChange({ ...config, ...patch });
   const setBackground = (background: AyatHadithBackground) => update({ background });
@@ -59,6 +78,29 @@ export function CustomThemeControls({ config, onChange }: CustomThemeControlsPro
   const gradientFrom = bg.type === 'gradient' ? bg.from : DEFAULT_GRADIENT_FROM;
   const gradientTo = bg.type === 'gradient' ? bg.to : DEFAULT_GRADIENT_TO;
   const gradientAngle = bg.type === 'gradient' ? bg.angle : DEFAULT_GRADIENT_ANGLE;
+
+  useEffect(() => {
+    if (sourceResolved.current || userImagesLoading) return;
+    sourceResolved.current = true;
+    if (bg.type === 'image' && bg.url && userImages.some(img => img.url === bg.url)) {
+      setImageSource('upload');
+    }
+  }, [userImagesLoading, userImages, bg]);
+
+  const handleDeleteUpload = async (image: { name: string; url: string }) => {
+    try {
+      await deleteUserBackground(image.name);
+      // If the deleted image was selected, fall back to the first library image.
+      if (bg.type === 'image' && bg.url === image.url) {
+        setBackground({ type: 'image', url: images[0]?.url || '' });
+      }
+      await refetchUserImages();
+      toast.success('Image deleted');
+    } catch (error) {
+      console.error('Failed to delete background:', error);
+      toast.error('Failed to delete image');
+    }
+  };
 
   return (
     <div className='space-y-6'>
@@ -92,33 +134,76 @@ export function CustomThemeControls({ config, onChange }: CustomThemeControlsPro
           </TabsList>
         </Tabs>
 
-        {bg.type === 'image' &&
-          (imagesLoading ? (
-            <div className='grid grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1'>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className='aspect-video rounded bg-muted animate-pulse' />
+        {bg.type === 'image' && (
+          <div className='space-y-3'>
+            <Tabs value={imageSource} onValueChange={v => setImageSource(v as ImageSource)}>
+              <TabsList className='grid w-full grid-cols-2'>
+                <TabsTrigger value='library'>Library</TabsTrigger>
+                <TabsTrigger value='upload'>Upload</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {imageSource === 'library' &&
+              (imagesLoading ? (
+                <div className='grid grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1'>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className='aspect-video rounded bg-muted animate-pulse' />
+                  ))}
+                </div>
+              ) : imagesError ? (
+                <p className='text-xs text-destructive'>{imagesError}</p>
+              ) : images.length === 0 ? (
+                <p className='text-xs text-muted-foreground'>
+                  No images available. Upload images to the{' '}
+                  <span className='font-mono'>{SupabaseFolders.AyatHadithBackgrounds}</span> folder
+                  in the <span className='font-mono'>{SupabaseBuckets.Assets}</span> bucket.
+                </p>
+              ) : (
+                <div className='grid grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1'>
+                  {images.map(img => (
+                    <ImageTile
+                      key={img.url}
+                      image={img}
+                      selected={bg.type === 'image' && bg.url === img.url}
+                      onSelect={() => setBackground({ type: 'image', url: img.url })}
+                    />
+                  ))}
+                </div>
               ))}
-            </div>
-          ) : imagesError ? (
-            <p className='text-xs text-destructive'>{imagesError}</p>
-          ) : images.length === 0 ? (
-            <p className='text-xs text-muted-foreground'>
-              No images available. Upload images to the{' '}
-              <span className='font-mono'>{SupabaseFolders.AyatHadithBackgrounds}</span> folder in
-              the <span className='font-mono'>{SupabaseBuckets.Assets}</span> bucket.
-            </p>
-          ) : (
-            <div className='grid grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1'>
-              {images.map(img => (
-                <ImageTile
-                  key={img.url}
-                  image={img}
-                  selected={bg.type === 'image' && bg.url === img.url}
-                  onSelect={() => setBackground({ type: 'image', url: img.url })}
-                />
-              ))}
-            </div>
-          ))}
+
+            {imageSource === 'upload' && (
+              <div className='space-y-2'>
+                {userImagesError && <p className='text-xs text-destructive'>{userImagesError}</p>}
+                <div className='grid grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1'>
+                  <BackgroundUploadTile
+                    orientation={orientation}
+                    onUploaded={async url => {
+                      await refetchUserImages();
+                      setBackground({ type: 'image', url });
+                    }}
+                  />
+                  {userImagesLoading
+                    ? Array.from({ length: 2 }).map((_, i) => (
+                        <div key={i} className='aspect-video rounded bg-muted animate-pulse' />
+                      ))
+                    : userImages.map(img => (
+                        <ImageTile
+                          key={img.url}
+                          image={img}
+                          selected={bg.type === 'image' && bg.url === img.url}
+                          onSelect={() => setBackground({ type: 'image', url: img.url })}
+                          onDelete={() => handleDeleteUpload(img)}
+                        />
+                      ))}
+                </div>
+                <p className='text-[10px] text-muted-foreground'>
+                  Images are validated for {orientation === 'portrait' ? '9:16' : '16:9'} and must
+                  be under 5MB.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {bg.type === 'color' && (
           <ColorInput

@@ -177,7 +177,11 @@ export default function CustomThemeEditor() {
 
         {/* Controls */}
         <div className='overflow-y-auto pr-2'>
-          <CustomThemeControls config={config} onChange={handleChange} />
+          <CustomThemeControls
+            config={config}
+            onChange={handleChange}
+            orientation={isPortrait ? 'portrait' : 'landscape'}
+          />
         </div>
       </div>
     </div>
