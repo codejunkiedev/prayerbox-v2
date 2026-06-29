@@ -36,10 +36,10 @@ const FONT_CATEGORY_BY_LANGUAGE: Record<DisplayLanguage, 'english' | 'arabic' | 
   ur: 'urdu',
 };
 
-// The Overall scale is the primary size knob and reaches well above 1× so a
-// whole screen can be enlarged; per-group sliders stay a tighter fine-tune on
-// top of it (they compound), keeping the effective size from exploding.
-const MAX_OVERALL_SCALE = 2.5;
+// Both the Overall scale and the per-group sliders reach well above 1× so a
+// whole screen — or a single group — can be enlarged substantially. Per-group
+// sliders compound on top of the overall scale.
+const MAX_SCALE = 3;
 
 const SIZE_GROUPS: { key: CustomThemeTextGroup; label: string }[] = [
   { key: 'names', label: 'Prayer names' },
@@ -115,7 +115,7 @@ export function CustomThemeControls({
         <MultiplierSlider
           label='Overall scale'
           value={config.size.scale}
-          max={MAX_OVERALL_SCALE}
+          max={MAX_SCALE}
           onChange={v => update({ size: { ...config.size, scale: v } })}
         />
         <div className='space-y-3 pl-1'>
@@ -124,6 +124,7 @@ export function CustomThemeControls({
               key={g.key}
               label={g.label}
               value={config.size.groups[g.key]}
+              max={MAX_SCALE}
               onChange={v => setGroupSize(g.key, v)}
             />
           ))}
@@ -277,11 +278,11 @@ interface MultiplierSliderProps {
   label: string;
   value: number;
   onChange: (value: number) => void;
-  /** Upper bound of the slider. Defaults to the per-group fine-tune range. */
+  /** Upper bound of the slider. */
   max?: number;
 }
 
-function MultiplierSlider({ label, value, onChange, max = 1.5 }: MultiplierSliderProps) {
+function MultiplierSlider({ label, value, onChange, max = MAX_SCALE }: MultiplierSliderProps) {
   return (
     <div className='space-y-2'>
       <Label className='text-xs text-muted-foreground'>
