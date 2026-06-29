@@ -21,19 +21,6 @@ import { backgroundCss, resolveFont } from '@/helpers';
 import { CurrentTime } from '@/components/display/shared';
 import { getDir, getFontClass } from '@/i18n';
 
-// Authentic Arabic prayer names, shown as a secondary label alongside the
-// localized name on English screens only (matches Theme 3).
-const ARABIC_NAMES: Record<string, string> = {
-  fajr: 'الفجر',
-  dhuhr: 'الظهر',
-  asr: 'العصر',
-  maghrib: 'المغرب',
-  isha: 'العشاء',
-  jumma1: 'الجمعة',
-  jumma2: 'الجمعة',
-  jumma3: 'الجمعة',
-};
-
 // Theme 3's base font sizes (in vw) per orientation. The custom theme scales
 // these by the global scale × the per-group multiplier, preserving hierarchy.
 const BASE_SIZES = {
@@ -90,20 +77,25 @@ export function Theme4({
   prayerTimeSettings,
   orientation,
   customTheme,
+  previewLanguage,
 }: ThemeProps) {
   const cfg: CustomThemeConfig = customTheme ?? DEFAULT_CUSTOM_THEME;
   const vis = cfg.visibility;
   const isPortrait = orientation === 'portrait';
   const S = isPortrait ? BASE_SIZES.portrait : BASE_SIZES.landscape;
 
-  const { t, i18n } = useTranslation();
-  const lang = i18n.language as DisplayLanguage;
+  // Follows the screen's Display Language, unless the editor forces a preview
+  // language (which uses a language-bound `t` so the global i18n is untouched).
+  const { t: globalT, i18n } = useTranslation();
+  const lang: DisplayLanguage = previewLanguage ?? (i18n.language as DisplayLanguage);
+  const t = previewLanguage ? i18n.getFixedT(previewLanguage) : globalT;
   const dir = getDir(lang);
   const fontClass = getFontClass(lang);
   const isEnglish = lang === 'en';
 
   const latinFamily = resolveFont('english', cfg.fonts.latin).family;
   const arabicFamily = resolveFont('arabic', cfg.fonts.arabic).family;
+  const urduFamily = resolveFont('urdu', cfg.fonts.urdu).family;
 
   // Effective font size for an element = base × global scale × group multiplier.
   // Container-query width units (cqw) so the theme scales to its container,
@@ -111,9 +103,9 @@ export function Theme4({
   const fs = (baseVw: number, group: CustomThemeTextGroup): string =>
     `${(baseVw * cfg.size.scale * cfg.size.groups[group]).toFixed(3)}cqw`;
   const color = (group: CustomThemeTextGroup) => cfg.colors.overrides[group] ?? cfg.colors.global;
-  // Localized text keeps the i18n font on non-English screens (so Arabic/Urdu
-  // scripts render correctly); the chosen Latin family applies on English only.
-  const latinOnEnglish = isEnglish ? latinFamily : undefined;
+  // Primary text uses the per-language font the user chose: Latin on English,
+  // Arabic on Arabic, Urdu on Urdu.
+  const primaryFamily = isEnglish ? latinFamily : lang === 'ar' ? arabicFamily : urduFamily;
 
   // Visible time columns drive a dynamic grid template shared by the header and
   // every row, so hiding a column reflows the table without breaking alignment.
@@ -193,7 +185,7 @@ export function Theme4({
         style={{
           fontSize: fs(S.sunLabel, 'date'),
           color: color('date'),
-          fontFamily: latinOnEnglish,
+          fontFamily: primaryFamily,
         }}
       >
         {label}
@@ -215,7 +207,7 @@ export function Theme4({
       style={{
         fontSize: fs(S.colHeader, 'header'),
         color: color('header'),
-        fontFamily: latinOnEnglish,
+        fontFamily: primaryFamily,
       }}
     >
       {text}
@@ -258,25 +250,11 @@ export function Theme4({
         style={{
           fontSize: fs(S.nameMain, 'names'),
           color: color('names'),
-          fontFamily: latinOnEnglish,
+          fontFamily: primaryFamily,
         }}
       >
         {t(`prayer.names.${name}`)}
       </span>
-      {isEnglish && (
-        <span
-          className='font-semibold'
-          dir='rtl'
-          style={{
-            fontSize: fs(S.nameArabic, 'names'),
-            color: color('names'),
-            opacity: 0.7,
-            fontFamily: arabicFamily,
-          }}
-        >
-          {ARABIC_NAMES[name]}
-        </span>
-      )}
     </div>
   );
 
@@ -359,7 +337,7 @@ export function Theme4({
                 style={{
                   fontSize: fs(S.greg, 'date'),
                   color: color('date'),
-                  fontFamily: latinOnEnglish,
+                  fontFamily: primaryFamily,
                 }}
               >
                 {gregorianDate}
@@ -418,7 +396,7 @@ export function Theme4({
                   style={{
                     fontSize: fs(S.ciName, 'countdown'),
                     color: color('countdown'),
-                    fontFamily: latinOnEnglish,
+                    fontFamily: primaryFamily,
                   }}
                 >
                   {t(`prayer.names.${nextIqamah.name}`)}
@@ -468,7 +446,7 @@ export function Theme4({
               style={{
                 fontSize: fs(S.greg, 'date'),
                 color: color('date'),
-                fontFamily: latinOnEnglish,
+                fontFamily: primaryFamily,
               }}
             >
               {gregorianDate}
@@ -528,7 +506,7 @@ export function Theme4({
                 style={{
                   fontSize: fs(S.ciName, 'countdown'),
                   color: color('countdown'),
-                  fontFamily: latinOnEnglish,
+                  fontFamily: primaryFamily,
                 }}
               >
                 {t(`prayer.names.${nextIqamah.name}`)}

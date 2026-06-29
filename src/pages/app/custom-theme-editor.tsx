@@ -2,13 +2,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Loader2, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui';
+import { Button, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { CustomThemeControls } from '@/components/settings/custom-theme-controls';
 import { Theme4 } from '@/components/display/prayer-timings/themes';
 import type { ThemeProps } from '@/components/display/prayer-timings/themes/types';
 import { getScreenById, updateScreenCustomTheme } from '@/lib/supabase';
 import { AppRoutes, DEFAULT_CUSTOM_THEME } from '@/constants';
-import type { CustomThemeConfig, DisplayScreen, ProcessedPrayerTiming } from '@/types';
+import type {
+  CustomThemeConfig,
+  DisplayLanguage,
+  DisplayScreen,
+  ProcessedPrayerTiming,
+} from '@/types';
 
 // Representative timings so the preview shows a populated layout. Isha iqamah is
 // late so there is always an upcoming iqamah to render in the countdown card.
@@ -19,6 +24,19 @@ const SAMPLE_TIMINGS: ProcessedPrayerTiming[] = [
   { name: 'asr', starts: '15:45', athan: '16:00', iqamah: '16:15', arabicName: '' },
   { name: 'maghrib', starts: '19:30', athan: '19:30', iqamah: '19:40', arabicName: '' },
   { name: 'isha', starts: '21:00', athan: '21:15', iqamah: '23:59', arabicName: '' },
+];
+
+// Localized sample dates so the preview reads correctly in each language.
+const SAMPLE_DATES: Record<DisplayLanguage, { gregorian: string; hijri: string }> = {
+  en: { gregorian: 'Monday, 17 June 2026', hijri: '1 Muharram 1448' },
+  ur: { gregorian: 'پیر، 17 جون 2026', hijri: '1 محرم 1448' },
+  ar: { gregorian: 'الاثنين، 17 يونيو 2026', hijri: '1 محرم 1448' },
+};
+
+const PREVIEW_LANGUAGES: { value: DisplayLanguage; label: string }[] = [
+  { value: 'en', label: 'English' },
+  { value: 'ur', label: 'اردو' },
+  { value: 'ar', label: 'العربية' },
 ];
 
 export default function CustomThemeEditor() {
@@ -34,6 +52,9 @@ export default function CustomThemeEditor() {
   );
   const [dirty, setDirty] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Preview-only language; defaults to the screen's, lets the admin check other
+  // scripts without changing the screen's actual Display Language.
+  const [previewLanguage, setPreviewLanguage] = useState<DisplayLanguage>('en');
 
   // Load the screen and seed the config from its saved custom theme.
   useEffect(() => {
@@ -53,6 +74,7 @@ export default function CustomThemeEditor() {
         }
         setScreen(result);
         setConfig(result.custom_theme ?? structuredClone(DEFAULT_CUSTOM_THEME));
+        setPreviewLanguage(result.language);
         setDirty(false);
       })
       .catch(error => {
@@ -70,8 +92,8 @@ export default function CustomThemeEditor() {
   const previewProps: ThemeProps | null = useMemo(() => {
     if (!screen) return null;
     return {
-      gregorianDate: 'Monday, 17 June 2026',
-      hijriDate: '1 Muharram 1448',
+      gregorianDate: SAMPLE_DATES[previewLanguage].gregorian,
+      hijriDate: SAMPLE_DATES[previewLanguage].hijri,
       sunrise: '04:30',
       sunset: '19:45',
       currentTime: new Date(),
@@ -79,8 +101,9 @@ export default function CustomThemeEditor() {
       prayerTimeSettings: null,
       orientation: screen.orientation,
       customTheme: config,
+      previewLanguage,
     };
-  }, [config, screen]);
+  }, [config, screen, previewLanguage]);
 
   const goBack = () =>
     navigate(screenId ? AppRoutes.ScreenDetail.replace(':id', screenId) : AppRoutes.Screens);
@@ -165,7 +188,19 @@ export default function CustomThemeEditor() {
 
       <div className='flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 p-6'>
         {/* Live preview */}
-        <div className='flex items-center justify-center min-h-[300px]'>
+        <div className='flex flex-col items-center justify-center gap-3 min-h-[300px]'>
+          <Tabs
+            value={previewLanguage}
+            onValueChange={v => setPreviewLanguage(v as DisplayLanguage)}
+          >
+            <TabsList className='grid w-full max-w-md grid-cols-3'>
+              {PREVIEW_LANGUAGES.map(l => (
+                <TabsTrigger key={l.value} value={l.value}>
+                  {l.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
           <div
             className={`w-full overflow-hidden rounded-lg border bg-muted ${
               isPortrait ? 'max-w-[420px] aspect-[9/16]' : 'max-w-full aspect-video'
@@ -181,6 +216,7 @@ export default function CustomThemeEditor() {
             config={config}
             onChange={handleChange}
             orientation={isPortrait ? 'portrait' : 'landscape'}
+            previewLanguage={previewLanguage}
           />
         </div>
       </div>

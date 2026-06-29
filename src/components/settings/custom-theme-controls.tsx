@@ -28,6 +28,7 @@ import {
   type CustomThemeConfig,
   type CustomThemeTextGroup,
   type CustomThemeVisibility,
+  type DisplayLanguage,
   type PostOrientation,
 } from '@/types';
 import { useBackgroundImages, useUserBackgrounds } from '@/hooks';
@@ -41,7 +42,19 @@ interface CustomThemeControlsProps {
   onChange: (next: CustomThemeConfig) => void;
   /** Orientation used to validate uploaded images (16:9 vs 9:16). */
   orientation: PostOrientation;
+  /** Language being previewed — only its font is shown in the Fonts section. */
+  previewLanguage: DisplayLanguage;
 }
+
+// Which font (config key + FONTS category + label) applies per language.
+const FONT_BY_LANGUAGE: Record<
+  DisplayLanguage,
+  { key: 'latin' | 'arabic' | 'urdu'; category: 'english' | 'arabic' | 'urdu'; label: string }
+> = {
+  en: { key: 'latin', category: 'english', label: 'Latin font' },
+  ar: { key: 'arabic', category: 'arabic', label: 'Arabic font' },
+  ur: { key: 'urdu', category: 'urdu', label: 'Urdu font' },
+};
 
 // The Overall scale is the primary size knob and reaches well above 1× so a
 // whole screen can be enlarged; per-group sliders stay a tighter fine-tune on
@@ -72,7 +85,12 @@ const FIELD_TOGGLES: { key: keyof CustomThemeVisibility; label: string }[] = [
   { key: 'nextIqamahCard', label: 'Next Iqamah card' },
 ];
 
-export function CustomThemeControls({ config, onChange, orientation }: CustomThemeControlsProps) {
+export function CustomThemeControls({
+  config,
+  onChange,
+  orientation,
+  previewLanguage,
+}: CustomThemeControlsProps) {
   const { images, loading: imagesLoading, error: imagesError } = useBackgroundImages();
   const {
     images: userImages,
@@ -335,24 +353,21 @@ export function CustomThemeControls({ config, onChange, orientation }: CustomThe
         )}
       </section>
 
-      {/* Fonts */}
-      <section className='space-y-3'>
-        <Label className='text-sm font-semibold'>Fonts</Label>
-        <div className='grid grid-cols-2 gap-3'>
-          <FontSelect
-            label='Latin font'
-            category='english'
-            value={config.fonts.latin}
-            onChange={v => update({ fonts: { ...config.fonts, latin: v } })}
-          />
-          <FontSelect
-            label='Arabic font'
-            category='arabic'
-            value={config.fonts.arabic}
-            onChange={v => update({ fonts: { ...config.fonts, arabic: v } })}
-          />
-        </div>
-      </section>
+      {/* Fonts — only the previewed language's font is shown */}
+      {(() => {
+        const f = FONT_BY_LANGUAGE[previewLanguage];
+        return (
+          <section className='space-y-3'>
+            <Label className='text-sm font-semibold'>Fonts</Label>
+            <FontSelect
+              label={f.label}
+              category={f.category}
+              value={config.fonts[f.key]}
+              onChange={v => update({ fonts: { ...config.fonts, [f.key]: v } })}
+            />
+          </section>
+        );
+      })()}
 
       {/* Sizes */}
       <section className='space-y-3'>
@@ -491,7 +506,7 @@ function ToggleRow({ label, checked, onChange, disabled }: ToggleRowProps) {
 
 interface FontSelectProps {
   label: string;
-  category: 'english' | 'arabic';
+  category: 'english' | 'arabic' | 'urdu';
   value: string;
   onChange: (id: string) => void;
 }

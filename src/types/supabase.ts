@@ -196,7 +196,7 @@ export interface CustomThemeColors {
 export interface CustomThemeConfig {
   background: AyatHadithBackground;
   overlay: { enabled: boolean; color: string; opacity: number };
-  fonts: { latin: string; arabic: string };
+  fonts: { latin: string; arabic: string; urdu: string };
   size: { scale: number; groups: Record<CustomThemeTextGroup, number> };
   colors: CustomThemeColors;
   visibility: CustomThemeVisibility;

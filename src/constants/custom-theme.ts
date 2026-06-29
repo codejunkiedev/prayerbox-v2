@@ -9,7 +9,7 @@ import type { CustomThemeConfig } from '@/types';
 export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
   background: { type: 'gradient', from: '#064e3b', to: '#022c22', angle: 135 },
   overlay: { enabled: true, color: '#000000', opacity: 0.3 },
-  fonts: { latin: 'inter', arabic: 'amiri' },
+  fonts: { latin: 'inter', arabic: 'amiri', urdu: 'noto-nastaliq' },
   size: {
     scale: 1,
     groups: { header: 1, names: 1, times: 1, countdown: 1, date: 1 },
