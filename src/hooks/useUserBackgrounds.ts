@@ -27,22 +27,8 @@ export function useUserBackgrounds() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
-    listUserBackgrounds()
-      .then(files => {
-        if (!cancelled) setImages(files);
-      })
-      .catch(err => {
-        console.error('Failed to load uploaded backgrounds:', err);
-        if (!cancelled) setError('Failed to load uploaded images');
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    void refetch();
+  }, [refetch]);
 
   return { images, loading, error, refetch };
 }
