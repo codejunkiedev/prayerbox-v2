@@ -127,7 +127,12 @@ export function Theme4({
   )
     .filter(([, on]) => on)
     .map(([col]) => col);
-  const gridTemplateColumns = `2.5fr ${timeColumns.map(() => '1fr').join(' ')}`;
+  // minmax(0, …) so columns keep their proportions at any text scale — without
+  // it, oversized text would grow tracks by content and drift the header out of
+  // alignment with the rows (both share this template).
+  const gridTemplateColumns = `minmax(0, 2.5fr) ${timeColumns
+    .map(() => 'minmax(0, 1fr)')
+    .join(' ')}`;
   const columnLabelKey = {
     starts: 'prayer.columns.starts',
     athan: 'prayer.columns.athan',

@@ -43,6 +43,11 @@ interface CustomThemeControlsProps {
   orientation: PostOrientation;
 }
 
+// The Overall scale is the primary size knob and reaches well above 1× so a
+// whole screen can be enlarged; per-group sliders stay a tighter fine-tune on
+// top of it (they compound), keeping the effective size from exploding.
+const MAX_OVERALL_SCALE = 2.5;
+
 const SIZE_GROUPS: { key: CustomThemeTextGroup; label: string }[] = [
   { key: 'names', label: 'Prayer names' },
   { key: 'times', label: 'Times & clock' },
@@ -352,6 +357,7 @@ export function CustomThemeControls({ config, onChange, orientation }: CustomThe
         <MultiplierSlider
           label='Overall scale'
           value={config.size.scale}
+          max={MAX_OVERALL_SCALE}
           onChange={v => update({ size: { ...config.size, scale: v } })}
         />
         <div className='space-y-3 pl-1'>
@@ -480,15 +486,17 @@ interface MultiplierSliderProps {
   label: string;
   value: number;
   onChange: (value: number) => void;
+  /** Upper bound of the slider. Defaults to the per-group fine-tune range. */
+  max?: number;
 }
 
-function MultiplierSlider({ label, value, onChange }: MultiplierSliderProps) {
+function MultiplierSlider({ label, value, onChange, max = 1.5 }: MultiplierSliderProps) {
   return (
     <div className='space-y-2'>
       <Label className='text-xs text-muted-foreground'>
         {label}: {value.toFixed(2)}×
       </Label>
-      <Slider min={0.5} max={1.5} step={0.05} value={[value]} onValueChange={v => onChange(v[0])} />
+      <Slider min={0.5} max={max} step={0.05} value={[value]} onValueChange={v => onChange(v[0])} />
     </div>
   );
 }
