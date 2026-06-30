@@ -15,9 +15,10 @@ type ImageRequirementsProps = {
 };
 
 /**
- * Compact panel that spells out every upload restriction (ratio, formats,
- * file size, and the min/max/recommended resolutions) so users see the full
- * rules up front instead of discovering them through rejection errors.
+ * Compact panel that spells out the upload rules (ratio, formats, and how
+ * file size / resolution are handled) so users see the requirements up front.
+ * The aspect ratio is the only hard gate — oversized images are downscaled
+ * automatically rather than rejected.
  */
 export function ImageRequirements({ orientation }: ImageRequirementsProps) {
   const requirements = getImageRequirements(orientation);
@@ -49,15 +50,7 @@ export function ImageRequirements({ orientation }: ImageRequirementsProps) {
       </ul>
 
       <p className='mt-3 border-t pt-3 text-[11px] text-muted-foreground'>
-        Need to resize your image? Try{' '}
-        <a
-          href='https://imageresizer.com/'
-          target='_blank'
-          rel='noopener noreferrer'
-          className='text-primary hover:underline'
-        >
-          imageresizer.com
-        </a>
+        Large images are resized automatically — just make sure the aspect ratio matches.
       </p>
     </div>
   );

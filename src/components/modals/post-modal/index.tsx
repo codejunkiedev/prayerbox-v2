@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { postSchema, type PostData } from '@/lib/zod';
 import { upsertPost } from '@/lib/supabase';
 import { useImageValidation } from '@/hooks/useImageValidation';
+import { downscaleImageToCover } from '@/utils';
 import type { Post, PostOrientation } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -137,6 +138,12 @@ export function PostModal({
         const blob = await response.blob();
         const fileName = selectedPredesignedImage.split('/').pop() || 'predesigned-image.jpg';
         imageToUse = new File([blob], fileName, { type: blob.type });
+      }
+
+      // Downscale + crop uploads to the exact display ratio before storing, so
+      // the post fills the 16:9/9:16 frame without letterbox bars.
+      if (imageToUse) {
+        imageToUse = await downscaleImageToCover(imageToUse, activeOrientation);
       }
 
       const saved = await upsertPost(

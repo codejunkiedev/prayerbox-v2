@@ -14,7 +14,6 @@ export interface ImageValidationResult {
   error?: string;
   dimensions?: ImageDimensions;
   recommendation?: string;
-  quality?: 'minimum' | 'recommended' | 'excellent';
 }
 
 export interface ValidationConfig {
@@ -24,17 +23,8 @@ export interface ValidationConfig {
 }
 
 export interface DimensionLimits {
-  readonly min: { width: number; height: number };
   readonly recommended: { width: number; height: number };
   readonly max: { width: number; height: number };
-}
-
-export interface CropSuggestion {
-  width: number;
-  height: number;
-  ratio: string;
-  cropArea: number;
-  retainedPercentage: number;
 }
 
 export interface ValidationState {

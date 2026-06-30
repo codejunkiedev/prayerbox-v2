@@ -3,14 +3,13 @@ import type {
   ImageValidationResult,
   ValidationConfig,
   DimensionLimits,
-  CropSuggestion,
   ImageQuality,
   ImageOrientation,
   ResolutionName,
   ImageRequirement,
 } from '@/types/validation';
 import type { PostOrientation } from '@/types';
-import { MAX_FILE_SIZE, VALID_IMAGE_TYPES } from '@/lib/zod';
+import { VALID_IMAGE_TYPES } from '@/lib/zod';
 
 /** Allowed deviation from the target aspect ratio, as a fraction of the ratio. */
 const RATIO_TOLERANCE = 0.05;
@@ -28,27 +27,13 @@ const PORTRAIT_CONFIG: ValidationConfig = {
 } as const;
 
 const LANDSCAPE_LIMITS: DimensionLimits = {
-  min: { width: 1280, height: 720 },
   recommended: { width: 1920, height: 1080 },
   max: { width: 3840, height: 2160 },
 } as const;
 
 const PORTRAIT_LIMITS: DimensionLimits = {
-  min: { width: 720, height: 1280 },
   recommended: { width: 1080, height: 1920 },
   max: { width: 2160, height: 3840 },
-} as const;
-
-const LANDSCAPE_RESOLUTIONS = {
-  HD: '1280×720',
-  FULL_HD: '1920×1080',
-  UHD_4K: '3840×2160',
-} as const;
-
-const PORTRAIT_RESOLUTIONS = {
-  HD: '720×1280',
-  FULL_HD: '1080×1920',
-  UHD_4K: '2160×3840',
 } as const;
 
 const IMAGE_TYPE_LABELS: Record<string, string> = {
@@ -57,6 +42,15 @@ const IMAGE_TYPE_LABELS: Record<string, string> = {
   'image/gif': 'GIF',
   'image/webp': 'WebP',
 };
+
+/**
+ * The maximum display dimensions for an orientation. Oversized uploads are
+ * scaled down to fit within these bounds (see `downscaleImageToCover`) rather
+ * than rejected, so this doubles as the resize target ceiling.
+ */
+export function getMaxDimensions(orientation: PostOrientation = 'landscape') {
+  return orientation === 'portrait' ? PORTRAIT_LIMITS.max : LANDSCAPE_LIMITS.max;
+}
 
 /**
  * Builds the human-readable list of upload requirements for an orientation.
@@ -68,10 +62,9 @@ export function getImageRequirements(
 ): ImageRequirement[] {
   const config = orientation === 'portrait' ? PORTRAIT_CONFIG : LANDSCAPE_CONFIG;
   const limits = orientation === 'portrait' ? PORTRAIT_LIMITS : LANDSCAPE_LIMITS;
-  const { min, recommended, max } = limits;
+  const { recommended, max } = limits;
 
   const formats = VALID_IMAGE_TYPES.map(type => IMAGE_TYPE_LABELS[type] ?? type).join(', ');
-  const maxSizeMb = Math.round(MAX_FILE_SIZE / (1024 * 1024));
 
   return [
     {
@@ -80,12 +73,12 @@ export function getImageRequirements(
       value: `${config.name} (±${Math.round(RATIO_TOLERANCE * 100)}% tolerance)`,
     },
     { key: 'formats', label: 'Formats', value: formats },
-    { key: 'size', label: 'Max file size', value: `${maxSizeMb}MB` },
+    { key: 'size', label: 'File size', value: 'Optimized automatically' },
     {
       key: 'resolution',
       label: 'Resolution',
-      value: `${min.width}×${min.height} to ${max.width}×${max.height}`,
-      hint: `${recommended.width}×${recommended.height} recommended for best quality.`,
+      value: 'Any size accepted',
+      hint: `Large images are scaled down to ${max.width}×${max.height} (${recommended.width}×${recommended.height} recommended).`,
     },
   ];
 }
@@ -171,22 +164,11 @@ function validateDimensions(
   const { width, height, aspectRatio } = dimensions;
   const config = orientation === 'portrait' ? PORTRAIT_CONFIG : LANDSCAPE_CONFIG;
   const limits = orientation === 'portrait' ? PORTRAIT_LIMITS : LANDSCAPE_LIMITS;
-  const { recommended, max } = limits;
+  const { recommended } = limits;
   const { ratio, tolerance, name } = config;
 
-  if (width > max.width || height > max.height) {
-    const maxLabel =
-      orientation === 'portrait' ? PORTRAIT_RESOLUTIONS.UHD_4K : LANDSCAPE_RESOLUTIONS.UHD_4K;
-    return {
-      isValid: false,
-      error: `Image resolution too high. Maximum allowed: ${maxLabel}`,
-      dimensions,
-      recommendation:
-        'Please resize or compress the image to reduce file size and improve loading performance.',
-      quality: 'excellent',
-    };
-  }
-
+  // Oversized images are no longer rejected here — they are downscaled to fit
+  // within `getMaxDimensions()` on upload. Aspect ratio is the only hard gate.
   const aspectRatioResult = validateAspectRatio(aspectRatio, ratio, tolerance, name, orientation);
   if (!aspectRatioResult.isValid) {
     return { ...aspectRatioResult, dimensions };
@@ -199,7 +181,6 @@ function validateDimensions(
     isValid: true,
     dimensions,
     recommendation: `✓ Perfect ${name} aspect ratio confirmed.${recommendation ? ` ${recommendation}` : ''}`,
-    quality,
   };
 }
 
@@ -277,8 +258,8 @@ function generateQualityRecommendation(
   quality: ImageQuality,
   orientation: PostOrientation
 ): string {
-  const fullHd =
-    orientation === 'portrait' ? PORTRAIT_RESOLUTIONS.FULL_HD : LANDSCAPE_RESOLUTIONS.FULL_HD;
+  const { recommended } = orientation === 'portrait' ? PORTRAIT_LIMITS : LANDSCAPE_LIMITS;
+  const fullHd = `${recommended.width}×${recommended.height}`;
   switch (quality) {
     case 'minimum':
       return `For optimal quality, consider using ${fullHd} or higher.`;
@@ -334,31 +315,4 @@ function getResolutionName(width: number, height: number): ResolutionName {
   };
 
   return resolutionMap[`${width}x${height}`] || '';
-}
-
-/**
- * Suggests optimal cropping dimensions for the given image
- */
-export function suggestOptimalCrop(
-  dimensions: ImageDimensions,
-  orientation: PostOrientation = 'landscape'
-): CropSuggestion {
-  const { width, height } = dimensions;
-  const config = orientation === 'portrait' ? PORTRAIT_CONFIG : LANDSCAPE_CONFIG;
-  const { ratio, name } = config;
-
-  const cropWidth = Math.min(width, height * ratio);
-  const cropHeight = Math.min(height, width / ratio);
-
-  const originalArea = width * height;
-  const cropArea = cropWidth * cropHeight;
-  const retainedPercentage = Math.round((cropArea / originalArea) * 100);
-
-  return {
-    width: Math.round(cropWidth),
-    height: Math.round(cropHeight),
-    ratio: name,
-    cropArea: Math.round(cropArea),
-    retainedPercentage,
-  };
 }

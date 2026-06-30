@@ -2,9 +2,9 @@ import { useId, useRef, useState } from 'react';
 import { Loader2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/utils';
-import { validateImageForFullScreen } from '@/utils';
+import { validateImageForFullScreen, downscaleImageToCover } from '@/utils';
 import { uploadBackgroundImage } from '@/lib/supabase';
-import { MAX_FILE_SIZE, VALID_IMAGE_TYPES } from '@/lib/zod';
+import { VALID_IMAGE_TYPES } from '@/lib/zod';
 import type { PostOrientation } from '@/types';
 
 interface BackgroundUploadTileProps {
@@ -17,9 +17,10 @@ interface BackgroundUploadTileProps {
 
 /**
  * Reusable "upload a background" tile: a dashed drop-target button with a hidden
- * file input. Validates the file (type, size, dimensions) using the existing
- * full-screen image validators — no client-side resizing — then uploads it to
- * the per-masjid `user-backgrounds` folder and hands the URL back to the caller.
+ * file input. Validates the file's type and aspect ratio using the full-screen
+ * image validators, downscales oversized images to fit the display bounds, then
+ * uploads to the per-masjid `user-backgrounds` folder and hands the URL back to
+ * the caller.
  *
  * Shared so the Ayat/Hadith builder can reuse the same upload affordance.
  */
@@ -37,11 +38,6 @@ export function BackgroundUploadTile({
       toast.error('Unsupported file type. Use JPEG, PNG, GIF, or WebP.');
       return;
     }
-    if (file.size > MAX_FILE_SIZE) {
-      const maxMb = Math.round(MAX_FILE_SIZE / (1024 * 1024));
-      toast.error(`Image is larger than ${maxMb}MB. Please use a smaller file.`);
-      return;
-    }
 
     const validation = await validateImageForFullScreen(file, orientation);
     if (!validation.isValid) {
@@ -51,7 +47,8 @@ export function BackgroundUploadTile({
 
     setUploading(true);
     try {
-      const url = await uploadBackgroundImage(file);
+      const optimized = await downscaleImageToCover(file, orientation);
+      const url = await uploadBackgroundImage(optimized);
       onUploaded(url);
       toast.success('Image uploaded');
     } catch (error) {

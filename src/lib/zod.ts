@@ -75,6 +75,8 @@ export const masjidProfileSchema = z.object({
 export type MasjidProfileData = z.infer<typeof masjidProfileSchema>;
 
 export const VALID_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+/** File extensions surfaced when listing stored background images. */
+export const VALID_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const announcementSchema = z.object({

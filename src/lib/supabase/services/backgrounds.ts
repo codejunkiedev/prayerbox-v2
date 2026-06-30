@@ -2,9 +2,7 @@ import { SupabaseBuckets, type BackgroundImage } from '@/types';
 import supabase from '../index';
 import { getMasjidMembership, uploadFile } from '../helpers';
 import { captureSupabaseError } from '@/lib/sentry';
-
-/** Extensions we surface in the uploaded-backgrounds grid. */
-const SUPPORTED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+import { VALID_IMAGE_EXTENSIONS } from '@/lib/zod';
 
 // Uploads are scoped to a `<masjid_id>/` path prefix. RLS keeps the bucket
 // writable by any authenticated user; this prefix isolates one masjid's
@@ -46,7 +44,7 @@ export async function listUserBackgrounds(): Promise<BackgroundImage[]> {
     .filter(item => {
       if (!item.name || item.name.includes('/')) return false;
       const ext = item.name.toLowerCase().split('.').pop();
-      return SUPPORTED_EXTENSIONS.includes(ext || '');
+      return VALID_IMAGE_EXTENSIONS.includes(ext || '');
     })
     .map(item => {
       const filePath = `${masjid_id}/${item.name}`;
