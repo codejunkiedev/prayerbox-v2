@@ -3,7 +3,6 @@ import type {
   ImageValidationResult,
   ValidationConfig,
   DimensionLimits,
-  CropSuggestion,
   ImageQuality,
   ImageOrientation,
   ResolutionName,
@@ -28,27 +27,13 @@ const PORTRAIT_CONFIG: ValidationConfig = {
 } as const;
 
 const LANDSCAPE_LIMITS: DimensionLimits = {
-  min: { width: 1280, height: 720 },
   recommended: { width: 1920, height: 1080 },
   max: { width: 3840, height: 2160 },
 } as const;
 
 const PORTRAIT_LIMITS: DimensionLimits = {
-  min: { width: 720, height: 1280 },
   recommended: { width: 1080, height: 1920 },
   max: { width: 2160, height: 3840 },
-} as const;
-
-const LANDSCAPE_RESOLUTIONS = {
-  HD: '1280×720',
-  FULL_HD: '1920×1080',
-  UHD_4K: '3840×2160',
-} as const;
-
-const PORTRAIT_RESOLUTIONS = {
-  HD: '720×1280',
-  FULL_HD: '1080×1920',
-  UHD_4K: '2160×3840',
 } as const;
 
 const IMAGE_TYPE_LABELS: Record<string, string> = {
@@ -60,7 +45,7 @@ const IMAGE_TYPE_LABELS: Record<string, string> = {
 
 /**
  * The maximum display dimensions for an orientation. Oversized uploads are
- * scaled down to fit within these bounds (see `downscaleImageToFit`) rather
+ * scaled down to fit within these bounds (see `downscaleImageToCover`) rather
  * than rejected, so this doubles as the resize target ceiling.
  */
 export function getMaxDimensions(orientation: PostOrientation = 'landscape') {
@@ -196,7 +181,6 @@ function validateDimensions(
     isValid: true,
     dimensions,
     recommendation: `✓ Perfect ${name} aspect ratio confirmed.${recommendation ? ` ${recommendation}` : ''}`,
-    quality,
   };
 }
 
@@ -274,8 +258,8 @@ function generateQualityRecommendation(
   quality: ImageQuality,
   orientation: PostOrientation
 ): string {
-  const fullHd =
-    orientation === 'portrait' ? PORTRAIT_RESOLUTIONS.FULL_HD : LANDSCAPE_RESOLUTIONS.FULL_HD;
+  const { recommended } = orientation === 'portrait' ? PORTRAIT_LIMITS : LANDSCAPE_LIMITS;
+  const fullHd = `${recommended.width}×${recommended.height}`;
   switch (quality) {
     case 'minimum':
       return `For optimal quality, consider using ${fullHd} or higher.`;
@@ -331,31 +315,4 @@ function getResolutionName(width: number, height: number): ResolutionName {
   };
 
   return resolutionMap[`${width}x${height}`] || '';
-}
-
-/**
- * Suggests optimal cropping dimensions for the given image
- */
-export function suggestOptimalCrop(
-  dimensions: ImageDimensions,
-  orientation: PostOrientation = 'landscape'
-): CropSuggestion {
-  const { width, height } = dimensions;
-  const config = orientation === 'portrait' ? PORTRAIT_CONFIG : LANDSCAPE_CONFIG;
-  const { ratio, name } = config;
-
-  const cropWidth = Math.min(width, height * ratio);
-  const cropHeight = Math.min(height, width / ratio);
-
-  const originalArea = width * height;
-  const cropArea = cropWidth * cropHeight;
-  const retainedPercentage = Math.round((cropArea / originalArea) * 100);
-
-  return {
-    width: Math.round(cropWidth),
-    height: Math.round(cropHeight),
-    ratio: name,
-    cropArea: Math.round(cropArea),
-    retainedPercentage,
-  };
 }

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { listFiles } from '@/lib/supabase/helpers';
+import { VALID_IMAGE_EXTENSIONS } from '@/lib/zod';
 import { SupabaseBuckets, SupabaseFolders, type BackgroundImage } from '@/types';
-
-const SUPPORTED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
 
 /**
  * Fetches the list of background images from the Supabase
@@ -21,7 +20,7 @@ export function useBackgroundImages() {
         const filtered = files
           .filter(f => {
             const ext = f.name.toLowerCase().split('.').pop();
-            return SUPPORTED_EXTENSIONS.includes(ext || '');
+            return VALID_IMAGE_EXTENSIONS.includes(ext || '');
           })
           .sort((a, b) => a.name.localeCompare(b.name));
         setImages(filtered);

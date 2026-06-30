@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { X, Image } from 'lucide-react';
-import { cn, formatFileRejectionError } from '@/utils';
+import { cn } from '@/utils';
 import { Label } from './label';
 import { VALID_IMAGE_TYPES } from '@/lib/zod';
 import type { PostOrientation } from '@/types';
@@ -56,10 +56,7 @@ export function ImageUpload({
     maxFiles: 1,
   });
 
-  const fileRejectionError =
-    fileRejections.length > 0
-      ? formatFileRejectionError(fileRejections[0].errors[0].message)
-      : null;
+  const fileRejectionError = fileRejections.length > 0 ? fileRejections[0].errors[0].message : null;
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
