@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { X, Image } from 'lucide-react';
 import { cn, formatFileRejectionError } from '@/utils';
 import { Label } from './label';
-import { VALID_IMAGE_TYPES, MAX_FILE_SIZE } from '@/lib/zod';
+import { VALID_IMAGE_TYPES } from '@/lib/zod';
 import type { PostOrientation } from '@/types';
 
 export interface ImageUploadProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -51,7 +51,7 @@ export function ImageUpload({
     accept: {
       'image/*': VALID_IMAGE_TYPES,
     },
-    maxSize: MAX_FILE_SIZE,
+    // No maxSize: oversized images are downscaled on upload rather than rejected.
     disabled,
     maxFiles: 1,
   });
