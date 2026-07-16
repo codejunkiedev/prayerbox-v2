@@ -159,7 +159,31 @@ export type DisplayLanguage = 'en' | 'ur' | 'ar';
  * unit for the per-group size multiplier and the semantic color slot, mapped to
  * Theme 3's typographic roles.
  */
-export type CustomThemeTextGroup = 'header' | 'names' | 'times' | 'countdown' | 'date';
+export type CustomThemeTextGroup = 'header' | 'names' | 'times' | 'countdown' | 'date' | 'banner';
+
+/** Which edge of the screen the announcement banner is pinned to. */
+export type CustomThemeBannerPosition = 'top' | 'bottom';
+
+/** Scroll speed presets for the announcement banner. */
+export type CustomThemeBannerSpeed = 'slow' | 'normal' | 'fast';
+
+/**
+ * Scrolling announcement ticker for the custom theme. `text` is plain text the
+ * admin types in whatever language they want, so it does not follow the
+ * screen's Display Language: `direction` is chosen explicitly, and `font` is a
+ * font id resolved across every script rather than per-language (see
+ * `resolveFontById`). Text size and color are not stored here — the banner is a
+ * {@link CustomThemeTextGroup}, so it uses the shared size/color slots.
+ */
+export interface CustomThemeBanner {
+  enabled: boolean;
+  text: string;
+  position: CustomThemeBannerPosition;
+  direction: 'ltr' | 'rtl';
+  font: string;
+  background: { color: string; opacity: number };
+  speed: CustomThemeBannerSpeed;
+}
 
 /**
  * Per-element show/hide flags for the custom theme. The prayer-name column is
@@ -200,6 +224,7 @@ export interface CustomThemeConfig {
   size: { scale: number; groups: Record<CustomThemeTextGroup, number> };
   colors: CustomThemeColors;
   visibility: CustomThemeVisibility;
+  banner: CustomThemeBanner;
 }
 
 export interface DisplayScreen extends Base {

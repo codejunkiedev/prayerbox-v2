@@ -1,5 +1,8 @@
 import type { CustomThemeConfig } from '@/types';
 
+/** Longest announcement the banner accepts. Enforced in the controls. */
+export const BANNER_MAX_LENGTH = 500;
+
 /**
  * Seed config applied the first time a screen switches to the custom prayer
  * theme: a dark green gradient + light overlay with white text, which reads well
@@ -12,11 +15,18 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
   fonts: { english: 'inter', arabic: 'amiri', urdu: 'noto-nastaliq' },
   size: {
     scale: 1,
-    groups: { header: 1, names: 1, times: 1, countdown: 1, date: 1 },
+    groups: { header: 1, names: 1, times: 1, countdown: 1, date: 1, banner: 1 },
   },
   colors: {
     global: '#ffffff',
-    overrides: { header: null, names: null, times: null, countdown: null, date: null },
+    overrides: {
+      header: null,
+      names: null,
+      times: null,
+      countdown: null,
+      date: null,
+      banner: null,
+    },
   },
   // Everything on by default — users hide what they don't want.
   visibility: {
@@ -28,5 +38,14 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
     hijriDate: true,
     gregorianDate: true,
     clock: true,
+  },
+  banner: {
+    enabled: false,
+    text: '',
+    position: 'bottom',
+    direction: 'ltr',
+    font: 'inter',
+    background: { color: '#000000', opacity: 0.6 },
+    speed: 'normal',
   },
 };

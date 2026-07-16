@@ -8,6 +8,7 @@ import { Theme4 } from '@/components/display/prayer-timings/themes';
 import type { ThemeProps } from '@/components/display/prayer-timings/themes/types';
 import { getScreenById, updateScreenCustomTheme } from '@/lib/supabase';
 import { AppRoutes, DEFAULT_CUSTOM_THEME } from '@/constants';
+import { resolveCustomTheme } from '@/helpers';
 import type {
   CustomThemeConfig,
   DisplayLanguage,
@@ -73,7 +74,7 @@ export default function CustomThemeEditor() {
           return;
         }
         setScreen(result);
-        setConfig(result.custom_theme ?? structuredClone(DEFAULT_CUSTOM_THEME));
+        setConfig(resolveCustomTheme(result.custom_theme));
         setPreviewLanguage(result.language);
         setDirty(false);
       })

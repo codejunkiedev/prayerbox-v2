@@ -4,14 +4,18 @@ import {
   Label,
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
   Slider,
   Switch,
+  Textarea,
 } from '@/components/ui';
-import { FONTS } from '@/constants';
+import { BANNER_MAX_LENGTH, FONTS } from '@/constants';
 import {
+  type CustomThemeBanner,
   type CustomThemeConfig,
   type CustomThemeTextGroup,
   type CustomThemeVisibility,
@@ -47,6 +51,29 @@ const SIZE_GROUPS: { key: CustomThemeTextGroup; label: string }[] = [
   { key: 'countdown', label: 'Next Iqamah' },
   { key: 'header', label: 'Column headers' },
   { key: 'date', label: 'Date & sun times' },
+  { key: 'banner', label: 'Banner' },
+];
+
+const POSITION_OPTIONS: { value: CustomThemeBanner['position']; label: string }[] = [
+  { value: 'top', label: 'Top' },
+  { value: 'bottom', label: 'Bottom' },
+];
+
+const DIRECTION_OPTIONS: { value: CustomThemeBanner['direction']; label: string }[] = [
+  { value: 'ltr', label: 'Left to right' },
+  { value: 'rtl', label: 'Right to left' },
+];
+
+const SPEED_OPTIONS: { value: CustomThemeBanner['speed']; label: string }[] = [
+  { value: 'slow', label: 'Slow' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'fast', label: 'Fast' },
+];
+
+const FONT_GROUPS: { category: 'english' | 'arabic' | 'urdu'; label: string }[] = [
+  { category: 'english', label: 'English' },
+  { category: 'arabic', label: 'Arabic' },
+  { category: 'urdu', label: 'Urdu' },
 ];
 
 // The three optional prayer-time columns. The prayer-name column is always
@@ -81,8 +108,17 @@ export function CustomThemeControls({
     });
   const setVisibility = (key: keyof CustomThemeVisibility, value: boolean) =>
     update({ visibility: { ...config.visibility, [key]: value } });
+  const setBanner = (patch: Partial<CustomThemeBanner>) =>
+    update({ banner: { ...config.banner, ...patch } });
+  const setBannerBackground = (patch: Partial<CustomThemeBanner['background']>) =>
+    setBanner({ background: { ...config.banner.background, ...patch } });
 
   const visibleColumnCount = COLUMN_TOGGLES.filter(c => config.visibility[c.key]).length;
+  const bannerId = useId();
+  // The banner's size and color rows would be dead controls while it's hidden.
+  const textGroups = config.banner.enabled
+    ? SIZE_GROUPS
+    : SIZE_GROUPS.filter(g => g.key !== 'banner');
 
   return (
     <div className='space-y-6'>
@@ -119,7 +155,7 @@ export function CustomThemeControls({
           onChange={v => update({ size: { ...config.size, scale: v } })}
         />
         <div className='space-y-3 pl-1'>
-          {SIZE_GROUPS.map(g => (
+          {textGroups.map(g => (
             <MultiplierSlider
               key={g.key}
               label={g.label}
@@ -150,7 +186,7 @@ export function CustomThemeControls({
           <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
             Per-group overrides
           </Label>
-          {SIZE_GROUPS.map(g => {
+          {textGroups.map(g => {
             const override = config.colors.overrides[g.key];
             const isCustom = override !== null;
             return (
@@ -222,6 +258,140 @@ export function CustomThemeControls({
           ))}
         </div>
       </section>
+
+      {/* Banner — a scrolling announcement ticker */}
+      <section className='space-y-3'>
+        <div className='flex items-center justify-between'>
+          <Label className='text-sm font-semibold'>Banner</Label>
+          <div className='flex items-center gap-2'>
+            <Label htmlFor={bannerId} className='text-xs text-muted-foreground cursor-pointer'>
+              Show
+            </Label>
+            <Switch
+              id={bannerId}
+              checked={config.banner.enabled}
+              onCheckedChange={enabled => setBanner({ enabled })}
+            />
+          </div>
+        </div>
+        {config.banner.enabled && (
+          <>
+            <div className='space-y-1'>
+              <Textarea
+                value={config.banner.text}
+                onChange={e => setBanner({ text: e.target.value.slice(0, BANNER_MAX_LENGTH) })}
+                maxLength={BANNER_MAX_LENGTH}
+                rows={3}
+                placeholder='Announcement to scroll across the screen'
+                className='resize-none'
+              />
+              <p className='text-[10px] text-muted-foreground text-right'>
+                {config.banner.text.length}/{BANNER_MAX_LENGTH}
+              </p>
+            </div>
+
+            <OptionSelect
+              label='Position'
+              value={config.banner.position}
+              options={POSITION_OPTIONS}
+              onChange={position => setBanner({ position })}
+            />
+
+            <OptionSelect
+              label='Direction'
+              value={config.banner.direction}
+              options={DIRECTION_OPTIONS}
+              onChange={direction => setBanner({ direction })}
+            />
+            <p className='text-[10px] text-muted-foreground'>
+              Use RTL for Urdu and Arabic text, which scrolls the other way.
+            </p>
+
+            <div className='space-y-1'>
+              <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+                Font
+              </Label>
+              <Select value={config.banner.font} onValueChange={font => setBanner({ font })}>
+                <SelectTrigger className='w-full'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FONT_GROUPS.map(group => (
+                    <SelectGroup key={group.category}>
+                      <SelectLabel>{group.label}</SelectLabel>
+                      {FONTS[group.category].map(f => (
+                        <SelectItem key={f.id} value={f.id}>
+                          {f.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className='space-y-1'>
+              <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+                Background
+              </Label>
+              <ColorInput
+                value={config.banner.background.color}
+                onChange={color => setBannerBackground({ color })}
+                className='h-9 w-full p-1'
+              />
+            </div>
+            <Label className='text-xs text-muted-foreground'>
+              Opacity: {Math.round(config.banner.background.opacity * 100)}%
+            </Label>
+            <Slider
+              min={0}
+              max={100}
+              step={1}
+              value={[config.banner.background.opacity * 100]}
+              onValueChange={v => setBannerBackground({ opacity: v[0] / 100 })}
+            />
+
+            <OptionSelect
+              label='Speed'
+              value={config.banner.speed}
+              options={SPEED_OPTIONS}
+              onChange={speed => setBanner({ speed })}
+            />
+
+            <p className='text-[10px] text-muted-foreground'>
+              Banner text size and color are in the Text size and Text colors sections. Text that
+              fits the screen stays still instead of scrolling.
+            </p>
+          </>
+        )}
+      </section>
+    </div>
+  );
+}
+
+interface OptionSelectProps<T extends string> {
+  label: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+}
+
+function OptionSelect<T extends string>({ label, value, options, onChange }: OptionSelectProps<T>) {
+  return (
+    <div className='space-y-1'>
+      <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>{label}</Label>
+      <Select value={value} onValueChange={v => onChange(v as T)}>
+        <SelectTrigger className='w-full'>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map(o => (
+            <SelectItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
