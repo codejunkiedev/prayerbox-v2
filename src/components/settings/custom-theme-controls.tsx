@@ -152,7 +152,11 @@ export function CustomThemeControls({
           applies to whichever layout is selected here. */}
       <section className='space-y-3'>
         <Label className='text-sm font-semibold'>Layout</Label>
-        <LayoutPicker value={config.layout} onChange={layout => update({ layout })} />
+        <LayoutPicker
+          value={config.layout}
+          onChange={layout => update({ layout })}
+          isPortrait={orientation === 'portrait'}
+        />
         <p className='text-[10px] text-muted-foreground'>{activeLayout?.description}</p>
       </section>
 
@@ -410,14 +414,20 @@ export function CustomThemeControls({
 interface LayoutPickerProps {
   value: CustomThemeLayout;
   onChange: (value: CustomThemeLayout) => void;
+  isPortrait: boolean;
 }
 
 /**
  * Picks the arrangement from schematics rather than a dropdown: the difference
  * between these options is entirely spatial, and a name like "Spotlight" does
  * not carry it.
+ *
+ * The schematics follow the screen's orientation, because the layouts genuinely
+ * rearrange between the two — spotlight splits left/right in landscape but
+ * top/bottom in portrait. A fixed 16:9 wireframe would advertise the wrong
+ * arrangement to half the screens.
  */
-function LayoutPicker({ value, onChange }: LayoutPickerProps) {
+function LayoutPicker({ value, onChange, isPortrait }: LayoutPickerProps) {
   return (
     <div className='grid grid-cols-3 gap-2'>
       {LAYOUT_OPTIONS.map(option => {
@@ -435,13 +445,16 @@ function LayoutPicker({ value, onChange }: LayoutPickerProps) {
                 : 'border-input hover:border-muted-foreground/40'
             )}
           >
+            {/* A 9:16 wireframe at full button width would tower over the panel,
+                so portrait insets it and keeps the three buttons compact. */}
             <div
               className={cn(
-                'aspect-video w-full overflow-hidden rounded-[3px] bg-muted',
+                'overflow-hidden rounded-[3px] bg-muted',
+                isPortrait ? 'mx-auto aspect-[9/16] w-[62%]' : 'aspect-video w-full',
                 selected ? 'text-primary' : 'text-muted-foreground'
               )}
             >
-              <LayoutThumbnail layout={option.value} />
+              <LayoutThumbnail layout={option.value} isPortrait={isPortrait} />
             </div>
             <span
               className={cn(
@@ -464,7 +477,15 @@ function LayoutPicker({ value, onChange }: LayoutPickerProps) {
  * the real theme — at this size the schematic reads better than a screenshot,
  * and it does not go stale when the theme's styling changes.
  */
-function LayoutThumbnail({ layout }: { layout: CustomThemeLayout }) {
+function LayoutThumbnail({
+  layout,
+  isPortrait,
+}: {
+  layout: CustomThemeLayout;
+  isPortrait: boolean;
+}) {
+  // Dates left, clock centre, masjid name right — the row every layout but
+  // spotlight puts across the top in landscape.
   const infoBar = (
     <div className='flex items-center justify-between'>
       <div className='h-[2px] w-[9px] rounded-full bg-current/50' />
@@ -473,8 +494,35 @@ function LayoutThumbnail({ layout }: { layout: CustomThemeLayout }) {
     </div>
   );
 
+  // Portrait stacks the same row into a centred masjid name over the clock.
+  const infoStack = (
+    <div className='flex flex-col items-center gap-[1px]'>
+      <div className='h-[2px] w-[12px] rounded-full bg-current/50' />
+      <div className='h-[4px] w-[10px] rounded-[1px] bg-current/70' />
+    </div>
+  );
+
+  const line = (i: number, strong = false) => (
+    <div
+      key={i}
+      className={`h-[1.5px] w-full rounded-full ${strong ? 'bg-current/70' : 'bg-current/40'}`}
+    />
+  );
+
   if (layout === 'cards') {
-    return (
+    return isPortrait ? (
+      <div className='flex h-full w-full flex-col gap-[2px] p-[3px]'>
+        {infoStack}
+        <div className='h-[3px] w-full rounded-[1px] bg-current/25' />
+        {/* Two-up, with the odd last card spanning the row — as it renders. */}
+        <div className='grid flex-1 grid-cols-2 grid-rows-3 gap-[2px]'>
+          {Array.from({ length: 4 }, (_, i) => (
+            <div key={i} className='rounded-[2px] border border-current/25 bg-current/10' />
+          ))}
+          <div className='col-span-2 rounded-[2px] border border-current/25 bg-current/10' />
+        </div>
+      </div>
+    ) : (
       <div className='flex h-full w-full flex-col gap-[3px] p-[4px]'>
         {infoBar}
         <div className='h-[4px] w-full rounded-[2px] bg-current/25' />
@@ -488,30 +536,48 @@ function LayoutThumbnail({ layout }: { layout: CustomThemeLayout }) {
   }
 
   if (layout === 'spotlight') {
-    return (
+    // The hero and the table sit side by side in landscape but stack in portrait.
+    return isPortrait ? (
+      <div className='flex h-full w-full flex-col gap-[3px] p-[3px]'>
+        <div className='flex flex-[5] flex-col items-center justify-center gap-[2px] rounded-[2px] bg-current/10'>
+          <div className='h-[2px] w-[10px] rounded-full bg-current/50' />
+          <div className='h-[10px] w-[18px] rounded-[2px] bg-current/70' />
+        </div>
+        <div className='flex flex-[4] flex-col justify-evenly gap-[2px] px-[2px]'>
+          {Array.from({ length: 5 }, (_, i) => line(i))}
+        </div>
+      </div>
+    ) : (
       <div className='flex h-full w-full gap-[3px] p-[4px]'>
         <div className='flex flex-[4] flex-col items-center justify-center gap-[2px] rounded-[2px] bg-current/10'>
           <div className='h-[2px] w-[10px] rounded-full bg-current/50' />
           <div className='h-[8px] w-[16px] rounded-[2px] bg-current/70' />
         </div>
         <div className='flex flex-[5] flex-col justify-evenly gap-[2px] px-[2px] py-[3px]'>
-          {Array.from({ length: 5 }, (_, i) => (
-            <div key={i} className='h-[1.5px] w-full rounded-full bg-current/45' />
-          ))}
+          {Array.from({ length: 5 }, (_, i) => line(i))}
         </div>
       </div>
     );
   }
 
-  return (
+  // Table: the countdown card sits beside the table in landscape, beneath it in
+  // portrait.
+  return isPortrait ? (
+    <div className='flex h-full w-full flex-col gap-[2px] p-[3px]'>
+      {infoBar}
+      <div className='flex flex-1 flex-col justify-evenly gap-[2px] rounded-[2px] border border-current/25 px-[3px] py-[2px]'>
+        {line(0, true)}
+        {Array.from({ length: 4 }, (_, i) => line(i + 1))}
+      </div>
+      <div className='h-[7px] w-full rounded-[2px] border border-current/25 bg-current/15' />
+    </div>
+  ) : (
     <div className='flex h-full w-full flex-col gap-[3px] p-[4px]'>
       {infoBar}
       <div className='flex flex-1 gap-[3px]'>
         <div className='flex flex-[3] flex-col justify-evenly gap-[2px] rounded-[2px] border border-current/25 px-[3px] py-[2px]'>
-          <div className='h-[1.5px] w-full rounded-full bg-current/70' />
-          {Array.from({ length: 3 }, (_, i) => (
-            <div key={i} className='h-[1.5px] w-full rounded-full bg-current/40' />
-          ))}
+          {line(0, true)}
+          {Array.from({ length: 3 }, (_, i) => line(i + 1))}
         </div>
         <div className='flex-1 rounded-[2px] border border-current/25 bg-current/15' />
       </div>
