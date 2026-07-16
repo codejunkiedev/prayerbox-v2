@@ -65,6 +65,8 @@ export type ChangeEmailData = z.infer<typeof changeEmailSchema>;
 
 export const masjidProfileSchema = z.object({
   name: z.string().min(1, 'Masjid name is required'),
+  name_ur: z.string(),
+  name_ar: z.string(),
   area: z.string().min(1, 'Area is required'),
   area_ur: z.string(),
   area_ar: z.string(),
