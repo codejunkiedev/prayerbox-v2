@@ -6,10 +6,14 @@ export const BANNER_MAX_LENGTH = 500;
 /**
  * Seed config applied the first time a screen switches to the custom prayer
  * theme: a dark green gradient + light overlay with white text, which reads well
- * over Theme 3's transparent-chrome layout. Multipliers default to 1.0 so the
- * base Theme 3 hierarchy is preserved until the user changes something.
+ * over the transparent-chrome layouts. Multipliers default to 1.0 so each
+ * layout's own typographic hierarchy is preserved until the user changes
+ * something. `layout` seeds to `table` — the only arrangement that existed
+ * before the selector shipped, so it is also what every stored theme without a
+ * `layout` key resolves to (see `resolveCustomTheme`).
  */
 export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
+  layout: 'table',
   background: { type: 'gradient', from: '#064e3b', to: '#022c22', angle: 135 },
   overlay: { enabled: true, color: '#000000', opacity: 0.3 },
   fonts: { english: 'inter', arabic: 'amiri', urdu: 'noto-nastaliq' },

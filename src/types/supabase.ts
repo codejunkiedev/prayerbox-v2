@@ -170,6 +170,16 @@ export type CustomThemeTextGroup =
   | 'masjidName'
   | 'banner';
 
+/**
+ * Arrangement of the custom theme's elements. Every layout renders the same
+ * data and honours every other setting — the choice is composition only:
+ *
+ * - `table`     Theme 3's arrangement: top bar, prayer table, countdown card.
+ * - `cards`     One card per prayer in a grid, under a countdown ribbon.
+ * - `spotlight` The countdown as the hero, beside a compact prayer list.
+ */
+export type CustomThemeLayout = 'table' | 'cards' | 'spotlight';
+
 /** Which edge of the screen the announcement banner is pinned to. */
 export type CustomThemeBannerPosition = 'top' | 'bottom';
 
@@ -197,7 +207,7 @@ export interface CustomThemeBanner {
 /**
  * Per-element show/hide flags for the custom theme. The prayer-name column is
  * always shown; at least one of the three time columns must stay visible
- * (enforced in the controls). Hidden elements reflow within Theme 3's layout.
+ * (enforced in the controls). Hidden elements reflow within the chosen layout.
  */
 export interface CustomThemeVisibility {
   columnStarts: boolean;
@@ -221,13 +231,14 @@ export interface CustomThemeColors {
 }
 
 /**
- * Per-screen config for the custom prayer-timings theme (theme-4). Reuses
- * Theme 3's layout/hierarchy as the fixed base; these controls affect
- * appearance and element visibility only — never positioning. `size.scale` is
- * a global multiplier on Theme 3's base sizes, `size.groups` are per-group
- * fine-tune multipliers on top of it.
+ * Per-screen config for the custom prayer-timings theme (theme-4). `layout`
+ * picks the arrangement; every other setting is shared across all of them and
+ * affects appearance and element visibility only — never positioning within a
+ * layout. `size.scale` is a global multiplier on the layout's base sizes,
+ * `size.groups` are per-group fine-tune multipliers on top of it.
  */
 export interface CustomThemeConfig {
+  layout: CustomThemeLayout;
   background: AyatHadithBackground;
   overlay: { enabled: boolean; color: string; opacity: number };
   fonts: { english: string; arabic: string; urdu: string };
