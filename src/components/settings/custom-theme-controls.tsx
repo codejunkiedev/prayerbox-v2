@@ -51,6 +51,7 @@ const SIZE_GROUPS: { key: CustomThemeTextGroup; label: string }[] = [
   { key: 'countdown', label: 'Next Iqamah' },
   { key: 'header', label: 'Column headers' },
   { key: 'date', label: 'Date & sun times' },
+  { key: 'masjidName', label: 'Masjid name' },
   { key: 'banner', label: 'Banner' },
 ];
 
@@ -88,6 +89,7 @@ const FIELD_TOGGLES: { key: keyof CustomThemeVisibility; label: string }[] = [
   { key: 'clock', label: 'Clock' },
   { key: 'gregorianDate', label: 'Gregorian date' },
   { key: 'hijriDate', label: 'Hijri date' },
+  { key: 'masjidName', label: 'Masjid name' },
   { key: 'sunriseSunset', label: 'Sunrise & sunset' },
   { key: 'nextIqamahCard', label: 'Next Iqamah card' },
 ];
@@ -115,10 +117,11 @@ export function CustomThemeControls({
 
   const visibleColumnCount = COLUMN_TOGGLES.filter(c => config.visibility[c.key]).length;
   const bannerId = useId();
-  // The banner's size and color rows would be dead controls while it's hidden.
-  const textGroups = config.banner.enabled
-    ? SIZE_GROUPS
-    : SIZE_GROUPS.filter(g => g.key !== 'banner');
+
+  const hiddenGroups = new Set<CustomThemeTextGroup>();
+  if (!config.banner.enabled) hiddenGroups.add('banner');
+  if (!config.visibility.masjidName) hiddenGroups.add('masjidName');
+  const textGroups = SIZE_GROUPS.filter(g => !hiddenGroups.has(g.key));
 
   return (
     <div className='space-y-6'>
@@ -256,6 +259,10 @@ export function CustomThemeControls({
               onChange={v => setVisibility(f.key, v)}
             />
           ))}
+          <p className='text-[10px] text-muted-foreground'>
+            The masjid name comes from your profile. Urdu and Arabic screens use the translated name
+            when you have set one, and the English name otherwise.
+          </p>
         </div>
       </section>
 

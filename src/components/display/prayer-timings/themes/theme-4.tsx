@@ -27,6 +27,7 @@ const BASE_SIZES = {
     hijri: 1.1,
     clockNum: 5,
     clockAmPm: 2,
+    masjidName: 1.6,
     sunLabel: 0.9,
     sunNum: 1.3,
     sunAmPm: 0.7,
@@ -45,6 +46,7 @@ const BASE_SIZES = {
     hijri: 2.8,
     clockNum: 10,
     clockAmPm: 4,
+    masjidName: 3.4,
     sunLabel: 2.2,
     sunNum: 3,
     sunAmPm: 1.8,
@@ -74,6 +76,7 @@ export function Theme4({
   processedPrayerTimings,
   prayerTimeSettings,
   orientation,
+  masjidName,
   customTheme,
   previewLanguage,
 }: ThemeProps) {
@@ -199,6 +202,22 @@ export function Theme4({
       </span>
     </div>
   );
+
+  const trimmedMasjidName = masjidName?.trim();
+  const masjidNameEl =
+    vis.masjidName && trimmedMasjidName ? (
+      <span
+        dir={dir}
+        className={`font-bold text-right leading-tight ${fontClass}`}
+        style={{
+          fontSize: fs(S.masjidName, 'masjidName'),
+          color: color('masjidName'),
+          fontFamily: primaryFamily,
+        }}
+      >
+        {trimmedMasjidName}
+      </span>
+    ) : null;
 
   const colHeader = (text: string, center = false) => (
     <span
@@ -377,6 +396,7 @@ export function Theme4({
           <div className='justify-self-center'>{vis.clock ? clock : null}</div>
 
           <div className='flex flex-col items-end gap-[0.4cqh] justify-self-end'>
+            {masjidNameEl}
             {vis.sunriseSunset && (
               <>
                 {sunRow(
@@ -485,9 +505,10 @@ export function Theme4({
 
         <div className='justify-self-center'>{vis.clock ? clock : null}</div>
 
-        <div className='flex items-center gap-[2cqw] justify-self-end'>
+        <div className='flex flex-col items-end gap-[0.3cqh] justify-self-end'>
+          {masjidNameEl}
           {vis.sunriseSunset && (
-            <>
+            <div className='flex items-center gap-[2cqw]'>
               {sunRow(
                 t('prayer.sunrise'),
                 sunriseNum,
@@ -502,7 +523,7 @@ export function Theme4({
                 'text-orange-400',
                 'text-orange-400/80'
               )}
-            </>
+            </div>
           )}
         </div>
       </div>

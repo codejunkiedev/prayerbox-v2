@@ -15,7 +15,7 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
   fonts: { english: 'inter', arabic: 'amiri', urdu: 'noto-nastaliq' },
   size: {
     scale: 1,
-    groups: { header: 1, names: 1, times: 1, countdown: 1, date: 1, banner: 1 },
+    groups: { header: 1, names: 1, times: 1, countdown: 1, date: 1, masjidName: 1, banner: 1 },
   },
   colors: {
     global: '#ffffff',
@@ -25,6 +25,7 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
       times: null,
       countdown: null,
       date: null,
+      masjidName: null,
       banner: null,
     },
   },
@@ -33,6 +34,7 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
     columnStarts: true,
     columnAthan: true,
     columnIqamah: true,
+    masjidName: true,
     sunriseSunset: true,
     nextIqamahCard: true,
     hijriDate: true,

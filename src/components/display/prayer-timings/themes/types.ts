@@ -15,6 +15,12 @@ export interface ThemeProps {
   processedPrayerTimings: ProcessedPrayerTiming[];
   prayerTimeSettings: PrayerTimes | null;
   orientation: ScreenOrientation;
+  /**
+   * The masjid's name, already resolved to the language being rendered (see
+   * `localizedProfileField`). Only consumed by the custom theme (theme-4);
+   * blank hides it.
+   */
+  masjidName?: string;
   /** Only consumed by the custom theme (theme-4); null falls back to defaults. */
   customTheme?: CustomThemeConfig | null;
   /**
