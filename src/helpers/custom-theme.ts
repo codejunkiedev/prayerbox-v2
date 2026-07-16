@@ -7,6 +7,7 @@ import type { CustomThemeBanner, CustomThemeConfig } from '@/types';
  * a screen saved before a control shipped simply has no key for it.
  */
 type StoredCustomTheme = {
+  layout?: CustomThemeConfig['layout'];
   background?: CustomThemeConfig['background'];
   overlay?: Partial<CustomThemeConfig['overlay']>;
   fonts?: Partial<CustomThemeConfig['fonts']>;
@@ -35,6 +36,7 @@ export function resolveCustomTheme(
   if (!stored) return structuredClone(defaults);
   const s = stored as StoredCustomTheme;
   return {
+    layout: s.layout ?? defaults.layout,
     background: s.background ?? structuredClone(defaults.background),
     overlay: { ...defaults.overlay, ...s.overlay },
     fonts: { ...defaults.fonts, ...s.fonts },

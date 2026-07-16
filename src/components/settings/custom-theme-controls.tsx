@@ -17,12 +17,14 @@ import { BANNER_MAX_LENGTH, FONTS } from '@/constants';
 import {
   type CustomThemeBanner,
   type CustomThemeConfig,
+  type CustomThemeLayout,
   type CustomThemeTextGroup,
   type CustomThemeVisibility,
   type DisplayLanguage,
   type PostOrientation,
 } from '@/types';
 import { BackgroundControl } from '@/components/common';
+import { cn } from '@/utils';
 
 interface CustomThemeControlsProps {
   config: CustomThemeConfig;
@@ -39,6 +41,25 @@ const FONT_CATEGORY_BY_LANGUAGE: Record<DisplayLanguage, 'english' | 'arabic' | 
   ar: 'arabic',
   ur: 'urdu',
 };
+
+const LAYOUT_OPTIONS: { value: CustomThemeLayout; label: string; description: string }[] = [
+  {
+    value: 'table',
+    label: 'Table',
+    description: 'An info bar across the top, a full prayer table, and the countdown in its card.',
+  },
+  {
+    value: 'cards',
+    label: 'Cards',
+    description:
+      'One card per prayer, each with its own times, under a single-line countdown ribbon.',
+  },
+  {
+    value: 'spotlight',
+    label: 'Spotlight',
+    description: 'The countdown large and centred, with the prayer times as a panel beside it.',
+  },
+];
 
 // Both the Overall scale and the per-group sliders reach well above 1× so a
 // whole screen — or a single group — can be enlarged substantially. Per-group
@@ -123,8 +144,18 @@ export function CustomThemeControls({
   if (!config.visibility.masjidName) hiddenGroups.add('masjidName');
   const textGroups = SIZE_GROUPS.filter(g => !hiddenGroups.has(g.key));
 
+  const activeLayout = LAYOUT_OPTIONS.find(o => o.value === config.layout);
+
   return (
     <div className='space-y-6'>
+      {/* Layout — arrangement only. Every other section below is shared: it
+          applies to whichever layout is selected here. */}
+      <section className='space-y-3'>
+        <Label className='text-sm font-semibold'>Layout</Label>
+        <LayoutPicker value={config.layout} onChange={layout => update({ layout })} />
+        <p className='text-[10px] text-muted-foreground'>{activeLayout?.description}</p>
+      </section>
+
       <BackgroundControl
         background={config.background}
         onBackgroundChange={background => update({ background })}
@@ -372,6 +403,118 @@ export function CustomThemeControls({
           </>
         )}
       </section>
+    </div>
+  );
+}
+
+interface LayoutPickerProps {
+  value: CustomThemeLayout;
+  onChange: (value: CustomThemeLayout) => void;
+}
+
+/**
+ * Picks the arrangement from schematics rather than a dropdown: the difference
+ * between these options is entirely spatial, and a name like "Spotlight" does
+ * not carry it.
+ */
+function LayoutPicker({ value, onChange }: LayoutPickerProps) {
+  return (
+    <div className='grid grid-cols-3 gap-2'>
+      {LAYOUT_OPTIONS.map(option => {
+        const selected = value === option.value;
+        return (
+          <button
+            key={option.value}
+            type='button'
+            onClick={() => onChange(option.value)}
+            aria-pressed={selected}
+            className={cn(
+              'flex flex-col gap-1.5 rounded-md border p-1.5 text-left transition-colors',
+              selected
+                ? 'border-primary bg-primary/5'
+                : 'border-input hover:border-muted-foreground/40'
+            )}
+          >
+            <div
+              className={cn(
+                'aspect-video w-full overflow-hidden rounded-[3px] bg-muted',
+                selected ? 'text-primary' : 'text-muted-foreground'
+              )}
+            >
+              <LayoutThumbnail layout={option.value} />
+            </div>
+            <span
+              className={cn(
+                'text-[11px] font-medium leading-none',
+                selected ? 'text-foreground' : 'text-muted-foreground'
+              )}
+            >
+              {option.label}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * A wireframe of each layout, drawn from divs that inherit the button's text
+ * colour so the selected one tints with the accent. Deliberately not a render of
+ * the real theme — at this size the schematic reads better than a screenshot,
+ * and it does not go stale when the theme's styling changes.
+ */
+function LayoutThumbnail({ layout }: { layout: CustomThemeLayout }) {
+  const infoBar = (
+    <div className='flex items-center justify-between'>
+      <div className='h-[2px] w-[9px] rounded-full bg-current/50' />
+      <div className='h-[4px] w-[8px] rounded-[1px] bg-current/70' />
+      <div className='h-[2px] w-[9px] rounded-full bg-current/50' />
+    </div>
+  );
+
+  if (layout === 'cards') {
+    return (
+      <div className='flex h-full w-full flex-col gap-[3px] p-[4px]'>
+        {infoBar}
+        <div className='h-[4px] w-full rounded-[2px] bg-current/25' />
+        <div className='flex flex-1 gap-[2px]'>
+          {Array.from({ length: 5 }, (_, i) => (
+            <div key={i} className='flex-1 rounded-[2px] border border-current/25 bg-current/10' />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (layout === 'spotlight') {
+    return (
+      <div className='flex h-full w-full gap-[3px] p-[4px]'>
+        <div className='flex flex-[4] flex-col items-center justify-center gap-[2px] rounded-[2px] bg-current/10'>
+          <div className='h-[2px] w-[10px] rounded-full bg-current/50' />
+          <div className='h-[8px] w-[16px] rounded-[2px] bg-current/70' />
+        </div>
+        <div className='flex flex-[5] flex-col justify-evenly gap-[2px] px-[2px] py-[3px]'>
+          {Array.from({ length: 5 }, (_, i) => (
+            <div key={i} className='h-[1.5px] w-full rounded-full bg-current/45' />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className='flex h-full w-full flex-col gap-[3px] p-[4px]'>
+      {infoBar}
+      <div className='flex flex-1 gap-[3px]'>
+        <div className='flex flex-[3] flex-col justify-evenly gap-[2px] rounded-[2px] border border-current/25 px-[3px] py-[2px]'>
+          <div className='h-[1.5px] w-full rounded-full bg-current/70' />
+          {Array.from({ length: 3 }, (_, i) => (
+            <div key={i} className='h-[1.5px] w-full rounded-full bg-current/40' />
+          ))}
+        </div>
+        <div className='flex-1 rounded-[2px] border border-current/25 bg-current/15' />
+      </div>
     </div>
   );
 }
