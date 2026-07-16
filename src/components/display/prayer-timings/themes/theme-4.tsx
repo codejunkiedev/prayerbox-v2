@@ -10,15 +10,13 @@ import {
 import type { ThemeProps } from './types';
 import {
   Theme,
-  type CustomThemeConfig,
   type CustomThemeTextGroup,
   type DisplayLanguage,
   type PrayerAdjustments,
   type ProcessedPrayerTiming,
 } from '@/types';
-import { DEFAULT_CUSTOM_THEME } from '@/constants';
-import { backgroundCss, resolveFont } from '@/helpers';
-import { CurrentTime } from '@/components/display/shared';
+import { backgroundCss, resolveCustomTheme, resolveFont, resolveFontById } from '@/helpers';
+import { CurrentTime, ScrollingBanner } from '@/components/display/shared';
 import { getDir, getFontClass } from '@/i18n';
 
 // Theme 3's base font sizes (in vw) per orientation. The custom theme scales
@@ -40,6 +38,7 @@ const BASE_SIZES = {
     ciName: 1.2,
     ciBig: 4.5,
     ciUnit: 1.1,
+    banner: 1.5,
   },
   portrait: {
     greg: 3.2,
@@ -57,6 +56,7 @@ const BASE_SIZES = {
     ciName: 3,
     ciBig: 12,
     ciUnit: 3.5,
+    banner: 3.4,
   },
 } as const;
 
@@ -77,7 +77,10 @@ export function Theme4({
   customTheme,
   previewLanguage,
 }: ThemeProps) {
-  const cfg: CustomThemeConfig = customTheme ?? DEFAULT_CUSTOM_THEME;
+  // Normalized rather than defaulted: a theme saved before a control shipped is
+  // non-null but missing that control's keys. Memoized because this rebuilds the
+  // config and the clock re-renders the theme every second.
+  const cfg = useMemo(() => resolveCustomTheme(customTheme), [customTheme]);
   const vis = cfg.visibility;
   const isPortrait = orientation === 'portrait';
   const S = isPortrait ? BASE_SIZES.portrait : BASE_SIZES.landscape;
@@ -308,6 +311,22 @@ export function Theme4({
     opacity: 0.8,
   };
 
+  const bannerText = cfg.banner.text.trim();
+  const banner =
+    cfg.banner.enabled && bannerText ? (
+      <ScrollingBanner
+        text={bannerText}
+        direction={cfg.banner.direction}
+        speed={cfg.banner.speed}
+        fontFamily={resolveFontById(cfg.banner.font).family}
+        fontSize={fs(S.banner, 'banner')}
+        color={color('banner')}
+        backgroundColor={cfg.banner.background.color}
+        backgroundOpacity={cfg.banner.background.opacity}
+        paddingBlock={isPortrait ? '1.2cqh' : '1cqh'}
+      />
+    ) : null;
+
   const root = (children: ReactNode) => (
     <div
       className='relative w-full h-full overflow-hidden select-none'
@@ -319,7 +338,11 @@ export function Theme4({
           style={{ backgroundColor: cfg.overlay.color, opacity: cfg.overlay.opacity }}
         />
       )}
-      <div className='relative z-10 w-full h-full flex flex-col'>{children}</div>
+      <div className='relative z-10 w-full h-full flex flex-col'>
+        {cfg.banner.position === 'top' && banner}
+        {children}
+        {cfg.banner.position === 'bottom' && banner}
+      </div>
     </div>
   );
 

@@ -258,48 +258,110 @@
 
 /* Display animation keyframes (replaces framer-motion) */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fade-in-down {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes scale-x-in {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 @keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-100px); }
-  to { opacity: 0.2; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 0.2;
+    transform: translateX(0);
+  }
 }
 
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(100px); }
-  to { opacity: 0.2; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 0.2;
+    transform: translateX(0);
+  }
 }
 
 @keyframes scale-fade-in {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes pulse-shadow {
-  0%, 100% { box-shadow: 0 0 10px 0px rgba(255, 255, 255, 0.1); }
-  50% { box-shadow: 0 0 20px 3px rgba(255, 255, 255, 0.2); }
+  0%,
+  100% {
+    box-shadow: 0 0 10px 0px rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 20px 3px rgba(255, 255, 255, 0.2);
+  }
 }
 
 @keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Announcement banner ticker (custom theme). The track holds two identical
+   copies of the text, so -50% lands exactly on the start of the second copy —
+   a position visually identical to the start, which is what makes the reset
+   invisible rather than a jump. Transform-only and composited, so a low-end TV
+   box scrolls it on the GPU without laying out a frame; the duration is set
+   inline from the measured text width to hold pixels-per-second constant. */
+@keyframes banner-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 .animate-fade-in {
@@ -343,15 +405,40 @@
   animation: spin-slow 2s linear infinite;
 }
 
+/* Longhands, not the shorthand: duration and direction are supplied inline
+   per-banner and the shorthand would reset them. */
+.animate-banner-marquee {
+  animation-name: banner-marquee;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
 /* Staggered children animation delays */
-.stagger-children > .stagger-item:nth-child(1) { animation-delay: 0.3s; }
-.stagger-children > .stagger-item:nth-child(2) { animation-delay: 0.5s; }
-.stagger-children > .stagger-item:nth-child(3) { animation-delay: 0.7s; }
-.stagger-children > .stagger-item:nth-child(4) { animation-delay: 0.9s; }
-.stagger-children > .stagger-item:nth-child(5) { animation-delay: 1.1s; }
-.stagger-children > .stagger-item:nth-child(6) { animation-delay: 1.3s; }
-.stagger-children > .stagger-item:nth-child(7) { animation-delay: 1.5s; }
-.stagger-children > .stagger-item:nth-child(8) { animation-delay: 1.7s; }
+.stagger-children > .stagger-item:nth-child(1) {
+  animation-delay: 0.3s;
+}
+.stagger-children > .stagger-item:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.stagger-children > .stagger-item:nth-child(3) {
+  animation-delay: 0.7s;
+}
+.stagger-children > .stagger-item:nth-child(4) {
+  animation-delay: 0.9s;
+}
+.stagger-children > .stagger-item:nth-child(5) {
+  animation-delay: 1.1s;
+}
+.stagger-children > .stagger-item:nth-child(6) {
+  animation-delay: 1.3s;
+}
+.stagger-children > .stagger-item:nth-child(7) {
+  animation-delay: 1.5s;
+}
+.stagger-children > .stagger-item:nth-child(8) {
+  animation-delay: 1.7s;
+}
 
 /* Digital font styles */
 .digital-font {
