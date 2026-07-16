@@ -47,6 +47,8 @@ export default function Profile() {
     resolver: zodResolver(masjidProfileSchema),
     defaultValues: {
       name: '',
+      name_ur: '',
+      name_ar: '',
       area: '',
       area_ur: '',
       area_ar: '',
@@ -68,6 +70,8 @@ export default function Profile() {
         if (profile) {
           reset({
             name: profile.name,
+            name_ur: profile.name_ur || '',
+            name_ar: profile.name_ar || '',
             area: profile.area || '',
             area_ur: profile.area_ur || '',
             area_ar: profile.area_ar || '',
@@ -174,7 +178,7 @@ export default function Profile() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
-              <div className='grid gap-4 grid-cols-1'>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <div className='space-y-2'>
                   <label htmlFor='name' className='block text-sm font-medium text-foreground'>
                     Masjid Name
@@ -189,9 +193,39 @@ export default function Profile() {
                     <p className='text-red-500 text-sm mt-1'>{errors.name.message}</p>
                   )}
                 </div>
+
+                <div className='space-y-2'>
+                  <label htmlFor='name_ur' className='block text-sm font-medium text-foreground'>
+                    Masjid Name (Urdu)
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>Optional</span>
+                  </label>
+                  <Input
+                    id='name_ur'
+                    {...register('name_ur')}
+                    dir='rtl'
+                    lang='ur'
+                    placeholder='مثلاً مسجد الفلاح'
+                    className='font-urdu text-right'
+                  />
+                </div>
+
+                <div className='space-y-2'>
+                  <label htmlFor='name_ar' className='block text-sm font-medium text-foreground'>
+                    Masjid Name (Arabic)
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>Optional</span>
+                  </label>
+                  <Input
+                    id='name_ar'
+                    {...register('name_ar')}
+                    dir='rtl'
+                    lang='ar'
+                    placeholder='مثال: مسجد الفلاح'
+                    className='font-arabic text-right'
+                  />
+                </div>
               </div>
 
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                 <div className='space-y-2'>
                   <label htmlFor='area' className='block text-sm font-medium text-foreground'>
                     Area
@@ -208,44 +242,9 @@ export default function Profile() {
                 </div>
 
                 <div className='space-y-2'>
-                  <label htmlFor='location' className='block text-sm font-medium text-foreground'>
-                    Masjid Location
-                  </label>
-                  <div className='flex gap-2'>
-                    <Input
-                      id='location'
-                      placeholder='Select location on map'
-                      readOnly
-                      value={
-                        coordinates
-                          ? `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`
-                          : ''
-                      }
-                      className='bg-muted cursor-not-allowed flex-1'
-                    />
-                    <Button
-                      type='button'
-                      variant='outline'
-                      onClick={() => setIsMapModalOpen(true)}
-                      className='flex items-center gap-2'
-                    >
-                      <MapPin size={16} />
-                      {coordinates ? 'Change Location' : 'Set Location'}
-                    </Button>
-                  </div>
-                  {(errors.latitude || errors.longitude) && (
-                    <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
-                  )}
-                </div>
-              </div>
-
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div className='space-y-2'>
                   <label htmlFor='area_ur' className='block text-sm font-medium text-foreground'>
                     Area (Urdu)
-                    <span className='ml-2 text-xs text-muted-foreground font-normal'>
-                      Optional — shown on Urdu display screens
-                    </span>
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>Optional</span>
                   </label>
                   <Input
                     id='area_ur'
@@ -260,9 +259,7 @@ export default function Profile() {
                 <div className='space-y-2'>
                   <label htmlFor='area_ar' className='block text-sm font-medium text-foreground'>
                     Area (Arabic)
-                    <span className='ml-2 text-xs text-muted-foreground font-normal'>
-                      Optional — shown on Arabic display screens
-                    </span>
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>Optional</span>
                   </label>
                   <Input
                     id='area_ar'
@@ -273,6 +270,37 @@ export default function Profile() {
                     className='font-arabic text-right'
                   />
                 </div>
+              </div>
+
+              <div className='space-y-2'>
+                <label htmlFor='location' className='block text-sm font-medium text-foreground'>
+                  Masjid Location
+                </label>
+                <div className='flex gap-2'>
+                  <Input
+                    id='location'
+                    placeholder='Select location on map'
+                    readOnly
+                    value={
+                      coordinates
+                        ? `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`
+                        : ''
+                    }
+                    className='bg-muted cursor-not-allowed flex-1'
+                  />
+                  <Button
+                    type='button'
+                    variant='outline'
+                    onClick={() => setIsMapModalOpen(true)}
+                    className='flex items-center gap-2'
+                  >
+                    <MapPin size={16} />
+                    {coordinates ? 'Change Location' : 'Set Location'}
+                  </Button>
+                </div>
+                {(errors.latitude || errors.longitude) && (
+                  <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
+                )}
               </div>
 
               <div className='space-y-2'>

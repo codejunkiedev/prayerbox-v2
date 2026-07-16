@@ -77,6 +77,8 @@ export async function upsertMasjidProfile(
     latitude: profileData.latitude || null,
     longitude: profileData.longitude || null,
     name: profileData.name,
+    name_ur: profileData.name_ur ?? '',
+    name_ar: profileData.name_ar ?? '',
     area: profileData.area,
     area_ur: profileData.area_ur ?? '',
     area_ar: profileData.area_ar ?? '',
