@@ -31,6 +31,7 @@ const BASE_SIZES = {
     sunLabel: 0.9,
     sunNum: 1.3,
     sunAmPm: 0.7,
+    sunGap: 0.4,
     colHeader: 1.3,
     nameMain: 1.7,
     timeNum: 1.8,
@@ -50,6 +51,7 @@ const BASE_SIZES = {
     sunLabel: 2.2,
     sunNum: 3,
     sunAmPm: 1.8,
+    sunGap: 1,
     colHeader: 3.2,
     nameMain: 4,
     timeNum: 4,
@@ -183,7 +185,7 @@ export function Theme4({
     numClass: string,
     amPmClass: string
   ) => (
-    <div className='flex items-baseline gap-[0.4cqw]'>
+    <div className='flex items-baseline' style={{ gap: fs(S.sunGap, 'date') }}>
       <span
         className={`uppercase font-medium ${fontClass}`}
         style={{
@@ -208,11 +210,12 @@ export function Theme4({
     vis.masjidName && trimmedMasjidName ? (
       <span
         dir={dir}
-        className={`font-bold text-right leading-tight ${fontClass}`}
+        className={`font-bold text-right ${fontClass}`}
         style={{
           fontSize: fs(S.masjidName, 'masjidName'),
           color: color('masjidName'),
           fontFamily: primaryFamily,
+          lineHeight: isEnglish ? 1.25 : 'normal',
         }}
       >
         {trimmedMasjidName}
