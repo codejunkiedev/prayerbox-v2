@@ -6,13 +6,14 @@ import { Button, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { CustomThemeControls } from '@/components/settings/custom-theme-controls';
 import { Theme4 } from '@/components/display/prayer-timings/themes';
 import type { ThemeProps } from '@/components/display/prayer-timings/themes/types';
-import { getScreenById, updateScreenCustomTheme } from '@/lib/supabase';
+import { getMasjidProfile, getScreenById, updateScreenCustomTheme } from '@/lib/supabase';
 import { AppRoutes, DEFAULT_CUSTOM_THEME } from '@/constants';
-import { resolveCustomTheme } from '@/helpers';
+import { localizedProfileField, resolveCustomTheme } from '@/helpers';
 import type {
   CustomThemeConfig,
   DisplayLanguage,
   DisplayScreen,
+  MasjidProfile,
   ProcessedPrayerTiming,
 } from '@/types';
 
@@ -34,6 +35,8 @@ const SAMPLE_DATES: Record<DisplayLanguage, { gregorian: string; hijri: string }
   ar: { gregorian: 'الاثنين، 17 يونيو 2026', hijri: '1 محرم 1448' },
 };
 
+const SAMPLE_MASJID_NAME = 'Masjid Name';
+
 const PREVIEW_LANGUAGES: { value: DisplayLanguage; label: string }[] = [
   { value: 'en', label: 'English' },
   { value: 'ur', label: 'اردو' },
@@ -46,6 +49,7 @@ export default function CustomThemeEditor() {
   const screenId = params.id;
 
   const [screen, setScreen] = useState<DisplayScreen | null>(null);
+  const [profile, setProfile] = useState<MasjidProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [config, setConfig] = useState<CustomThemeConfig>(() =>
@@ -66,14 +70,15 @@ export default function CustomThemeEditor() {
     }
     let cancelled = false;
     setLoading(true);
-    getScreenById(screenId)
-      .then(result => {
+    Promise.all([getScreenById(screenId), getMasjidProfile().catch(() => null)])
+      .then(([result, masjidProfile]) => {
         if (cancelled) return;
         if (!result) {
           setNotFound(true);
           return;
         }
         setScreen(result);
+        setProfile(masjidProfile);
         setConfig(resolveCustomTheme(result.custom_theme));
         setPreviewLanguage(result.language);
         setDirty(false);
@@ -92,6 +97,7 @@ export default function CustomThemeEditor() {
 
   const previewProps: ThemeProps | null = useMemo(() => {
     if (!screen) return null;
+    const localizedMasjidName = localizedProfileField(profile, 'name', previewLanguage);
     return {
       gregorianDate: SAMPLE_DATES[previewLanguage].gregorian,
       hijriDate: SAMPLE_DATES[previewLanguage].hijri,
@@ -101,10 +107,11 @@ export default function CustomThemeEditor() {
       processedPrayerTimings: SAMPLE_TIMINGS,
       prayerTimeSettings: null,
       orientation: screen.orientation,
+      masjidName: localizedMasjidName || SAMPLE_MASJID_NAME,
       customTheme: config,
       previewLanguage,
     };
-  }, [config, screen, previewLanguage]);
+  }, [config, screen, profile, previewLanguage]);
 
   const goBack = () =>
     navigate(screenId ? AppRoutes.ScreenDetail.replace(':id', screenId) : AppRoutes.Screens);

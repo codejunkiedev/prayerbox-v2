@@ -25,6 +25,7 @@ interface PrayerTimingDisplayProps {
   userSettings: Settings | null;
   orientation: ScreenOrientation;
   theme: Theme;
+  masjidName?: string;
   customTheme?: CustomThemeConfig | null;
 }
 
@@ -37,6 +38,7 @@ export function PrayerTimingDisplay({
   userSettings,
   orientation,
   theme,
+  masjidName,
   customTheme,
 }: PrayerTimingDisplayProps) {
   const { currentTime } = useCurrentTime();
@@ -66,6 +68,7 @@ export function PrayerTimingDisplay({
     processedPrayerTimings,
     prayerTimeSettings,
     orientation,
+    masjidName,
     customTheme,
   };
 

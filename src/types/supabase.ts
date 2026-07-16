@@ -161,7 +161,14 @@ export type DisplayLanguage = 'en' | 'ur' | 'ar';
  * unit for the per-group size multiplier and the semantic color slot, mapped to
  * Theme 3's typographic roles.
  */
-export type CustomThemeTextGroup = 'header' | 'names' | 'times' | 'countdown' | 'date' | 'banner';
+export type CustomThemeTextGroup =
+  | 'header'
+  | 'names'
+  | 'times'
+  | 'countdown'
+  | 'date'
+  | 'masjidName'
+  | 'banner';
 
 /** Which edge of the screen the announcement banner is pinned to. */
 export type CustomThemeBannerPosition = 'top' | 'bottom';
@@ -196,6 +203,7 @@ export interface CustomThemeVisibility {
   columnStarts: boolean;
   columnAthan: boolean;
   columnIqamah: boolean;
+  masjidName: boolean;
   sunriseSunset: boolean;
   nextIqamahCard: boolean;
   hijriDate: boolean;

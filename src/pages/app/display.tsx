@@ -9,6 +9,7 @@ import {
   useWeatherData,
 } from '@/hooks';
 import { useDisplayStore } from '@/store';
+import { localizedProfileField } from '@/helpers';
 import Loading from '../loading-page';
 import {
   ErrorDisplay,
@@ -57,11 +58,9 @@ export default function Display() {
     ? displayScreen.slide_interval_seconds * 1000
     : DEFAULT_SLIDE_DELAY;
 
-  // Localized area name with English fallback when a translation is blank.
-  const localizedArea =
-    (language === 'ur' && masjidProfile?.area_ur) ||
-    (language === 'ar' && masjidProfile?.area_ar) ||
-    masjidProfile?.area;
+  // Localized profile text with English fallback when a translation is blank.
+  const localizedArea = localizedProfileField(masjidProfile, 'area', language);
+  const localizedMasjidName = localizedProfileField(masjidProfile, 'name', language);
 
   useEffect(() => {
     if (i18n.language !== language) {
@@ -252,6 +251,7 @@ export default function Display() {
               userSettings={userSettings}
               orientation={displayScreen?.orientation ?? 'landscape'}
               theme={displayScreen?.theme ?? Theme.Theme1}
+              masjidName={localizedMasjidName}
               customTheme={displayScreen?.custom_theme}
             />
           </SwiperSlide>
