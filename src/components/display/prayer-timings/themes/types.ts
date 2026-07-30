@@ -14,6 +14,7 @@ export interface ThemeProps {
   currentTime: Date;
   processedPrayerTimings: ProcessedPrayerTiming[];
   prayerTimeSettings: PrayerTimes | null;
+  isFriday: boolean;
   orientation: ScreenOrientation;
   /**
    * The masjid's name, already resolved to the language being rendered (see

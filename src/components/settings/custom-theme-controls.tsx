@@ -106,6 +106,12 @@ const COLUMN_TOGGLES: { key: keyof CustomThemeVisibility; label: string }[] = [
   { key: 'columnIqamah', label: 'Iqamah' },
 ];
 
+const JUMMA_TOGGLES: { key: keyof CustomThemeVisibility; label: string }[] = [
+  { key: 'jumma1', label: 'Jumma 1' },
+  { key: 'jumma2', label: 'Jumma 2' },
+  { key: 'jumma3', label: 'Jumma 3' },
+];
+
 const FIELD_TOGGLES: { key: keyof CustomThemeVisibility; label: string }[] = [
   { key: 'clock', label: 'Clock' },
   { key: 'gregorianDate', label: 'Gregorian date' },
@@ -138,6 +144,7 @@ export function CustomThemeControls({
 
   const visibleColumnCount = COLUMN_TOGGLES.filter(c => config.visibility[c.key]).length;
   const bannerId = useId();
+  const jummaId = useId();
 
   const hiddenGroups = new Set<CustomThemeTextGroup>();
   if (!config.banner.enabled) hiddenGroups.add('banner');
@@ -280,6 +287,31 @@ export function CustomThemeControls({
           <p className='text-[10px] text-muted-foreground'>
             At least one prayer time column must stay visible.
           </p>
+        </div>
+
+        <div className='space-y-2 pt-1'>
+          <div className='flex items-center justify-between'>
+            <Label
+              htmlFor={jummaId}
+              className='text-[10px] text-muted-foreground uppercase tracking-wide cursor-pointer'
+            >
+              Jumma times
+            </Label>
+            <Switch
+              id={jummaId}
+              checked={config.visibility.jummaTimes}
+              onCheckedChange={v => setVisibility('jummaTimes', v)}
+            />
+          </div>
+          {config.visibility.jummaTimes &&
+            JUMMA_TOGGLES.map(j => (
+              <ToggleRow
+                key={j.key}
+                label={j.label}
+                checked={config.visibility[j.key]}
+                onChange={v => setVisibility(j.key, v)}
+              />
+            ))}
         </div>
 
         <div className='space-y-2 pt-1'>

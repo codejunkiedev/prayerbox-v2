@@ -208,11 +208,22 @@ export interface CustomThemeBanner {
  * Per-element show/hide flags for the custom theme. The prayer-name column is
  * always shown; at least one of the three time columns must stay visible
  * (enforced in the controls). Hidden elements reflow within the chosen layout.
+ *
+ * The Jumma rows sit after Dhuhr rather than replacing it, and show every day of
+ * the week — a congregant reads Friday's times before Friday. Which of the three
+ * appear is these switches and nothing else: a Jumma with no adjustment saved in
+ * Prayer Timings still renders, carrying the unadjusted Dhuhr time. The Next
+ * Iqamah card is the one place the weekday matters, counting down to Jumma on a
+ * Friday and to Dhuhr on every other day.
  */
 export interface CustomThemeVisibility {
   columnStarts: boolean;
   columnAthan: boolean;
   columnIqamah: boolean;
+  jummaTimes: boolean;
+  jumma1: boolean;
+  jumma2: boolean;
+  jumma3: boolean;
   masjidName: boolean;
   sunriseSunset: boolean;
   nextIqamahCard: boolean;

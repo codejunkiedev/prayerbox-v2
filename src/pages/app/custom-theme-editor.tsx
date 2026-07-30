@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { ArrowLeft, Loader2, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button, Tabs, TabsList, TabsTrigger } from '@/components/ui';
+import { Button, Label, Switch, Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { CustomThemeControls } from '@/components/settings/custom-theme-controls';
 import { Theme4 } from '@/components/display/prayer-timings/themes';
 import type { ThemeProps } from '@/components/display/prayer-timings/themes/types';
@@ -18,21 +18,41 @@ import type {
 } from '@/types';
 
 // Representative timings so the preview shows a populated layout. Isha iqamah is
-// late so there is always an upcoming iqamah to render in the countdown card.
+// late so there is always an upcoming iqamah to render in the countdown card. All
+// three Jummas carry a time so switching one on shows a row here even though the
+// screen's real prayer settings are not loaded into this preview.
 const SAMPLE_TIMINGS: ProcessedPrayerTiming[] = [
   { name: 'fajr', starts: '04:45', athan: '05:00', iqamah: '05:15', arabicName: '' },
   { name: 'dhuhr', starts: '12:15', athan: '12:30', iqamah: '12:45', arabicName: '' },
   { name: 'jumma1', starts: '13:00', athan: '13:15', iqamah: '13:30', arabicName: '' },
+  { name: 'jumma2', starts: '13:45', athan: '14:00', iqamah: '14:15', arabicName: '' },
+  { name: 'jumma3', starts: '14:30', athan: '14:45', iqamah: '15:00', arabicName: '' },
   { name: 'asr', starts: '15:45', athan: '16:00', iqamah: '16:15', arabicName: '' },
   { name: 'maghrib', starts: '19:30', athan: '19:30', iqamah: '19:40', arabicName: '' },
   { name: 'isha', starts: '21:00', athan: '21:15', iqamah: '23:59', arabicName: '' },
 ];
 
-// Localized sample dates so the preview reads correctly in each language.
-const SAMPLE_DATES: Record<DisplayLanguage, { gregorian: string; hijri: string }> = {
-  en: { gregorian: 'Monday, 17 June 2026', hijri: '1 Muharram 1448' },
-  ur: { gregorian: 'پیر، 17 جون 2026', hijri: '1 محرم 1448' },
-  ar: { gregorian: 'الاثنين، 17 يونيو 2026', hijri: '1 محرم 1448' },
+// Localized sample dates so the preview reads correctly in each language, in an
+// ordinary-day and a Friday variant — Friday is the only day the Next Iqamah card
+// counts down to Jumma, so the preview needs to be able to be one.
+type SampleDay = 'weekday' | 'friday';
+
+const SAMPLE_DATES: Record<
+  DisplayLanguage,
+  Record<SampleDay, { gregorian: string; hijri: string }>
+> = {
+  en: {
+    weekday: { gregorian: 'Monday, 15 June 2026', hijri: '1 Muharram 1448' },
+    friday: { gregorian: 'Friday, 19 June 2026', hijri: '5 Muharram 1448' },
+  },
+  ur: {
+    weekday: { gregorian: 'پیر، 15 جون 2026', hijri: '1 محرم 1448' },
+    friday: { gregorian: 'جمعہ، 19 جون 2026', hijri: '5 محرم 1448' },
+  },
+  ar: {
+    weekday: { gregorian: 'الاثنين، 15 يونيو 2026', hijri: '1 محرم 1448' },
+    friday: { gregorian: 'الجمعة، 19 يونيو 2026', hijri: '5 محرم 1448' },
+  },
 };
 
 const SAMPLE_MASJID_NAME = 'Masjid Name';
@@ -60,6 +80,8 @@ export default function CustomThemeEditor() {
   // Preview-only language; defaults to the screen's, lets the admin check other
   // scripts without changing the screen's actual Display Language.
   const [previewLanguage, setPreviewLanguage] = useState<DisplayLanguage>('en');
+  const [previewFriday, setPreviewFriday] = useState(false);
+  const fridayId = useId();
 
   // Load the screen and seed the config from its saved custom theme.
   useEffect(() => {
@@ -98,20 +120,22 @@ export default function CustomThemeEditor() {
   const previewProps: ThemeProps | null = useMemo(() => {
     if (!screen) return null;
     const localizedMasjidName = localizedProfileField(profile, 'name', previewLanguage);
+    const sampleDate = SAMPLE_DATES[previewLanguage][previewFriday ? 'friday' : 'weekday'];
     return {
-      gregorianDate: SAMPLE_DATES[previewLanguage].gregorian,
-      hijriDate: SAMPLE_DATES[previewLanguage].hijri,
+      gregorianDate: sampleDate.gregorian,
+      hijriDate: sampleDate.hijri,
       sunrise: '04:30',
       sunset: '19:45',
       currentTime: new Date(),
       processedPrayerTimings: SAMPLE_TIMINGS,
       prayerTimeSettings: null,
+      isFriday: previewFriday,
       orientation: screen.orientation,
       masjidName: localizedMasjidName || SAMPLE_MASJID_NAME,
       customTheme: config,
       previewLanguage,
     };
-  }, [config, screen, profile, previewLanguage]);
+  }, [config, screen, profile, previewLanguage, previewFriday]);
 
   const goBack = () =>
     navigate(screenId ? AppRoutes.ScreenDetail.replace(':id', screenId) : AppRoutes.Screens);
@@ -197,18 +221,26 @@ export default function CustomThemeEditor() {
       <div className='flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 p-6'>
         {/* Live preview */}
         <div className='flex flex-col items-center justify-center gap-3 min-h-[300px]'>
-          <Tabs
-            value={previewLanguage}
-            onValueChange={v => setPreviewLanguage(v as DisplayLanguage)}
-          >
-            <TabsList className='grid w-full max-w-md grid-cols-3'>
-              {PREVIEW_LANGUAGES.map(l => (
-                <TabsTrigger key={l.value} value={l.value}>
-                  {l.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+          <div className='flex items-center gap-4'>
+            <Tabs
+              value={previewLanguage}
+              onValueChange={v => setPreviewLanguage(v as DisplayLanguage)}
+            >
+              <TabsList className='grid w-full max-w-md grid-cols-3'>
+                {PREVIEW_LANGUAGES.map(l => (
+                  <TabsTrigger key={l.value} value={l.value}>
+                    {l.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+            <div className='flex items-center gap-2'>
+              <Label htmlFor={fridayId} className='text-xs text-muted-foreground cursor-pointer'>
+                Friday
+              </Label>
+              <Switch id={fridayId} checked={previewFriday} onCheckedChange={setPreviewFriday} />
+            </div>
+          </div>
           <div
             className={`w-full overflow-hidden rounded-lg border bg-muted ${
               isPortrait ? 'max-w-[420px] aspect-[9/16]' : 'max-w-full aspect-video'

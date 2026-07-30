@@ -3,6 +3,7 @@ import {
   formatGregorianDate,
   formatHijriDate,
   getProcessedPrayerTimings,
+  isFridayPrayer,
 } from '@/utils';
 import {
   Theme,
@@ -67,6 +68,7 @@ export function PrayerTimingDisplay({
     currentTime,
     processedPrayerTimings,
     prayerTimeSettings,
+    isFriday: isFridayPrayer(date),
     orientation,
     masjidName,
     customTheme,
