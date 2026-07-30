@@ -190,15 +190,30 @@ export type CustomThemeBannerPosition = 'top' | 'bottom';
 export type CustomThemeBannerSpeed = 'slow' | 'normal' | 'fast';
 
 /**
+ * What the banner scrolls:
+ *
+ * - `text`    The announcement typed into the banner's own box.
+ * - `contact` The contact number, email and website from the masjid profile.
+ * - `both`    Both, one after the other, repeating for as long as the slide is
+ *             up: announcement, contact details, announcement, contact details.
+ */
+export type CustomThemeBannerContent = 'text' | 'contact' | 'both';
+
+/**
  * Scrolling announcement ticker for the custom theme. `text` is plain text the
  * admin types in whatever language they want, so it does not follow the
  * screen's Display Language: `direction` is chosen explicitly, and `font` is a
  * font id resolved across every script rather than per-language (see
  * `resolveFontById`). Text size and color are not stored here — the banner is a
  * {@link CustomThemeTextGroup}, so it uses the shared size/color slots.
+ *
+ * Contact details are never stored here either: `content` only records the
+ * choice, and the values are read live from the masjid profile so editing them
+ * in Settings updates every screen at once.
  */
 export interface CustomThemeBanner {
   enabled: boolean;
+  content: CustomThemeBannerContent;
   text: string;
   position: CustomThemeBannerPosition;
   direction: 'ltr' | 'rtl';

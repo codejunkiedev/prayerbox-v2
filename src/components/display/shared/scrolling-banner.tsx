@@ -14,12 +14,16 @@ const WIDTHS_PER_SECOND: Record<CustomThemeBannerSpeed, number> = {
   fast: 0.16,
 };
 
-/** Blank space after the text before it repeats, as a fraction of the container. */
+/**
+ * Blank space between segments, as a fraction of the container. The same gap
+ * separates one segment from the next and the last from the first of the
+ * repeat, so a two-segment ticker reads with an even rhythm rather than a tight
+ * seam inside each pass and a wide one between passes.
+ */
 const GAP_FRACTION = 0.2;
 
 interface ScrollingBannerProps {
-  /** Plain text; newlines collapse to spaces since the ticker is one line. */
-  text: string;
+  segments: string[];
   direction: 'ltr' | 'rtl';
   speed: CustomThemeBannerSpeed;
   fontFamily: string;
@@ -35,15 +39,19 @@ interface ScrollingBannerProps {
 /**
  * A news-channel style ticker: text scrolls in a seamless loop at a constant
  * pixel-per-second speed, so a short announcement crawls by at the same pace as
- * a long one instead of whipping past. Text that fits the width does not scroll
- * at all — it renders static and centered.
+ * a long one instead of whipping past. Content that fits the width does not
+ * scroll at all — it renders static and centered.
+ *
+ * Several segments cycle by simply being laid out one after another and looped,
+ * so the seam between two of them is the same gap as the seam before the whole
+ * thing repeats. No timers, and nothing to fall out of step with the animation.
  *
  * The scroll is a pure CSS transform animation, never a per-frame JS write, so
  * it runs on the compositor and holds up on low-end Android TV boxes next to a
  * live clock and countdown. JS only measures, and only when something changes.
  */
 export function ScrollingBanner({
-  text,
+  segments,
   direction,
   speed,
   fontFamily,
@@ -54,7 +62,7 @@ export function ScrollingBanner({
   paddingBlock,
 }: ScrollingBannerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const textRef = useRef<HTMLSpanElement>(null);
+  const textRef = useRef<HTMLDivElement>(null);
   const [{ containerWidth, textWidth }, setMetrics] = useState({ containerWidth: 0, textWidth: 0 });
 
   // One ResizeObserver over the container and the text covers the geometry
@@ -112,22 +120,28 @@ export function ScrollingBanner({
 
   const textStyle: CSSProperties = { fontFamily, fontSize, color };
 
-  // The gap sits on the wrapper, not the text, so the measured width stays the
-  // text's own — otherwise the gap would feed back into the overflow test.
+  // The trailing gap sits on the wrapper rather than the measured element, so
+  // the measurement stays the content's own width and the gap cannot feed back
+  // into the overflow test. The gaps *between* segments are inside it, since
+  // they are part of what has to fit — and they are safe to include because the
+  // gap is a fraction of the container, never of the content.
   const copy = (isMeasured: boolean) => (
     <div
       className='flex shrink-0'
       style={{ paddingInlineEnd: shouldScroll ? `${gap}px` : undefined }}
       aria-hidden={!isMeasured}
     >
-      <span
+      <div
         ref={isMeasured ? textRef : undefined}
-        dir={direction}
-        className='whitespace-nowrap'
-        style={textStyle}
+        className='flex shrink-0'
+        style={{ gap: `${gap}px` }}
       >
-        {text}
-      </span>
+        {segments.map((segment, index) => (
+          <span key={index} dir={direction} className='whitespace-nowrap' style={textStyle}>
+            {segment}
+          </span>
+        ))}
+      </div>
     </div>
   );
 

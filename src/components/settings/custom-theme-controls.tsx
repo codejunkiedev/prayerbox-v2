@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import { Link } from 'react-router';
 import {
   ColorInput,
   Label,
@@ -13,7 +14,7 @@ import {
   Switch,
   Textarea,
 } from '@/components/ui';
-import { BANNER_MAX_LENGTH, FONTS } from '@/constants';
+import { AppRoutes, BANNER_MAX_LENGTH, FONTS } from '@/constants';
 import {
   type CustomThemeBanner,
   type CustomThemeConfig,
@@ -24,6 +25,8 @@ import {
   type PostOrientation,
 } from '@/types';
 import { BackgroundControl } from '@/components/common';
+import { ScrollingBanner } from '@/components/display/shared';
+import { resolveFontById } from '@/helpers';
 import { cn } from '@/utils';
 
 interface CustomThemeControlsProps {
@@ -33,6 +36,12 @@ interface CustomThemeControlsProps {
   orientation: PostOrientation;
   /** Language being previewed — only its font is shown in the Fonts section. */
   previewLanguage: DisplayLanguage;
+  /**
+   * The masjid profile's contact details as the banner would scroll them (see
+   * `formatContactDetails`). Blank means none are filled in, which the banner's
+   * content picker calls out rather than silently showing nothing.
+   */
+  contactDetails: string;
 }
 
 // Each language maps to one font category, which is also its key in config.fonts.
@@ -74,6 +83,12 @@ const SIZE_GROUPS: { key: CustomThemeTextGroup; label: string }[] = [
   { key: 'date', label: 'Date & sun times' },
   { key: 'masjidName', label: 'Masjid name' },
   { key: 'banner', label: 'Banner' },
+];
+
+const CONTENT_OPTIONS: { value: CustomThemeBanner['content']; label: string }[] = [
+  { value: 'text', label: 'Text' },
+  { value: 'contact', label: 'Contact details' },
+  { value: 'both', label: 'Text and contact details' },
 ];
 
 const POSITION_OPTIONS: { value: CustomThemeBanner['position']; label: string }[] = [
@@ -126,6 +141,7 @@ export function CustomThemeControls({
   onChange,
   orientation,
   previewLanguage,
+  contactDetails,
 }: CustomThemeControlsProps) {
   const update = (patch: Partial<CustomThemeConfig>) => onChange({ ...config, ...patch });
   const setGroupSize = (group: CustomThemeTextGroup, value: number) =>
@@ -141,6 +157,9 @@ export function CustomThemeControls({
     update({ banner: { ...config.banner, ...patch } });
   const setBannerBackground = (patch: Partial<CustomThemeBanner['background']>) =>
     setBanner({ background: { ...config.banner.background, ...patch } });
+
+  const showsBannerText = config.banner.content !== 'contact';
+  const showsBannerContact = config.banner.content !== 'text';
 
   const visibleColumnCount = COLUMN_TOGGLES.filter(c => config.visibility[c.key]).length;
   const bannerId = useId();
@@ -350,58 +369,130 @@ export function CustomThemeControls({
         </div>
         {config.banner.enabled && (
           <>
-            <div className='space-y-1'>
-              <Textarea
-                value={config.banner.text}
-                onChange={e => setBanner({ text: e.target.value.slice(0, BANNER_MAX_LENGTH) })}
-                maxLength={BANNER_MAX_LENGTH}
-                rows={3}
-                placeholder='Announcement to scroll across the screen'
-                className='resize-none'
-              />
-              <p className='text-[10px] text-muted-foreground text-right'>
-                {config.banner.text.length}/{BANNER_MAX_LENGTH}
+            <OptionSelect
+              label='Content'
+              value={config.banner.content}
+              options={CONTENT_OPTIONS}
+              onChange={content => setBanner({ content })}
+            />
+
+            {showsBannerText && (
+              <div className='space-y-1'>
+                <Textarea
+                  value={config.banner.text}
+                  onChange={e => setBanner({ text: e.target.value.slice(0, BANNER_MAX_LENGTH) })}
+                  maxLength={BANNER_MAX_LENGTH}
+                  rows={3}
+                  placeholder='Announcement to scroll across the screen'
+                  className='resize-none'
+                />
+                <p className='text-[10px] text-muted-foreground text-right'>
+                  {config.banner.text.length}/{BANNER_MAX_LENGTH}
+                </p>
+              </div>
+            )}
+
+            {showsBannerContact &&
+              (contactDetails ? (
+                <div className='space-y-1'>
+                  <div className='flex items-center justify-between gap-2'>
+                    <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+                      From your profile
+                    </Label>
+                    <Link
+                      to={AppRoutes.SettingsProfile}
+                      target='_blank'
+                      rel='noreferrer'
+                      className='text-[10px] font-semibold text-muted-foreground underline-offset-2 hover:underline hover:text-foreground'
+                    >
+                      Edit
+                    </Link>
+                  </div>
+                  <div className='rounded-md border bg-muted/50 overflow-hidden'>
+                    <ScrollingBanner
+                      segments={[contactDetails]}
+                      direction={config.banner.direction}
+                      speed={config.banner.speed}
+                      fontFamily={resolveFontById(config.banner.font).family}
+                      fontSize='0.75rem'
+                      color='currentColor'
+                      backgroundColor='transparent'
+                      backgroundOpacity={0}
+                      paddingBlock='0.5rem'
+                    />
+                  </div>
+                </div>
+              ) : (
+                <p className='text-[10px] text-amber-600 dark:text-amber-500'>
+                  No contact details saved yet. Add a contact number, email or website in{' '}
+                  <Link
+                    to={AppRoutes.SettingsProfile}
+                    target='_blank'
+                    rel='noreferrer'
+                    className='font-semibold underline-offset-2 hover:underline'
+                  >
+                    Masjid Profile
+                  </Link>
+                  , or the banner will have nothing to show.
+                </p>
+              ))}
+
+            {config.banner.content === 'both' && (
+              <p className='text-[10px] text-muted-foreground'>
+                The two take turns for as long as the slide is up: text, contact details, text,
+                contact details.
               </p>
+            )}
+
+            <div className='grid grid-cols-2 gap-2'>
+              <OptionSelect
+                label='Position'
+                value={config.banner.position}
+                options={POSITION_OPTIONS}
+                onChange={position => setBanner({ position })}
+              />
+
+              <OptionSelect
+                label='Direction'
+                value={config.banner.direction}
+                options={DIRECTION_OPTIONS}
+                onChange={direction => setBanner({ direction })}
+              />
             </div>
-
-            <OptionSelect
-              label='Position'
-              value={config.banner.position}
-              options={POSITION_OPTIONS}
-              onChange={position => setBanner({ position })}
-            />
-
-            <OptionSelect
-              label='Direction'
-              value={config.banner.direction}
-              options={DIRECTION_OPTIONS}
-              onChange={direction => setBanner({ direction })}
-            />
             <p className='text-[10px] text-muted-foreground'>
               Use RTL for Urdu and Arabic text, which scrolls the other way.
             </p>
 
-            <div className='space-y-1'>
-              <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
-                Font
-              </Label>
-              <Select value={config.banner.font} onValueChange={font => setBanner({ font })}>
-                <SelectTrigger className='w-full'>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {FONT_GROUPS.map(group => (
-                    <SelectGroup key={group.category}>
-                      <SelectLabel>{group.label}</SelectLabel>
-                      {FONTS[group.category].map(f => (
-                        <SelectItem key={f.id} value={f.id}>
-                          {f.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className='grid grid-cols-2 gap-2'>
+              <div className='space-y-1'>
+                <Label className='text-[10px] text-muted-foreground uppercase tracking-wide'>
+                  Font
+                </Label>
+                <Select value={config.banner.font} onValueChange={font => setBanner({ font })}>
+                  <SelectTrigger className='w-full'>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FONT_GROUPS.map(group => (
+                      <SelectGroup key={group.category}>
+                        <SelectLabel>{group.label}</SelectLabel>
+                        {FONTS[group.category].map(f => (
+                          <SelectItem key={f.id} value={f.id}>
+                            {f.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <OptionSelect
+                label='Speed'
+                value={config.banner.speed}
+                options={SPEED_OPTIONS}
+                onChange={speed => setBanner({ speed })}
+              />
             </div>
 
             <div className='space-y-1'>
@@ -423,13 +514,6 @@ export function CustomThemeControls({
               step={1}
               value={[config.banner.background.opacity * 100]}
               onValueChange={v => setBannerBackground({ opacity: v[0] / 100 })}
-            />
-
-            <OptionSelect
-              label='Speed'
-              value={config.banner.speed}
-              options={SPEED_OPTIONS}
-              onChange={speed => setBanner({ speed })}
             />
 
             <p className='text-[10px] text-muted-foreground'>

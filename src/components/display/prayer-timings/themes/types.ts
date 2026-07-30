@@ -22,6 +22,13 @@ export interface ThemeProps {
    * blank hides it.
    */
   masjidName?: string;
+  /**
+   * The masjid's contact number, email and website as one ticker line (see
+   * `formatContactDetails`). Only consumed by the custom theme (theme-4), and
+   * only when its banner is set to show contact details; blank falls back to
+   * the typed announcement.
+   */
+  contactDetails?: string;
   /** Only consumed by the custom theme (theme-4); null falls back to defaults. */
   customTheme?: CustomThemeConfig | null;
   /**

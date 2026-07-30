@@ -1,5 +1,32 @@
 import { DEFAULT_CUSTOM_THEME } from '@/constants';
-import type { CustomThemeBanner, CustomThemeConfig } from '@/types';
+import type { CustomThemeBanner, CustomThemeConfig, MasjidProfile } from '@/types';
+
+// Non-breaking, because the ticker renders in normal whitespace mode: a run of
+// ordinary spaces collapses to a single one, which crams the segments together
+// no matter how many are written here.
+const NBSP = '\u00a0';
+
+/**
+ * Separates the individual contact fields from each other. The seam between the
+ * contact details and the announcement is not a string at all — the ticker lays
+ * its segments out with a gap of its own, so that spacing stays equal to the
+ * gap before the whole thing repeats.
+ */
+export const CONTACT_SEPARATOR = `${NBSP.repeat(3)}•${NBSP.repeat(3)}`;
+
+/**
+ * Joins whatever contact details the profile has into one ticker line, in a
+ * fixed order and skipping the blanks. All three fields are optional, so this
+ * returns '' for a profile with none filled in — callers treat that the same as
+ * an empty announcement and render no banner.
+ */
+export function formatContactDetails(profile: MasjidProfile | null | undefined): string {
+  if (!profile) return '';
+  return [profile.contact_number, profile.contact_email, profile.website]
+    .map(value => value?.trim())
+    .filter(Boolean)
+    .join(CONTACT_SEPARATOR);
+}
 
 /**
  * The config as it may actually come back from the database, as opposed to how
