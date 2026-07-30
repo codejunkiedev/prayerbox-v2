@@ -2,12 +2,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { Fragment, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import {
-  getTimeBeforeNextIqamah,
-  getFilteredJummaPrayerNames,
-  isFridayPrayer,
-  formatTimeNumber,
-} from '@/utils';
+import { getTimeBeforeNextIqamah, formatTimeNumber } from '@/utils';
 import type { ThemeProps } from '../types';
 import {
   Theme,
@@ -31,6 +26,14 @@ const COLUMN_LABEL_KEY: Record<TimeColumn, string> = {
   athan: 'prayer.columns.athan',
   iqamah: 'prayer.columns.iqamah',
 };
+
+const JUMMA_NAMES = [
+  'jumma1',
+  'jumma2',
+  'jumma3',
+] as const satisfies readonly (keyof PrayerAdjustments & keyof CustomThemeVisibility)[];
+
+const isJumma = (name: keyof PrayerAdjustments) => name.startsWith('jumma');
 
 type NextIqamah = ReturnType<typeof getTimeBeforeNextIqamah>;
 
@@ -119,7 +122,7 @@ export function useCustomThemeParts({
   sunset,
   currentTime,
   processedPrayerTimings,
-  prayerTimeSettings,
+  isFriday,
   orientation,
   masjidName,
   customTheme,
@@ -172,25 +175,22 @@ export function useCustomThemeParts({
     .map(() => 'minmax(0, 1fr)')
     .join(' ')}`;
 
-  const nextIqamah = useMemo(
-    () => getTimeBeforeNextIqamah(processedPrayerTimings),
-    [processedPrayerTimings]
-  );
-
-  const isFriday = useMemo(() => isFridayPrayer(undefined), []);
-
   const displayPrayers = useMemo(() => {
-    const base: (keyof PrayerAdjustments)[] = ['fajr'];
-    if (isFriday) {
-      base.push(...getFilteredJummaPrayerNames(prayerTimeSettings));
-    } else {
-      base.push('dhuhr');
-    }
+    const base: (keyof PrayerAdjustments)[] = ['fajr', 'dhuhr'];
+    if (vis.jummaTimes) base.push(...JUMMA_NAMES.filter(name => vis[name]));
     base.push('asr', 'maghrib', 'isha');
     return base
       .map(name => processedPrayerTimings.find(p => p.name === name))
       .filter((p): p is ProcessedPrayerTiming => !!p);
-  }, [processedPrayerTimings, prayerTimeSettings, isFriday]);
+  }, [processedPrayerTimings, vis]);
+
+  const nextIqamah = useMemo(() => {
+    const jummas = displayPrayers.filter(p => isJumma(p.name));
+    const midday = isFriday && jummas.length ? 'dhuhr' : null;
+    return getTimeBeforeNextIqamah(
+      displayPrayers.filter(p => (midday ? p.name !== midday : !isJumma(p.name)))
+    );
+  }, [displayPrayers, isFriday]);
 
   const { sunriseNum, sunriseAmPm } = useMemo(() => {
     const parsed = formatTimeNumber(sunrise);
@@ -351,6 +351,10 @@ export function useCustomThemeParts({
     );
   };
 
+  const soleJumma = displayPrayers.filter(p => isJumma(p.name)).length === 1;
+  const prayerLabel = (name: keyof PrayerAdjustments) =>
+    t(`prayer.names.${soleJumma && isJumma(name) ? 'jumma' : name}`);
+
   const prayerName = (name: keyof PrayerAdjustments) => (
     <span
       className={`font-extrabold uppercase ${fontClass}`}
@@ -360,7 +364,7 @@ export function useCustomThemeParts({
         fontFamily: primaryFamily,
       }}
     >
-      {t(`prayer.names.${name}`)}
+      {prayerLabel(name)}
     </span>
   );
 
@@ -434,7 +438,7 @@ export function useCustomThemeParts({
         fontFamily: primaryFamily,
       }}
     >
-      {t(`prayer.names.${nextIqamah.name}`)}
+      {prayerLabel(nextIqamah.name)}
     </span>
   ) : null;
 

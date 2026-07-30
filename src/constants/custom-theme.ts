@@ -33,11 +33,17 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
       banner: null,
     },
   },
-  // Everything on by default — users hide what they don't want.
+  // Everything on by default — users hide what they don't want. The exception is
+  // the second and third Jumma, which most masjids do not hold: a masjid with one
+  // jamaat would otherwise have to switch two rows off to get the ordinary case.
   visibility: {
     columnStarts: true,
     columnAthan: true,
     columnIqamah: true,
+    jummaTimes: true,
+    jumma1: true,
+    jumma2: false,
+    jumma3: false,
     masjidName: true,
     sunriseSunset: true,
     nextIqamahCard: true,

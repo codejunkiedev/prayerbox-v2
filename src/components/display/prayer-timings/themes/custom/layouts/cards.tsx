@@ -8,9 +8,9 @@ import type { CustomThemeParts } from '../parts';
  * prayer as a unit instead of tracking across a row.
  *
  * Landscape gives every prayer its own column, so the grid must stay legible at
- * the widest it ever gets — Friday with three Jumma entries, i.e. 7 across.
- * Portrait pairs them up instead, since 7 columns on a 9:16 screen would leave
- * each one too narrow to read from the back of a hall.
+ * the widest it ever gets — the five daily prayers plus three Jumma rows, i.e. 8
+ * across. Portrait pairs them up instead, since 8 columns on a 9:16 screen would
+ * leave each one too narrow to read from the back of a hall.
  */
 export function CardsLayout({ parts }: { parts: CustomThemeParts }) {
   const {
