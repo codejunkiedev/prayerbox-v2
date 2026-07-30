@@ -53,6 +53,7 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
   },
   banner: {
     enabled: false,
+    content: 'text',
     text: '',
     position: 'bottom',
     direction: 'ltr',

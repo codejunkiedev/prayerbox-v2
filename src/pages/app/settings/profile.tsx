@@ -54,6 +54,9 @@ export default function Profile() {
       area_ar: '',
       latitude: 0,
       longitude: 0,
+      contact_number: '',
+      contact_email: '',
+      website: '',
     },
   });
 
@@ -77,6 +80,9 @@ export default function Profile() {
             area_ar: profile.area_ar || '',
             latitude: profile.latitude || 0,
             longitude: profile.longitude || 0,
+            contact_number: profile.contact_number || '',
+            contact_email: profile.contact_email || '',
+            website: profile.website || '',
           });
 
           if (profile.logo_url) {
@@ -301,6 +307,65 @@ export default function Profile() {
                 {(errors.latitude || errors.longitude) && (
                   <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
                 )}
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-start'>
+                <div className='space-y-2'>
+                  <label
+                    htmlFor='contact_number'
+                    className='block text-sm font-medium text-foreground'
+                  >
+                    Contact Number
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>Optional</span>
+                  </label>
+                  <Input
+                    id='contact_number'
+                    type='tel'
+                    {...register('contact_number')}
+                    placeholder='e.g. +92 300 1234567'
+                    className={errors.contact_number ? 'border-red-500' : ''}
+                  />
+                  {errors.contact_number && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.contact_number.message}</p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <label
+                    htmlFor='contact_email'
+                    className='block text-sm font-medium text-foreground'
+                  >
+                    Contact Email
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>Optional</span>
+                  </label>
+                  <Input
+                    id='contact_email'
+                    type='email'
+                    {...register('contact_email')}
+                    placeholder='e.g. info@masjid.org'
+                    className={errors.contact_email ? 'border-red-500' : ''}
+                  />
+                  {errors.contact_email && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.contact_email.message}</p>
+                  )}
+                </div>
+
+                <div className='space-y-2'>
+                  <label htmlFor='website' className='block text-sm font-medium text-foreground'>
+                    Website
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>Optional</span>
+                  </label>
+                  <Input
+                    id='website'
+                    type='url'
+                    {...register('website')}
+                    placeholder='e.g. https://masjid.org'
+                    className={errors.website ? 'border-red-500' : ''}
+                  />
+                  {errors.website && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.website.message}</p>
+                  )}
+                </div>
               </div>
 
               <div className='space-y-2'>

@@ -8,7 +8,7 @@ import { Theme4 } from '@/components/display/prayer-timings/themes';
 import type { ThemeProps } from '@/components/display/prayer-timings/themes/types';
 import { getMasjidProfile, getScreenById, updateScreenCustomTheme } from '@/lib/supabase';
 import { AppRoutes, DEFAULT_CUSTOM_THEME } from '@/constants';
-import { localizedProfileField, resolveCustomTheme } from '@/helpers';
+import { formatContactDetails, localizedProfileField, resolveCustomTheme } from '@/helpers';
 import type {
   CustomThemeConfig,
   DisplayLanguage,
@@ -117,6 +117,10 @@ export default function CustomThemeEditor() {
     };
   }, [screenId]);
 
+  // Shared by the preview and the banner controls, which echo it back so the
+  // admin can see what the contact option will scroll before saving.
+  const contactDetails = useMemo(() => formatContactDetails(profile), [profile]);
+
   const previewProps: ThemeProps | null = useMemo(() => {
     if (!screen) return null;
     const localizedMasjidName = localizedProfileField(profile, 'name', previewLanguage);
@@ -132,10 +136,14 @@ export default function CustomThemeEditor() {
       isFriday: previewFriday,
       orientation: screen.orientation,
       masjidName: localizedMasjidName || SAMPLE_MASJID_NAME,
+      // No sample stand-in, unlike the name: an admin who has not filled the
+      // contact fields in should see the empty banner the screen would show,
+      // not a plausible-looking phone number.
+      contactDetails,
       customTheme: config,
       previewLanguage,
     };
-  }, [config, screen, profile, previewLanguage, previewFriday]);
+  }, [config, screen, profile, contactDetails, previewLanguage, previewFriday]);
 
   const goBack = () =>
     navigate(screenId ? AppRoutes.ScreenDetail.replace(':id', screenId) : AppRoutes.Screens);
@@ -257,6 +265,7 @@ export default function CustomThemeEditor() {
             onChange={handleChange}
             orientation={isPortrait ? 'portrait' : 'landscape'}
             previewLanguage={previewLanguage}
+            contactDetails={contactDetails}
           />
         </div>
       </div>

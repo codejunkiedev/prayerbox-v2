@@ -63,6 +63,11 @@ export const changeEmailSchema = z.object({
 
 export type ChangeEmailData = z.infer<typeof changeEmailSchema>;
 
+/** Digits with optional country code and common separators, e.g. +92 300 1234567. */
+const CONTACT_NUMBER_REGEX = /^\+?[\d\s()-]{7,20}$/;
+/** Domain with an optional scheme and path, e.g. masjid.org or https://masjid.org/about. */
+const WEBSITE_REGEX = /^(https?:\/\/)?([\w-]+\.)+[a-z]{2,}(\/\S*)?$/i;
+
 export const masjidProfileSchema = z.object({
   name: z.string().min(1, 'Masjid name is required'),
   name_ur: z.string(),
@@ -72,6 +77,17 @@ export const masjidProfileSchema = z.object({
   area_ar: z.string(),
   latitude: z.number(),
   longitude: z.number(),
+  contact_number: z.string().refine(value => value === '' || CONTACT_NUMBER_REGEX.test(value), {
+    message: 'Please enter a valid contact number',
+  }),
+  contact_email: z
+    .string()
+    .refine(value => value === '' || z.string().email().safeParse(value).success, {
+      message: 'Please enter a valid email address',
+    }),
+  website: z.string().refine(value => value === '' || WEBSITE_REGEX.test(value), {
+    message: 'Please enter a valid website address',
+  }),
 });
 
 export type MasjidProfileData = z.infer<typeof masjidProfileSchema>;

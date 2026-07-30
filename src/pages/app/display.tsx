@@ -9,7 +9,7 @@ import {
   useWeatherData,
 } from '@/hooks';
 import { useDisplayStore } from '@/store';
-import { localizedProfileField } from '@/helpers';
+import { formatContactDetails, localizedProfileField } from '@/helpers';
 import Loading from '../loading-page';
 import {
   ErrorDisplay,
@@ -61,6 +61,9 @@ export default function Display() {
   // Localized profile text with English fallback when a translation is blank.
   const localizedArea = localizedProfileField(masjidProfile, 'area', language);
   const localizedMasjidName = localizedProfileField(masjidProfile, 'name', language);
+  // Phone, email and website are language-neutral, so unlike the name and area
+  // they are the same line on every screen.
+  const contactDetails = formatContactDetails(masjidProfile);
 
   useEffect(() => {
     if (i18n.language !== language) {
@@ -252,6 +255,7 @@ export default function Display() {
               orientation={displayScreen?.orientation ?? 'landscape'}
               theme={displayScreen?.theme ?? Theme.Theme1}
               masjidName={localizedMasjidName}
+              contactDetails={contactDetails}
               customTheme={displayScreen?.custom_theme}
             />
           </SwiperSlide>

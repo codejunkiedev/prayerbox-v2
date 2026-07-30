@@ -125,6 +125,7 @@ export function useCustomThemeParts({
   isFriday,
   orientation,
   masjidName,
+  contactDetails,
   customTheme,
   previewLanguage,
 }: ThemeProps): CustomThemeParts {
@@ -476,11 +477,18 @@ export function useCustomThemeParts({
     );
   };
 
-  const bannerText = cfg.banner.text.trim();
+  const bannerSegments = {
+    text: [cfg.banner.text],
+    contact: [contactDetails],
+    both: [cfg.banner.text, contactDetails],
+  }[cfg.banner.content]
+    .map(segment => segment?.trim())
+    .filter((segment): segment is string => Boolean(segment));
+
   const banner =
-    cfg.banner.enabled && bannerText ? (
+    cfg.banner.enabled && bannerSegments.length > 0 ? (
       <ScrollingBanner
-        text={bannerText}
+        segments={bannerSegments}
         direction={cfg.banner.direction}
         speed={cfg.banner.speed}
         fontFamily={resolveFontById(cfg.banner.font).family}
