@@ -59,6 +59,9 @@ export interface MasjidProfile extends Base {
   area_ar: string;
   latitude: number | null;
   longitude: number | null;
+  contact_number: string;
+  contact_email: string;
+  website: string;
 }
 
 export type ScreenOrientation = 'landscape' | 'portrait' | 'mobile';
