@@ -1,9 +1,4 @@
-import {
-  getTimeBeforeNextIqamah,
-  getFilteredJummaPrayerNames,
-  isFridayPrayer,
-  formatTimeNumber,
-} from '@/utils';
+import { getTimeBeforeNextIqamah, getFilteredJummaPrayerNames, formatTimeNumber } from '@/utils';
 import type { ThemeProps } from './types';
 import {
   Theme,
@@ -37,6 +32,7 @@ export function Theme3({
   currentTime,
   processedPrayerTimings,
   prayerTimeSettings,
+  isFriday,
   orientation,
 }: ThemeProps) {
   const isPortrait = orientation === 'portrait';
@@ -50,10 +46,6 @@ export function Theme3({
   const nextIqamah = useMemo(() => {
     return getTimeBeforeNextIqamah(processedPrayerTimings);
   }, [processedPrayerTimings]);
-
-  const isFriday = useMemo(() => {
-    return isFridayPrayer(undefined);
-  }, []);
 
   const displayPrayers = useMemo(() => {
     const base: (keyof PrayerAdjustments)[] = ['fajr'];
