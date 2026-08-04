@@ -8,10 +8,14 @@
 
 type WindowWithLegacyAudio = Window & { webkitAudioContext?: typeof AudioContext };
 
-/** Three short tones — deliberate enough to cut through a hall, over in ~0.7s. */
+/**
+ * Three tones — deliberate enough to cut through a hall and long enough to be
+ * heard from the next room, over in ~1.1s. Held rather than repeated more
+ * often, so the pattern still reads as one alert and not a rattle.
+ */
 const BEEP_COUNT = 3;
-const BEEP_DURATION_SECONDS = 0.15;
-const BEEP_GAP_SECONDS = 0.09;
+const BEEP_DURATION_SECONDS = 0.3;
+const BEEP_GAP_SECONDS = 0.12;
 const BEEP_FREQUENCY_HZ = 880;
 /** Output gain, well under 1 so three overlapping-ish tones never clip. */
 const BEEP_PEAK_GAIN = 0.8;
