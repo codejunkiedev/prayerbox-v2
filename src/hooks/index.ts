@@ -11,6 +11,7 @@ export * from './useSettings';
 export * from './useLocationSearch';
 export * from './useOrientationMismatch';
 export * from './useWakeLock';
+export * from './useScreenHeartbeat';
 export * from './useOnlineStatus';
 export * from './useRealtimeRefresh';
 export * from './useBackgroundImages';

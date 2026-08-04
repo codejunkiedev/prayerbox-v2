@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getScreens, deleteScreen } from '@/lib/supabase';
+import { getScreens, deleteScreen, type DisplayScreenWithHeartbeat } from '@/lib/supabase';
 import type { DisplayScreen } from '@/types';
 import { Badge, Button } from '@/components/ui';
 import { TableSkeleton } from '@/components/skeletons';
@@ -15,11 +15,12 @@ import {
 } from '@/components/common';
 import { Monitor, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { formatDistanceToNow } from 'date-fns';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
 
 export default function Screens() {
-  const [screens, setScreens] = useState<DisplayScreen[]>([]);
+  const [screens, setScreens] = useState<DisplayScreenWithHeartbeat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -97,17 +98,17 @@ export default function Screens() {
     }
   };
 
-  const columns: Column<DisplayScreen>[] = [
+  const columns: Column<DisplayScreenWithHeartbeat>[] = [
     {
       key: 'name',
       name: 'Name',
-      width: 'w-[30%]',
+      width: 'w-[22%]',
       render: value => <span className='font-medium'>{value as string}</span>,
     },
     {
       key: 'code',
       name: 'Code',
-      width: 'w-[20%]',
+      width: 'w-[16%]',
       render: value => (
         <div className='flex items-center gap-2'>
           <code className='text-sm bg-muted px-2 py-0.5 rounded'>{value as string}</code>
@@ -133,13 +134,13 @@ export default function Screens() {
     {
       key: 'orientation',
       name: 'Orientation',
-      width: 'w-[14%]',
+      width: 'w-[12%]',
       render: value => <OrientationBadge orientation={value as DisplayScreen['orientation']} />,
     },
     {
       key: 'slide_interval_seconds',
       name: 'Interval',
-      width: 'w-[10%]',
+      width: 'w-[8%]',
       render: value => <span className='text-sm'>{(value as number) ?? 5}s</span>,
     },
     {
@@ -157,6 +158,19 @@ export default function Screens() {
       render: value => (
         <Badge variant={value ? 'default' : 'secondary'}>{value ? 'Yes' : 'No'}</Badge>
       ),
+    },
+    {
+      key: 'last_seen_at',
+      name: 'Last Seen',
+      width: 'w-[14%]',
+      render: value =>
+        value ? (
+          <span className='text-sm text-muted-foreground'>
+            {formatDistanceToNow(new Date(value as string), { addSuffix: true })}
+          </span>
+        ) : (
+          <span className='text-sm text-muted-foreground italic'>Never</span>
+        ),
     },
   ];
 
@@ -187,7 +201,7 @@ export default function Screens() {
           data={screens}
           keyField='id'
           showRowNumbers={true}
-          actionsWidth='w-[10%]'
+          actionsWidth='w-[8%]'
           onRowClick={item => navigate(`/admin/screens/${item.id}`)}
           renderActions={item => (
             <ActionButtons
