@@ -4,6 +4,7 @@ import {
   useFetchDisplayData,
   useOnlineStatus,
   useOrientationMismatch,
+  usePrayerAlert,
   usePrayerTimings,
   useScreenHeartbeat,
   useWakeLock,
@@ -60,6 +61,7 @@ export default function Display() {
   const slideDelay = displayScreen?.slide_interval_seconds
     ? displayScreen.slide_interval_seconds * 1000
     : DEFAULT_SLIDE_DELAY;
+  const prayerAlertEnabled = displayScreen?.prayer_alert_enabled ?? false;
 
   // Localized profile text with English fallback when a translation is blank.
   const localizedArea = localizedProfileField(masjidProfile, 'area', language);
@@ -98,7 +100,15 @@ export default function Display() {
     errorMessage: prayerTimingsError,
     prayerTimes,
     prayerTimeSettings,
-  } = usePrayerTimings(showPrayerTimes);
+  } = usePrayerTimings(showPrayerTimes || prayerAlertEnabled);
+
+  usePrayerAlert({
+    enabled: prayerAlertEnabled,
+    triggers: displayScreen?.prayer_alert_triggers ?? [],
+    sound: displayScreen?.prayer_alert_sound ?? 'beep',
+    prayerTimes,
+    prayerTimeSettings,
+  });
 
   const {
     weatherForecast,

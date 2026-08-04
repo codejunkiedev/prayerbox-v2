@@ -182,18 +182,31 @@ export const sunriseSunsetAdjustmentsSchema = z.object({
 
 export type SunriseSunsetAdjustmentsData = z.infer<typeof sunriseSunsetAdjustmentsSchema>;
 
-export const screenSchema = z.object({
-  name: z.string().min(1, 'Screen name is required'),
-  orientation: z.enum(['landscape', 'portrait', 'mobile']),
-  show_prayer_times: z.boolean(),
-  show_weather: z.boolean(),
-  language: z.enum(['en', 'ur', 'ar']),
-  slide_interval_seconds: z
-    .number({ invalid_type_error: 'Slide interval is required' })
-    .int('Slide interval must be a whole number')
-    .min(5, 'Slide interval must be at least 5 seconds')
-    .max(60, 'Slide interval must be at most 60 seconds'),
-});
+export const screenSchema = z
+  .object({
+    name: z.string().min(1, 'Screen name is required'),
+    orientation: z.enum(['landscape', 'portrait', 'mobile']),
+    show_prayer_times: z.boolean(),
+    show_weather: z.boolean(),
+    language: z.enum(['en', 'ur', 'ar']),
+    slide_interval_seconds: z
+      .number({ invalid_type_error: 'Slide interval is required' })
+      .int('Slide interval must be a whole number')
+      .min(5, 'Slide interval must be at least 5 seconds')
+      .max(60, 'Slide interval must be at most 60 seconds'),
+    prayer_alert_enabled: z.boolean(),
+    prayer_alert_triggers: z.array(z.enum(['athan', 'iqamah'])),
+    prayer_alert_sound: z.enum(['beep', 'silent']),
+  })
+  .superRefine((data, ctx) => {
+    if (data.prayer_alert_enabled && data.prayer_alert_triggers.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['prayer_alert_triggers'],
+        message: 'Pick at least one time to play the alert at',
+      });
+    }
+  });
 
 export type ScreenData = z.infer<typeof screenSchema>;
 

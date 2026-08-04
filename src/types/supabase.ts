@@ -160,6 +160,12 @@ export interface AyatAndHadith extends Base {
 
 export type DisplayLanguage = 'en' | 'ur' | 'ar';
 
+/** The moments in a prayer's schedule a screen can sound an alert at. */
+export type PrayerAlertTrigger = 'athan' | 'iqamah';
+
+/** What a screen plays when an alert fires. `silent` mutes without losing the config. */
+export type PrayerAlertSound = 'beep' | 'silent';
+
 /**
  * Text groups for the custom prayer-timings theme. Each group is an independent
  * unit for the per-group size multiplier and the semantic color slot, mapped to
@@ -288,6 +294,9 @@ export interface DisplayScreen extends Base {
   custom_theme: CustomThemeConfig | null;
   language: DisplayLanguage;
   slide_interval_seconds: number;
+  prayer_alert_enabled: boolean;
+  prayer_alert_triggers: PrayerAlertTrigger[];
+  prayer_alert_sound: PrayerAlertSound;
 }
 
 export interface ScreenContent {

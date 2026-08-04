@@ -17,3 +17,4 @@ export * from './useRealtimeRefresh';
 export * from './useBackgroundImages';
 export * from './useUserBackgrounds';
 export * from './useCanvasSnapshot';
+export * from './usePrayerAlert';
