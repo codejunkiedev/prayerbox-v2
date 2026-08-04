@@ -15,3 +15,4 @@ export * from './image-validation';
 export * from './image-resize';
 export * from './password-strength';
 export * from './ayat-hadith';
+export * from './audio';

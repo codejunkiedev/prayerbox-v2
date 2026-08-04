@@ -18,7 +18,7 @@ import {
 } from '@/components/ui';
 import { screenSchema, type ScreenData } from '@/lib/zod';
 import { createScreen, updateScreen } from '@/lib/supabase';
-import type { DisplayScreen } from '@/types';
+import type { DisplayScreen, PrayerAlertTrigger } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
@@ -30,6 +30,27 @@ type ScreenModalProps = {
   onSuccess: () => void;
   initialData?: DisplayScreen;
 };
+
+const ALERT_TRIGGERS: { value: PrayerAlertTrigger; label: string }[] = [
+  { value: 'athan', label: 'Athan Time' },
+  { value: 'iqamah', label: 'Iqamah Time' },
+];
+
+/**
+ * Form values for a screen. Existing screens saved before a field was
+ * introduced come back without it, so every optional-in-practice column falls
+ * back to the same default a brand new screen gets.
+ */
+const toFormValues = (screen?: DisplayScreen): ScreenData => ({
+  name: screen?.name ?? '',
+  orientation: screen?.orientation ?? 'landscape',
+  show_prayer_times: screen?.show_prayer_times ?? true,
+  show_weather: screen?.show_weather ?? true,
+  language: screen?.language ?? 'en',
+  slide_interval_seconds: screen?.slide_interval_seconds ?? 5,
+  prayer_alert_triggers: screen?.prayer_alert_triggers ?? [],
+  prayer_alert_sound: screen?.prayer_alert_sound ?? 'beep',
+});
 
 export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,51 +67,27 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
     formState: { errors },
   } = useForm<ScreenData>({
     resolver: zodResolver(screenSchema),
-    defaultValues: initialData
-      ? {
-          name: initialData.name,
-          orientation: initialData.orientation,
-          show_prayer_times: initialData.show_prayer_times,
-          show_weather: initialData.show_weather,
-          language: initialData.language ?? 'en',
-          slide_interval_seconds: initialData.slide_interval_seconds ?? 5,
-        }
-      : {
-          name: '',
-          orientation: 'landscape',
-          show_prayer_times: true,
-          show_weather: true,
-          language: 'en',
-          slide_interval_seconds: 5,
-        },
+    defaultValues: toFormValues(initialData),
   });
 
   const showPrayerTimes = watch('show_prayer_times');
   const showWeather = watch('show_weather');
   const orientation = watch('orientation');
   const language = watch('language');
+  const alertTriggers = watch('prayer_alert_triggers');
+
+  const toggleAlertTrigger = (trigger: PrayerAlertTrigger, checked: boolean) => {
+    // Keep the stored order stable so a saved screen doesn't churn its column
+    // just because the boxes were ticked in a different order.
+    const next = ALERT_TRIGGERS.map(({ value }) => value).filter(value =>
+      value === trigger ? checked : alertTriggers.includes(value)
+    );
+    setValue('prayer_alert_triggers', next);
+  };
 
   useEffect(() => {
     if (isOpen) {
-      reset(
-        initialData
-          ? {
-              name: initialData.name,
-              orientation: initialData.orientation,
-              show_prayer_times: initialData.show_prayer_times,
-              show_weather: initialData.show_weather,
-              language: initialData.language ?? 'en',
-              slide_interval_seconds: initialData.slide_interval_seconds ?? 5,
-            }
-          : {
-              name: '',
-              orientation: 'landscape',
-              show_prayer_times: true,
-              show_weather: true,
-              language: 'en',
-              slide_interval_seconds: 5,
-            }
-      );
+      reset(toFormValues(initialData));
       setIsCopied(false);
     }
   }, [isOpen, initialData, reset]);
@@ -261,6 +258,34 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                 </label>
               </div>
             </div>
+          </div>
+
+          {/* No enable switch: the ticked times are the switch, and one that
+              only gated two checkboxes sitting under it said the same thing
+              twice. */}
+          <div className='space-y-2'>
+            <Label>Prayer Alert</Label>
+            <div className='flex items-center gap-6'>
+              {ALERT_TRIGGERS.map(({ value, label }) => (
+                <div key={value} className='flex items-center space-x-2'>
+                  <Checkbox
+                    id={`prayer_alert_trigger_${value}`}
+                    checked={alertTriggers.includes(value)}
+                    onCheckedChange={checked => toggleAlertTrigger(value, !!checked)}
+                  />
+                  <label
+                    htmlFor={`prayer_alert_trigger_${value}`}
+                    className='text-sm cursor-pointer'
+                  >
+                    {label}
+                  </label>
+                </div>
+              ))}
+            </div>
+            <p className='text-xs text-muted-foreground'>
+              Beeps as each ticked time arrives; leave both clear to stay silent. Some browsers stay
+              muted until the screen is touched once.
+            </p>
           </div>
 
           <DialogFooter className='pt-2'>
