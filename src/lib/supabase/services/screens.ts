@@ -17,10 +17,39 @@ import {
 import { generateScreenCode } from '@/utils';
 import supabase from '../index';
 
-export async function getScreens(): Promise<DisplayScreen[]> {
+/** A screen plus the heartbeat timestamp its display last reported. */
+export type DisplayScreenWithHeartbeat = DisplayScreen & { last_seen_at: string | null };
+
+export async function getScreens(): Promise<DisplayScreenWithHeartbeat[]> {
   const { masjid_id } = await getMasjidMembership();
 
-  return await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'masjid_id', masjid_id);
+  const screens = await fetchByColumn<DisplayScreen>(
+    SupabaseTables.DisplayScreens,
+    'masjid_id',
+    masjid_id
+  );
+  if (screens.length === 0) return [];
+
+  // Heartbeats live in their own table so display writes don't churn
+  // display_screens (see the screen_heartbeats migration), hence the second query.
+  const { data, error } = await supabase
+    .from(SupabaseTables.ScreenHeartbeats)
+    .select('screen_id, last_seen_at')
+    .in(
+      'screen_id',
+      screens.map(screen => screen.id)
+    );
+
+  if (error) throw error;
+
+  const lastSeenByScreenId = new Map<string, string>(
+    (data || []).map(row => [row.screen_id as string, row.last_seen_at as string])
+  );
+
+  return screens.map(screen => ({
+    ...screen,
+    last_seen_at: lastSeenByScreenId.get(screen.id) ?? null,
+  }));
 }
 
 export async function getScreenById(id: string): Promise<DisplayScreen | null> {
@@ -31,6 +60,19 @@ export async function getScreenById(id: string): Promise<DisplayScreen | null> {
 export async function getScreenByCode(code: string): Promise<DisplayScreen | null> {
   const screens = await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'code', code);
   return screens.length > 0 ? screens[0] : null;
+}
+
+/**
+ * Stamps the screen's last_seen_at with the current time — called on login and
+ * then periodically while the display runs.
+ *
+ * Displays run as `anon` and have no write access to these tables, so this goes
+ * through a SECURITY DEFINER function that only touches the heartbeat row for
+ * the screen matching the code.
+ */
+export async function recordScreenHeartbeat(code: string): Promise<void> {
+  const { error } = await supabase.rpc('record_screen_heartbeat', { p_code: code });
+  if (error) throw error;
 }
 
 export async function createScreen(data: ScreenData): Promise<DisplayScreen> {

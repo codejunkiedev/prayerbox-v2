@@ -5,6 +5,7 @@ import {
   useOnlineStatus,
   useOrientationMismatch,
   usePrayerTimings,
+  useScreenHeartbeat,
   useWakeLock,
   useWeatherData,
 } from '@/hooks';
@@ -44,6 +45,8 @@ export default function Display() {
 
   const { masjidProfile, displayScreen } = useDisplayStore();
   const { i18n } = useTranslation();
+
+  useScreenHeartbeat(displayScreen?.code);
 
   const {
     mismatch: orientationMismatch,
