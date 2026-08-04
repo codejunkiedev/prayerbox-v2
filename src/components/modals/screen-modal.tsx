@@ -78,7 +78,6 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
   const language = watch('language');
   const alertEnabled = watch('prayer_alert_enabled');
   const alertTriggers = watch('prayer_alert_triggers');
-  const alertSound = watch('prayer_alert_sound');
 
   const toggleAlertTrigger = (trigger: PrayerAlertTrigger, checked: boolean) => {
     // Keep the stored order stable so a saved screen doesn't churn its column
@@ -311,26 +310,6 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                       A prayer whose athan and iqamah are the same minute beeps once.
                     </p>
                   )}
-                </div>
-
-                <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                  <div className='space-y-1.5'>
-                    <Label htmlFor='prayer_alert_sound'>Sound</Label>
-                    <Select
-                      value={alertSound}
-                      onValueChange={v =>
-                        setValue('prayer_alert_sound', v as ScreenData['prayer_alert_sound'])
-                      }
-                    >
-                      <SelectTrigger id='prayer_alert_sound' className='w-full'>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value='beep'>Beep</SelectItem>
-                        <SelectItem value='silent'>Silent</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                 </div>
 
                 <p className='text-xs text-muted-foreground'>
