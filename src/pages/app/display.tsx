@@ -61,7 +61,7 @@ export default function Display() {
   const slideDelay = displayScreen?.slide_interval_seconds
     ? displayScreen.slide_interval_seconds * 1000
     : DEFAULT_SLIDE_DELAY;
-  const prayerAlertEnabled = displayScreen?.prayer_alert_enabled ?? false;
+  const prayerAlertTriggers = displayScreen?.prayer_alert_triggers ?? [];
 
   // Localized profile text with English fallback when a translation is blank.
   const localizedArea = localizedProfileField(masjidProfile, 'area', language);
@@ -100,11 +100,10 @@ export default function Display() {
     errorMessage: prayerTimingsError,
     prayerTimes,
     prayerTimeSettings,
-  } = usePrayerTimings(showPrayerTimes || prayerAlertEnabled);
+  } = usePrayerTimings(showPrayerTimes || prayerAlertTriggers.length > 0);
 
   usePrayerAlert({
-    enabled: prayerAlertEnabled,
-    triggers: displayScreen?.prayer_alert_triggers ?? [],
+    triggers: prayerAlertTriggers,
     sound: displayScreen?.prayer_alert_sound ?? 'beep',
     prayerTimes,
     prayerTimeSettings,

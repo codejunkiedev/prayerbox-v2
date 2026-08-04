@@ -15,7 +15,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Switch,
 } from '@/components/ui';
 import { screenSchema, type ScreenData } from '@/lib/zod';
 import { createScreen, updateScreen } from '@/lib/supabase';
@@ -49,8 +48,7 @@ const toFormValues = (screen?: DisplayScreen): ScreenData => ({
   show_weather: screen?.show_weather ?? true,
   language: screen?.language ?? 'en',
   slide_interval_seconds: screen?.slide_interval_seconds ?? 5,
-  prayer_alert_enabled: screen?.prayer_alert_enabled ?? false,
-  prayer_alert_triggers: screen?.prayer_alert_triggers ?? ['iqamah'],
+  prayer_alert_triggers: screen?.prayer_alert_triggers ?? [],
   prayer_alert_sound: screen?.prayer_alert_sound ?? 'beep',
 });
 
@@ -76,7 +74,6 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
   const showWeather = watch('show_weather');
   const orientation = watch('orientation');
   const language = watch('language');
-  const alertEnabled = watch('prayer_alert_enabled');
   const alertTriggers = watch('prayer_alert_triggers');
 
   const toggleAlertTrigger = (trigger: PrayerAlertTrigger, checked: boolean) => {
@@ -85,7 +82,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
     const next = ALERT_TRIGGERS.map(({ value }) => value).filter(value =>
       value === trigger ? checked : alertTriggers.includes(value)
     );
-    setValue('prayer_alert_triggers', next, { shouldValidate: true });
+    setValue('prayer_alert_triggers', next);
   };
 
   useEffect(() => {
@@ -263,47 +260,32 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
             </div>
           </div>
 
+          {/* No enable switch: the ticked times are the switch, and one that
+              only gated two checkboxes sitting under it said the same thing
+              twice. */}
           <div className='space-y-2'>
-            {/* The section label doubles as the switch's label — a separate
-                "beep at prayer times" line would only say it a second time. */}
-            <div className='flex items-center gap-3'>
-              <Label htmlFor='prayer_alert_enabled'>Prayer Alert</Label>
-              <Switch
-                id='prayer_alert_enabled'
-                checked={alertEnabled}
-                onCheckedChange={checked =>
-                  setValue('prayer_alert_enabled', checked, { shouldValidate: true })
-                }
-              />
-            </div>
-            {alertEnabled && (
-              <>
-                <div className='flex items-center gap-6'>
-                  {ALERT_TRIGGERS.map(({ value, label }) => (
-                    <div key={value} className='flex items-center space-x-2'>
-                      <Checkbox
-                        id={`prayer_alert_trigger_${value}`}
-                        checked={alertTriggers.includes(value)}
-                        onCheckedChange={checked => toggleAlertTrigger(value, !!checked)}
-                      />
-                      <label
-                        htmlFor={`prayer_alert_trigger_${value}`}
-                        className='text-sm cursor-pointer'
-                      >
-                        {label}
-                      </label>
-                    </div>
-                  ))}
+            <Label>Prayer Alert</Label>
+            <div className='flex items-center gap-6'>
+              {ALERT_TRIGGERS.map(({ value, label }) => (
+                <div key={value} className='flex items-center space-x-2'>
+                  <Checkbox
+                    id={`prayer_alert_trigger_${value}`}
+                    checked={alertTriggers.includes(value)}
+                    onCheckedChange={checked => toggleAlertTrigger(value, !!checked)}
+                  />
+                  <label
+                    htmlFor={`prayer_alert_trigger_${value}`}
+                    className='text-sm cursor-pointer'
+                  >
+                    {label}
+                  </label>
                 </div>
-                {errors.prayer_alert_triggers ? (
-                  <p className='text-destructive text-sm'>{errors.prayer_alert_triggers.message}</p>
-                ) : (
-                  <p className='text-xs text-muted-foreground'>
-                    Some browsers stay muted until the screen is touched once.
-                  </p>
-                )}
-              </>
-            )}
+              ))}
+            </div>
+            <p className='text-xs text-muted-foreground'>
+              Beeps as each ticked time arrives; leave both clear to stay silent. Some browsers stay
+              muted until the screen is touched once.
+            </p>
           </div>
 
           <DialogFooter className='pt-2'>

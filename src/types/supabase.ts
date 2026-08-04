@@ -294,7 +294,6 @@ export interface DisplayScreen extends Base {
   custom_theme: CustomThemeConfig | null;
   language: DisplayLanguage;
   slide_interval_seconds: number;
-  prayer_alert_enabled: boolean;
   prayer_alert_triggers: PrayerAlertTrigger[];
   prayer_alert_sound: PrayerAlertSound;
 }

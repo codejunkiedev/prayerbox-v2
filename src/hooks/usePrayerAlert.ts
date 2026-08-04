@@ -15,7 +15,6 @@ import {
 } from '@/utils';
 
 type Options = {
-  enabled: boolean;
   triggers: PrayerAlertTrigger[];
   sound: PrayerAlertSound;
   prayerTimes: AlAdhanPrayerTimes | null;
@@ -56,20 +55,20 @@ const resolveOnDay = (time: string, reference: Date): number | null => {
 
 /**
  * Sounds an alert on the display the moment a prayer's athan or iqamah time
- * arrives — the instant the countdown would hit zero.
+ * arrives — the instant the countdown would hit zero. An empty `triggers` list
+ * is a screen with the alert switched off.
  *
  * Deliberately lives at the page level rather than inside the prayer-times
  * slide, so an alert fires whichever slide happens to be showing (and even when
  * the screen doesn't show prayer times at all).
  */
 export function usePrayerAlert({
-  enabled,
   triggers,
   sound,
   prayerTimes,
   prayerTimeSettings,
 }: Options): void {
-  const active = enabled && sound !== 'silent' && triggers.length > 0;
+  const active = sound !== 'silent' && triggers.length > 0;
 
   /**
    * The distinct clock times to watch, as `hh:mm a` strings. Deduped so a
