@@ -33,8 +33,8 @@ type ScreenModalProps = {
 };
 
 const ALERT_TRIGGERS: { value: PrayerAlertTrigger; label: string }[] = [
-  { value: 'athan', label: 'Athan time' },
-  { value: 'iqamah', label: 'Iqamah time' },
+  { value: 'athan', label: 'Athan Time' },
+  { value: 'iqamah', label: 'Iqamah Time' },
 ];
 
 /**
@@ -263,14 +263,11 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
             </div>
           </div>
 
-          <div className='space-y-3 rounded-md border p-4'>
-            <div className='flex items-start justify-between gap-4'>
-              <div className='space-y-0.5'>
-                <Label htmlFor='prayer_alert_enabled'>Prayer Alert Sound</Label>
-                <p className='text-xs text-muted-foreground'>
-                  Play a beep on this screen the moment a prayer time arrives.
-                </p>
-              </div>
+          <div className='space-y-2'>
+            {/* The section label doubles as the switch's label — a separate
+                "beep at prayer times" line would only say it a second time. */}
+            <div className='flex items-center gap-3'>
+              <Label htmlFor='prayer_alert_enabled'>Prayer Alert</Label>
               <Switch
                 id='prayer_alert_enabled'
                 checked={alertEnabled}
@@ -279,44 +276,33 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                 }
               />
             </div>
-
             {alertEnabled && (
-              <div className='space-y-4 border-t pt-3'>
-                <div className='space-y-2'>
-                  <Label>Play At</Label>
-                  <div className='flex items-center gap-6'>
-                    {ALERT_TRIGGERS.map(({ value, label }) => (
-                      <div key={value} className='flex items-center space-x-2'>
-                        <Checkbox
-                          id={`prayer_alert_trigger_${value}`}
-                          checked={alertTriggers.includes(value)}
-                          onCheckedChange={checked => toggleAlertTrigger(value, !!checked)}
-                        />
-                        <label
-                          htmlFor={`prayer_alert_trigger_${value}`}
-                          className='text-sm cursor-pointer'
-                        >
-                          {label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  {errors.prayer_alert_triggers ? (
-                    <p className='text-destructive text-sm'>
-                      {errors.prayer_alert_triggers.message}
-                    </p>
-                  ) : (
-                    <p className='text-xs text-muted-foreground'>
-                      A prayer whose athan and iqamah are the same minute beeps once.
-                    </p>
-                  )}
+              <>
+                <div className='flex items-center gap-6'>
+                  {ALERT_TRIGGERS.map(({ value, label }) => (
+                    <div key={value} className='flex items-center space-x-2'>
+                      <Checkbox
+                        id={`prayer_alert_trigger_${value}`}
+                        checked={alertTriggers.includes(value)}
+                        onCheckedChange={checked => toggleAlertTrigger(value, !!checked)}
+                      />
+                      <label
+                        htmlFor={`prayer_alert_trigger_${value}`}
+                        className='text-sm cursor-pointer'
+                      >
+                        {label}
+                      </label>
+                    </div>
+                  ))}
                 </div>
-
-                <p className='text-xs text-muted-foreground'>
-                  Loudness follows the display's own volume. Some browsers stay muted until the
-                  screen is touched or a key is pressed once after it loads.
-                </p>
-              </div>
+                {errors.prayer_alert_triggers ? (
+                  <p className='text-destructive text-sm'>{errors.prayer_alert_triggers.message}</p>
+                ) : (
+                  <p className='text-xs text-muted-foreground'>
+                    Some browsers stay muted until the screen is touched once.
+                  </p>
+                )}
+              </>
             )}
           </div>
 
