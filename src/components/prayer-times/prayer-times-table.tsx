@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { applySingleAdjustment, isFriday, getCurrentDay, getAdjustedPrayerTime } from '@/utils';
+import {
+  applySingleAdjustment,
+  isFriday,
+  getCurrentDay,
+  getAdjustedPrayerTime,
+  getIshraqTime,
+  getChashtTime,
+} from '@/utils';
 import {
   Card,
   CardContent,
@@ -21,6 +28,7 @@ import type {
   PrayerAdjustments,
   PrayerTimes,
   Settings,
+  SolarTimeName,
 } from '@/types';
 
 interface PrayerTimesTableProps {
@@ -73,6 +81,41 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
 
   const columns = [...basePrayers, ...jummaColumns, ...restPrayers];
 
+  /**
+   * The single-time columns, which only appear under Starts — they have no athan
+   * or iqamah of their own. Sunrise comes from the API; Ishraq and Chasht are
+   * derived from it, so the three slot in between Fajr and Dhuhr in the order the
+   * sun reaches them.
+   */
+  const solarColumns: {
+    key: SolarTimeName;
+    label: string;
+    getTime: (d: AlAdhanPrayerTimes) => string;
+  }[] = [
+    {
+      key: 'sunrise',
+      label: 'Sunrise',
+      getTime: d => applySingleAdjustment(d.timings.Sunrise, settings?.sunrise_adjustment),
+    },
+    {
+      key: 'ishraq',
+      label: 'Ishraq',
+      getTime: d =>
+        getIshraqTime(d.timings.Sunrise, settings?.sunrise_adjustment, settings?.ishraq_adjustment),
+    },
+    {
+      key: 'chasht',
+      label: 'Chasht',
+      getTime: d =>
+        getChashtTime(
+          d.timings.Sunrise,
+          d.timings.Dhuhr,
+          settings?.sunrise_adjustment,
+          settings?.chasht_adjustment
+        ),
+    },
+  ];
+
   const currentMonth = prayerTimes[0]?.date?.gregorian?.month?.en;
   const currentYear = prayerTimes[0]?.date?.gregorian?.year;
 
@@ -98,9 +141,12 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
             <TableRow className='bg-muted/50'>
               <TableHead className='text-center font-medium py-3'>Date</TableHead>
               <TableHead className='text-center font-semibold'>Fajr</TableHead>
-              {category === 'starts' && (
-                <TableHead className='text-center font-semibold'>Sunrise</TableHead>
-              )}
+              {category === 'starts' &&
+                solarColumns.map(col => (
+                  <TableHead key={col.key} className='text-center font-semibold'>
+                    {col.label}
+                  </TableHead>
+                ))}
               {columns.slice(1).map(col => (
                 <TableHead key={col.name} className='text-center font-semibold'>
                   {col.label}
@@ -127,11 +173,12 @@ export function PrayerTimesTable({ prayerTimes, savedSettings, settings }: Praye
                   <TableCell className='text-center'>
                     {getAdjustedPrayerTime('fajr', day.timings.Fajr, savedSettings, category)}
                   </TableCell>
-                  {category === 'starts' && (
-                    <TableCell className='text-center'>
-                      {applySingleAdjustment(day.timings.Sunrise, settings?.sunrise_adjustment)}
-                    </TableCell>
-                  )}
+                  {category === 'starts' &&
+                    solarColumns.map(col => (
+                      <TableCell key={col.key} className='text-center'>
+                        {col.getTime(day)}
+                      </TableCell>
+                    ))}
                   {columns.slice(1).map(col => {
                     const isJumma = ['jumma1', 'jumma2', 'jumma3'].includes(col.name);
                     return (
