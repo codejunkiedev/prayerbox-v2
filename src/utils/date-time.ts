@@ -6,6 +6,7 @@ import {
   format,
   parse,
   addMinutes,
+  differenceInMinutes,
   getDay,
   getHours,
   getMinutes,
@@ -64,6 +65,21 @@ export const addTimeMinutes = (timeString: string, minutes: number): string => {
     return format(adjustedTime, 'HH:mm');
   } catch {
     return timeString;
+  }
+};
+
+/**
+ * Minutes from one time to another on the same day
+ * @param from Time string in HH:mm format
+ * @param to Time string in HH:mm format
+ * @returns Whole minutes between them; negative when `to` is the earlier of the two
+ */
+export const minutesBetweenTimes = (from: string, to: string): number => {
+  try {
+    const base = new Date();
+    return differenceInMinutes(parse(to, 'HH:mm', base), parse(from, 'HH:mm', base));
+  } catch {
+    return 0;
   }
 };
 

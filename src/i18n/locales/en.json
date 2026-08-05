@@ -35,6 +35,8 @@
   "prayer": {
     "sunrise": "Sunrise",
     "sunset": "Sunset",
+    "ishraq": "Ishraq",
+    "chasht": "Chasht",
     "startsIn": "{{prayer}} starts in",
     "names": {
       "fajr": "Fajr",

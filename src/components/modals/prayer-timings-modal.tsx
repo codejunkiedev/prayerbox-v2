@@ -25,9 +25,16 @@ import {
   TabsTrigger,
 } from '@/components/ui';
 import { prayerAdjustmentsFormSchema, type PrayerAdjustmentsFormData } from '@/lib/zod';
-import { savePrayerAdjustments, updateSunriseSunsetAdjustments } from '@/lib/supabase';
-import { parseTimeString, formatTimeString } from '@/utils';
-import type { AdjustmentCategory, PrayerAdjustments, Settings, SingleAdjustment } from '@/types';
+import { savePrayerAdjustments, updateSolarAdjustments } from '@/lib/supabase';
+import { parseTimeString, formatTimeString, ISHRAQ_MINUTES_AFTER_SUNRISE } from '@/utils';
+import type {
+  AdjustmentCategory,
+  PrayerAdjustments,
+  Settings,
+  SingleAdjustment,
+  SolarAdjustments,
+  SolarTimeName,
+} from '@/types';
 
 interface PrayerTimingsModalProps {
   isOpen: boolean;
@@ -60,6 +67,27 @@ const CATEGORIES: { key: AdjustmentCategory; label: string }[] = [
 
 const DEFAULT_SINGLE: SingleAdjustment = { type: 'default' };
 
+/**
+ * The single-time entries, in the order the sun reaches them. Ishraq and Chasht
+ * carry a note because — unlike sunrise and sunset — they are not returned by
+ * the prayer time API: they are derived here from conventions a masjid may well
+ * keep differently, so the modal says which convention it used.
+ */
+const SOLAR_LIST: { name: SolarTimeName; label: string; note?: string }[] = [
+  { name: 'sunrise', label: 'Sunrise' },
+  {
+    name: 'ishraq',
+    label: 'Ishraq',
+    note: `Calculated as ${ISHRAQ_MINUTES_AFTER_SUNRISE} minutes after sunrise, once the sun has risen a spear's length above the horizon.`,
+  },
+  {
+    name: 'chasht',
+    label: 'Chasht',
+    note: 'Calculated as the midpoint between sunrise and Zawal — a quarter of the day gone, the preferred time for Salat al-Duha.',
+  },
+  { name: 'sunset', label: 'Sunset' },
+];
+
 const DEFAULT_ADJUSTMENT: PrayerAdjustmentsFormData['prayer_adjustments'] = {
   fajr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
   dhuhr: { starts: DEFAULT_SINGLE, athan: DEFAULT_SINGLE, iqamah: DEFAULT_SINGLE },
@@ -80,12 +108,7 @@ export function PrayerTimingsModal({
   onSettingsChange,
 }: PrayerTimingsModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sunrise, setSunrise] = useState<SingleAdjustment>(
-    settings?.sunrise_adjustment ?? DEFAULT_SINGLE
-  );
-  const [sunset, setSunset] = useState<SingleAdjustment>(
-    settings?.sunset_adjustment ?? DEFAULT_SINGLE
-  );
+  const [solar, setSolar] = useState<SolarAdjustments>(() => solarFromSettings(settings));
 
   const { handleSubmit, setValue, watch } = useForm<PrayerAdjustmentsFormData>({
     resolver: zodResolver(prayerAdjustmentsFormSchema),
@@ -102,15 +125,14 @@ export function PrayerTimingsModal({
 
   useEffect(() => {
     if (!isOpen) return;
-    setSunrise(settings?.sunrise_adjustment ?? DEFAULT_SINGLE);
-    setSunset(settings?.sunset_adjustment ?? DEFAULT_SINGLE);
+    setSolar(solarFromSettings(settings));
   }, [isOpen, settings]);
 
   const onFormSubmit = async (data: PrayerAdjustmentsFormData) => {
     try {
       setIsSubmitting(true);
       await savePrayerAdjustments(data);
-      const updatedSettings = await updateSunriseSunsetAdjustments(sunrise, sunset);
+      const updatedSettings = await updateSolarAdjustments(solar);
       onSettingsChange(updatedSettings);
       onSubmit();
       onClose();
@@ -223,24 +245,18 @@ export function PrayerTimingsModal({
                     );
                   })}
 
-                  {cat.key === 'starts' && (
-                    <>
+                  {cat.key === 'starts' &&
+                    SOLAR_LIST.map(item => (
                       <SolarAccordionItem
-                        name='sunrise'
-                        label='Sunrise'
-                        adjustment={sunrise}
-                        onChange={setSunrise}
-                        summary={getAdjustmentSummary(sunrise)}
+                        key={item.name}
+                        name={item.name}
+                        label={item.label}
+                        note={item.note}
+                        adjustment={solar[item.name]}
+                        onChange={next => setSolar(prev => ({ ...prev, [item.name]: next }))}
+                        summary={getAdjustmentSummary(solar[item.name])}
                       />
-                      <SolarAccordionItem
-                        name='sunset'
-                        label='Sunset'
-                        adjustment={sunset}
-                        onChange={setSunset}
-                        summary={getAdjustmentSummary(sunset)}
-                      />
-                    </>
-                  )}
+                    ))}
                 </Accordion>
               </TabsContent>
             ))}
@@ -265,9 +281,19 @@ export function PrayerTimingsModal({
   );
 }
 
+function solarFromSettings(settings: Settings | null): SolarAdjustments {
+  return {
+    sunrise: settings?.sunrise_adjustment ?? DEFAULT_SINGLE,
+    ishraq: settings?.ishraq_adjustment ?? DEFAULT_SINGLE,
+    chasht: settings?.chasht_adjustment ?? DEFAULT_SINGLE,
+    sunset: settings?.sunset_adjustment ?? DEFAULT_SINGLE,
+  };
+}
+
 interface SolarAccordionItemProps {
-  name: 'sunrise' | 'sunset';
+  name: SolarTimeName;
   label: string;
+  note?: string;
   adjustment: SingleAdjustment;
   onChange: (next: SingleAdjustment) => void;
   summary: string;
@@ -276,6 +302,7 @@ interface SolarAccordionItemProps {
 function SolarAccordionItem({
   name,
   label,
+  note,
   adjustment,
   onChange,
   summary,
@@ -294,6 +321,7 @@ function SolarAccordionItem({
         </div>
       </AccordionTrigger>
       <AccordionContent>
+        {note && <p className='text-xs text-muted-foreground mb-2'>{note}</p>}
         {renderSingleAdjustmentControls({
           idPrefix: name,
           value: adjustment,

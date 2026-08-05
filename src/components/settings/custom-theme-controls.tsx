@@ -133,6 +133,8 @@ const FIELD_TOGGLES: { key: keyof CustomThemeVisibility; label: string }[] = [
   { key: 'hijriDate', label: 'Hijri date' },
   { key: 'masjidName', label: 'Masjid name' },
   { key: 'sunriseSunset', label: 'Sunrise & sunset' },
+  { key: 'ishraq', label: 'Ishraq' },
+  { key: 'chasht', label: 'Chasht' },
   { key: 'nextIqamahCard', label: 'Next Iqamah card' },
 ];
 
@@ -348,6 +350,18 @@ export function CustomThemeControls({
           <p className='text-[10px] text-muted-foreground'>
             The masjid name comes from your profile. Urdu and Arabic screens use the translated name
             when you have set one, and the English name otherwise.
+          </p>
+          <p className='text-[10px] text-muted-foreground'>
+            Ishraq and Chasht are calculated from sunrise. Change them for every screen under{' '}
+            <Link
+              to={AppRoutes.PrayerTimings}
+              target='_blank'
+              rel='noreferrer'
+              className='font-semibold underline-offset-2 hover:underline'
+            >
+              Prayer Time Adjustments
+            </Link>
+            .
           </p>
         </div>
       </section>
