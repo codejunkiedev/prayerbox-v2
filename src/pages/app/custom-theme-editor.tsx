@@ -130,6 +130,8 @@ export default function CustomThemeEditor() {
       hijriDate: sampleDate.hijri,
       sunrise: '04:30',
       sunset: '19:45',
+      ishraq: '04:45',
+      chasht: '08:22',
       currentTime: new Date(),
       processedPrayerTimings: SAMPLE_TIMINGS,
       prayerTimeSettings: null,

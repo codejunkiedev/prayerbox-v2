@@ -11,6 +11,12 @@ export interface ThemeProps {
   hijriDate: string;
   sunrise: string;
   sunset: string;
+  /**
+   * Derived from sunrise rather than fetched — the prayer time API returns
+   * neither. Only consumed by the custom theme (theme-4).
+   */
+  ishraq: string;
+  chasht: string;
   currentTime: Date;
   processedPrayerTimings: ProcessedPrayerTiming[];
   prayerTimeSettings: PrayerTimes | null;

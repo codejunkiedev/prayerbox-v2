@@ -88,7 +88,10 @@ export interface CustomThemeParts {
   clock: ReactNode;
   masjidNameEl: ReactNode;
   dateBlock: ReactNode;
-  /** Sunrise/sunset; `stacked` runs them vertically instead of side by side. */
+  /**
+   * Sunrise, Ishraq, Chasht and sunset — whichever are switched on, in the order
+   * the sun reaches them. `stacked` runs them vertically instead of side by side.
+   */
   sunTimes: (stacked: boolean) => ReactNode;
 
   columnHeader: (label: string, center?: boolean) => ReactNode;
@@ -120,6 +123,8 @@ export function useCustomThemeParts({
   hijriDate,
   sunrise,
   sunset,
+  ishraq,
+  chasht,
   currentTime,
   processedPrayerTimings,
   isFriday,
@@ -193,15 +198,20 @@ export function useCustomThemeParts({
     );
   }, [displayPrayers, isFriday]);
 
-  const { sunriseNum, sunriseAmPm } = useMemo(() => {
-    const parsed = formatTimeNumber(sunrise);
-    return { sunriseNum: parsed.timeNumber, sunriseAmPm: parsed.amPm };
-  }, [sunrise]);
-
-  const { sunsetNum, sunsetAmPm } = useMemo(() => {
-    const parsed = formatTimeNumber(sunset);
-    return { sunsetNum: parsed.timeNumber, sunsetAmPm: parsed.amPm };
-  }, [sunset]);
+  const solarRows = useMemo(
+    () =>
+      (
+        [
+          [vis.sunriseSunset, 'prayer.sunrise', sunrise, 'text-amber-400'],
+          [vis.ishraq, 'prayer.ishraq', ishraq, 'text-yellow-300'],
+          [vis.chasht, 'prayer.chasht', chasht, 'text-sky-300'],
+          [vis.sunriseSunset, 'prayer.sunset', sunset, 'text-orange-400'],
+        ] as const
+      )
+        .filter(([on]) => on)
+        .map(([, key, time, tone]) => ({ key, tone, ...formatTimeNumber(time) })),
+    [vis.sunriseSunset, vis.ishraq, vis.chasht, sunrise, ishraq, chasht, sunset]
+  );
 
   const clock = vis.clock ? (
     <CurrentTime
@@ -214,14 +224,8 @@ export function useCustomThemeParts({
     />
   ) : null;
 
-  const sunRow = (
-    label: string,
-    num: string,
-    amPm: string,
-    numClass: string,
-    amPmClass: string
-  ) => (
-    <div className='flex items-baseline' style={{ gap: fs('sunGap', 'date') }}>
+  const sunRow = (labelKey: string, num: string, amPm: string, tone: string) => (
+    <div key={labelKey} className='flex items-baseline' style={{ gap: fs('sunGap', 'date') }}>
       <span
         className={`uppercase font-medium ${fontClass}`}
         style={{
@@ -230,33 +234,28 @@ export function useCustomThemeParts({
           fontFamily: primaryFamily,
         }}
       >
-        {label}
+        {t(labelKey)}
       </span>
-      <span className={`font-bold ${numClass}`} style={{ fontSize: fs('sunNum', 'date') }}>
+      <span className={`font-bold ${tone}`} style={{ fontSize: fs('sunNum', 'date') }}>
         {num}
       </span>
-      <span className={amPmClass} style={{ fontSize: fs('sunAmPm', 'date') }}>
+      <span className={`${tone} opacity-80`} style={{ fontSize: fs('sunAmPm', 'date') }}>
         {amPm}
       </span>
     </div>
   );
 
   const sunTimes = (stacked: boolean) => {
-    if (!vis.sunriseSunset) return null;
+    if (solarRows.length === 0) return null;
     return (
       <div
         className={
-          stacked ? 'flex flex-col items-end gap-[0.4cqh]' : 'flex items-center gap-[2cqw]'
+          stacked
+            ? 'flex flex-col items-end gap-[0.4cqh]'
+            : 'grid grid-cols-2 gap-x-[2cqw] gap-y-[0.4cqh]'
         }
       >
-        {sunRow(
-          t('prayer.sunrise'),
-          sunriseNum,
-          sunriseAmPm,
-          'text-amber-400',
-          'text-amber-400/80'
-        )}
-        {sunRow(t('prayer.sunset'), sunsetNum, sunsetAmPm, 'text-orange-400', 'text-orange-400/80')}
+        {solarRows.map(row => sunRow(row.key, row.timeNumber, row.amPm, row.tone))}
       </div>
     );
   };

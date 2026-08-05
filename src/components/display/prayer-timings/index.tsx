@@ -2,6 +2,8 @@ import {
   applySingleAdjustment,
   formatGregorianDate,
   formatHijriDate,
+  getChashtTime,
+  getIshraqTime,
   getProcessedPrayerTimings,
   isFridayPrayer,
 } from '@/utils';
@@ -67,6 +69,17 @@ export function PrayerTimingDisplay({
     hijriDate: adjustedHijriDate || formatHijriDate(date?.hijri, lang),
     sunrise: applySingleAdjustment(timings?.Sunrise || '', userSettings?.sunrise_adjustment),
     sunset: applySingleAdjustment(timings?.Sunset || '', userSettings?.sunset_adjustment),
+    ishraq: getIshraqTime(
+      timings?.Sunrise || '',
+      userSettings?.sunrise_adjustment,
+      userSettings?.ishraq_adjustment
+    ),
+    chasht: getChashtTime(
+      timings?.Sunrise || '',
+      timings?.Dhuhr || '',
+      userSettings?.sunrise_adjustment,
+      userSettings?.chasht_adjustment
+    ),
     currentTime,
     processedPrayerTimings,
     prayerTimeSettings,

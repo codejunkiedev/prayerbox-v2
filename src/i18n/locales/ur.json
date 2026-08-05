@@ -35,6 +35,8 @@
   "prayer": {
     "sunrise": "طلوعِ آفتاب",
     "sunset": "غروبِ آفتاب",
+    "ishraq": "اشراق",
+    "chasht": "چاشت",
     "startsIn": "{{prayer}} شروع ہونے میں",
     "names": {
       "fajr": "فجر",

@@ -46,6 +46,8 @@ export const DEFAULT_CUSTOM_THEME: CustomThemeConfig = {
     jumma3: false,
     masjidName: true,
     sunriseSunset: true,
+    ishraq: true,
+    chasht: true,
     nextIqamahCard: true,
     hijriDate: true,
     gregorianDate: true,
