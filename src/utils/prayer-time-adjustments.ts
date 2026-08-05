@@ -1,4 +1,4 @@
-import { formatTime, addTimeMinutes } from './date-time';
+import { formatTime, addTimeMinutes, minutesBetweenTimes } from './date-time';
 import type {
   AdjustmentCategory,
   PrayerAdjustments,
@@ -32,27 +32,19 @@ export const PRAYER_NAMES = {
 
 const DEFAULT_SINGLE_ADJUSTMENT: SingleAdjustment = { type: 'default' };
 
+/** AlAdhan returns times as `05:16 (PKT)`; everything downstream wants `05:16`. */
+const clockPart = (time: string): string => (time.includes(' ') ? time.split(' ')[0] : time);
+
 /**
- * Applies a single adjustment to a time string and returns a formatted result.
- * Exposed for times that aren't part of `prayer_adjustments` (e.g. sunrise/sunset).
+ * Applies a single adjustment and returns the result still in `HH:mm`, for
+ * callers that go on to do arithmetic with it (see the Ishraq/Chasht bases).
  */
-export const applySingleAdjustment = (
+export const applySingleAdjustmentRaw = (
   originalTime: string,
   adjustment: SingleAdjustment | undefined | null
 ): string => {
-  const timeOnly = originalTime.includes(' ') ? originalTime.split(' ')[0] : originalTime;
-  if (!adjustment) return formatTime(timeOnly);
-
-  if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
-    return formatTime(addTimeMinutes(timeOnly, adjustment.offset));
-  } else if (adjustment.type === 'manual' && adjustment.manual_time) {
-    return formatTime(adjustment.manual_time);
-  }
-  return formatTime(timeOnly);
-};
-
-const applyAdjustment = (originalTime: string, adjustment: SingleAdjustment): string => {
-  const timeOnly = originalTime.includes(' ') ? originalTime.split(' ')[0] : originalTime;
+  const timeOnly = clockPart(originalTime);
+  if (!adjustment) return timeOnly;
 
   if (adjustment.type === 'offset' && adjustment.offset !== undefined) {
     return addTimeMinutes(timeOnly, adjustment.offset);
@@ -61,6 +53,75 @@ const applyAdjustment = (originalTime: string, adjustment: SingleAdjustment): st
   }
   return timeOnly;
 };
+
+/**
+ * Applies a single adjustment to a time string and returns a formatted result.
+ * Exposed for times that aren't part of `prayer_adjustments` (e.g. sunrise/sunset).
+ */
+export const applySingleAdjustment = (
+  originalTime: string,
+  adjustment: SingleAdjustment | undefined | null
+): string => formatTime(applySingleAdjustmentRaw(originalTime, adjustment));
+
+/**
+ * Minutes after sunrise at which Ishraq becomes due. The sun has to clear the
+ * horizon by "the length of a spear" before the forbidden time at sunrise ends,
+ * which the fatwa literature and printed timetables settle at 15–20 minutes;
+ * 15 is the figure most of them print, and the offset control covers a masjid
+ * that prefers 20.
+ */
+export const ISHRAQ_MINUTES_AFTER_SUNRISE = 15;
+
+/**
+ * Ishraq, as `HH:mm` before its own adjustment. Derived rather than fetched —
+ * the AlAdhan API returns no Ishraq — and derived from the *adjusted* sunrise so
+ * that a masjid correcting sunrise keeps the same gap on screen instead of one
+ * that no longer matches the sunrise beside it.
+ */
+const getIshraqBase = (sunrise: string, sunriseAdjustment: SingleAdjustment | undefined | null) =>
+  addTimeMinutes(
+    applySingleAdjustmentRaw(sunrise, sunriseAdjustment),
+    ISHRAQ_MINUTES_AFTER_SUNRISE
+  );
+
+/**
+ * Chasht (Salat al-Duha), as `HH:mm` before its own adjustment. Its window runs
+ * from Ishraq to Zawal, but the preferred time in the Hanafi school is once a
+ * quarter of the day has passed — the midpoint between sunrise and Zawal — which
+ * is what a timetable prints as "Chasht". Follows the adjusted sunrise for the
+ * same reason Ishraq does; Zawal is Dhuhr as the API returns it, since a
+ * masjid's Dhuhr adjustment is a jamaat preference rather than a solar one.
+ */
+const getChashtBase = (
+  sunrise: string,
+  dhuhr: string,
+  sunriseAdjustment: SingleAdjustment | undefined | null
+) => {
+  const from = applySingleAdjustmentRaw(sunrise, sunriseAdjustment);
+  // Clamped so a sunrise manually set past Zawal can't push Chasht backwards
+  // into the night; it collapses onto sunrise instead.
+  const halfway = Math.max(0, Math.round(minutesBetweenTimes(from, clockPart(dhuhr)) / 2));
+  return addTimeMinutes(from, halfway);
+};
+
+/** Ishraq, formatted for display, with both the sunrise and Ishraq adjustments applied. */
+export const getIshraqTime = (
+  sunrise: string,
+  sunriseAdjustment: SingleAdjustment | undefined | null,
+  ishraqAdjustment: SingleAdjustment | undefined | null
+): string =>
+  formatTime(applySingleAdjustmentRaw(getIshraqBase(sunrise, sunriseAdjustment), ishraqAdjustment));
+
+/** Chasht, formatted for display, with both the sunrise and Chasht adjustments applied. */
+export const getChashtTime = (
+  sunrise: string,
+  dhuhr: string,
+  sunriseAdjustment: SingleAdjustment | undefined | null,
+  chashtAdjustment: SingleAdjustment | undefined | null
+): string =>
+  formatTime(
+    applySingleAdjustmentRaw(getChashtBase(sunrise, dhuhr, sunriseAdjustment), chashtAdjustment)
+  );
 
 /**
  * Gets the single adjustment object for a prayer + category
@@ -85,7 +146,7 @@ export const getAdjustedPrayerTime = (
   category: AdjustmentCategory = 'starts'
 ): string => {
   const adjustment = getAdjustment(prayerName, category, prayerTimeSettings);
-  return formatTime(applyAdjustment(originalTime, adjustment));
+  return formatTime(applySingleAdjustmentRaw(originalTime, adjustment));
 };
 
 /**

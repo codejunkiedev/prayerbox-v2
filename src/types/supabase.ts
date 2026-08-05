@@ -251,6 +251,8 @@ export interface CustomThemeVisibility {
   jumma3: boolean;
   masjidName: boolean;
   sunriseSunset: boolean;
+  ishraq: boolean;
+  chasht: boolean;
   nextIqamahCard: boolean;
   hijriDate: boolean;
   gregorianDate: boolean;
@@ -344,6 +346,10 @@ export interface PrayerTimes extends Base {
   prayer_adjustments?: PrayerAdjustments;
 }
 
+export type SolarTimeName = 'sunrise' | 'ishraq' | 'chasht' | 'sunset';
+
+export type SolarAdjustments = Record<SolarTimeName, SingleAdjustment>;
+
 export interface Settings extends Base {
   hijri_calculation_method?: HijriCalculationMethod;
   hijri_offset?: number;
@@ -351,4 +357,6 @@ export interface Settings extends Base {
   juristic_school?: number;
   sunrise_adjustment?: SingleAdjustment;
   sunset_adjustment?: SingleAdjustment;
+  ishraq_adjustment?: SingleAdjustment;
+  chasht_adjustment?: SingleAdjustment;
 }

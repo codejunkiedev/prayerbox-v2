@@ -175,12 +175,14 @@ export const prayerAdjustmentsFormSchema = z.object({
 
 export type PrayerAdjustmentsFormData = z.infer<typeof prayerAdjustmentsFormSchema>;
 
-export const sunriseSunsetAdjustmentsSchema = z.object({
+export const solarAdjustmentsSchema = z.object({
   sunrise_adjustment: singleAdjustmentSchema,
   sunset_adjustment: singleAdjustmentSchema,
+  ishraq_adjustment: singleAdjustmentSchema,
+  chasht_adjustment: singleAdjustmentSchema,
 });
 
-export type SunriseSunsetAdjustmentsData = z.infer<typeof sunriseSunsetAdjustmentsSchema>;
+export type SolarAdjustmentsData = z.infer<typeof solarAdjustmentsSchema>;
 
 export const screenSchema = z.object({
   name: z.string().min(1, 'Screen name is required'),
