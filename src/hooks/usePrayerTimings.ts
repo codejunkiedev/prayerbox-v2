@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type AlAdhanPrayerTimes, type PrayerTimes, type Settings, SupabaseTables } from '@/types';
 import { useDisplayStore } from '@/store';
-import { getPrayerAdjustments, getSettings, type TableSubscription } from '@/lib/supabase';
+import { getDisplayPrayerSettings, type TableSubscription } from '@/lib/supabase';
 import { fetchPrayerTimesForThisMonth } from '@/api';
 import {
   findTodayInMonth,
@@ -41,16 +41,16 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
   const [prayerTimeSettings, setPrayerTimeSettings] = useState<PrayerTimes | null>(null);
   const monthDaysRef = useRef<AlAdhanPrayerTimes[] | null>(null);
 
-  const { masjidProfile } = useDisplayStore();
+  const { masjidProfile, displayScreen } = useDisplayStore();
   const masjidId = masjidProfile?.id;
+  const code = displayScreen?.code;
 
+  // `settings` and `prayer_times` aren't readable by anon any more, so the
+  // display watches the content-free revision counter instead and refetches
+  // through the code-keyed RPC when it moves.
   const subscriptions = useMemo<TableSubscription[]>(() => {
     if (!masjidId) return [];
-    const masjidFilter = `masjid_id=eq.${masjidId}`;
-    return [
-      { table: SupabaseTables.Settings, filter: masjidFilter },
-      { table: SupabaseTables.PrayerTimes, filter: masjidFilter },
-    ];
+    return [{ table: SupabaseTables.DisplayRevisions, filter: `masjid_id=eq.${masjidId}` }];
   }, [masjidId]);
 
   const refreshKey = useRealtimeRefresh(
@@ -130,7 +130,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
   useEffect(() => {
     const abortController = new AbortController();
 
-    if (!enabled || !masjidId) return () => abortController.abort();
+    if (!enabled || !code) return () => abortController.abort();
 
     const isInitialFetch = refreshKey === 0;
     let hadCachedMonth = false;
@@ -139,10 +139,8 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
       setErrorMessage(null);
 
       try {
-        const [userSettings, adjustments] = await Promise.all([
-          getSettings(masjidId),
-          getPrayerAdjustments(masjidId),
-        ]);
+        const { settings: userSettings, prayer_times: adjustments } =
+          await getDisplayPrayerSettings(code);
 
         const { latitude, longitude } = masjidProfile || {};
         const method = userSettings?.calculation_method;
@@ -190,7 +188,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
     return () => {
       abortController.abort();
     };
-  }, [enabled, fetchPrayerTimes, masjidId, masjidProfile, refreshKey]);
+  }, [enabled, fetchPrayerTimes, code, masjidProfile, refreshKey]);
 
   // At midnight, re-pick today's row from the cached month so prayer times
   // roll over without a network call. If the month has changed, the cached

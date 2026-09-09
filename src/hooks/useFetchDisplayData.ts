@@ -10,14 +10,7 @@ import {
   SupabaseTables,
 } from '@/types';
 import { useDisplayStore } from '@/store';
-import {
-  fetchContentByTableAndIds,
-  getMasjidProfileByMasjidId,
-  getScreenById,
-  getSettings,
-  getVisibleScreenContent,
-  type TableSubscription,
-} from '@/lib/supabase';
+import { getDisplayPayload, type TableSubscription } from '@/lib/supabase';
 import type { ErrorMessage } from '@/components/display';
 import { readDisplayCache, writeDisplayCache, type DisplayDataCache } from '@/utils';
 import { useRealtimeRefresh } from './useRealtimeRefresh';
@@ -33,18 +26,6 @@ type ReturnType = {
   errorMessage: ErrorMessage | null;
   orderedContent: DisplayContentItem[];
   userSettings: Settings | null;
-};
-
-const TABLE_MAP: Record<string, string> = {
-  announcements: 'announcements',
-  events: 'events',
-  posts: 'posts',
-  youtube_videos: 'youtube_videos',
-  ayat_and_hadith: 'ayat_and_hadith',
-};
-
-type ContentRecord = (Announcement | Event | Post | YouTubeVideo | AyatAndHadith) & {
-  id: string;
 };
 
 const buildOrderedContent = (
@@ -69,12 +50,20 @@ const buildOrderedContent = (
  * Custom hook to fetch display data filtered by screen content assignments.
  * Only fetches visible content, ordered by display_order.
  *
+ * The display runs as `anon`, which has no read access to the content tables.
+ * Everything arrives in one call to `get_display_payload`, a SECURITY DEFINER
+ * function keyed by the screen's login code, so a display can only ever reach
+ * the masjid its own code belongs to.
+ *
  * Hydrates from localStorage cache so the screen renders offline. The network
  * fetch runs in the background; on success the cache is updated, on failure
  * the cached data keeps showing.
  *
- * Subscribes to Supabase Realtime so admin edits (content, screen settings,
- * profile, prayer settings) propagate to the display without a reload.
+ * Live updates come from `display_revisions`, a content-free counter that
+ * triggers bump whenever anything the display renders changes. Subscribing to
+ * the content tables themselves is not an option: Realtime delivers a change
+ * only if the subscriber's own RLS lets it read the row, and anon's no longer
+ * does. The counter is only ever a signal to refetch — its value is unused.
  */
 export function useFetchDisplayData(): ReturnType {
   const [fetching, setFetching] = useState<boolean>(false);
@@ -86,22 +75,12 @@ export function useFetchDisplayData(): ReturnType {
     useDisplayStore();
   const masjidId = masjidProfile?.id;
   const screenId = displayScreen?.id;
+  const code = displayScreen?.code;
 
   const subscriptions = useMemo<TableSubscription[]>(() => {
-    if (!masjidId || !screenId) return [];
-    const masjidFilter = `masjid_id=eq.${masjidId}`;
-    return [
-      { table: SupabaseTables.DisplayScreens, filter: `id=eq.${screenId}` },
-      { table: SupabaseTables.ScreenContent, filter: `screen_id=eq.${screenId}` },
-      { table: SupabaseTables.Settings, filter: masjidFilter },
-      { table: SupabaseTables.MasjidProfiles, filter: `id=eq.${masjidId}` },
-      { table: SupabaseTables.Announcements, filter: masjidFilter },
-      { table: SupabaseTables.Events, filter: masjidFilter },
-      { table: SupabaseTables.Posts, filter: masjidFilter },
-      { table: SupabaseTables.YouTubeVideos, filter: masjidFilter },
-      { table: SupabaseTables.AyatAndHadith, filter: masjidFilter },
-    ];
-  }, [masjidId, screenId]);
+    if (!masjidId) return [];
+    return [{ table: SupabaseTables.DisplayRevisions, filter: `masjid_id=eq.${masjidId}` }];
+  }, [masjidId]);
 
   const refreshKey = useRealtimeRefresh(
     masjidId && screenId ? `display:${screenId}` : null,
@@ -109,10 +88,9 @@ export function useFetchDisplayData(): ReturnType {
   );
 
   useEffect(() => {
-    const abortController = new AbortController();
+    if (!screenId || !code) return;
 
-    if (!masjidId || !screenId) return () => abortController.abort();
-
+    let cancelled = false;
     const isInitialFetch = refreshKey === 0;
     let hasCachedData = false;
 
@@ -131,22 +109,19 @@ export function useFetchDisplayData(): ReturnType {
       setErrorMessage(null);
 
       try {
-        const [settings, screenContentRows, latestScreen, latestProfile] = await Promise.all([
-          getSettings(masjidId),
-          getVisibleScreenContent(screenId),
-          getScreenById(screenId),
-          getMasjidProfileByMasjidId(masjidId),
-        ]);
+        const payload = await getDisplayPayload(code);
+        if (cancelled) return;
 
-        if (!latestScreen) {
+        // No payload means the screen was deleted out from under the display.
+        if (!payload) {
           signOut();
           return;
         }
 
-        setDisplayScreen(latestScreen);
-        if (latestProfile) setMasjidProfile(latestProfile);
+        setDisplayScreen(payload.screen);
+        if (payload.masjid_profile) setMasjidProfile(payload.masjid_profile);
 
-        if (!settings && latestScreen.show_prayer_times) {
+        if (!payload.settings && payload.screen.show_prayer_times) {
           setErrorMessage({
             title: 'Prayer time settings are missing',
             description:
@@ -155,38 +130,17 @@ export function useFetchDisplayData(): ReturnType {
           return;
         }
 
-        setUserSettings(settings);
-
-        const idsByType: Record<string, string[]> = {};
-        for (const row of screenContentRows) {
-          if (!idsByType[row.content_type]) idsByType[row.content_type] = [];
-          idsByType[row.content_type].push(row.content_id);
-        }
-
-        const fetchResults = await Promise.all(
-          Object.entries(idsByType).map(async ([type, ids]) => {
-            const data = await fetchContentByTableAndIds<ContentRecord>(TABLE_MAP[type], ids);
-            return { type, data };
-          })
-        );
-
-        const contentItems: Record<string, ContentRecord> = {};
-        for (const { data } of fetchResults) {
-          for (const item of data) {
-            contentItems[item.id] = item;
-          }
-        }
-
-        setOrderedContent(buildOrderedContent(screenContentRows, contentItems));
+        setUserSettings(payload.settings);
+        setOrderedContent(buildOrderedContent(payload.screen_content, payload.content));
 
         writeDisplayCache(screenId, {
-          settings,
-          screen: latestScreen,
-          screenContent: screenContentRows,
-          contentItems,
+          settings: payload.settings,
+          screen: payload.screen,
+          screenContent: payload.screen_content,
+          contentItems: payload.content,
         });
       } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
+        if (cancelled) return;
         console.error('Error fetching data:', error);
         if (isInitialFetch && !hasCachedData) {
           setErrorMessage({
@@ -196,15 +150,15 @@ export function useFetchDisplayData(): ReturnType {
           });
         }
       } finally {
-        setFetching(false);
+        if (!cancelled) setFetching(false);
       }
     };
     req();
 
     return () => {
-      abortController.abort();
+      cancelled = true;
     };
-  }, [masjidId, screenId, refreshKey]);
+  }, [screenId, code, refreshKey]);
 
   return {
     isLoading: fetching,
