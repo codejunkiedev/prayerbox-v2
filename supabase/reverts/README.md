@@ -11,6 +11,7 @@ To run one, either paste it into the project's SQL editor, or copy it into
 | --- | --- | --- |
 | `20260909000002_revoke_anon_display_access.revert.sql` | Phase B | Restores the anon read path while leaving phase A intact, so old and new bundles both work. Usually the only one you want. |
 | `20260909000001_add_display_read_functions.revert.sql` | Phase A | Drops the read functions and the beacon. **Revert B first** — with B applied, these functions are the display's only way in. |
+| `20260909000003_scope_storage_writes.revert.sql` | Storage writes | Restores the unscoped storage write policies, reopening cross-masjid image writes and the shared `assets` library. Independent of A and B. |
 
 ## The display lockdown, in order
 
@@ -34,3 +35,26 @@ The failure mode is stale content for up to ~30 minutes, not a dead screen.
 `supabase/verify-anon-lockdown.sh` checks each phase against a live project
 using only the publishable key: `PHASE=a` after step 1, `PHASE=b` after step 4.
 Pass `SCREEN_CODE=<a real code>` to exercise the read functions.
+
+## Storage writes (20260909000003)
+
+Same ordering hazard as phase B, for the same reason: the migration requires a
+client that uploads to `<masjid_id>/…`. Applied before that client is deployed,
+every image upload fails — posts, logos and ayat/hadith slides alike. Reads and
+existing images are unaffected either way.
+
+1. Deploy the web app carrying the masjid-prefixed upload paths.
+2. Push `20260909000003`.
+
+Rollback is `20260909000003_*.revert.sql`, which is independent of A and B.
+
+### Follow-up not covered by the migration
+
+24 objects were orphaned from their database rows by the account cleanup
+(13 post images, 10 slides, 1 logo). Storage is not covered by the foreign-key
+cascades, so they are still stored, still billed, and still readable by public
+URL. Deleting the `storage.objects` row alone leaves the underlying file behind,
+so removal has to go through the storage API with the service role. Query for
+them with `supabase/reverts/../../scratchpad` style joins on `image_url`, or in
+the dashboard. After the migration they are unreachable by any member — their
+owners were deleted — so they can only be removed with service-role access.

@@ -48,18 +48,26 @@ export async function upsertMasjidProfile(
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
 
-  let logoUrl = undefined;
-
-  if (logoFile) {
-    logoUrl = await uploadFile(SupabaseBuckets.MasjidLogos, logoFile, `${user.id}-${Date.now()}`);
-  }
-
+  // The profile lookup moved ahead of the upload: logos are now stored under a
+  // `<masjid_id>/` prefix so the storage policy can scope writes by folder, and
+  // the masjid id is the profile's own id. A profile being created for the
+  // first time has no id yet, so its logo is uploaded after the insert below.
   const profiles = await fetchByColumn<MasjidProfile>(
     SupabaseTables.MasjidProfiles,
     'user_id',
     user.id
   );
   const existingProfile = profiles.length > 0 ? profiles[0] : null;
+
+  let logoUrl = undefined;
+
+  if (logoFile && existingProfile) {
+    logoUrl = await uploadFile(
+      SupabaseBuckets.MasjidLogos,
+      logoFile,
+      `${existingProfile.id}/${Date.now()}`
+    );
+  }
 
   const profileToUpsert: Partial<MasjidProfile> = {
     ...profileData,
@@ -96,6 +104,19 @@ export async function upsertMasjidProfile(
     // The on_masjid_profile_insert trigger creates the admin membership
     // server-side; mirror that into the client auth store.
     useAuthStore.getState().setAuth(created.id, 'admin');
-    return created;
+
+    // A first-time profile only gets its masjid id here, and the storage policy
+    // requires the logo to sit under that id, so the upload waits until now.
+    if (!logoFile) return created;
+
+    const newLogoUrl = await uploadFile(
+      SupabaseBuckets.MasjidLogos,
+      logoFile,
+      `${created.id}/${Date.now()}`
+    );
+    return await updateRecord<MasjidProfile>(SupabaseTables.MasjidProfiles, created.id, {
+      logo_url: newLogoUrl,
+      updated_at: new Date().toISOString(),
+    });
   }
 }
