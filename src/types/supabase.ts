@@ -12,6 +12,7 @@ export enum SupabaseTables {
   DisplayScreens = 'display_screens',
   ScreenContent = 'screen_content',
   ScreenHeartbeats = 'screen_heartbeats',
+  DisplayRevisions = 'display_revisions',
   MasjidMembers = 'masjid_members',
   AyatAndHadith = 'ayat_and_hadith',
 }

@@ -34,15 +34,6 @@ export async function getMasjidProfile(): Promise<MasjidProfile | null> {
 }
 
 /**
- * Gets a masjid profile by masjid ID
- * @param masjidId The masjid ID to search for
- * @returns Promise resolving to masjid profile or null if not found
- */
-export async function getMasjidProfileByMasjidId(masjidId: string): Promise<MasjidProfile | null> {
-  return await fetchById<MasjidProfile>(SupabaseTables.MasjidProfiles, masjidId);
-}
-
-/**
  * Creates or updates a masjid profile with optional logo upload
  * @param profileData The profile data to save
  * @param logoFile Optional logo file to upload

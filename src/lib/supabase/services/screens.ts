@@ -57,11 +57,6 @@ export async function getScreenById(id: string): Promise<DisplayScreen | null> {
   return screens.length > 0 ? screens[0] : null;
 }
 
-export async function getScreenByCode(code: string): Promise<DisplayScreen | null> {
-  const screens = await fetchByColumn<DisplayScreen>(SupabaseTables.DisplayScreens, 'code', code);
-  return screens.length > 0 ? screens[0] : null;
-}
-
 /**
  * Stamps the screen's last_seen_at with the current time — called on login and
  * then periodically while the display runs.
@@ -140,29 +135,6 @@ export async function getScreenContent(screenId: string): Promise<ScreenContent[
 
   if (error) throw error;
   return data as ScreenContent[];
-}
-
-export async function getVisibleScreenContent(screenId: string): Promise<ScreenContent[]> {
-  const { data, error } = await supabase
-    .from(SupabaseTables.ScreenContent)
-    .select('*')
-    .eq('screen_id', screenId)
-    .eq('visible', true)
-    .order('display_order', { ascending: true });
-
-  if (error) throw error;
-  return data as ScreenContent[];
-}
-
-export async function fetchContentByTableAndIds<T>(table: string, ids: string[]): Promise<T[]> {
-  if (ids.length === 0) return [];
-  const { data, error } = await supabase
-    .from(table)
-    .select('*')
-    .in('id', ids)
-    .eq('archived', false);
-  if (error) throw error;
-  return (data || []) as T[];
 }
 
 export type ScreenContentWithDetails = ScreenContent & {

@@ -5,6 +5,7 @@ export * from './posts';
 export * from './prayer-times';
 export * from './settings';
 export * from './screens';
+export * from './display';
 export * from './youtube-videos';
 export * from './moderators';
 export * from './ayat-and-hadith';

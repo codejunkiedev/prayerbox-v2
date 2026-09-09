@@ -6,7 +6,7 @@ import { AuthLegalLinks } from '@/components/common';
 import { cn } from '@/utils';
 import { loginWithCodeSchema, type LoginWithCodeData } from '@/lib/zod';
 import { Link, useSearchParams } from 'react-router';
-import { getScreenByCode, getMasjidProfileByMasjidId } from '@/lib/supabase';
+import { getDisplaySession } from '@/lib/supabase';
 import { AuthRoutes } from '@/constants';
 import { useDisplayStore } from '@/store';
 
@@ -33,17 +33,17 @@ export default function LoginWithCode() {
         setIsLoading(true);
         setErrorMessage('');
 
-        const screen = await getScreenByCode(code);
+        // The code is the display's only credential, so it is exchanged for the
+        // screen server-side — `display_screens` is not readable by anon.
+        const session = await getDisplaySession(code);
 
-        if (!screen) {
+        if (!session) {
           setErrorMessage('Invalid screen code. Please check and try again.');
           return;
         }
 
-        const masjidProfile = await getMasjidProfileByMasjidId(screen.masjid_id);
-
-        setDisplayScreen(screen);
-        setMasjidProfile(masjidProfile);
+        setDisplayScreen(session.screen);
+        setMasjidProfile(session.masjid_profile);
         setLoggedIn(true);
       } catch (err) {
         console.error('Error during login with code:', err);

@@ -1,12 +1,32 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+const SCREEN_CODE_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
+const SCREEN_CODE_LENGTH = 7;
+
 /**
- * Generates a random masjid code
- * @returns A 7-character random string for use as a masjid identifier
+ * Generates a random screen code.
+ *
+ * The code is a display's only credential, so it comes from the CSPRNG rather
+ * than Math.random(), whose state can be recovered from a handful of outputs —
+ * an admin who saw a few codes could otherwise predict others. Bytes that
+ * would skew the distribution are rejected instead of wrapped, and the length
+ * is fixed at 7 (`Math.random().toString(36)` occasionally returned fewer).
+ *
+ * @returns A 7-character random string for use as a screen identifier
  */
 export const generateScreenCode = () => {
-  return Math.random().toString(36).substring(2, 9);
+  const limit = 256 - (256 % SCREEN_CODE_ALPHABET.length);
+  let code = '';
+  while (code.length < SCREEN_CODE_LENGTH) {
+    const bytes = crypto.getRandomValues(new Uint8Array(SCREEN_CODE_LENGTH));
+    for (const byte of bytes) {
+      if (byte >= limit) continue;
+      code += SCREEN_CODE_ALPHABET[byte % SCREEN_CODE_ALPHABET.length];
+      if (code.length === SCREEN_CODE_LENGTH) break;
+    }
+  }
+  return code;
 };
 
 /**
