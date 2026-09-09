@@ -29,7 +29,12 @@ export async function upsertPost(post: PostData & { id?: string }, imageFile: Fi
   let imageUrl = undefined;
 
   if (imageFile) {
-    imageUrl = await uploadFile(SupabaseBuckets.MasjidPosts, imageFile, `${user.id}-${Date.now()}`);
+    // Masjid-prefixed so the storage RLS policy can scope writes by folder.
+    imageUrl = await uploadFile(
+      SupabaseBuckets.MasjidPosts,
+      imageFile,
+      `${masjid_id}/${Date.now()}`
+    );
   }
 
   const postToUpsert: Partial<Post> = {

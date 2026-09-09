@@ -51,7 +51,8 @@ export async function upsertAyatAndHadith(input: UpsertAyatAndHadithInput): Prom
   if (!user) throw new Error('User not authenticated');
   const { masjid_id } = await getMasjidMembership();
 
-  const imagePath = `${user.id}/${Date.now()}.png`;
+  // Masjid-prefixed so the storage RLS policy can scope writes by folder.
+  const imagePath = `${masjid_id}/${Date.now()}.png`;
 
   const { error: uploadError } = await supabase.storage
     .from(SupabaseBuckets.AyatHadithSlides)
