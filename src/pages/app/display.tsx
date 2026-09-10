@@ -12,6 +12,7 @@ import {
 } from '@/hooks';
 import { useDisplayStore } from '@/store';
 import { formatContactDetails, localizedProfileField } from '@/helpers';
+import { isEventUpcoming } from '@/utils';
 import Loading from '../loading-page';
 import {
   ErrorDisplay,
@@ -77,6 +78,15 @@ export default function Display() {
   }, [i18n, language]);
 
   const isOnline = useOnlineStatus();
+  const masjidTimeZone = masjidProfile?.timezone ?? null;
+
+  // The payload is only refetched on the revision beacon, so the events
+  // cut-off below is re-checked on a minute tick.
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   const {
     isLoading,
@@ -89,10 +99,12 @@ export default function Display() {
   // we're offline — the slideshow keeps cycling through the remaining content.
   const orderedContent = useMemo(
     () =>
-      isOnline
-        ? rawOrderedContent
-        : rawOrderedContent.filter(item => item.contentType !== 'youtube_videos'),
-    [rawOrderedContent, isOnline]
+      rawOrderedContent.filter(item => {
+        if (item.contentType === 'youtube_videos') return isOnline;
+        if (item.contentType === 'events') return isEventUpcoming(item.data as Event, now);
+        return true;
+      }),
+    [rawOrderedContent, isOnline, now]
   );
 
   const {
@@ -107,6 +119,7 @@ export default function Display() {
     sound: displayScreen?.prayer_alert_sound ?? 'beep',
     prayerTimes,
     prayerTimeSettings,
+    timeZone: masjidTimeZone,
   });
 
   const {
@@ -211,6 +224,7 @@ export default function Display() {
             <EventsDisplay
               event={item.data as Event}
               orientation={displayScreen?.orientation ?? 'landscape'}
+              timeZone={masjidTimeZone}
             />
           </SwiperSlide>
         );
@@ -269,6 +283,7 @@ export default function Display() {
               masjidName={localizedMasjidName}
               contactDetails={contactDetails}
               customTheme={displayScreen?.custom_theme}
+              timeZone={masjidTimeZone}
             />
           </SwiperSlide>
         )}

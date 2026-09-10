@@ -17,6 +17,15 @@ import {
 import { eventSchema, type EventData } from '@/lib/zod';
 import { upsertEvent } from '@/lib/supabase';
 import type { Event } from '@/types';
+import {
+  describeTimeZone,
+  eventEndsAt,
+  formatZonedDateTime,
+  fromZonedWallClock,
+  getDeviceTimeZone,
+  parseInstant,
+  toZonedWallClock,
+} from '@/utils';
 import { toast } from 'sonner';
 
 interface EventModalProps {
@@ -24,17 +33,47 @@ interface EventModalProps {
   onClose: () => void;
   onSuccess: (createdEvent?: Event) => void;
   initialData?: Event;
+  /** The masjid's IANA zone. Null falls back to this device's. */
+  timeZone: string | null;
 }
+
+const EMPTY_EVENT: EventData = {
+  title: '',
+  description: '',
+  date_time: '',
+  end_time: null,
+  location: '',
+  chief_guest: '',
+  host: '',
+  qari: '',
+  naat_khawn: '',
+  karm_farma: '',
+};
+
+/** A stored instant as a Date the pickers can edit in the masjid's wall clock */
+const toWallClock = (
+  value: string | null | undefined,
+  timeZone: string | null
+): Date | undefined => {
+  const instant = parseInstant(value);
+  return instant ? toZonedWallClock(instant, timeZone) : undefined;
+};
 
 /**
  * Modal component for creating and editing events with details like title, date, location, and participants
  */
-export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventModalProps) {
+export function EventModal({ isOpen, onClose, onSuccess, initialData, timeZone }: EventModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isEdit = !!initialData;
-  const [dateTime, setDateTime] = useState<Date | undefined>(
-    initialData?.date_time ? new Date(initialData.date_time) : undefined
+
+  // The pickers work in local Date fields, so both are held as wall clocks in
+  // the masjid's zone and converted to instants on the way into the form.
+  const [dateTime, setDateTime] = useState<Date | undefined>(() =>
+    toWallClock(initialData?.date_time, timeZone)
+  );
+  const [endTime, setEndTime] = useState<Date | undefined>(() =>
+    toWallClock(initialData?.end_time, timeZone)
   );
 
   const {
@@ -45,46 +84,53 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
     formState: { errors },
   } = useForm<EventData>({
     resolver: zodResolver(eventSchema),
-    defaultValues: initialData || {
-      title: '',
-      description: '',
-      date_time: '',
-      location: '',
-      chief_guest: '',
-      host: '',
-      qari: '',
-      naat_khawn: '',
-      karm_farma: '',
-    },
+    defaultValues: initialData || EMPTY_EVENT,
   });
 
   useEffect(() => {
-    if (isOpen) {
-      if (initialData) {
-        reset(initialData);
-        setDateTime(initialData.date_time ? new Date(initialData.date_time) : undefined);
-      } else {
-        reset({
-          title: '',
-          description: '',
-          date_time: '',
-          location: '',
-          chief_guest: '',
-          host: '',
-          qari: '',
-          naat_khawn: '',
-          karm_farma: '',
-        });
-        setDateTime(undefined);
-      }
+    if (!isOpen) return;
+
+    reset(initialData || EMPTY_EVENT);
+    if (!initialData) {
+      setDateTime(undefined);
+      setEndTime(undefined);
     }
   }, [initialData, isOpen, reset]);
 
+  // Kept out of the reset above: the zone is fetched and can land after the
+  // modal opens, and resetting the form there would wipe what is being typed.
+  useEffect(() => {
+    if (!isOpen || !initialData) return;
+
+    setDateTime(toWallClock(initialData.date_time, timeZone));
+    setEndTime(toWallClock(initialData.end_time, timeZone));
+  }, [initialData, isOpen, timeZone]);
+
   useEffect(() => {
     if (dateTime) {
-      setValue('date_time', dateTime.toISOString());
+      setValue('date_time', fromZonedWallClock(dateTime, timeZone).toISOString());
     }
-  }, [dateTime, setValue]);
+  }, [dateTime, timeZone, setValue]);
+
+  useEffect(() => {
+    setValue('end_time', endTime ? fromZonedWallClock(endTime, timeZone).toISOString() : null, {
+      shouldValidate: !!endTime,
+    });
+  }, [endTime, timeZone, setValue]);
+
+  const startInstant = dateTime ? fromZonedWallClock(dateTime, timeZone) : null;
+
+  const impliedEnd =
+    startInstant && !endTime
+      ? formatZonedDateTime(
+          eventEndsAt({ date_time: startInstant.toISOString(), end_time: null }),
+          timeZone
+        )
+      : null;
+
+  const timeZoneNote = timeZone
+    ? `Times are in ${describeTimeZone(timeZone)}, the masjid's timezone, wherever you are entering them from.`
+    : `This masjid has no timezone set, so times use this device's (${describeTimeZone(getDeviceTimeZone())}). Set one under Settings, Masjid Profile.`;
 
   const onSubmit = async (data: EventData) => {
     try {
@@ -98,6 +144,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
 
       reset();
       setDateTime(undefined);
+      setEndTime(undefined);
       onSuccess(isEdit ? undefined : saved);
       onClose();
     } catch (error) {
@@ -152,7 +199,7 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
 
             <div className='grid md:grid-cols-2 gap-4'>
               <div className='space-y-2'>
-                <Label htmlFor='date_time'>Date & Time</Label>
+                <Label htmlFor='date_time'>Starts</Label>
                 <DateTimePicker date={dateTime} setDate={setDateTime} disabled={isSubmitting} />
                 {errors.date_time && (
                   <p className='text-destructive text-sm'>{errors.date_time.message}</p>
@@ -160,17 +207,47 @@ export function EventModal({ isOpen, onClose, onSuccess, initialData }: EventMod
               </div>
 
               <div className='space-y-2'>
-                <Label htmlFor='location'>Location</Label>
-                <Input
-                  id='location'
-                  placeholder='Enter event location'
-                  className={errors.location ? 'border-destructive' : ''}
-                  {...register('location')}
-                />
-                {errors.location && (
-                  <p className='text-destructive text-sm'>{errors.location.message}</p>
+                <div className='flex items-center justify-between'>
+                  <Label htmlFor='end_time'>
+                    Ends
+                    <span className='ml-2 text-xs text-muted-foreground font-normal'>Optional</span>
+                  </Label>
+                  {endTime && (
+                    <button
+                      type='button'
+                      onClick={() => setEndTime(undefined)}
+                      className='text-xs text-muted-foreground hover:text-foreground'
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <DateTimePicker date={endTime} setDate={setEndTime} disabled={isSubmitting} />
+                {errors.end_time ? (
+                  <p className='text-destructive text-sm'>{errors.end_time.message}</p>
+                ) : (
+                  impliedEnd && (
+                    <p className='text-xs text-muted-foreground'>
+                      Left blank, this event stops showing at {impliedEnd}.
+                    </p>
+                  )
                 )}
               </div>
+            </div>
+
+            <p className='text-xs text-muted-foreground'>{timeZoneNote}</p>
+
+            <div className='space-y-2'>
+              <Label htmlFor='location'>Location</Label>
+              <Input
+                id='location'
+                placeholder='Enter event location'
+                className={errors.location ? 'border-destructive' : ''}
+                {...register('location')}
+              />
+              {errors.location && (
+                <p className='text-destructive text-sm'>{errors.location.message}</p>
+              )}
             </div>
           </div>
 

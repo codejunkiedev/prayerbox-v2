@@ -7,6 +7,7 @@ type PageHeaderProps = {
   description: string;
   showAddButton?: boolean;
   addButtonText?: string;
+  addButtonDisabled?: boolean;
   onAddClick?: () => void;
   showSettingsButton?: boolean;
   onSettingsClick?: () => void;
@@ -23,6 +24,7 @@ export function PageHeader({
   description,
   showAddButton = true,
   addButtonText = 'Add New',
+  addButtonDisabled = false,
   onAddClick,
   showSettingsButton = false,
   onSettingsClick,
@@ -48,7 +50,7 @@ export function PageHeader({
                 </Button>
               )}
               {showAddButton && onAddClick && (
-                <Button onClick={onAddClick}>
+                <Button onClick={onAddClick} disabled={addButtonDisabled}>
                   <Plus className='mr-2 h-4 w-4' /> {addButtonText}
                 </Button>
               )}

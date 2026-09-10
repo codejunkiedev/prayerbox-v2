@@ -30,6 +30,7 @@ export function Theme3({
   sunrise,
   sunset,
   currentTime,
+  timeZone,
   processedPrayerTimings,
   prayerTimeSettings,
   isFriday,
@@ -44,8 +45,8 @@ export function Theme3({
   const isEnglish = lang === 'en';
 
   const nextIqamah = useMemo(() => {
-    return getTimeBeforeNextIqamah(processedPrayerTimings);
-  }, [processedPrayerTimings]);
+    return getTimeBeforeNextIqamah(processedPrayerTimings, timeZone);
+  }, [processedPrayerTimings, timeZone]);
 
   const displayPrayers = useMemo(() => {
     const base: (keyof PrayerAdjustments)[] = ['fajr'];

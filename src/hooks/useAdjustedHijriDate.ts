@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { addOrSubtractDays, formatHijriDate } from '@/utils';
+import { addOrSubtractDays, formatHijriDate, nowInTimeZone } from '@/utils';
 import { HijriCalculationMethod } from '@/constants';
 import { fetchHijriDate } from '@/api/aladhan';
 import type { DisplayLanguage } from '@/types';
@@ -11,6 +11,8 @@ interface Props {
   calculationMethod: HijriCalculationMethod;
   offset: number;
   lang?: DisplayLanguage;
+  /** The masjid's IANA zone; null falls back to the device's. */
+  timeZone?: string | null;
 }
 
 /**
@@ -31,6 +33,7 @@ export const useAdjustedHijriDate = ({
   calculationMethod = HijriCalculationMethod.Umm_al_Qura,
   offset = 0,
   lang = 'en',
+  timeZone = null,
 }: Props): ReturnType => {
   const [adjustedHijriDate, setAdjustedHijriDate] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +45,7 @@ export const useAdjustedHijriDate = ({
       setIsLoading(true);
 
       try {
-        const targetDate = addOrSubtractDays(new Date(), offset);
+        const targetDate = addOrSubtractDays(nowInTimeZone(timeZone), offset);
         const response = await fetchHijriDate({
           date: targetDate,
           method: calculationMethod,
@@ -74,7 +77,7 @@ export const useAdjustedHijriDate = ({
     return () => {
       abortController.abort();
     };
-  }, [calculationMethod, offset, lang]);
+  }, [calculationMethod, offset, lang, timeZone]);
 
   return { adjustedHijriDate, isLoading };
 };

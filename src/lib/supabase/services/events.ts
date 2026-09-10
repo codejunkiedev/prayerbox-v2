@@ -1,23 +1,38 @@
 import { SupabaseTables, type Event } from '@/types';
 import type { EventData } from '../../zod';
+import supabase from '../index';
 import {
   getCurrentUser,
   getMasjidMembership,
   updateRecord,
   insertRecord,
-  fetchByMultipleConditions,
+  handleSupabaseError,
 } from '../helpers';
 import { removeScreenAssignments } from './screens';
 
-export async function getEvents(masjidId?: string): Promise<Event[]> {
+/** Which side of "now" to return. Filtered on the indexed `ends_at` column. */
+export type EventScope = 'all' | 'upcoming' | 'past';
+
+export async function getEvents(masjidId?: string, scope: EventScope = 'all'): Promise<Event[]> {
   const effectiveMasjidId = masjidId || (await getMasjidMembership()).masjid_id;
 
-  const conditions = [
-    { column: 'masjid_id', value: effectiveMasjidId },
-    { column: 'archived', value: false, isNull: true },
-  ];
+  let query = supabase
+    .from(SupabaseTables.Events)
+    .select('*')
+    .eq('masjid_id', effectiveMasjidId)
+    .or('archived.is.null,archived.eq.false');
 
-  return await fetchByMultipleConditions<Event>(SupabaseTables.Events, conditions);
+  // PostgREST has no server-side now(), so the boundary is sent as an instant
+  const now = new Date().toISOString();
+  if (scope === 'upcoming') query = query.gte('ends_at', now);
+  if (scope === 'past') query = query.lt('ends_at', now);
+
+  query = query.order('date_time', { ascending: scope !== 'past' });
+
+  const { data, error } = await query;
+  if (error) throw handleSupabaseError(error, 'Error fetching events');
+
+  return (data ?? []) as Event[];
 }
 
 export async function upsertEvent(event: EventData & { id?: string }) {
@@ -27,6 +42,7 @@ export async function upsertEvent(event: EventData & { id?: string }) {
 
   const eventToUpsert: Partial<Event> = {
     ...event,
+    end_time: event.end_time || null,
     user_id: user.id,
     masjid_id,
     updated_at: new Date().toISOString(),

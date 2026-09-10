@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router';
@@ -10,6 +10,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
+  TimezonePicker,
 } from '@/components/ui';
 import {
   masjidProfileSchema,
@@ -18,6 +19,7 @@ import {
   MAX_FILE_SIZE,
 } from '@/lib/zod';
 import { getMasjidProfile, upsertMasjidProfile } from '@/lib/supabase';
+import { resolveTimezoneFromCoordinates } from '@/api';
 import { toast } from 'sonner';
 import { MapPin, ArrowLeft, X } from 'lucide-react';
 import { useTrigger } from '@/hooks';
@@ -32,6 +34,7 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [logoRemoved, setLogoRemoved] = useState(false);
   const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+  const [isResolvingTimezone, setIsResolvingTimezone] = useState(false);
 
   const [trigger, triggerUpdate] = useTrigger();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,6 +57,7 @@ export default function Profile() {
       area_ar: '',
       latitude: 0,
       longitude: 0,
+      timezone: '',
       contact_number: '',
       contact_email: '',
       website: '',
@@ -62,7 +66,25 @@ export default function Profile() {
 
   const latitude = watch('latitude');
   const longitude = watch('longitude');
+  const timezone = watch('timezone');
   const coordinates = latitude && longitude ? { latitude, longitude } : null;
+
+  const deriveTimezone = useCallback(
+    async (lat: number, lng: number) => {
+      try {
+        setIsResolvingTimezone(true);
+        const resolved = await resolveTimezoneFromCoordinates({ latitude: lat, longitude: lng });
+        if (resolved) setValue('timezone', resolved, { shouldValidate: true });
+        else toast.warning('Could not determine the timezone for that location, please pick one');
+      } catch (error) {
+        console.error('Error resolving timezone:', error);
+        toast.warning('Could not determine the timezone for that location, please pick one');
+      } finally {
+        setIsResolvingTimezone(false);
+      }
+    },
+    [setValue]
+  );
 
   useEffect(() => {
     async function fetchProfile() {
@@ -80,10 +102,16 @@ export default function Profile() {
             area_ar: profile.area_ar || '',
             latitude: profile.latitude || 0,
             longitude: profile.longitude || 0,
+            timezone: profile.timezone || '',
             contact_number: profile.contact_number || '',
             contact_email: profile.contact_email || '',
             website: profile.website || '',
           });
+
+          // Offer a derived zone for a profile saved before the field existed
+          if (!profile.timezone && profile.latitude && profile.longitude) {
+            void deriveTimezone(profile.latitude, profile.longitude);
+          }
 
           if (profile.logo_url) {
             setPreviewLogo(profile.logo_url);
@@ -101,7 +129,7 @@ export default function Profile() {
     }
 
     fetchProfile();
-  }, [reset, trigger]);
+  }, [reset, trigger, deriveTimezone]);
 
   const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -140,6 +168,8 @@ export default function Profile() {
   const handleCoordinatesSelect = (latitude: number, longitude: number) => {
     setValue('latitude', latitude);
     setValue('longitude', longitude);
+    // The dev-only reset button clears the pin by passing nulls through
+    if (latitude && longitude) void deriveTimezone(latitude, longitude);
   };
 
   const onSubmit = async (data: MasjidProfileData) => {
@@ -278,36 +308,59 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className='space-y-2'>
-                <label htmlFor='location' className='block text-sm font-medium text-foreground'>
-                  Masjid Location
-                </label>
-                <div className='flex gap-2'>
-                  <Input
-                    id='location'
-                    placeholder='Select location on map'
-                    readOnly
-                    value={
-                      coordinates
-                        ? `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`
-                        : ''
-                    }
-                    className='bg-muted cursor-not-allowed flex-1'
-                  />
-                  <Button
-                    type='button'
-                    variant='outline'
-                    onClick={() => setIsMapModalOpen(true)}
-                    className='flex items-center gap-2'
-                  >
-                    <MapPin size={16} />
-                    {coordinates ? 'Change Location' : 'Set Location'}
-                  </Button>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4 items-start'>
+                <div className='space-y-2'>
+                  <label htmlFor='location' className='block text-sm font-medium text-foreground'>
+                    Masjid Location
+                  </label>
+                  <div className='flex gap-2'>
+                    <Input
+                      id='location'
+                      placeholder='Select location on map'
+                      readOnly
+                      value={
+                        coordinates
+                          ? `${coordinates.latitude.toFixed(3)}, ${coordinates.longitude.toFixed(3)}`
+                          : ''
+                      }
+                      className='bg-muted cursor-not-allowed flex-1'
+                    />
+                    <Button
+                      type='button'
+                      variant='outline'
+                      onClick={() => setIsMapModalOpen(true)}
+                      className='flex items-center gap-2 shrink-0'
+                    >
+                      <MapPin size={16} />
+                      {coordinates ? 'Change' : 'Set'}
+                    </Button>
+                  </div>
+                  {(errors.latitude || errors.longitude) && (
+                    <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
+                  )}
                 </div>
-                {(errors.latitude || errors.longitude) && (
-                  <p className='text-red-500 text-sm mt-1'>Masjid location is required</p>
-                )}
+
+                <div className='space-y-2'>
+                  <label htmlFor='timezone' className='block text-sm font-medium text-foreground'>
+                    Timezone
+                  </label>
+                  <TimezonePicker
+                    value={timezone}
+                    onChange={value => setValue('timezone', value, { shouldValidate: true })}
+                    disabled={isResolvingTimezone}
+                    invalid={!!errors.timezone}
+                  />
+                  {errors.timezone && (
+                    <p className='text-red-500 text-sm mt-1'>{errors.timezone.message}</p>
+                  )}
+                </div>
               </div>
+
+              <p className='text-sm text-muted-foreground -mt-2'>
+                {isResolvingTimezone
+                  ? 'Working out the timezone for this location...'
+                  : 'The timezone is set from the location. Event dates and times are shown in it on every screen and device, wherever they are being viewed from.'}
+              </p>
 
               <div className='grid grid-cols-1 md:grid-cols-3 gap-4 items-start'>
                 <div className='space-y-2'>

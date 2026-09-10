@@ -5,8 +5,10 @@ import { getDisplayPrayerSettings, type TableSubscription } from '@/lib/supabase
 import { fetchPrayerTimesForThisMonth } from '@/api';
 import {
   findTodayInMonth,
+  instantOnZonedDay,
   isNullOrUndefined,
   monthCacheKeyFromDate,
+  nowInTimeZone,
   readPrayerTimesMonth,
   writePrayerTimesMonth,
 } from '@/utils';
@@ -20,10 +22,18 @@ type ReturnType = {
   prayerTimeSettings: PrayerTimes | null;
 };
 
-const millisecondsUntilNextMidnight = (now: Date): number => {
-  const nextMidnight = new Date(now);
-  nextMidnight.setHours(24, 0, 5, 0); // 5s past midnight to be safe
-  return nextMidnight.getTime() - now.getTime();
+/**
+ * Time until the *masjid's* next midnight. Rolling over on the device's would
+ * change the day at the wrong moment for anyone viewing from another zone.
+ */
+const millisecondsUntilNextMidnight = (timeZone: string | null | undefined): number => {
+  const zonedNow = nowInTimeZone(timeZone);
+  const tomorrow = new Date(zonedNow);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // 5s past midnight to be safe.
+  const nextMidnight = instantOnZonedDay(tomorrow, 0, 0, timeZone).getTime() + 5000;
+  return nextMidnight - Date.now();
 };
 
 /**
@@ -43,6 +53,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
 
   const { masjidProfile, displayScreen } = useDisplayStore();
   const masjidId = masjidProfile?.id;
+  const timeZone = masjidProfile?.timezone ?? null;
   const code = displayScreen?.code;
 
   // `settings` and `prayer_times` aren't readable by anon any more, so the
@@ -89,7 +100,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
       }
 
       try {
-        const today = new Date();
+        const today = nowInTimeZone(timeZone);
         const response = await fetchPrayerTimesForThisMonth({
           date: today,
           latitude,
@@ -124,7 +135,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
         }
       }
     },
-    [masjidProfile]
+    [masjidProfile, timeZone]
   );
 
   useEffect(() => {
@@ -152,7 +163,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
           !isNullOrUndefined(method) &&
           !isNullOrUndefined(school)
         ) {
-          const today = new Date();
+          const today = nowInTimeZone(timeZone);
           const cached = readPrayerTimesMonth(
             monthCacheKeyFromDate(today, latitude, longitude, method, school)
           );
@@ -188,7 +199,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
     return () => {
       abortController.abort();
     };
-  }, [enabled, fetchPrayerTimes, code, masjidProfile, refreshKey]);
+  }, [enabled, fetchPrayerTimes, code, masjidProfile, timeZone, refreshKey]);
 
   // At midnight, re-pick today's row from the cached month so prayer times
   // roll over without a network call. If the month has changed, the cached
@@ -198,11 +209,11 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
 
     let timeoutId = 0;
     const scheduleNext = () => {
-      const delay = millisecondsUntilNextMidnight(new Date());
+      const delay = millisecondsUntilNextMidnight(timeZone);
       timeoutId = window.setTimeout(() => {
         const days = monthDaysRef.current;
         if (days) {
-          const todayRow = findTodayInMonth(days, new Date());
+          const todayRow = findTodayInMonth(days, nowInTimeZone(timeZone));
           if (todayRow) setPrayerTimes(todayRow);
         }
         scheduleNext();
@@ -211,7 +222,7 @@ export function usePrayerTimings(enabled: boolean = true): ReturnType {
     scheduleNext();
 
     return () => window.clearTimeout(timeoutId);
-  }, [enabled]);
+  }, [enabled, timeZone]);
 
   return {
     isLoading,

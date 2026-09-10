@@ -17,7 +17,10 @@ export interface ThemeProps {
    */
   ishraq: string;
   chasht: string;
+  /** Already a wall clock in the masjid's zone (see useCurrentTime). */
   currentTime: Date;
+  /** The masjid's IANA zone; null falls back to the device's. */
+  timeZone: string | null;
   processedPrayerTimings: ProcessedPrayerTiming[];
   prayerTimeSettings: PrayerTimes | null;
   isFriday: boolean;

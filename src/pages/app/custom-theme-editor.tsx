@@ -9,6 +9,7 @@ import type { ThemeProps } from '@/components/display/prayer-timings/themes/type
 import { getMasjidProfile, getScreenById, updateScreenCustomTheme } from '@/lib/supabase';
 import { AppRoutes, DEFAULT_CUSTOM_THEME } from '@/constants';
 import { formatContactDetails, localizedProfileField, resolveCustomTheme } from '@/helpers';
+import { nowInTimeZone } from '@/utils';
 import type {
   CustomThemeConfig,
   DisplayLanguage,
@@ -124,6 +125,8 @@ export default function CustomThemeEditor() {
   const previewProps: ThemeProps | null = useMemo(() => {
     if (!screen) return null;
     const localizedMasjidName = localizedProfileField(profile, 'name', previewLanguage);
+    // The preview clock should read what the screen in the masjid would read.
+    const timeZone = profile?.timezone ?? null;
     const sampleDate = SAMPLE_DATES[previewLanguage][previewFriday ? 'friday' : 'weekday'];
     return {
       gregorianDate: sampleDate.gregorian,
@@ -132,7 +135,8 @@ export default function CustomThemeEditor() {
       sunset: '19:45',
       ishraq: '04:45',
       chasht: '08:22',
-      currentTime: new Date(),
+      currentTime: nowInTimeZone(timeZone),
+      timeZone,
       processedPrayerTimings: SAMPLE_TIMINGS,
       prayerTimeSettings: null,
       isFriday: previewFriday,

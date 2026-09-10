@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { nowInTimeZone } from '@/utils';
 
 type ReturnType = {
   currentTime: Date;
@@ -6,23 +7,21 @@ type ReturnType = {
 
 /**
  * Hook that returns the current time and updates every second
- * @returns {Date} The current time
+ * @param timeZone The masjid's IANA zone; null falls back to the device's
+ * @returns {Date} The current time, as a wall clock in that zone
  */
-export const useCurrentTime = (): ReturnType => {
-  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+export const useCurrentTime = (timeZone: string | null | undefined = null): ReturnType => {
+  const [currentTime, setCurrentTime] = useState<Date>(() => nowInTimeZone(timeZone));
 
   useEffect(() => {
-    // Update time immediately
-    setCurrentTime(new Date());
+    setCurrentTime(nowInTimeZone(timeZone));
 
-    // Set up interval to update time every second
     const interval = setInterval(() => {
-      setCurrentTime(new Date());
+      setCurrentTime(nowInTimeZone(timeZone));
     }, 1000);
 
-    // Cleanup interval on unmount
     return () => clearInterval(interval);
-  }, []);
+  }, [timeZone]);
 
   return { currentTime };
 };
