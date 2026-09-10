@@ -1,4 +1,5 @@
 export * from './useTrigger';
+export * from './useMasjidTimezone';
 export * from './useAutoRedirect';
 export * from './useSidebarState';
 export * from './useFetchDisplayData';

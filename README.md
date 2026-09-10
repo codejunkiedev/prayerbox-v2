@@ -217,7 +217,7 @@ Postgres tables (see [`supabase/migrations/`](./supabase/migrations/)):
 
 | Table | Purpose |
 | --- | --- |
-| `masjid_profiles` | Name, area (+ `area_ur`/`area_ar`), logo, coordinates |
+| `masjid_profiles` | Name, area (+ `area_ur`/`area_ar`), logo, coordinates, IANA `timezone` |
 | `masjid_members` | User↔masjid membership with `role` (admin / moderator) |
 | `display_screens` | Per‑screen code, orientation, theme, custom theme, language, interval, prayer/weather toggles |
 | `screen_content` | Join of content→screen with per‑screen `display_order` + `visible` |

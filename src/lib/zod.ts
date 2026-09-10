@@ -1,4 +1,6 @@
 import { z } from 'zod';
+// Deep import: the `@/utils` barrel imports MAX_FILE_SIZE back out of this file.
+import { isSupportedTimeZone } from '@/utils/timezone';
 
 export const registerFormSchema = z
   .object({
@@ -77,6 +79,10 @@ export const masjidProfileSchema = z.object({
   area_ar: z.string(),
   latitude: z.number(),
   longitude: z.number(),
+  timezone: z
+    .string()
+    .min(1, 'Timezone is required')
+    .refine(isSupportedTimeZone, { message: 'Please select a valid timezone' }),
   contact_number: z.string().refine(value => value === '' || CONTACT_NUMBER_REGEX.test(value), {
     message: 'Please enter a valid contact number',
   }),
@@ -103,17 +109,23 @@ export const announcementSchema = z.object({
 
 export type AnnouncementData = z.infer<typeof announcementSchema>;
 
-export const eventSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().min(1, 'Description is required'),
-  date_time: z.string().min(1, 'Date and time is required'),
-  location: z.string().min(1, 'Location is required'),
-  chief_guest: z.string().min(1, 'Chief guest is required'),
-  host: z.string().optional(),
-  qari: z.string().min(1, 'Qari is required'),
-  naat_khawn: z.string().min(1, 'Naat khawn is required'),
-  karm_farma: z.string().min(1, 'Karm farm is required'),
-});
+export const eventSchema = z
+  .object({
+    title: z.string().min(1, 'Title is required'),
+    description: z.string().min(1, 'Description is required'),
+    date_time: z.string().min(1, 'Date and time is required'),
+    end_time: z.string().nullable(),
+    location: z.string().min(1, 'Location is required'),
+    chief_guest: z.string().min(1, 'Chief guest is required'),
+    host: z.string().optional(),
+    qari: z.string().min(1, 'Qari is required'),
+    naat_khawn: z.string().min(1, 'Naat khawn is required'),
+    karm_farma: z.string().min(1, 'Karm farm is required'),
+  })
+  .refine(data => !data.end_time || new Date(data.end_time) > new Date(data.date_time), {
+    message: 'End time must be after the start time',
+    path: ['end_time'],
+  });
 
 export type EventData = z.infer<typeof eventSchema>;
 

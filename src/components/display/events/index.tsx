@@ -1,6 +1,6 @@
 import type { Event, ScreenOrientation } from '@/types';
 import { Calendar, MapPin, User, Users, Mic } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatZonedDate, formatZonedTime } from '@/utils';
 import bgImage from '@/assets/backgrounds/02.jpeg';
 import {
   AnimationProvider,
@@ -13,19 +13,25 @@ import {
 interface EventsDisplayProps {
   event: Event;
   orientation?: ScreenOrientation;
+  /** The masjid's IANA zone. Null falls back to this device's. */
+  timeZone?: string | null;
 }
 
 /**
  * Displays event information including title, description, date, time, and details like location, host, and guests
  */
-export function EventsDisplay({ event, orientation = 'landscape' }: EventsDisplayProps) {
+export function EventsDisplay({
+  event,
+  orientation = 'landscape',
+  timeZone = null,
+}: EventsDisplayProps) {
   if (!event) return null;
 
   const isPortrait = orientation === 'portrait';
 
-  // Format date
-  const formattedDate = format(new Date(event.date_time), 'PPP');
-  const formattedTime = format(new Date(event.date_time), 'p');
+  const formattedDate = formatZonedDate(event.date_time, timeZone);
+  const formattedTime = formatZonedTime(event.date_time, timeZone);
+  const formattedEndTime = event.end_time ? formatZonedTime(event.end_time, timeZone) : null;
 
   return (
     <DisplayContainer backgroundImage={bgImage}>
@@ -42,6 +48,7 @@ export function EventsDisplay({ event, orientation = 'landscape' }: EventsDispla
           />
           <span className={`text-white font-medium ${isPortrait ? 'text-[3vw]' : ''}`}>
             {formattedDate} at {formattedTime}
+            {formattedEndTime ? ` – ${formattedEndTime}` : ''}
           </span>
         </div>
       </div>

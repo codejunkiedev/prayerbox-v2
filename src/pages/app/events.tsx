@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getEvents, deleteEvent } from '@/lib/supabase';
+import { getEvents, deleteEvent, type EventScope } from '@/lib/supabase';
 import type { Event } from '@/types';
 import { TableSkeleton } from '@/components/skeletons';
 import { EventModal, DeleteConfirmationModal, ScreenAssignmentModal } from '@/components/modals';
@@ -12,9 +12,16 @@ import {
   type Column,
 } from '@/components/common';
 import { Calendar } from 'lucide-react';
-import { useTrigger } from '@/hooks';
-import { formatDateWithTime } from '@/utils';
+import { useTrigger, useMasjidTimezone } from '@/hooks';
+import { describeTimeZone, formatZonedDateTime } from '@/utils';
+import { Button } from '@/components/ui';
 import { toast } from 'sonner';
+
+const SCOPES: { value: EventScope; label: string }[] = [
+  { value: 'upcoming', label: 'Upcoming' },
+  { value: 'past', label: 'Past' },
+  { value: 'all', label: 'All' },
+];
 
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -27,14 +34,16 @@ export default function Events() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [screenAssignItem, setScreenAssignItem] = useState<Event | null>(null);
   const [assignedFromCreate, setAssignedFromCreate] = useState(false);
+  const [scope, setScope] = useState<EventScope>('upcoming');
 
+  const { timeZone, isLoading: isTimezoneLoading } = useMasjidTimezone();
   const [trigger, forceUpdate] = useTrigger();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await getEvents();
+        const data = await getEvents(undefined, scope);
         setEvents(data);
       } catch (err) {
         setError('Failed to fetch events');
@@ -46,7 +55,7 @@ export default function Events() {
     };
 
     fetchData();
-  }, [trigger]);
+  }, [trigger, scope]);
 
   const handleAddNew = () => {
     setSelectedItem(undefined);
@@ -115,7 +124,16 @@ export default function Events() {
       key: 'date_time',
       name: 'Date & Time',
       width: 'w-[20%]',
-      render: value => <div>{value ? formatDateWithTime(value as string) : ''}</div>,
+      render: (value, item) => (
+        <div>
+          <div>{formatZonedDateTime(value as string, timeZone)}</div>
+          {item.end_time && (
+            <div className='text-xs text-muted-foreground'>
+              until {formatZonedDateTime(item.end_time, timeZone)}
+            </div>
+          )}
+        </div>
+      ),
     },
     {
       key: 'location',
@@ -128,19 +146,41 @@ export default function Events() {
     <div className='container mx-auto py-8 space-y-6'>
       <PageHeader
         title='Events'
-        description='Manage your masjid events and programs'
+        description={
+          isTimezoneLoading
+            ? 'Manage your masjid events and programs'
+            : `Manage your masjid events and programs. Times are in ${describeTimeZone(timeZone)}.`
+        }
         onAddClick={handleAddNew}
+        addButtonDisabled={isTimezoneLoading}
+        actions={
+          <div className='flex gap-1'>
+            {SCOPES.map(option => (
+              <Button
+                key={option.value}
+                variant={scope === option.value ? 'default' : 'outline'}
+                onClick={() => setScope(option.value)}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        }
       />
 
       <ErrorAlert message={error} onClose={() => setError(null)} />
 
-      {loading ? (
+      {loading || isTimezoneLoading ? (
         <TableSkeleton columns={columns} showRowNumbers={true} />
       ) : events.length === 0 ? (
         <EmptyState
           icon={<Calendar className='h-6 w-6 text-muted-foreground' />}
-          title='No events found'
-          description="You haven't added any events yet. Add your first one to get started."
+          title={scope === 'upcoming' ? 'No upcoming events' : 'No events found'}
+          description={
+            scope === 'upcoming'
+              ? 'Nothing is coming up. Add an event, or switch to Past to see ones that have finished.'
+              : "You haven't added any events yet. Add your first one to get started."
+          }
           actionText='Add First Event'
           onActionClick={handleAddNew}
         />
@@ -173,6 +213,7 @@ export default function Events() {
           }
         }}
         initialData={selectedItem}
+        timeZone={timeZone}
       />
 
       <DeleteConfirmationModal
@@ -182,7 +223,7 @@ export default function Events() {
         isDeleting={isDeleting}
         itemType='event'
         itemTitle={itemToDelete?.title}
-        itemSubtitle={itemToDelete?.date_time ? formatDateWithTime(itemToDelete.date_time) : ''}
+        itemSubtitle={formatZonedDateTime(itemToDelete?.date_time, timeZone)}
       />
 
       {screenAssignItem && (

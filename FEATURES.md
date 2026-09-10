@@ -268,7 +268,11 @@ A single **description** field (required). Simplest type; renders one announceme
 
 ### 8.2 Events
 
-Fields: `title`, `description`, `date_time` (ISO), `location`, `chief_guest`, `host` (optional), `qari`, `naat_khawn`, `karm_farma` — all required except host. The modal has "Basic Information" and "Participants" sections. These are Islamic‑event roles (chief guest, host, qari/reciter, naat reciter, patron).
+Fields: `title`, `description`, `date_time` (timestamptz), `end_time` (timestamptz, optional), `location`, `chief_guest`, `host` (optional), `qari`, `naat_khawn`, `karm_farma` — all required except host and end time. The modal has "Basic Information" and "Participants" sections. These are Islamic‑event roles (chief guest, host, qari/reciter, naat reciter, patron).
+
+**Times are the masjid's, not the viewer's.** Start and end are stored as absolute instants and rendered in `masjid_profiles.timezone` on every surface, so an 8pm Karachi event reads as 8pm to an admin in London and on a phone anywhere. The modal collects wall‑clock times in that same zone and labels which one it is using. Where a masjid has no timezone set the formatters fall back to the viewing device's, which is how the product behaved before the column existed.
+
+**Upcoming vs past.** An event is upcoming until its `end_time`, or until `date_time` + 2 hours where no end time is set (`DEFAULT_EVENT_DURATION_MINUTES`). The database materialises this into `events.ends_at`, a stored generated column indexed by `idx_events_upcoming`, so the admin console's Upcoming / Past / All tabs filter server‑side. Finished events stop being sent to screens: `get_display_payload` excludes them, and the display re‑checks the cut‑off on a minute tick so an event also disappears between payload refetches.
 
 ### 8.3 Posts
 

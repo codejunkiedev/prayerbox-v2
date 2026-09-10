@@ -75,6 +75,7 @@ export async function upsertMasjidProfile(
     updated_at: new Date().toISOString(),
     latitude: profileData.latitude || null,
     longitude: profileData.longitude || null,
+    timezone: profileData.timezone,
     name: profileData.name,
     name_ur: profileData.name_ur ?? '',
     name_ar: profileData.name_ar ?? '',

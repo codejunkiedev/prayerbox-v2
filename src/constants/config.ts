@@ -40,3 +40,9 @@ export const MODULES: { id: string; name: string }[] = [
   { id: 'events', name: 'Events' },
   { id: 'posts', name: 'Posts' },
 ];
+
+/**
+ * How long an event counts as still happening when no end time is set. Mirrors
+ * event_ends_at() in the events timestamptz migration; change both together.
+ */
+export const DEFAULT_EVENT_DURATION_MINUTES = 120;

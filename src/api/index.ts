@@ -4,7 +4,7 @@ export {
   type PrayerTimesPayload,
 } from './aladhan';
 
-export { reverseGeocode, forwardGeocode } from './geoapify';
+export { reverseGeocode, forwardGeocode, resolveTimezoneFromCoordinates } from './geoapify';
 
 export { fetchWeatherForecast } from './openweather';
 

@@ -86,3 +86,19 @@ export const forwardGeocode = async ({
     throw error;
   }
 };
+
+/**
+ * Resolves the IANA timezone for a coordinate
+ * @param payload Object containing latitude, longitude, and optional AbortSignal
+ * @returns The zone id, or null if the response carries no usable one
+ */
+export const resolveTimezoneFromCoordinates = async ({
+  latitude,
+  longitude,
+  signal,
+}: ReverseGeocodePayload): Promise<string | null> => {
+  const response = await reverseGeocode({ latitude, longitude, signal });
+  const name = response.features?.[0]?.properties?.timezone?.name;
+
+  return name && name.includes('/') ? name : null;
+};
