@@ -31,6 +31,8 @@ interface PrayerTimingDisplayProps {
   masjidName?: string;
   contactDetails?: string;
   customTheme?: CustomThemeConfig | null;
+  /** The masjid's IANA zone; null falls back to the device's. */
+  timeZone?: string | null;
 }
 
 /**
@@ -45,8 +47,9 @@ export function PrayerTimingDisplay({
   masjidName,
   contactDetails,
   customTheme,
+  timeZone = null,
 }: PrayerTimingDisplayProps) {
-  const { currentTime } = useCurrentTime();
+  const { currentTime } = useCurrentTime(timeZone);
   const { i18n } = useTranslation();
   const lang = i18n.language as DisplayLanguage;
 
@@ -54,6 +57,7 @@ export function PrayerTimingDisplay({
     calculationMethod: userSettings?.hijri_calculation_method || HijriCalculationMethod.Umm_al_Qura,
     offset: userSettings?.hijri_offset || 0,
     lang,
+    timeZone,
   });
 
   if (!prayerTimes || !userSettings) return null;
@@ -65,6 +69,7 @@ export function PrayerTimingDisplay({
   const processedPrayerTimings = getProcessedPrayerTimings(prayerTimes, prayerTimeSettings);
 
   const themeProps: ThemeProps = {
+    timeZone,
     gregorianDate: formatGregorianDate(date?.gregorian, lang),
     hijriDate: adjustedHijriDate || formatHijriDate(date?.hijri, lang),
     sunrise: applySingleAdjustment(timings?.Sunrise || '', userSettings?.sunrise_adjustment),

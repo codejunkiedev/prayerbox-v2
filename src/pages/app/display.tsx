@@ -78,6 +78,7 @@ export default function Display() {
   }, [i18n, language]);
 
   const isOnline = useOnlineStatus();
+  const masjidTimeZone = masjidProfile?.timezone ?? null;
 
   // The payload is only refetched on the revision beacon, so the events
   // cut-off below is re-checked on a minute tick.
@@ -118,6 +119,7 @@ export default function Display() {
     sound: displayScreen?.prayer_alert_sound ?? 'beep',
     prayerTimes,
     prayerTimeSettings,
+    timeZone: masjidTimeZone,
   });
 
   const {
@@ -222,7 +224,7 @@ export default function Display() {
             <EventsDisplay
               event={item.data as Event}
               orientation={displayScreen?.orientation ?? 'landscape'}
-              timeZone={masjidProfile?.timezone ?? null}
+              timeZone={masjidTimeZone}
             />
           </SwiperSlide>
         );
@@ -281,6 +283,7 @@ export default function Display() {
               masjidName={localizedMasjidName}
               contactDetails={contactDetails}
               customTheme={displayScreen?.custom_theme}
+              timeZone={masjidTimeZone}
             />
           </SwiperSlide>
         )}

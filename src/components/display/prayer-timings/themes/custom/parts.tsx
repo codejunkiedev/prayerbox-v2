@@ -126,6 +126,7 @@ export function useCustomThemeParts({
   ishraq,
   chasht,
   currentTime,
+  timeZone,
   processedPrayerTimings,
   isFriday,
   orientation,
@@ -194,9 +195,10 @@ export function useCustomThemeParts({
     const jummas = displayPrayers.filter(p => isJumma(p.name));
     const midday = isFriday && jummas.length ? 'dhuhr' : null;
     return getTimeBeforeNextIqamah(
-      displayPrayers.filter(p => (midday ? p.name !== midday : !isJumma(p.name)))
+      displayPrayers.filter(p => (midday ? p.name !== midday : !isJumma(p.name))),
+      timeZone
     );
-  }, [displayPrayers, isFriday]);
+  }, [displayPrayers, isFriday, timeZone]);
 
   const solarRows = useMemo(
     () =>

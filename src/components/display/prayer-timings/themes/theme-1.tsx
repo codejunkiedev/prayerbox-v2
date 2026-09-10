@@ -23,6 +23,7 @@ export function Theme1({
   sunrise,
   sunset,
   currentTime,
+  timeZone,
   processedPrayerTimings,
   prayerTimeSettings,
   orientation,
@@ -35,8 +36,8 @@ export function Theme1({
   const fontClass = getFontClass(lang);
 
   const nextPrayer = useMemo(() => {
-    return getTimeBeforeNextPrayer(processedPrayerTimings);
-  }, [processedPrayerTimings]);
+    return getTimeBeforeNextPrayer(processedPrayerTimings, timeZone);
+  }, [processedPrayerTimings, timeZone]);
 
   if (isPortrait) {
     return (

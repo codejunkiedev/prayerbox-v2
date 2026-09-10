@@ -27,7 +27,7 @@ import {
   updateHijriSettings,
   updatePrayerCalculationSettings,
 } from '@/lib/supabase';
-import { useAdjustedHijriDate } from '@/hooks';
+import { useAdjustedHijriDate, useMasjidTimezone } from '@/hooks';
 import { isNullOrUndefined } from '@/utils';
 import type { Settings } from '@/types';
 
@@ -70,9 +70,11 @@ export function CalculationSettingsModal({
     longitude: number;
   } | null>(null);
 
+  const { timeZone } = useMasjidTimezone();
   const { adjustedHijriDate, isLoading: isLoadingAdjustedHijriDate } = useAdjustedHijriDate({
     calculationMethod: hijriMethod,
     offset: hijriOffset,
+    timeZone,
   });
 
   useEffect(() => {

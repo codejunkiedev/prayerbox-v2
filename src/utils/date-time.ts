@@ -115,6 +115,36 @@ export const formatTimeString = (time: Date): string => {
   return format(time, 'HH:mm');
 };
 
+/** Matches `hh:mm a` and `HH:mm`, e.g. "03:48 PM" or "15:48". */
+const WALL_CLOCK_PATTERN = /^(\d{1,2}):(\d{2})(?:\s*([ap]m))?$/i;
+
+/**
+ * Splits a wall-clock time string into hours and minutes.
+ *
+ * Parsed explicitly rather than through `new Date('<date> <time>')`, which is
+ * implementation-defined, and keeps midnight exact — 12:00 AM and 12:00 PM are
+ * the two cases a naive `% 12` gets wrong.
+ */
+export const parseWallClockTime = (value: string): { hours: number; minutes: number } | null => {
+  const match = WALL_CLOCK_PATTERN.exec(value.trim());
+  if (!match) return null;
+
+  const [, rawHours, rawMinutes, meridiem] = match;
+  let hours = Number(rawHours);
+  const minutes = Number(rawMinutes);
+  if (minutes > 59) return null;
+
+  if (meridiem) {
+    if (hours < 1 || hours > 12) return null;
+    hours = hours % 12;
+    if (meridiem.toLowerCase() === 'pm') hours += 12;
+  } else if (hours > 23) {
+    return null;
+  }
+
+  return { hours, minutes };
+};
+
 /**
  * Formats a date with time
  * @param date Date object or date string

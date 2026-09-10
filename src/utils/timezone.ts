@@ -154,6 +154,27 @@ export function fromZonedWallClock(local: Date, timeZone: string | null | undefi
   return new Date(corrected);
 }
 
+/** Now, as a Date whose local fields read as the wall clock in `timeZone` */
+export function nowInTimeZone(timeZone: string | null | undefined): Date {
+  return toZonedWallClock(new Date(), timeZone);
+}
+
+/**
+ * The instant at which the calendar day of `zonedDay` reaches `hours:minutes`
+ * in `timeZone`. `zonedDay` is a wall clock in that zone, as nowInTimeZone
+ * returns.
+ */
+export function instantOnZonedDay(
+  zonedDay: Date,
+  hours: number,
+  minutes: number,
+  timeZone: string | null | undefined
+): Date {
+  const local = new Date(zonedDay);
+  local.setHours(hours, minutes, 0, 0);
+  return fromZonedWallClock(local, timeZone);
+}
+
 /** Parses a stored instant, tolerating a null or unparseable value */
 export function parseInstant(value: Date | string | null | undefined): Date | null {
   if (!value) return null;

@@ -9,7 +9,10 @@ import type {
 import {
   getFilteredJummaPrayerNames,
   getProcessedPrayerTimings,
+  instantOnZonedDay,
   isFridayPrayer,
+  nowInTimeZone,
+  parseWallClockTime,
   playAlertBeep,
   primeAudioPlayback,
 } from '@/utils';
@@ -19,6 +22,8 @@ type Options = {
   sound: PrayerAlertSound;
   prayerTimes: AlAdhanPrayerTimes | null;
   prayerTimeSettings: PrayerTimes | null;
+  /** The masjid's IANA zone; null falls back to the device's. */
+  timeZone?: string | null;
 };
 
 const TICK_MS = 1000;
@@ -30,27 +35,18 @@ const TICK_MS = 1000;
  */
 const MAX_CATCH_UP_MS = 2 * 60 * 1000;
 
-/** Matches the `hh:mm a` strings the prayer-time utils produce, e.g. "03:48 PM". */
-const TIME_PATTERN = /^(\d{1,2}):(\d{2})\s*([ap]m)$/i;
-
 /**
- * Resolves a formatted prayer time onto `reference`'s calendar day.
+ * Resolves a formatted prayer time onto the masjid's current calendar day.
  *
- * Parsing explicitly rather than via `new Date('<date> <time>')` keeps midnight
- * exact — 12:00 AM and 12:00 PM are the two cases a naive `% 12` gets wrong.
+ * The prayer strings are the masjid's wall clock, so the instant they name has
+ * to be worked out in the masjid's zone — resolving them against the device's
+ * day would beep at the wrong moment anywhere else.
  */
-const resolveOnDay = (time: string, reference: Date): number | null => {
-  const match = TIME_PATTERN.exec(time.trim());
-  if (!match) return null;
+const resolveOnDay = (time: string, zonedDay: Date, timeZone: string | null): number | null => {
+  const parsed = parseWallClockTime(time);
+  if (!parsed) return null;
 
-  const [, rawHours, rawMinutes, meridiem] = match;
-  const hours = Number(rawHours) % 12;
-  const minutes = Number(rawMinutes);
-  if (hours > 11 || minutes > 59) return null;
-
-  const at = new Date(reference);
-  at.setHours(meridiem.toLowerCase() === 'pm' ? hours + 12 : hours, minutes, 0, 0);
-  return at.getTime();
+  return instantOnZonedDay(zonedDay, parsed.hours, parsed.minutes, timeZone).getTime();
 };
 
 /**
@@ -67,6 +63,7 @@ export function usePrayerAlert({
   sound,
   prayerTimes,
   prayerTimeSettings,
+  timeZone = null,
 }: Options): void {
   const active = sound !== 'silent' && triggers.length > 0;
 
@@ -103,6 +100,10 @@ export function usePrayerAlert({
   const watchedTimesRef = useRef(watchedTimes);
   watchedTimesRef.current = watchedTimes;
 
+  // Same reasoning: a zone arriving after mount must not restart the ticker.
+  const timeZoneRef = useRef(timeZone);
+  timeZoneRef.current = timeZone;
+
   useEffect(() => {
     if (!active) return;
     return primeAudioPlayback();
@@ -124,9 +125,10 @@ export function usePrayerAlert({
 
       // Resolve against the current day on every tick so the alert keeps
       // working across midnight without waiting for new prayer-time data.
-      const reference = new Date(now);
+      const zone = timeZoneRef.current;
+      const reference = nowInTimeZone(zone);
       const due = watchedTimesRef.current.some(time => {
-        const at = resolveOnDay(time, reference);
+        const at = resolveOnDay(time, reference, zone);
         return at !== null && at > since && at <= now;
       });
 

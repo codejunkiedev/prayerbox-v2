@@ -1,4 +1,5 @@
-import { formatTime, addTimeMinutes, minutesBetweenTimes } from './date-time';
+import { formatTime, addTimeMinutes, minutesBetweenTimes, parseWallClockTime } from './date-time';
+import { instantOnZonedDay, nowInTimeZone } from './timezone';
 import type {
   AdjustmentCategory,
   PrayerAdjustments,
@@ -215,43 +216,63 @@ export const getFilteredJummaPrayerNames = (
 };
 
 /**
+ * Minutes from now until the next prayer in `category`, in the masjid's zone.
+ *
+ * The prayer strings are the masjid's wall clock, so anchoring them to the
+ * viewing device's calendar day and comparing against its clock is only correct
+ * for a screen standing inside the masjid. Relies on `prayerTimes` being in
+ * chronological order, as the callers build it.
+ */
+const minutesUntilNext = (
+  prayerTimes: ProcessedPrayerTiming[],
+  category: 'starts' | 'iqamah',
+  timeZone: string | null | undefined
+): { minutes: number; name: PrayerName } | null => {
+  const now = new Date();
+  const today = nowInTimeZone(timeZone);
+
+  for (const prayer of prayerTimes) {
+    const parsed = parseWallClockTime(prayer[category]);
+    if (!parsed) continue;
+
+    const at = instantOnZonedDay(today, parsed.hours, parsed.minutes, timeZone);
+    if (at > now) return { minutes: differenceInMinutes(at, now), name: prayer.name };
+  }
+
+  return null;
+};
+
+const formatCountdown = (totalMinutes: number): string => {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
+};
+
+/**
  * Gets the time before the next prayer (based on starts time)
  */
 export const getTimeBeforeNextPrayer = (
-  prayerTimes: ProcessedPrayerTiming[]
-): { timeBefore: string; name: keyof PrayerAdjustments } | null => {
-  const currentTime = new Date();
-  const nextPrayerTime = prayerTimes.find(
-    prayer => new Date(`${currentTime.toDateString()} ${prayer.starts}`) > currentTime
-  );
-  if (!nextPrayerTime) return null;
-  const difference = differenceInMinutes(
-    new Date(`${currentTime.toDateString()} ${nextPrayerTime.starts}`),
-    currentTime
-  );
-  const hours = Math.floor(difference / 60);
-  const minutes = difference % 60;
-  const formattedTime = `${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
-  return { timeBefore: formattedTime, name: nextPrayerTime.name };
+  prayerTimes: ProcessedPrayerTiming[],
+  timeZone: string | null | undefined
+): { timeBefore: string; name: PrayerName } | null => {
+  const next = minutesUntilNext(prayerTimes, 'starts', timeZone);
+  if (!next) return null;
+  return { timeBefore: formatCountdown(next.minutes), name: next.name };
 };
 
 /**
  * Gets the time before the next iqamah
  */
 export const getTimeBeforeNextIqamah = (
-  prayerTimes: ProcessedPrayerTiming[]
-): { timeBefore: string; hours: number; minutes: number; name: keyof PrayerAdjustments } | null => {
-  const currentTime = new Date();
-  const nextIqamah = prayerTimes.find(
-    prayer => new Date(`${currentTime.toDateString()} ${prayer.iqamah}`) > currentTime
-  );
-  if (!nextIqamah) return null;
-  const difference = differenceInMinutes(
-    new Date(`${currentTime.toDateString()} ${nextIqamah.iqamah}`),
-    currentTime
-  );
-  const hours = Math.floor(difference / 60);
-  const minutes = difference % 60;
-  const formattedTime = `${hours > 0 ? `${hours}h ` : ''}${minutes}m`;
-  return { timeBefore: formattedTime, hours, minutes, name: nextIqamah.name };
+  prayerTimes: ProcessedPrayerTiming[],
+  timeZone: string | null | undefined
+): { timeBefore: string; hours: number; minutes: number; name: PrayerName } | null => {
+  const next = minutesUntilNext(prayerTimes, 'iqamah', timeZone);
+  if (!next) return null;
+  return {
+    timeBefore: formatCountdown(next.minutes),
+    hours: Math.floor(next.minutes / 60),
+    minutes: next.minutes % 60,
+    name: next.name,
+  };
 };
