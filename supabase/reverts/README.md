@@ -14,6 +14,7 @@ To run one, either paste it into the project's SQL editor, or copy it into
 | `20260909000003_scope_storage_writes.revert.sql` | Storage writes | Restores the unscoped storage write policies, reopening cross-masjid image writes and the shared `assets` library. Independent of A and B. |
 | `20260910000001_add_timezone_to_masjid_profiles.revert.sql` | Masjid timezone | Drops `masjid_profiles.timezone`, losing every resolved zone. Puts the product back to rendering masjid datetimes against the viewer's clock. |
 | `20260910000002_events_timestamptz_and_end_time.revert.sql` | Events timestamptz | Puts `events.date_time` back to TEXT and drops `end_time`/`ends_at`, losing any end times an admin has set. Roll the web app back first. |
+| `20260910000003_require_masjid_timezone.revert.sql` | Timezone NOT NULL | Makes `masjid_profiles.timezone` nullable again. Loses nothing. Run it before rolling the web app back to a bundle that creates profiles without a zone. |
 
 ## The display lockdown, in order
 
@@ -87,11 +88,26 @@ IANA zone needs boundary data Postgres does not ship. Ordering:
 Steps 1 and 2 are independent, and there is no window where anything breaks:
 until a row has a zone it renders the way it does today.
 
-Once `SELECT count(*) FROM masjid_profiles WHERE timezone IS NULL` is zero and
-staying zero, the column can be tightened with `ALTER TABLE masjid_profiles
-ALTER COLUMN timezone SET NOT NULL`. That is deliberately not a migration here:
-pushed before the backfill it would fail, and pushed after it would still fail
-for any masjid whose profile has no coordinates.
+## Requiring a timezone (20260910000003)
+
+`20260910000003` tightens the column to NOT NULL. It is the one migration in
+this set that must go **after** the deploy, not before:
+
+4. Deploy the web app, and confirm it is live.
+5. Push `20260910000003`.
+
+The bundle it replaces creates masjid profiles without a `timezone`, so pushing
+this while that bundle is still serving means a new masjid cannot register —
+the insert hits the NOT NULL violation. Existing profiles are unaffected either
+way, since NOT NULL only rejects setting the column to NULL.
+
+The migration refuses to run while any profile is still NULL rather than
+failing on the ALTER, so a forgotten backfill stops with a message naming how
+many rows are left. It adds no DEFAULT on purpose: a placeholder zone would
+render every datetime that masjid publishes against the wrong clock.
+
+Rolling the app back means running the revert first, in the mirror of the same
+order.
 
 ## Events timestamptz (20260910000002)
 
