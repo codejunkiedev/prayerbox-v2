@@ -9,8 +9,6 @@
 -- No DEFAULT on purpose: a placeholder zone would render every datetime the
 -- masjid publishes against the wrong clock, which is the bug this set of
 -- migrations exists to remove.
---
--- Reverting this file: supabase/reverts/20260910000003_*.revert.sql
 
 DO $$
 DECLARE

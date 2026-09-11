@@ -17,8 +17,6 @@
 -- The replacement is a set of SECURITY DEFINER functions keyed by the screen
 -- code. The code becomes a bearer credential: checkable but never listable,
 -- and it pins every result to the one masjid that owns the screen.
---
--- Reverting this file: supabase/reverts/20260909000001_*.revert.sql
 
 -- ============================================
 -- 1. display_revisions — the realtime beacon
