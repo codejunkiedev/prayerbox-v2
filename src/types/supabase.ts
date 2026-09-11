@@ -349,7 +349,10 @@ export interface YouTubeVideo extends Base {
   archived: boolean;
 }
 
-export interface PrayerTimes extends Base {
+// settings and prayer_times are one row per masjid. user_id only records who
+// wrote the row, and is null once that account has been deleted.
+export interface PrayerTimes extends Omit<Base, 'user_id'> {
+  user_id: string | null;
   prayer_adjustments?: PrayerAdjustments;
 }
 
@@ -357,7 +360,8 @@ export type SolarTimeName = 'sunrise' | 'ishraq' | 'chasht' | 'sunset';
 
 export type SolarAdjustments = Record<SolarTimeName, SingleAdjustment>;
 
-export interface Settings extends Base {
+export interface Settings extends Omit<Base, 'user_id'> {
+  user_id: string | null;
   hijri_calculation_method?: HijriCalculationMethod;
   hijri_offset?: number;
   calculation_method?: number;
