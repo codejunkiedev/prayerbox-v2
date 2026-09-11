@@ -21,7 +21,7 @@ import supabase from '../index';
  * login code. The code acts as a bearer credential: checkable but not listable,
  * and it pins every result to the one masjid that owns the screen.
  *
- * See supabase/migrations/20260909000001_scope_anon_display_access.sql.
+ * See supabase/migrations/20260909000001_add_display_read_functions.sql.
  */
 
 export type DisplayContentRecord = Announcement | Event | Post | YouTubeVideo | AyatAndHadith;

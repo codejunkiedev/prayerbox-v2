@@ -11,10 +11,6 @@
 -- screens are still alive, and the new bundle's first payload fetch is what
 -- refreshes it. A screen whose heartbeat is stale has not picked up the new
 -- bundle.
---
--- Reverting this file: supabase/reverts/20260909000002_*.revert.sql — it
--- restores every policy and grant below verbatim while leaving phase A intact,
--- so both the old and the new bundle work during a rollback.
 
 -- ============================================
 -- 1. Realtime publication
