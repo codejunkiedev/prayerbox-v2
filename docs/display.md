@@ -71,13 +71,11 @@ Reset restores defaults but marks the form dirty rather than saving.
 
 OpenWeather's 5-day/3-hour metric forecast, shown when `show_weather` is on and a forecast exists.
 
-Parsing takes the nearest slot as current conditions, then one entry per upcoming day (today skipped), preferring the noon sample and tracking daily min/max, capped at seven days; wind converts to km/h. The slide shows current icon, temperature, feels-like, description, humidity, wind, and a multi-day row, under a masjid-area heading.
+Parsing takes the nearest slot as current conditions, then one entry per upcoming day (today skipped), preferring the sample closest to noon and tracking daily min/max, capped at seven days; wind converts to km/h. Days, "today" and the noon preference are all resolved on the masjid's clock — the slots themselves are UTC-aligned, so at most offsets none of them lands on noon exactly. The slide shows current icon, temperature, feels-like, description, humidity, wind, and a multi-day row, under a masjid-area heading.
 
 Condition **names** are localized by stable condition id rather than OpenWeather's `lang` output, which is patchy — the request does still send `lang`, it is simply not trusted for names. Condition **backgrounds** key off the icon code _and_ the screen orientation, from two bundled sets with a `01d` fallback. Icons key off condition id and day/night.
 
 The forecast refreshes every 30 minutes, hydrates from cache first, and keeps the last good data on failure. A **missing masjid location is a hard failure**: it replaces the whole slideshow with an error screen rather than omitting the slide.
-
-Two parsing caveats are recorded in [Known issues](./known-issues.md) — the noon preference and the "skip today" date both use the device clock rather than the masjid's.
 
 ## Internationalization
 

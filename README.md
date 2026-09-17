@@ -37,7 +37,7 @@ Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are needed to boot 
 | [Prayer times](docs/prayer-times.md)   | The three-category model, solar times, timezone resolution, caching            |
 | [Display runtime](docs/display.md)     | Slide assembly, rotation, themes, weather, internationalization                |
 | [Operations](docs/operations.md)       | Env vars, scripts, build, deployment, TV hardware, offline, monitoring         |
-| [Known issues](docs/known-issues.md)   | Live bugs and dead code found while documenting                                |
+| [Known issues](docs/known-issues.md)   | Live gaps, drift and dead code found while documenting                         |
 
 ## Contributing
 

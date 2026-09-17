@@ -293,6 +293,7 @@ export default function Display() {
               weatherForecast={weatherForecast}
               area={localizedArea}
               orientation={displayScreen?.orientation ?? 'landscape'}
+              timeZone={masjidTimeZone}
             />
           </SwiperSlide>
         )}

@@ -1,10 +1,6 @@
 # Known issues
 
-Live issues found while documenting the codebase, listed so nobody rediscovers them the hard way. **None are fixed.** Remove an entry when you fix it.
-
-## Bugs
-
-- **The weather noon preference never fires** at timezone offsets that aren't whole multiples of 3 hours: it compares device-local hours against UTC-aligned slots, so at UTC+5 no slot is ever exactly 12:00 and each day silently takes its first, often pre-dawn, sample. "Skip today" likewise uses the device date rather than the masjid's, unlike the rest of the display.
+Live issues found while documenting the codebase, listed so nobody rediscovers them the hard way. Remove an entry when you fix it.
 
 ## Gaps
 

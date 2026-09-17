@@ -17,9 +17,9 @@ A masjid owns any number of screens, each with its own code, orientation, theme,
 
 **Routes** (`constants/routes.ts`, three enums). Public `/privacy`, `/terms`. Auth `/login`, `/register`, `/forgot-password`, `/login-with-code`. Console `/admin` plus `announcements`, `events`, `posts`, `youtube-videos`, `ayat-and-hadith` (+ `/new`, `/:id/edit`), `prayer-timings`, `screens` (+ `/:id`, `/:id/customize-theme`), `settings` (+ `/profile`, `/account`), `moderators`, `support`, `reset-password`.
 
-**Guards** (`navigation/index.tsx`). Every `/admin/*` route needs a session. `RequireAdmin` additionally wraps Screens, Screen Detail, Prayer Timings, Settings, Settings Profile, Moderators and Support, redirecting moderators to `/admin`. Content pages are open to moderators. Auth routes redirect away when a session exists; the catch-all lands on `/admin` or `/` depending on session. All 28 pages are `React.lazy` behind one Suspense fallback.
+**Guards** (`navigation/index.tsx`). Every `/admin/*` route needs a session. `RequireAdmin` additionally wraps Screens, Screen Detail, the custom-theme editor, Prayer Timings, Settings, Settings Profile, Moderators and Support, redirecting moderators to `/admin`. Content pages are open to moderators. Auth routes redirect away when a session exists; the catch-all lands on `/admin` or `/` depending on session. All 28 pages are `React.lazy` behind one Suspense fallback.
 
-Three routes render outside `AppLayout`, with no sidebar or header: the two designer routes and the custom-theme editor. Note that `/admin/screens/:id/customize-theme` is **not** wrapped in `RequireAdmin` — see [Known issues](./known-issues.md).
+Three routes render outside `AppLayout`, with no sidebar or header: the two designer routes and the custom-theme editor.
 
 ## Frontend composition
 

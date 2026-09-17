@@ -15,7 +15,7 @@ New to the codebase? Read [Architecture](./architecture.md) first — particular
 | [Prayer times](./prayer-times.md)   | Starts/athan/iqamah, offsets and manual times, Jumma variants, the four solar times, timezone resolution, month caching             |
 | [Display runtime](./display.md)     | Slide assembly and rotation, prayer alerts, the four themes and the custom-theme engine, weather, internationalization              |
 | [Operations](./operations.md)       | Environment variables, scripts, build config, deployment, TV-box hardware, service worker and caches, monitoring                    |
-| [Known issues](./known-issues.md)   | Live bugs and dead code, documented rather than fixed                                                                               |
+| [Known issues](./known-issues.md)   | Live gaps, drift and dead code, documented rather than fixed                                                                        |
 
 ## Conventions
 

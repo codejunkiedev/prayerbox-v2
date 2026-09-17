@@ -26,7 +26,8 @@ export function useWeatherData(enabled: boolean = true, language: DisplayLanguag
   useEffect(() => {
     if (!enabled) return;
 
-    const { latitude, longitude } = masjidProfile || {};
+    const { latitude, longitude, timezone } = masjidProfile || {};
+    const timeZone = timezone ?? null;
 
     if (isNullOrUndefined(latitude) || isNullOrUndefined(longitude)) {
       setErrorMessage({
@@ -43,7 +44,7 @@ export function useWeatherData(enabled: boolean = true, language: DisplayLanguag
     // If the API later fails, the user keeps seeing this stale-but-valid forecast.
     const cached = readWeatherCache(latitude, longitude, language);
     const hadCachedData = cached !== null;
-    if (cached) setWeatherForecast(parseOpenWeatherForecast(cached));
+    if (cached) setWeatherForecast(parseOpenWeatherForecast(cached, timeZone));
 
     async function getWeatherData(
       lat: number,
@@ -57,7 +58,7 @@ export function useWeatherData(enabled: boolean = true, language: DisplayLanguag
       try {
         const data = await fetchWeatherForecast({ lat, lon, signal, language });
         if (data) {
-          setWeatherForecast(parseOpenWeatherForecast(data));
+          setWeatherForecast(parseOpenWeatherForecast(data, timeZone));
           writeWeatherCache(lat, lon, language, data);
         }
       } catch (error) {
