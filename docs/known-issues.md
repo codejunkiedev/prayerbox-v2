@@ -5,7 +5,6 @@ Live issues found while documenting the codebase, listed so nobody rediscovers t
 ## Gaps
 
 - **PWA installability is marginal** — the manifest ships only `/vite.svg` at `sizes: 'any'`, with no 192/512 or maskable icons.
-- **Browser-target contradiction:** PostCSS targets `chrome >= 83` while the legacy plugin targets `chrome >= 49`, which undercuts the old-TV story.
 
 ## Drift
 

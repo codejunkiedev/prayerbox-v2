@@ -8,7 +8,7 @@ export default {
         'nesting-rules': true,
         'color-mix': true,
       },
-      browsers: 'chrome >= 83',
+      browsers: 'chrome >= 96',
     },
   },
 };
