@@ -27,7 +27,7 @@ Three routes render outside `AppLayout`, with no sidebar or header: the two desi
 
 ## Data access
 
-Domain services in `lib/supabase/services/` sit on generic query helpers in `lib/supabase/helpers.ts`. Types in `types/supabase.ts` are **hand-written, not generated**, and every result is cast — so schema drift is invisible at compile time. That is not a theoretical risk; there is a live instance of it in [Known issues](./known-issues.md).
+Domain services in `lib/supabase/services/` sit on generic query helpers in `lib/supabase/helpers.ts`. Types in `types/supabase.ts` are **hand-written, not generated**, and every result is cast — so schema drift is invisible at compile time. Any migration that changes a column's shape has to be mirrored here by hand.
 
 ## Security
 

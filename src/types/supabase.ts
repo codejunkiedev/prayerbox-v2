@@ -61,8 +61,8 @@ export interface MasjidProfile extends Base {
   area_ar: string;
   latitude: number | null;
   longitude: number | null;
-  /** IANA zone id, e.g. `Asia/Karachi`. Null falls back to the device's zone. */
-  timezone: string | null;
+  /** IANA zone id, e.g. `Asia/Karachi`. NOT NULL since 20260910000003. */
+  timezone: string;
   contact_number: string;
   contact_email: string;
   website: string;

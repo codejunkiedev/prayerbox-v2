@@ -2,11 +2,6 @@
 
 Live issues found while documenting the codebase, listed so nobody rediscovers them the hard way. Remove an entry when you fix it.
 
-## Drift
-
-- **`types/supabase.ts` types `timezone` as `string | null`**, which the `NOT NULL` column no longer permits. Because the Supabase types are hand-written rather than generated, drift like this is invisible at compile time.
-- **The comment at the top of `i18n/index.ts`** still claims only the weather slide consumes translations. All four prayer themes do.
-
 ## Dead code and config
 
 - `tailwind.config.js` — v4 ignores it without an `@config` directive, so its `3xl`/`4xl` screens generate nothing.

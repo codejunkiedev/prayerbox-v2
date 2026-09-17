@@ -5,10 +5,10 @@ import ur from './locales/ur.json';
 import ar from './locales/ar.json';
 
 /**
- * App-wide i18next instance. Today only the display-screen weather slide
- * consumes translations; admin/auth/prayer-timing surfaces still ship
- * English-only. New display-facing strings must be added to all three
- * locale JSON files.
+ * App-wide i18next instance. The four prayer-timing themes and the weather
+ * slide consume translations; the other display slides and the admin surfaces
+ * ship English-only, except the custom-theme editor's preview. New
+ * display-facing strings must be added to all three locale JSON files.
  */
 i18n.use(initReactI18next).init({
   resources: {
