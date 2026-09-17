@@ -35,12 +35,6 @@ export enum HijriCalculationMethod {
   Diyanet_İşleri_Başkanlığı = 'DIYANET',
 }
 
-export const MODULES: { id: string; name: string }[] = [
-  { id: 'announcements', name: 'Announcements' },
-  { id: 'events', name: 'Events' },
-  { id: 'posts', name: 'Posts' },
-];
-
 /**
  * How long an event counts as still happening when no end time is set. Mirrors
  * event_ends_at() in the events timestamptz migration; change both together.

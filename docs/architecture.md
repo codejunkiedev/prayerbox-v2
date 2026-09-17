@@ -108,7 +108,6 @@ src/
 │   └── legal/          # Privacy Policy, Terms & Conditions
 ├── providers/          # ThemeProvider (dark/light/system)
 ├── store/              # auth-store.ts + the display store in index.ts
-├── styles/             # globals.css — currently imported by nothing
 ├── types/              # Hand-written types (api/, supabase, common, store, validation, *.d.ts)
 ├── utils/              # date/time, timezone, prayer adjustments, image resize, caches, ...
 └── App.tsx  main.tsx  index.css  vite-env.d.ts

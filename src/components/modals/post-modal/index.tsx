@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui';
 import { postSchema, type PostData } from '@/lib/zod';
 import { upsertPost } from '@/lib/supabase';
-import { useImageValidation } from '@/hooks/useImageValidation';
+import { useImageValidation } from '@/hooks';
 import { downscaleImageToCover } from '@/utils';
 import type { Post, PostOrientation } from '@/types';
 import { useForm } from 'react-hook-form';

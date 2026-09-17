@@ -187,15 +187,6 @@ export const prayerAdjustmentsFormSchema = z.object({
 
 export type PrayerAdjustmentsFormData = z.infer<typeof prayerAdjustmentsFormSchema>;
 
-export const solarAdjustmentsSchema = z.object({
-  sunrise_adjustment: singleAdjustmentSchema,
-  sunset_adjustment: singleAdjustmentSchema,
-  ishraq_adjustment: singleAdjustmentSchema,
-  chasht_adjustment: singleAdjustmentSchema,
-});
-
-export type SolarAdjustmentsData = z.infer<typeof solarAdjustmentsSchema>;
-
 export const screenSchema = z.object({
   name: z.string().min(1, 'Screen name is required'),
   orientation: z.enum(['landscape', 'portrait']),
@@ -245,66 +236,3 @@ export const resetModeratorPasswordSchema = z
   });
 
 export type ResetModeratorPasswordData = z.infer<typeof resetModeratorPasswordSchema>;
-
-const textStyleSchema = z.object({
-  font_id: z.string(),
-  size: z.number().min(8).max(300),
-  color: z.string(),
-  line_height: z.number().min(0.8).max(4),
-});
-
-const referenceStyleSchema = z.object({
-  font_id: z.string(),
-  arabic_font_id: z.string(),
-  size: z.number().min(8).max(300),
-  color: z.string(),
-  line_height: z.number().min(0.8).max(4),
-});
-
-const backgroundSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('image'), url: z.string() }),
-  z.object({ type: z.literal('color'), color: z.string() }),
-  z.object({
-    type: z.literal('gradient'),
-    from: z.string(),
-    to: z.string(),
-    angle: z.number().min(0).max(360),
-  }),
-]);
-
-const ayatHadithStyleSchema = z.object({
-  background: backgroundSchema,
-  overlay_color: z.string(),
-  overlay_opacity: z.number().min(0).max(1),
-  arabic: textStyleSchema,
-  urdu: textStyleSchema,
-  english: textStyleSchema,
-  reference: referenceStyleSchema,
-});
-
-const ayatSourceSchema = z.object({
-  surah: z.number().int().min(1).max(114),
-  ayah: z.number().int().min(1),
-});
-
-const hadithSourceSchema = z.object({
-  book: z.string().min(1),
-  hadith_number: z.string().min(1),
-});
-
-const cachedTextSchema = z.object({
-  arabic: z.string(),
-  urdu: z.object({ edition: z.string(), text: z.string() }).optional(),
-  english: z.object({ edition: z.string(), text: z.string() }).optional(),
-  reference: z.object({ arabic: z.string(), english: z.string() }).optional(),
-});
-
-export const ayatAndHadithSchema = z.object({
-  type: z.enum(['ayat', 'hadith']),
-  orientation: z.enum(['landscape', 'portrait']),
-  source: z.union([ayatSourceSchema, hadithSourceSchema]),
-  cached_text: cachedTextSchema,
-  style: ayatHadithStyleSchema,
-});
-
-export type AyatAndHadithData = z.infer<typeof ayatAndHadithSchema>;

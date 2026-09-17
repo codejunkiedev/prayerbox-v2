@@ -48,7 +48,7 @@ Al-Adhan and AlQuran.cloud need no key.
 
 `@vitejs/plugin-legacy` targeting `['chrome >= 96', 'android >= 12']`, an `es2015` target, Terser, and core-js polyfills. PostCSS states the same floor, so both pipelines agree on the Android 12 minimum from [Display hardware](#display-hardware). `@` aliases to `./src`.
 
-Display components size themselves in viewport and container units, with `[@media(min-width:3000px)]` and `4000px` variants for 4K panels and `100dvh` with a `100vh` fallback for embedded browsers. Note that these are arbitrary Tailwind variants — `tailwind.config.js` is dead under Tailwind 4, so its `3xl`/`4xl` screens generate nothing.
+Display components size themselves in viewport and container units, with `[@media(min-width:3000px)]` and `4000px` variants for 4K panels and `100dvh` with a `100vh` fallback for embedded browsers. These are arbitrary Tailwind variants, which is why they work with no config file: Tailwind 4 is configured entirely from `src/index.css`.
 
 ## Deployment
 

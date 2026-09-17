@@ -87,4 +87,4 @@ Direction is LTR for English and RTL for Urdu and Arabic, applied per component 
 
 **What is not:** announcements, events, posts, ayat & hadith and YouTube slides, everything in `display/shared/`, the error screen, and — on a display, where it matters most — the hardcoded English orientation-mismatch and no-content messages. Admin surfaces are English-only, with one exception: the custom-theme editor renders a translated preview through `i18n.getFixedT(previewLanguage)`.
 
-Locales live in `i18n/locales/`. `assets/i18n/locales/` exists but is empty — a stale trap. The comment at the top of `i18n/index.ts` claiming only the weather slide consumes translations is likewise stale.
+Locales live in `i18n/locales/`.
