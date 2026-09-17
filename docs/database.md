@@ -1,0 +1,48 @@
+# Database
+
+Thirteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 48 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+
+## Tables
+
+| Table                                                         | Purpose                                                                                                                                                      |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `masjid_profiles`                                             | Tenant root. Name (+ `name_ur`/`name_ar`), area (+ `area_ur`/`area_ar`), logo, coordinates, contact number/email/website, and a **required** IANA `timezone` |
+| `masjid_members`                                              | Membership + `role`. `UNIQUE(user_id)` — a user belongs to one masjid                                                                                        |
+| `display_screens`                                             | Per-screen code, orientation, theme, `custom_theme` JSON, language, slide interval, prayer/weather toggles, prayer-alert triggers and sound                  |
+| `screen_content`                                              | Polymorphic playlist join with per-screen `display_order` + `visible`. `content_id` has no FK by design; `get_display_payload` re-checks tenancy             |
+| `announcements`, `posts`, `youtube_videos`, `ayat_and_hadith` | Content items, soft-deleted via `archived`                                                                                                                   |
+| `events`                                                      | As above, plus `date_time`/`end_time` as `timestamptz` and `ends_at`, a stored generated column backing the upcoming/past split                              |
+| `prayer_times`                                                | Per-prayer `starts`/`athan`/`iqamah` adjustments as JSONB. One row per masjid (`UNIQUE(masjid_id)`)                                                          |
+| `settings`                                                    | Calculation method, juristic school, Hijri method + offset, and four solar adjustments (sunrise, ishraq, chasht, sunset). One row per masjid                 |
+| `screen_heartbeats`                                           | `(screen_id, last_seen_at)`. Written only by an RPC; deliberately excluded from the realtime publication                                                     |
+| `display_revisions`                                           | `(masjid_id, revision, updated_at)`. The content-free counter displays subscribe to                                                                          |
+
+On `prayer_times` and `settings`, `user_id` is nullable and `ON DELETE SET NULL` — it records who last saved the row, not who owns it, so deleting an account does not delete a masjid's prayer configuration. Both are keyed `UNIQUE(masjid_id)`; the earlier per-user keying is gone.
+
+`ayat_and_hadith` was dropped and recreated with an entirely different shape, so its original columns (`text`, `translation`, `reference`) no longer exist — it now stores `source`, `cached_text` and `style` as JSONB plus a rendered `image_url`/`image_path`.
+
+## Functions and triggers
+
+Beyond the two RLS helpers and the display read functions covered in [Architecture](./architecture.md), note:
+
+- `bump_display_revision()` — fires on all ten content and config tables to increment the realtime beacon.
+- `handle_new_masjid_profile()` — the admin-bootstrap trigger, inserting an `admin` membership for whoever creates a profile.
+- `event_ends_at(start, end)` — `COALESCE(end, start + INTERVAL '2 hours')`. Immutable because a generated column requires it, and **mirrored by `DEFAULT_EVENT_DURATION_MINUTES` in TypeScript — change both together.**
+- `update_member_last_active()` — bumps `masjid_members.last_active_at` on any content mutation.
+- `is_valid_timezone()` / `validate_masjid_timezone()` — a `BEFORE` trigger rejecting a `timezone` that is not in `pg_timezone_names`.
+
+Every `SECURITY DEFINER` function now pins `search_path`.
+
+## RLS posture
+
+- **Any member** may CRUD `announcements`, `events`, `posts`, `youtube_videos`, `ayat_and_hadith` within their masjid.
+- **Members read, admins write** on `display_screens`, `screen_content`, `prayer_times`, `settings` and `masjid_profiles`. The exception is the `masjid_profiles` INSERT policy, which checks `user_id = auth.uid()` so a new user can create their first profile before any membership exists.
+- **`anon` holds `SELECT` on exactly one table**, `display_revisions`, and `EXECUTE` on the five code-keyed functions. Everything else was revoked.
+
+## Storage buckets
+
+`masjid-logos`, `masjid-posts`, `ayat-hadith-slides` and `user-backgrounds` accept writes only under a `<masjid_id>/` path prefix. `assets` — the curated `predesigned-posts` and `ayat-hadith-backgrounds` libraries — is read-only to everyone but `service_role`.
+
+Update and delete carry a legacy fallback matching on object ownership, because objects predating the scoping rule use older path shapes; the `WITH CHECK` still demands the new prefix, so touching an old object migrates it.
+
+Public **listing** now requires authentication, but public **downloads** still bypass RLS entirely, which is why displays render every image without a key.
