@@ -1,4 +1,4 @@
-import { Monitor, Smartphone, Tablet } from 'lucide-react';
+import { Monitor, Smartphone } from 'lucide-react';
 import { Badge } from '@/components/ui';
 import type { ScreenOrientation } from '@/types';
 import { cn } from '@/utils';
@@ -11,7 +11,6 @@ interface OrientationBadgeProps {
 const CONFIG: Record<ScreenOrientation, { label: string; Icon: typeof Monitor }> = {
   landscape: { label: 'Landscape', Icon: Monitor },
   portrait: { label: 'Portrait', Icon: Smartphone },
-  mobile: { label: 'Mobile', Icon: Tablet },
 };
 
 export function OrientationBadge({ orientation, className }: OrientationBadgeProps) {

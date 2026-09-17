@@ -20,7 +20,7 @@ import type {
   HadithSource,
   ScreenOrientation,
 } from '@/types';
-import { formatSlideReference, slideToPostOrientation } from '@/utils';
+import { formatSlideReference } from '@/utils';
 import { toast } from 'sonner';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
@@ -81,11 +81,7 @@ export default function AyatHadithDesigner() {
 
   const queryOrientation = searchParams.get('orientation');
   const presetOrientation: ScreenOrientation | null =
-    queryOrientation === 'landscape' ||
-    queryOrientation === 'portrait' ||
-    queryOrientation === 'mobile'
-      ? queryOrientation
-      : null;
+    queryOrientation === 'landscape' || queryOrientation === 'portrait' ? queryOrientation : null;
 
   const [initialData, setInitialData] = useState<AyatAndHadith | null>(null);
   const [loadingInitial, setLoadingInitial] = useState(isEdit);
@@ -295,7 +291,7 @@ export default function AyatHadithDesigner() {
                 showReference={content.showReference}
                 selected={selectedLayer}
                 onSelectedChange={setSelectedLayer}
-                orientation={slideToPostOrientation(orientation)}
+                orientation={orientation}
               />
             </TabsContent>
           </Tabs>
@@ -312,7 +308,7 @@ export default function AyatHadithDesigner() {
           contentId={screenAssignTarget.id}
           contentType='ayat_and_hadith'
           contentLabel={formatSlideReference(screenAssignTarget)}
-          contentOrientation={slideToPostOrientation(screenAssignTarget.orientation)}
+          contentOrientation={screenAssignTarget.orientation}
           dismissLabel='Skip'
         />
       )}

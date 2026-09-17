@@ -18,7 +18,10 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       legacy({
-        targets: ['defaults', 'chrome >= 49', 'android >= 5', 'not IE 11'],
+        // The support floor is Android 12, which ships Chrome/WebView 96 — see
+        // docs/operations.md. The old `chrome >= 49` target advertised an
+        // Android 5 the CSS pipeline never actually supported.
+        targets: ['chrome >= 96', 'android >= 12'],
         polyfills: true, // Auto-inject core-js polyfills
         modernPolyfills: true,
         renderLegacyChunks: true,
@@ -121,11 +124,19 @@ export default defineConfig(({ mode }) => {
           display: 'standalone',
           start_url: '/',
           icons: [
+            { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
             {
-              src: '/vite.svg',
-              sizes: 'any',
-              type: 'image/svg+xml',
-              purpose: 'any',
+              src: '/icons/icon-maskable-192.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+            {
+              src: '/icons/icon-maskable-512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
             },
           ],
         },

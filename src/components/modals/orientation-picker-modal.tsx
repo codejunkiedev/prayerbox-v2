@@ -18,7 +18,6 @@ const ORIENTATION_CONFIG: Record<
 > = {
   landscape: { label: 'Landscape', dimensions: '1920 × 1080', shape: { w: 'w-32', h: 'h-20' } },
   portrait: { label: 'Portrait', dimensions: '1080 × 1920', shape: { w: 'w-20', h: 'h-32' } },
-  mobile: { label: 'Mobile', dimensions: '1080 × 1920', shape: { w: 'w-16', h: 'h-28' } },
 };
 
 interface OrientationPickerModalProps<T extends ScreenOrientation> {
@@ -42,8 +41,6 @@ export function OrientationPickerModal<T extends ScreenOrientation>({
 }: OrientationPickerModalProps<T>) {
   const [value, setValue] = useState<T>(defaultValue ?? orientations[0]);
 
-  const gridCols = orientations.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
-
   const handleCancel = () => onOpenChange(false);
   const handleContinue = () => {
     onOpenChange(false);
@@ -65,7 +62,7 @@ export function OrientationPickerModal<T extends ScreenOrientation>({
           <RadioGroup
             value={value}
             onValueChange={v => setValue(v as T)}
-            className={cn('grid gap-3', gridCols)}
+            className='grid gap-3 grid-cols-2'
           >
             {orientations.map(o => {
               const cfg = ORIENTATION_CONFIG[o];

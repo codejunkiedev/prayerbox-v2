@@ -46,9 +46,9 @@ Al-Adhan and AlQuran.cloud need no key.
 
 ## Build
 
-`@vitejs/plugin-legacy` targeting `['defaults', 'chrome >= 49', 'android >= 5', 'not IE 11']`, an `es2015` target, Terser, and core-js polyfills. `@` aliases to `./src`.
+`@vitejs/plugin-legacy` targeting `['chrome >= 96', 'android >= 12']`, an `es2015` target, Terser, and core-js polyfills. PostCSS states the same floor, so both pipelines agree on the Android 12 minimum from [Display hardware](#display-hardware). `@` aliases to `./src`.
 
-Display components size themselves in viewport and container units, with `[@media(min-width:3000px)]` and `4000px` variants for 4K panels and `100dvh` with a `100vh` fallback for embedded browsers. Note that these are arbitrary Tailwind variants — `tailwind.config.js` is dead under Tailwind 4, so its `3xl`/`4xl` screens generate nothing.
+Display components size themselves in viewport and container units, with `[@media(min-width:3000px)]` and `4000px` variants for 4K panels and `100dvh` with a `100vh` fallback for embedded browsers. These are arbitrary Tailwind variants, which is why they work with no config file: Tailwind 4 is configured entirely from `src/index.css`.
 
 ## Deployment
 
@@ -92,7 +92,7 @@ Typed capture helpers tag Supabase, PostgREST, Auth, Storage, Functions, PWA and
 
 There is **no analytics of any kind** and no global `unhandledrejection` handler.
 
-**Error boundary.** One top-level class boundary showing a recovery card. It defaults to hiding stack details outside development, but `App.tsx` overrides that — see [Known issues](./known-issues.md).
+**Error boundary.** One top-level class boundary showing a recovery card. Stack details render in development only; in production the error and its component stack go to Sentry rather than to the screen.
 
 **Theming and layout.** `ThemeProvider` wraps the whole app — display and legal routes included, not just the console — persisting to `prayerbox-ui-theme`, tracking OS changes live in `system` mode, and revealing via a View Transition that is skipped under `prefers-reduced-motion`. A collapsible persisted sidebar above 768 px and a mobile drawer carry role- and onboarding-aware items. User-facing errors mostly surface through `sonner` toasts.
 

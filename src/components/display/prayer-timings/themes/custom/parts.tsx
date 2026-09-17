@@ -141,7 +141,7 @@ export function useCustomThemeParts({
   const cfg = useMemo(() => resolveCustomTheme(customTheme), [customTheme]);
   const vis = cfg.visibility;
   const isPortrait = orientation === 'portrait';
-  const S = BASE_SIZES[cfg.layout][isPortrait ? 'portrait' : 'landscape'];
+  const S = BASE_SIZES[cfg.layout][orientation];
 
   // Follows the screen's Display Language, unless the editor forces a preview
   // language (which uses a language-bound `t` so the global i18n is untouched).

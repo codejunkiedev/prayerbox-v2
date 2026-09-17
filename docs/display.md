@@ -12,7 +12,7 @@ Archived items and finished events are excluded server-side by the RPC. The clie
 
 **Rotation** is one `setInterval` on `slide_interval_seconds` that skips YouTube indices — a non-looping video advances the carousel itself when it ends, a looping one holds the slide. The interval is not reset by keyboard navigation or by a video ending, so an auto-advance can land immediately after a manual one.
 
-**Orientation.** A guard compares the monitor's aspect ratio against the configured orientation and replaces the display with a message on mismatch, re-checking on resize. `mobile` is treated as portrait by the guard but every layout branches on `orientation === 'portrait'` — see [Known issues](./known-issues.md).
+**Orientation.** A screen is `landscape` or `portrait`. A guard compares the monitor's aspect ratio against the configured orientation and replaces the display with a message on mismatch, re-checking on resize.
 
 The runtime also holds a wake lock (re-acquired on `visibilitychange`), sets i18n from the screen's language, and records heartbeats.
 
@@ -20,7 +20,7 @@ The runtime also holds a wake lock (re-acquired on `visibilitychange`), sets i18
 
 ## Prayer alerts
 
-Active when `prayer_alert_sound !== 'silent'` and at least one trigger is ticked. There is no separate enable switch, because an empty trigger list _is_ off.
+Active when at least one trigger is ticked. There is no separate enable switch, because an empty trigger list _is_ off.
 
 A 1-second tick watches fajr, asr, maghrib, isha and the midday slot — Jumma variants on Fridays, Dhuhr otherwise, since alerting on a Jumma on a Tuesday would beep at an empty hall — deduping athan/iqamah collisions so a shared time beeps once. A 2-minute catch-up ceiling stops a woken TV replaying prayers it slept through, and each tick resolves in the masjid's zone so the cursor survives midnight.
 
@@ -71,13 +71,11 @@ Reset restores defaults but marks the form dirty rather than saving.
 
 OpenWeather's 5-day/3-hour metric forecast, shown when `show_weather` is on and a forecast exists.
 
-Parsing takes the nearest slot as current conditions, then one entry per upcoming day (today skipped), preferring the noon sample and tracking daily min/max, capped at seven days; wind converts to km/h. The slide shows current icon, temperature, feels-like, description, humidity, wind, and a multi-day row, under a masjid-area heading.
+Parsing takes the nearest slot as current conditions, then one entry per upcoming day (today skipped), preferring the sample closest to noon and tracking daily min/max, capped at seven days; wind converts to km/h. Days, "today" and the noon preference are all resolved on the masjid's clock — the slots themselves are UTC-aligned, so at most offsets none of them lands on noon exactly. The slide shows current icon, temperature, feels-like, description, humidity, wind, and a multi-day row, under a masjid-area heading.
 
 Condition **names** are localized by stable condition id rather than OpenWeather's `lang` output, which is patchy — the request does still send `lang`, it is simply not trusted for names. Condition **backgrounds** key off the icon code _and_ the screen orientation, from two bundled sets with a `01d` fallback. Icons key off condition id and day/night.
 
 The forecast refreshes every 30 minutes, hydrates from cache first, and keeps the last good data on failure. A **missing masjid location is a hard failure**: it replaces the whole slideshow with an error screen rather than omitting the slide.
-
-Two parsing caveats are recorded in [Known issues](./known-issues.md) — the noon preference and the "skip today" date both use the device clock rather than the masjid's.
 
 ## Internationalization
 
@@ -89,4 +87,4 @@ Direction is LTR for English and RTL for Urdu and Arabic, applied per component 
 
 **What is not:** announcements, events, posts, ayat & hadith and YouTube slides, everything in `display/shared/`, the error screen, and — on a display, where it matters most — the hardcoded English orientation-mismatch and no-content messages. Admin surfaces are English-only, with one exception: the custom-theme editor renders a translated preview through `i18n.getFixedT(previewLanguage)`.
 
-Locales live in `i18n/locales/`. `assets/i18n/locales/` exists but is empty — a stale trap. The comment at the top of `i18n/index.ts` claiming only the weather slide consumes translations is likewise stale.
+Locales live in `i18n/locales/`.

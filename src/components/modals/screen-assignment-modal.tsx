@@ -9,7 +9,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui';
-import { Monitor, Smartphone, Tablet, Info } from 'lucide-react';
+import { Monitor, Smartphone, Info } from 'lucide-react';
 import { getScreens, getScreensForContent, bulkUpdateScreenAssignments } from '@/lib/supabase';
 import type { DisplayScreen, PostOrientation, ScreenContentType } from '@/types';
 import { toast } from 'sonner';
@@ -26,18 +26,8 @@ type ScreenAssignmentModalProps = {
   dismissLabel?: string;
 };
 
-/** Returns true if the screen's orientation is compatible with the post orientation */
-function isCompatible(
-  screenOrientation: DisplayScreen['orientation'],
-  postOrientation: PostOrientation
-): boolean {
-  if (postOrientation === 'landscape') return screenOrientation === 'landscape';
-  return screenOrientation === 'portrait' || screenOrientation === 'mobile';
-}
-
 function OrientationIcon({ orientation }: { orientation: DisplayScreen['orientation'] }) {
   if (orientation === 'portrait') return <Smartphone className='w-4 h-4 text-muted-foreground' />;
-  if (orientation === 'mobile') return <Tablet className='w-4 h-4 text-muted-foreground' />;
   return <Monitor className='w-4 h-4 text-muted-foreground' />;
 }
 
@@ -80,7 +70,7 @@ export function ScreenAssignmentModal({
 
   const compatibleScreens = useMemo(() => {
     if (!contentOrientation) return screens;
-    return screens.filter(s => isCompatible(s.orientation, contentOrientation));
+    return screens.filter(s => s.orientation === contentOrientation);
   }, [screens, contentOrientation]);
 
   const incompatibleCount = screens.length - compatibleScreens.length;
@@ -111,7 +101,7 @@ export function ScreenAssignmentModal({
     }
   };
 
-  const orientationLabel = contentOrientation === 'portrait' ? 'portrait / mobile' : 'landscape';
+  const orientationLabel = contentOrientation === 'portrait' ? 'portrait' : 'landscape';
 
   return (
     <Dialog open={isOpen} onOpenChange={open => !open && onClose()}>

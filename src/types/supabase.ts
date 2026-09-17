@@ -61,14 +61,14 @@ export interface MasjidProfile extends Base {
   area_ar: string;
   latitude: number | null;
   longitude: number | null;
-  /** IANA zone id, e.g. `Asia/Karachi`. Null falls back to the device's zone. */
-  timezone: string | null;
+  /** IANA zone id, e.g. `Asia/Karachi`. NOT NULL since 20260910000003. */
+  timezone: string;
   contact_number: string;
   contact_email: string;
   website: string;
 }
 
-export type ScreenOrientation = 'landscape' | 'portrait' | 'mobile';
+export type ScreenOrientation = 'landscape' | 'portrait';
 export type ScreenContentType =
   | 'announcements'
   | 'events'
@@ -165,9 +165,6 @@ export type DisplayLanguage = 'en' | 'ur' | 'ar';
 
 /** The moments in a prayer's schedule a screen can sound an alert at. */
 export type PrayerAlertTrigger = 'athan' | 'iqamah';
-
-/** What a screen plays when an alert fires. `silent` mutes without losing the config. */
-export type PrayerAlertSound = 'beep' | 'silent';
 
 /**
  * Text groups for the custom prayer-timings theme. Each group is an independent
@@ -300,7 +297,6 @@ export interface DisplayScreen extends Base {
   language: DisplayLanguage;
   slide_interval_seconds: number;
   prayer_alert_triggers: PrayerAlertTrigger[];
-  prayer_alert_sound: PrayerAlertSound;
 }
 
 export interface ScreenContent {

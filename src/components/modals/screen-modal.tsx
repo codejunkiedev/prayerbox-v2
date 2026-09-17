@@ -49,7 +49,6 @@ const toFormValues = (screen?: DisplayScreen): ScreenData => ({
   language: screen?.language ?? 'en',
   slide_interval_seconds: screen?.slide_interval_seconds ?? 5,
   prayer_alert_triggers: screen?.prayer_alert_triggers ?? [],
-  prayer_alert_sound: screen?.prayer_alert_sound ?? 'beep',
 });
 
 export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenModalProps) {
@@ -192,7 +191,6 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                 <SelectContent>
                   <SelectItem value='landscape'>Landscape</SelectItem>
                   <SelectItem value='portrait'>Portrait</SelectItem>
-                  <SelectItem value='mobile'>Mobile</SelectItem>
                 </SelectContent>
               </Select>
             </div>

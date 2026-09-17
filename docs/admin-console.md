@@ -52,14 +52,13 @@ Table `display_screens`, service `services/screens.ts`, managed at `/admin/scree
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `name`                              | text                                                                                                                  |
 | `code`                              | 7 chars over `0-9a-z`, generated with `crypto.getRandomValues` and rejection sampling — it is a credential, not an id |
-| `orientation`                       | `landscape` / `portrait` / `mobile`                                                                                   |
+| `orientation`                       | `landscape` / `portrait`                                                                                              |
 | `theme`                             | `theme-1`…`theme-4`                                                                                                   |
 | `custom_theme`                      | JSON or null — see [Display runtime](./display.md#themes)                                                             |
 | `language`                          | `en` / `ur` / `ar`                                                                                                    |
 | `slide_interval_seconds`            | 5–60, default 5; videos ignore it                                                                                     |
 | `show_prayer_times`, `show_weather` | booleans                                                                                                              |
 | `prayer_alert_triggers`             | subset of `['athan','iqamah']`, default empty — see [Display runtime](./display.md#prayer-alerts)                     |
-| `prayer_alert_sound`                | `beep` (default) or `silent` — **no UI control; `silent` is reachable only in the database**                          |
 
 **Assignment.** `screen_content` is a polymorphic join of `{ screen_id, content_id, content_type, display_order, visible }` over the five content types. From a content row, the Screens action lists all screens with pre-checked boxes; saving diffs the selection, deleting removals and appending additions at `max(display_order) + 1`. Posts **and** ayat & hadith slides filter the list by orientation and banner how many screens were hidden. The assignment modal opens automatically right after creating an item.
 

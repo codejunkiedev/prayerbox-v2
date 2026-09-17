@@ -17,9 +17,9 @@ A masjid owns any number of screens, each with its own code, orientation, theme,
 
 **Routes** (`constants/routes.ts`, three enums). Public `/privacy`, `/terms`. Auth `/login`, `/register`, `/forgot-password`, `/login-with-code`. Console `/admin` plus `announcements`, `events`, `posts`, `youtube-videos`, `ayat-and-hadith` (+ `/new`, `/:id/edit`), `prayer-timings`, `screens` (+ `/:id`, `/:id/customize-theme`), `settings` (+ `/profile`, `/account`), `moderators`, `support`, `reset-password`.
 
-**Guards** (`navigation/index.tsx`). Every `/admin/*` route needs a session. `RequireAdmin` additionally wraps Screens, Screen Detail, Prayer Timings, Settings, Settings Profile, Moderators and Support, redirecting moderators to `/admin`. Content pages are open to moderators. Auth routes redirect away when a session exists; the catch-all lands on `/admin` or `/` depending on session. All 28 pages are `React.lazy` behind one Suspense fallback.
+**Guards** (`navigation/index.tsx`). Every `/admin/*` route needs a session. `RequireAdmin` additionally wraps Screens, Screen Detail, the custom-theme editor, Prayer Timings, Settings, Settings Profile, Moderators and Support, redirecting moderators to `/admin`. Content pages are open to moderators. Auth routes redirect away when a session exists; the catch-all lands on `/admin` or `/` depending on session. All 28 pages are `React.lazy` behind one Suspense fallback.
 
-Three routes render outside `AppLayout`, with no sidebar or header: the two designer routes and the custom-theme editor. Note that `/admin/screens/:id/customize-theme` is **not** wrapped in `RequireAdmin` — see [Known issues](./known-issues.md).
+Three routes render outside `AppLayout`, with no sidebar or header: the two designer routes and the custom-theme editor.
 
 ## Frontend composition
 
@@ -27,7 +27,7 @@ Three routes render outside `AppLayout`, with no sidebar or header: the two desi
 
 ## Data access
 
-Domain services in `lib/supabase/services/` sit on generic query helpers in `lib/supabase/helpers.ts`. Types in `types/supabase.ts` are **hand-written, not generated**, and every result is cast — so schema drift is invisible at compile time. That is not a theoretical risk; there is a live instance of it in [Known issues](./known-issues.md).
+Domain services in `lib/supabase/services/` sit on generic query helpers in `lib/supabase/helpers.ts`. Types in `types/supabase.ts` are **hand-written, not generated**, and every result is cast — so schema drift is invisible at compile time. Any migration that changes a column's shape has to be mirrored here by hand.
 
 ## Security
 
@@ -108,7 +108,6 @@ src/
 │   └── legal/          # Privacy Policy, Terms & Conditions
 ├── providers/          # ThemeProvider (dark/light/system)
 ├── store/              # auth-store.ts + the display store in index.ts
-├── styles/             # globals.css — currently imported by nothing
 ├── types/              # Hand-written types (api/, supabase, common, store, validation, *.d.ts)
 ├── utils/              # date/time, timezone, prayer adjustments, image resize, caches, ...
 └── App.tsx  main.tsx  index.css  vite-env.d.ts

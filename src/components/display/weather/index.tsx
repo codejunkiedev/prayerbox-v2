@@ -3,7 +3,7 @@ import { AnimationProvider } from '../shared/animation-provider';
 import type { DisplayLanguage, WeatherForecast, ScreenOrientation } from '@/types';
 import { useTranslation } from 'react-i18next';
 import { formatNumber, getDir, getFontClass, getLocale, getWeatherConditionKey } from '@/i18n';
-import { getWeatherBackgroundImage, getWeatherIconWithTimeContext } from '@/utils';
+import { getWeatherBackgroundImage, getWeatherIconWithTimeContext, resolveTimeZone } from '@/utils';
 import raindropIcon from '@/assets/icons/weather/raindrop.svg';
 import windIcon from '@/assets/icons/weather/wind.svg';
 
@@ -11,6 +11,8 @@ interface WeatherDisplayProps {
   weatherForecast: WeatherForecast;
   area?: string;
   orientation?: ScreenOrientation;
+  /** The masjid's IANA zone. Null falls back to this device's. */
+  timeZone?: string | null;
 }
 
 /**
@@ -21,6 +23,7 @@ export function WeatherDisplay({
   weatherForecast,
   area,
   orientation = 'landscape',
+  timeZone = null,
 }: WeatherDisplayProps) {
   const { current, forecast } = weatherForecast;
   const isPortrait = orientation === 'portrait';
@@ -45,8 +48,13 @@ export function WeatherDisplay({
       .join(' ');
   };
 
+  // The sample is an instant, so the weekday has to be read on the masjid's
+  // clock too — near midnight the device's zone can name the wrong day.
   const getDayName = (date: Date) => {
-    return new Intl.DateTimeFormat(getLocale(lang), { weekday: 'short' }).format(date);
+    return new Intl.DateTimeFormat(getLocale(lang), {
+      weekday: 'short',
+      timeZone: resolveTimeZone(timeZone),
+    }).format(date);
   };
 
   const temp = (n: number) => `${formatNumber(n, lang)}°C`;
