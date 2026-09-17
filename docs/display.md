@@ -20,7 +20,7 @@ The runtime also holds a wake lock (re-acquired on `visibilitychange`), sets i18
 
 ## Prayer alerts
 
-Active when `prayer_alert_sound !== 'silent'` and at least one trigger is ticked. There is no separate enable switch, because an empty trigger list _is_ off.
+Active when at least one trigger is ticked. There is no separate enable switch, because an empty trigger list _is_ off.
 
 A 1-second tick watches fajr, asr, maghrib, isha and the midday slot — Jumma variants on Fridays, Dhuhr otherwise, since alerting on a Jumma on a Tuesday would beep at an empty hall — deduping athan/iqamah collisions so a shared time beeps once. A 2-minute catch-up ceiling stops a woken TV replaying prayers it slept through, and each tick resolves in the masjid's zone so the cursor survives midnight.
 

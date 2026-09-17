@@ -4,7 +4,6 @@ Live issues found while documenting the codebase, listed so nobody rediscovers t
 
 ## Gaps
 
-- **`prayer_alert_sound: 'silent'` has no UI.** The screen form hardcodes `'beep'`, so the value is reachable only by editing the database.
 - **PWA installability is marginal** — the manifest ships only `/vite.svg` at `sizes: 'any'`, with no 192/512 or maskable icons.
 - **Browser-target contradiction:** PostCSS targets `chrome >= 83` while the legacy plugin targets `chrome >= 49`, which undercuts the old-TV story.
 

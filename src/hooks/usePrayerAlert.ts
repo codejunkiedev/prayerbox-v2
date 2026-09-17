@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef } from 'react';
 import type {
   AlAdhanPrayerTimes,
   PrayerAdjustments,
-  PrayerAlertSound,
   PrayerAlertTrigger,
   PrayerTimes,
 } from '@/types';
@@ -19,7 +18,6 @@ import {
 
 type Options = {
   triggers: PrayerAlertTrigger[];
-  sound: PrayerAlertSound;
   prayerTimes: AlAdhanPrayerTimes | null;
   prayerTimeSettings: PrayerTimes | null;
   /** The masjid's IANA zone; null falls back to the device's. */
@@ -60,12 +58,11 @@ const resolveOnDay = (time: string, zonedDay: Date, timeZone: string | null): nu
  */
 export function usePrayerAlert({
   triggers,
-  sound,
   prayerTimes,
   prayerTimeSettings,
   timeZone = null,
 }: Options): void {
-  const active = sound !== 'silent' && triggers.length > 0;
+  const active = triggers.length > 0;
 
   /**
    * The distinct clock times to watch, as `hh:mm a` strings. Deduped so a

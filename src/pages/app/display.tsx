@@ -116,7 +116,6 @@ export default function Display() {
 
   usePrayerAlert({
     triggers: prayerAlertTriggers,
-    sound: displayScreen?.prayer_alert_sound ?? 'beep',
     prayerTimes,
     prayerTimeSettings,
     timeZone: masjidTimeZone,

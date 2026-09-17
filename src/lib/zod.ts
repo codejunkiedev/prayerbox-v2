@@ -209,7 +209,6 @@ export const screenSchema = z.object({
     .max(60, 'Slide interval must be at most 60 seconds'),
   // An empty list is the alert switched off, so there's nothing to require here.
   prayer_alert_triggers: z.array(z.enum(['athan', 'iqamah'])),
-  prayer_alert_sound: z.enum(['beep', 'silent']),
 });
 
 export type ScreenData = z.infer<typeof screenSchema>;
