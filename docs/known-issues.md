@@ -2,10 +2,6 @@
 
 Live issues found while documenting the codebase, listed so nobody rediscovers them the hard way. Remove an entry when you fix it.
 
-## Gaps
-
-- **PWA installability is marginal** — the manifest ships only `/vite.svg` at `sizes: 'any'`, with no 192/512 or maskable icons.
-
 ## Drift
 
 - **`types/supabase.ts` types `timezone` as `string | null`**, which the `NOT NULL` column no longer permits. Because the Supabase types are hand-written rather than generated, drift like this is invisible at compile time.
