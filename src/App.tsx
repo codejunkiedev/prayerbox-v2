@@ -5,7 +5,7 @@ import { ThemeProvider } from './providers';
 
 function App() {
   return (
-    <ErrorBoundary showDetails={true}>
+    <ErrorBoundary>
       <ThemeProvider defaultTheme='system' storageKey='prayerbox-ui-theme'>
         <div>
           <Navigation />

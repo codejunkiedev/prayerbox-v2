@@ -4,9 +4,7 @@ Live issues found while documenting the codebase, listed so nobody rediscovers t
 
 ## Bugs
 
-- **Stack traces ship to production.** `error-boundary.tsx` defaults to dev-only detail, but `App.tsx` passes `showDetails={true}` unconditionally, so end users see the error string and component stack.
 - **The weather noon preference never fires** at timezone offsets that aren't whole multiples of 3 hours: it compares device-local hours against UTC-aligned slots, so at UTC+5 no slot is ever exactly 12:00 and each day silently takes its first, often pre-dawn, sample. "Skip today" likewise uses the device date rather than the masjid's, unlike the rest of the display.
-- **`process.env.NODE_ENV` is referenced in `components/error-boundary.tsx`** with no Vite `define` shim. `process` is undefined in the browser bundle; it survives only because the prop is always passed explicitly.
 
 ## Gaps
 

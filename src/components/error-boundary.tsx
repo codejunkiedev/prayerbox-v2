@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import * as Sentry from '@sentry/react';
+import { isDev } from '@/utils';
 
 interface Props {
   children: ReactNode;
@@ -50,7 +51,7 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      const { showDetails = process.env.NODE_ENV === 'development' } = this.props;
+      const { showDetails = isDev } = this.props;
       const { error, errorInfo } = this.state;
 
       return (
