@@ -1,3 +1,5 @@
+import type { ScreenOrientation } from '@/types';
+
 export const DEFAULT_CUSTOM_COLOR = '#064e3b';
 export const DEFAULT_GRADIENT_FROM = '#f97316';
 export const DEFAULT_GRADIENT_TO = '#dc2626';
@@ -30,10 +32,9 @@ export const FONTS: {
   ],
 };
 
-export const CANVAS_DIMENSIONS: Record<'landscape' | 'portrait' | 'mobile', [number, number]> = {
+export const CANVAS_DIMENSIONS: Record<ScreenOrientation, [number, number]> = {
   landscape: [1920, 1080],
   portrait: [1080, 1920],
-  mobile: [1080, 1920],
 };
 
 export const DEFAULT_POSITIONS = {

@@ -192,7 +192,6 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                 <SelectContent>
                   <SelectItem value='landscape'>Landscape</SelectItem>
                   <SelectItem value='portrait'>Portrait</SelectItem>
-                  <SelectItem value='mobile'>Mobile</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -21,7 +21,7 @@ export function useOrientationMismatch(
 
     const check = () => {
       const isMonitorPortrait = window.innerHeight > window.innerWidth;
-      const isScreenPortrait = screenOrientation === 'portrait' || screenOrientation === 'mobile';
+      const isScreenPortrait = screenOrientation === 'portrait';
       setResult({
         mismatch: isMonitorPortrait !== isScreenPortrait,
         expected: isScreenPortrait ? 'portrait' : 'landscape',

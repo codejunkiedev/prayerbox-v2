@@ -1,11 +1,4 @@
-import type { CustomThemeLayout } from '@/types';
-
-/**
- * The two shapes a layout is drawn for. Narrower than `ScreenOrientation`, which
- * also has `mobile` — the custom theme has only ever branched on portrait vs.
- * not, so `mobile` uses the landscape sizes as it always has.
- */
-type LayoutOrientation = 'landscape' | 'portrait';
+import type { CustomThemeLayout, ScreenOrientation } from '@/types';
 
 /**
  * The named text slots every layout sizes. One shared set rather than one per
@@ -46,7 +39,7 @@ type SizeTable = Record<SizeSlot, number>;
  * in `cards`, and a compact side list in `spotlight`. Sizing them identically
  * would overflow the tighter arrangements.
  */
-export const BASE_SIZES: Record<CustomThemeLayout, Record<LayoutOrientation, SizeTable>> = {
+export const BASE_SIZES: Record<CustomThemeLayout, Record<ScreenOrientation, SizeTable>> = {
   // Theme 3's original values — the custom theme's first and default layout.
   table: {
     landscape: {

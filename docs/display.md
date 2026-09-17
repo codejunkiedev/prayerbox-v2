@@ -12,7 +12,7 @@ Archived items and finished events are excluded server-side by the RPC. The clie
 
 **Rotation** is one `setInterval` on `slide_interval_seconds` that skips YouTube indices — a non-looping video advances the carousel itself when it ends, a looping one holds the slide. The interval is not reset by keyboard navigation or by a video ending, so an auto-advance can land immediately after a manual one.
 
-**Orientation.** A guard compares the monitor's aspect ratio against the configured orientation and replaces the display with a message on mismatch, re-checking on resize. `mobile` is treated as portrait by the guard but every layout branches on `orientation === 'portrait'` — see [Known issues](./known-issues.md).
+**Orientation.** A screen is `landscape` or `portrait`. A guard compares the monitor's aspect ratio against the configured orientation and replaces the display with a message on mismatch, re-checking on resize.
 
 The runtime also holds a wake lock (re-acquired on `visibilitychange`), sets i18n from the screen's language, and records heartbeats.
 

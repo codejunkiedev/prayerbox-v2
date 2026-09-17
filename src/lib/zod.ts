@@ -198,7 +198,7 @@ export type SolarAdjustmentsData = z.infer<typeof solarAdjustmentsSchema>;
 
 export const screenSchema = z.object({
   name: z.string().min(1, 'Screen name is required'),
-  orientation: z.enum(['landscape', 'portrait', 'mobile']),
+  orientation: z.enum(['landscape', 'portrait']),
   show_prayer_times: z.boolean(),
   show_weather: z.boolean(),
   language: z.enum(['en', 'ur', 'ar']),
@@ -302,7 +302,7 @@ const cachedTextSchema = z.object({
 
 export const ayatAndHadithSchema = z.object({
   type: z.enum(['ayat', 'hadith']),
-  orientation: z.enum(['landscape', 'portrait', 'mobile']),
+  orientation: z.enum(['landscape', 'portrait']),
   source: z.union([ayatSourceSchema, hadithSourceSchema]),
   cached_text: cachedTextSchema,
   style: ayatHadithStyleSchema,

@@ -52,7 +52,7 @@ Table `display_screens`, service `services/screens.ts`, managed at `/admin/scree
 | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `name`                              | text                                                                                                                  |
 | `code`                              | 7 chars over `0-9a-z`, generated with `crypto.getRandomValues` and rejection sampling — it is a credential, not an id |
-| `orientation`                       | `landscape` / `portrait` / `mobile`                                                                                   |
+| `orientation`                       | `landscape` / `portrait`                                                                                              |
 | `theme`                             | `theme-1`…`theme-4`                                                                                                   |
 | `custom_theme`                      | JSON or null — see [Display runtime](./display.md#themes)                                                             |
 | `language`                          | `en` / `ur` / `ar`                                                                                                    |

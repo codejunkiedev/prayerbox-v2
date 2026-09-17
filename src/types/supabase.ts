@@ -68,7 +68,7 @@ export interface MasjidProfile extends Base {
   website: string;
 }
 
-export type ScreenOrientation = 'landscape' | 'portrait' | 'mobile';
+export type ScreenOrientation = 'landscape' | 'portrait';
 export type ScreenContentType =
   | 'announcements'
   | 'events'

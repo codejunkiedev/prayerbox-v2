@@ -22,7 +22,7 @@ import { Badge, Popover, PopoverContent, PopoverTrigger, RemoteImage } from '@/c
 import { BookOpen } from 'lucide-react';
 import { useTrigger } from '@/hooks';
 import { toast } from 'sonner';
-import { formatSlideReference, slideToPostOrientation } from '@/utils';
+import { formatSlideReference } from '@/utils';
 
 const SLIDE_ORIENTATIONS = ['landscape', 'portrait'] as const;
 
@@ -213,7 +213,7 @@ export default function AyatAndHadithPage() {
           contentId={screenAssignItem.id}
           contentType='ayat_and_hadith'
           contentLabel={formatSlideReference(screenAssignItem)}
-          contentOrientation={slideToPostOrientation(screenAssignItem.orientation)}
+          contentOrientation={screenAssignItem.orientation}
         />
       )}
 
