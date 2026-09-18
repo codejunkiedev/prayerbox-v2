@@ -364,6 +364,17 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# The mobile directory is public. Phones hold the publishable key, which is not a
+# JWT, so the gateway's verification would reject every request. Gatekeeping is
+# the function's own: read-only, listed masjids only, rate limited per IP.
+[functions.masjid-directory]
+verify_jwt = false
+
+# Called by a schedule rather than a user, and authenticated by
+# PRAYER_CACHE_WARM_SECRET instead of a JWT.
+[functions.warm-prayer-cache]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

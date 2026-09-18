@@ -1,6 +1,6 @@
 # Prayer times
 
-Base times come from the **Al-Adhan API** (`api/aladhan.ts`, no key). There is no calculation library in this repo, and **no times are stored in Postgres** — only adjustments. Any plan to compute times server-side would mean either materializing Al-Adhan months per masjid or reimplementing the solar math for all 23 methods.
+Base times come from the **Al-Adhan API** (`api/aladhan.ts`, no key). There is no calculation library in this repo, and the console and displays store **only adjustments** in Postgres, resolving times in the browser. The mobile directory is the exception: it materializes Al-Adhan months per masjid into `masjid_prayer_days` — see [Server-side resolution](#server-side-resolution).
 
 Configuration splits across `settings` (how times are computed) and `prayer_times` (how they are displayed), one row each per masjid.
 
@@ -52,6 +52,16 @@ The **display** fetches the month, picks today's row client-side, and renders it
 `utils/timezone.ts` does the round trip with a deliberate two-pass correction so a guess landing across a DST transition is fixed. Time strings are parsed by explicit pattern rather than `new Date()`, keeping midnight exact — `12:00 AM` and `12:00 PM` are the two cases a naive `% 12` gets wrong.
 
 "Next prayer" scans the array **in order** and returns the first future entry. It does not wrap to tomorrow's Fajr, and it depends on callers passing a chronological array.
+
+## Server-side resolution
+
+Phones cannot each fetch an Al-Adhan month per masjid they follow, so `supabase/functions/masjid-directory` resolves a window of days per masjid and caches it in `masjid_prayer_days`, warming on a miss. `warm-prayer-cache` fills it ahead of time on a schedule; it is an optimisation, not a dependency.
+
+The maths is not reimplemented there. `src/utils/prayer-engine.ts` holds it — dependency-free so the same file runs under Deno — and `src/utils/prayer-time-adjustments.ts` delegates to it, so the console, the displays and the phones cannot drift apart. `npm run sync:engine` copies it to `supabase/functions/_shared/`, which the Edge Function bundler requires, and `npm run check:engine` fails CI when that copy is stale.
+
+Cached days are deleted outright whenever `settings`, `prayer_times` or a masjid's coordinates or timezone change. Stale times that still look fresh are the one failure this cannot afford.
+
+The engine returns 24-hour `HH:mm` throughout; formatting is the caller's business.
 
 ## Caching
 

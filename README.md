@@ -28,16 +28,16 @@ Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` are needed to boot 
 
 ## Documentation
 
-| Doc                                    | Covers                                                                         |
-| -------------------------------------- | ------------------------------------------------------------------------------ |
-| [Architecture](docs/architecture.md)   | Realms, routing and guards, data access, security, how displays read, realtime |
-| [Database](docs/database.md)           | The thirteen tables, storage buckets, RLS posture                              |
-| [Admin console](docs/admin-console.md) | Auth, roles, moderators, masjid profile, screen management                     |
-| [Content](docs/content.md)             | Announcements, events, posts, YouTube, the Ayat & Hadith designer              |
-| [Prayer times](docs/prayer-times.md)   | The three-category model, solar times, timezone resolution, caching            |
-| [Display runtime](docs/display.md)     | Slide assembly, rotation, themes, weather, internationalization                |
-| [Operations](docs/operations.md)       | Env vars, scripts, build, deployment, TV hardware, offline, monitoring         |
-| [Known issues](docs/known-issues.md)   | Open issues and dead code found while documenting                              |
+| Doc                                    | Covers                                                                                            |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| [Architecture](docs/architecture.md)   | Realms, routing and guards, data access, security, how displays and the mobile app read, realtime |
+| [Database](docs/database.md)           | The thirteen tables, storage buckets, RLS posture                                                 |
+| [Admin console](docs/admin-console.md) | Auth, roles, moderators, masjid profile, screen management                                        |
+| [Content](docs/content.md)             | Announcements, events, posts, YouTube, the Ayat & Hadith designer                                 |
+| [Prayer times](docs/prayer-times.md)   | The three-category model, solar times, timezone resolution, caching                               |
+| [Display runtime](docs/display.md)     | Slide assembly, rotation, themes, weather, internationalization                                   |
+| [Operations](docs/operations.md)       | Env vars, scripts, build, deployment, TV hardware, offline, monitoring                            |
+| [Known issues](docs/known-issues.md)   | Open issues and dead code found while documenting                                                 |
 
 ## Contributing
 

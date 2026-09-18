@@ -66,6 +66,8 @@ export interface MasjidProfile extends Base {
   contact_number: string;
   contact_email: string;
   website: string;
+  /** Opt-in to the public mobile directory. Requires coordinates; see 20260918000001. */
+  listed: boolean;
 }
 
 export type ScreenOrientation = 'landscape' | 'portrait';

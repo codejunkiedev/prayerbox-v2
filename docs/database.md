@@ -1,21 +1,22 @@
 # Database
 
-Thirteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 48 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
+Fourteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) is authoritative — 54 files, applied in order, with several columns added and later dropped, so read the latest migration touching a table rather than the one that created it.
 
 ## Tables
 
-| Table                                                         | Purpose                                                                                                                                                      |
-| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `masjid_profiles`                                             | Tenant root. Name (+ `name_ur`/`name_ar`), area (+ `area_ur`/`area_ar`), logo, coordinates, contact number/email/website, and a **required** IANA `timezone` |
-| `masjid_members`                                              | Membership + `role`. `UNIQUE(user_id)` — a user belongs to one masjid                                                                                        |
-| `display_screens`                                             | Per-screen code, orientation, theme, `custom_theme` JSON, language, slide interval, prayer/weather toggles, prayer-alert triggers and sound                  |
-| `screen_content`                                              | Polymorphic playlist join with per-screen `display_order` + `visible`. `content_id` has no FK by design; `get_display_payload` re-checks tenancy             |
-| `announcements`, `posts`, `youtube_videos`, `ayat_and_hadith` | Content items, soft-deleted via `archived`                                                                                                                   |
-| `events`                                                      | As above, plus `date_time`/`end_time` as `timestamptz` and `ends_at`, a stored generated column backing the upcoming/past split                              |
-| `prayer_times`                                                | Per-prayer `starts`/`athan`/`iqamah` adjustments as JSONB. One row per masjid (`UNIQUE(masjid_id)`)                                                          |
-| `settings`                                                    | Calculation method, juristic school, Hijri method + offset, and four solar adjustments (sunrise, ishraq, chasht, sunset). One row per masjid                 |
-| `screen_heartbeats`                                           | `(screen_id, last_seen_at)`. Written only by an RPC; deliberately excluded from the realtime publication                                                     |
-| `display_revisions`                                           | `(masjid_id, revision, updated_at)`. The content-free counter displays subscribe to                                                                          |
+| Table                                                         | Purpose                                                                                                                                                                |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `masjid_profiles`                                             | Tenant root. Name (+ `name_ur`/`name_ar`), area (+ `area_ur`/`area_ar`), logo, coordinates, contact number/email/website, a **required** IANA `timezone`, and `listed` |
+| `masjid_members`                                              | Membership + `role`. `UNIQUE(user_id)` — a user belongs to one masjid                                                                                                  |
+| `display_screens`                                             | Per-screen code, orientation, theme, `custom_theme` JSON, language, slide interval, prayer/weather toggles, prayer-alert triggers and sound                            |
+| `screen_content`                                              | Polymorphic playlist join with per-screen `display_order` + `visible`. `content_id` has no FK by design; `get_display_payload` re-checks tenancy                       |
+| `announcements`, `posts`, `youtube_videos`, `ayat_and_hadith` | Content items, soft-deleted via `archived`                                                                                                                             |
+| `events`                                                      | As above, plus `date_time`/`end_time` as `timestamptz` and `ends_at`, a stored generated column backing the upcoming/past split                                        |
+| `prayer_times`                                                | Per-prayer `starts`/`athan`/`iqamah` adjustments as JSONB. One row per masjid (`UNIQUE(masjid_id)`)                                                                    |
+| `settings`                                                    | Calculation method, juristic school, Hijri method + offset, and four solar adjustments (sunrise, ishraq, chasht, sunset). One row per masjid                           |
+| `screen_heartbeats`                                           | `(screen_id, last_seen_at)`. Written only by an RPC; deliberately excluded from the realtime publication                                                               |
+| `display_revisions`                                           | `(masjid_id, revision, updated_at)`. The content-free counter displays subscribe to                                                                                    |
+| `masjid_prayer_days`                                          | Resolved times, one row per masjid per masjid-local day. A cache the `masjid-directory` function owns; no client role can reach it                                     |
 
 On `prayer_times` and `settings`, `user_id` is nullable and `ON DELETE SET NULL` — it records who last saved the row, not who owns it, so deleting an account does not delete a masjid's prayer configuration. Both are keyed `UNIQUE(masjid_id)`; the earlier per-user keying is gone.
 
@@ -30,6 +31,8 @@ Beyond the two RLS helpers and the display read functions covered in [Architectu
 - `event_ends_at(start, end)` — `COALESCE(end, start + INTERVAL '2 hours')`. Immutable because a generated column requires it, and **mirrored by `DEFAULT_EVENT_DURATION_MINUTES` in TypeScript — change both together.**
 - `update_member_last_active()` — bumps `masjid_members.last_active_at` on any content mutation.
 - `is_valid_timezone()` / `validate_masjid_timezone()` — a `BEFORE` trigger rejecting a `timezone` that is not in `pg_timezone_names`.
+- `invalidate_masjid_prayer_days()` — drops a masjid's cached days whenever `settings`, `prayer_times` or its coordinates/timezone change.
+- `search_masjids_nearby()` / `search_masjids_by_name()` / `get_masjids_public()` — the directory reads, granted to `service_role` alone. See [Architecture](./architecture.md#how-the-mobile-app-reads-data).
 
 Every `SECURITY DEFINER` function now pins `search_path`.
 
@@ -37,7 +40,7 @@ Every `SECURITY DEFINER` function now pins `search_path`.
 
 - **Any member** may CRUD `announcements`, `events`, `posts`, `youtube_videos`, `ayat_and_hadith` within their masjid.
 - **Members read, admins write** on `display_screens`, `screen_content`, `prayer_times`, `settings` and `masjid_profiles`. The exception is the `masjid_profiles` INSERT policy, which checks `user_id = auth.uid()` so a new user can create their first profile before any membership exists.
-- **`anon` holds `SELECT` on exactly one table**, `display_revisions`, and `EXECUTE` on the five code-keyed functions. Everything else was revoked.
+- **`anon` holds `SELECT` on exactly one table**, `display_revisions`, and `EXECUTE` on the five code-keyed functions. Everything else was revoked, and the directory added in `20260918000003` does not reopen it.
 
 ## Storage buckets
 

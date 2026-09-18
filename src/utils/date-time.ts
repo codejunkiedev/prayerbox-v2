@@ -1,12 +1,11 @@
 import type { AlAdhanPrayerTimes, DisplayLanguage } from '@/types';
 import { getLocale } from '@/i18n';
+import { addClockMinutes, clockDifference, parseWallClock } from './prayer-engine';
 import {
   getMonth,
   getYear,
   format,
   parse,
-  addMinutes,
-  differenceInMinutes,
   getDay,
   getHours,
   getMinutes,
@@ -58,15 +57,8 @@ export const formatTime = (timeString: string): string => {
  * @param minutes Number of minutes to add (can be negative)
  * @returns Adjusted time string in HH:mm format
  */
-export const addTimeMinutes = (timeString: string, minutes: number): string => {
-  try {
-    const parsedTime = parse(timeString, 'HH:mm', new Date());
-    const adjustedTime = addMinutes(parsedTime, minutes);
-    return format(adjustedTime, 'HH:mm');
-  } catch {
-    return timeString;
-  }
-};
+export const addTimeMinutes = (timeString: string, minutes: number): string =>
+  addClockMinutes(timeString, minutes);
 
 /**
  * Minutes from one time to another on the same day
@@ -74,14 +66,7 @@ export const addTimeMinutes = (timeString: string, minutes: number): string => {
  * @param to Time string in HH:mm format
  * @returns Whole minutes between them; negative when `to` is the earlier of the two
  */
-export const minutesBetweenTimes = (from: string, to: string): number => {
-  try {
-    const base = new Date();
-    return differenceInMinutes(parse(to, 'HH:mm', base), parse(from, 'HH:mm', base));
-  } catch {
-    return 0;
-  }
-};
+export const minutesBetweenTimes = (from: string, to: string): number => clockDifference(from, to);
 
 /**
  * Checks if a date is a Friday
@@ -115,9 +100,6 @@ export const formatTimeString = (time: Date): string => {
   return format(time, 'HH:mm');
 };
 
-/** Matches `hh:mm a` and `HH:mm`, e.g. "03:48 PM" or "15:48". */
-const WALL_CLOCK_PATTERN = /^(\d{1,2}):(\d{2})(?:\s*([ap]m))?$/i;
-
 /**
  * Splits a wall-clock time string into hours and minutes.
  *
@@ -125,25 +107,8 @@ const WALL_CLOCK_PATTERN = /^(\d{1,2}):(\d{2})(?:\s*([ap]m))?$/i;
  * implementation-defined, and keeps midnight exact — 12:00 AM and 12:00 PM are
  * the two cases a naive `% 12` gets wrong.
  */
-export const parseWallClockTime = (value: string): { hours: number; minutes: number } | null => {
-  const match = WALL_CLOCK_PATTERN.exec(value.trim());
-  if (!match) return null;
-
-  const [, rawHours, rawMinutes, meridiem] = match;
-  let hours = Number(rawHours);
-  const minutes = Number(rawMinutes);
-  if (minutes > 59) return null;
-
-  if (meridiem) {
-    if (hours < 1 || hours > 12) return null;
-    hours = hours % 12;
-    if (meridiem.toLowerCase() === 'pm') hours += 12;
-  } else if (hours > 23) {
-    return null;
-  }
-
-  return { hours, minutes };
-};
+export const parseWallClockTime = (value: string): { hours: number; minutes: number } | null =>
+  parseWallClock(value);
 
 /**
  * Formats a date with time
