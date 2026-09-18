@@ -25,6 +25,8 @@ VITE_SENTRY_RELEASE=          # used at runtime and as the build-time release na
 
 **Build-only**, read by `vite.config.ts` and never bundled: `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`. All three must be set together — the same flag also gates `build.sourcemap`, so source maps are only emitted when Sentry upload is on.
 
+**Edge Function secrets**, set with `supabase secrets set`: `PRAYER_CACHE_WARM_SECRET` authenticates calls to `warm-prayer-cache`, which refuses to run without it. `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are provided by the platform.
+
 **Edge Functions** read `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from the Supabase dashboard, not from `.env`.
 
 Al-Adhan and AlQuran.cloud need no key.

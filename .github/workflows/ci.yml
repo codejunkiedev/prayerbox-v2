@@ -24,6 +24,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Prayer engine copy is in sync
+        run: npm run check:engine
+
       - name: Type check
         run: npx tsc --noEmit
 

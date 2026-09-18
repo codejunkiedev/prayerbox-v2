@@ -10,6 +10,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
+  Switch,
   TimezonePicker,
 } from '@/components/ui';
 import {
@@ -61,12 +62,14 @@ export default function Profile() {
       contact_number: '',
       contact_email: '',
       website: '',
+      listed: false,
     },
   });
 
   const latitude = watch('latitude');
   const longitude = watch('longitude');
   const timezone = watch('timezone');
+  const listed = watch('listed');
   const coordinates = latitude && longitude ? { latitude, longitude } : null;
 
   const deriveTimezone = useCallback(
@@ -106,6 +109,7 @@ export default function Profile() {
             contact_number: profile.contact_number || '',
             contact_email: profile.contact_email || '',
             website: profile.website || '',
+            listed: profile.listed ?? false,
           });
 
           // Offer a derived zone for a profile saved before the field existed
@@ -457,6 +461,36 @@ export default function Profile() {
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div className='rounded-lg border p-4 space-y-3'>
+                {/* Positioned so the hidden input Radix pairs with the Switch is
+                    contained here; unanchored it resolves against the initial
+                    containing block, escapes main's overflow and scrolls the page. */}
+                <div className='relative flex items-start justify-between gap-4'>
+                  <div className='space-y-1'>
+                    <label htmlFor='listed' className='block text-sm font-medium text-foreground'>
+                      List this masjid in the Alkhairi app
+                    </label>
+                    <p className='text-sm text-muted-foreground'>
+                      People nearby can find the masjid and follow it for prayer times. Doing so
+                      publishes the masjid's name, area, logo, location and prayer timings, along
+                      with any contact number, email and website set above. Turn it off at any time
+                      and the masjid stops appearing.
+                    </p>
+                  </div>
+                  <Switch
+                    id='listed'
+                    checked={listed}
+                    onCheckedChange={checked => setValue('listed', checked, { shouldDirty: true })}
+                    disabled={!coordinates}
+                  />
+                </div>
+                {!coordinates && (
+                  <p className='text-sm text-muted-foreground'>
+                    Set the masjid location first — the app finds masjids by distance.
+                  </p>
+                )}
               </div>
 
               <div className='flex items-center gap-4'>

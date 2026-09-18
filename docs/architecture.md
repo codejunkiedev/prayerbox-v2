@@ -53,6 +53,21 @@ Everything arrives through `SECURITY DEFINER` functions keyed by the screen's lo
 
 Inside `get_display_payload` every content branch re-checks `masjid_id` against the screen's own and filters `archived = false`, with events additionally filtered by `ends_at >= now()`. The re-check is necessary because `screen_content.content_id` deliberately carries no foreign key. A null payload means the screen row is gone, and the display signs itself out.
 
+## How the mobile app reads data
+
+The Alkhairi mobile app follows masjids and shows their times. It holds no session and gets nothing through PostgREST: everything arrives through the `masjid-directory` Edge Function, which runs as `service_role` and is the only door a public request comes through — one place for the rate limit and the column whitelist, and no new grant for `anon`.
+
+A masjid appears only once an admin sets `masjid_profiles.listed`, which the profile page gates on coordinates being present and a `CHECK` enforces.
+
+| Route                             | Returns                                                                                                  |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `/nearby?lat&lng&radius_km&limit` | Listed masjids inside the radius, nearest first — bounding box against the partial index, then haversine |
+| `/search?q&lat&lng`               | The same projection matched on name or area, in any of the three languages                               |
+| `/masjids?ids=`                   | A phone's followed list in one round trip                                                                |
+| `/timings?masjid_id&from&to`      | Resolved days for a window, defaulting to today plus a week in the masjid's own timezone                 |
+
+Times are resolved **server-side** and cached in `masjid_prayer_days` — see [Prayer times](./prayer-times.md#server-side-resolution).
+
 ## Realtime
 
 Because Realtime evaluates the **subscriber's** RLS before delivering a row, those revoked grants would silence any subscription to the content tables. So the ten per-table subscriptions collapsed into one on `display_revisions` — a content-free counter, one row per masjid, bumped by a trigger on every write to `masjid_profiles`, `display_screens`, `screen_content`, `settings`, `prayer_times`, `announcements`, `events`, `posts`, `youtube_videos` and `ayat_and_hadith`.
@@ -113,9 +128,10 @@ src/
 └── App.tsx  main.tsx  index.css  vite-env.d.ts
 
 supabase/
-├── migrations/         # 48 migrations — schema, RLS, buckets, realtime, display read fns
-├── functions/          # Edge Functions (moderator create/get/update/revoke/reset-password)
-├── scripts/            # backfill-masjid-timezones.mjs
+├── migrations/         # 54 migrations — schema, RLS, buckets, realtime, display + directory reads
+├── functions/          # Edge Functions (moderators, masjid-directory, warm-prayer-cache)
+│   └── _shared/        #   prayer-engine (generated), aladhan, masjid-timings
+├── scripts/            # backfill-masjid-timezones.mjs, sync-prayer-engine.mjs
 ├── config.toml
 └── verify-anon-lockdown.sh   # asserts the anon lockdown against a live project
 ```

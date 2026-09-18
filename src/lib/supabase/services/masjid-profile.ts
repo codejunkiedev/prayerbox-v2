@@ -85,6 +85,7 @@ export async function upsertMasjidProfile(
     contact_number: profileData.contact_number ?? '',
     contact_email: profileData.contact_email ?? '',
     website: profileData.website ?? '',
+    listed: profileData.listed && !!profileData.latitude && !!profileData.longitude,
   };
 
   if (logoUrl) profileToUpsert.logo_url = logoUrl;

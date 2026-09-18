@@ -94,6 +94,7 @@ export const masjidProfileSchema = z.object({
   website: z.string().refine(value => value === '' || WEBSITE_REGEX.test(value), {
     message: 'Please enter a valid website address',
   }),
+  listed: z.boolean(),
 });
 
 export type MasjidProfileData = z.infer<typeof masjidProfileSchema>;
