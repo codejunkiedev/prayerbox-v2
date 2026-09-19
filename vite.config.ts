@@ -18,10 +18,6 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       legacy({
-        // The support floor is Android 12, which ships Chrome/WebView 96 — see
-        // docs/operations.md. The old `chrome >= 49` target advertised an
-        // Android 5 the CSS pipeline never actually supported.
-        targets: ['chrome >= 96', 'android >= 12'],
         polyfills: true, // Auto-inject core-js polyfills
         modernPolyfills: true,
         renderLegacyChunks: true,

@@ -48,7 +48,30 @@ Al-Adhan and AlQuran.cloud need no key.
 
 ## Build
 
-`@vitejs/plugin-legacy` targeting `['chrome >= 96', 'android >= 12']`, an `es2015` target, Terser, and core-js polyfills. PostCSS states the same floor, so both pipelines agree on the Android 12 minimum from [Display hardware](#display-hardware). `@` aliases to `./src`.
+An `es2015` target, Terser, and core-js polyfills via `@vitejs/plugin-legacy`. `@` aliases to `./src`.
+
+### The support floor
+
+The floor lives in exactly one place: the `browserslist` field in `package.json`, currently `chrome >= 83`. Neither `postcss.config.mjs` nor the `legacy()` call in `vite.config.ts` names a target — both fall back to that field. **Change the floor there and nowhere else.** The two pipelines held separate numbers once (PostCSS on `chrome >= 83`, the legacy plugin on `chrome >= 49`), and reconciling them onto a floor that was never checked against the deployed boxes is what broke the prayer display in the field.
+
+Two things to know before moving it:
+
+- **`chrome >= N` carries the whole constraint.** An `android >= N` clause looks like it pins an Android OS version but does not: browserslist’s `android` track runs 2.1 → 4.4.4 and then jumps straight to the current Chrome for Android, so any `android >= N` above 4.4 resolves to that single current version and constrains nothing. Both `android >= 5` and `android >= 12` were no-ops.
+- **Chrome version, not Android version, is what matters**, and the mapping is not tight — a box’s WebView can sit far behind its OS if it never gets Play Store updates. Android 10 ships Chrome/WebView 83, which is where the current floor comes from.
+
+Raising the floor changes what `postcss-preset-env` downlevels, and unsupported CSS fails **silently**: no build error, no console error, no Sentry event — the declaration is simply dropped and the layout quietly loses its spacing. The features the app actually depends on are therefore pinned `true` in `postcss.config.mjs` rather than left to the floor:
+
+| Feature                         | Needs      | Why it is pinned                                                                                                                                                                                                                |
+| ------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `logical-properties-and-values` | Chrome 87  | Tailwind 4 compiles `px-*`/`py-*`/`mx-*`/`my-*`/`inset-*` to `padding-inline`, `padding-block`, `margin-inline`, `margin-block` and `inset`. Without the fallback, every one of those utilities is a no-op on an older WebView. |
+| `is-pseudo-class`               | Chrome 88  | Tailwind’s preflight emits `:is()`; an unsupported selector drops the whole rule.                                                                                                                                               |
+| `cascade-layers`                | Chrome 99  | Tailwind 4 is built on `@layer`.                                                                                                                                                                                                |
+| `color-mix`, `oklab-function`   | Chrome 111 | Theme colours.                                                                                                                                                                                                                  |
+| `nesting-rules`                 | Chrome 112 | Authored nesting in `src/index.css`.                                                                                                                                                                                            |
+
+Pinned means they are downlevelled no matter where the floor sits, so moving the floor cannot silently delete a fallback again.
+
+**Not covered by any of this:** the custom prayer-timings theme sizes itself with container-query units (`cqw`/`cqh`, `containerType: 'size'`), which need **Chrome 105** and have no fallback. That requirement is independent of the floor and is not enforced anywhere — on a box below 105 the custom theme loses its spacing regardless of these settings. Themes 1–3 use no container units.
 
 Display components size themselves in viewport and container units, with `[@media(min-width:3000px)]` and `4000px` variants for 4K panels and `100dvh` with a `100vh` fallback for embedded browsers. These are arbitrary Tailwind variants, which is why they work with no config file: Tailwind 4 is configured entirely from `src/index.css`.
 
@@ -102,7 +125,9 @@ There is **no analytics of any kind** and no global `unhandledrejection` handler
 
 PrayerBox runs fullscreen in a browser on a TV box. The Android version matters more than anything else, because it determines the Chrome/WebView version and therefore CSS support.
 
-**Minimum:** Android 12+, 2 GB RAM (4 GB recommended), an Ethernet port, HDMI 1080p.
+**Recommended when buying:** Android 12+, 2 GB RAM (4 GB recommended), an Ethernet port, HDMI 1080p.
+
+This is purchasing advice, not what the build supports. The build floor is lower on purpose — see [The support floor](#the-support-floor) — because boxes already hung on walls are not all Android 12, and the T95 in the table below ships as low as Android 10. Do not raise the build floor to match this recommendation.
 
 | Budget     | Android | Chipset | RAM/Storage | PKR          | USD    |
 | ---------- | ------- | ------- | ----------- | ------------ | ------ |
