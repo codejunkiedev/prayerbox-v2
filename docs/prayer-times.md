@@ -63,7 +63,9 @@ Cached days are deleted outright whenever `settings`, `prayer_times` or a masjid
 
 ## Timing-change alerts
 
-For a masjid with followers, the invalidation trigger copies the cached days into `masjid_prayer_baseline` before deleting them and queues the masjid. Every five minutes `notify-prayer-changes` claims masjids whose last save is ten minutes old, resolves the next two weeks, compares start, athan and jamaat against the baseline date by date, and sends one Expo push per masjid. Comparing the same date on both sides is what keeps the sun's daily drift from counting as a change. The baseline then moves to the new times.
+For a masjid with followers, the invalidation trigger queues the masjid in `masjid_prayer_changes` together with its `settings`, `prayer_times` and coordinates as they were before the first save; later saves only move the quiet timer. Every five minutes `notify-prayer-changes` claims masjids whose last save is ten minutes old, fetches Al-Adhan once, resolves the next two weeks under the old and the new settings, compares start, athan and jamaat date by date, and sends one Expo push per masjid.
+
+Both sides come from the same Al-Adhan answer on purpose. Comparing against cached days instead let Al-Adhan's own drift between two requests weeks apart read as a change by the masjid.
 
 The engine returns 24-hour `HH:mm` throughout; formatting is the caller's business.
 

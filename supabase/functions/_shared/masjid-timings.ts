@@ -12,6 +12,7 @@ import {
   resolveDayTimes,
   type EnginePrayerAdjustments,
   type EngineDayTimings,
+  type EngineSingleAdjustment,
   type EngineSolarAdjustments,
   type ResolvedDayTimes,
 } from './prayer-engine.ts';
@@ -103,6 +104,37 @@ export const loadTimingsConfig = async (
       .maybeSingle(),
   ]);
 
+  return configFromRows(masjidId, profile, settings, adjustments);
+};
+
+export interface ProfileRow {
+  latitude: number;
+  longitude: number;
+  timezone: string;
+}
+
+export interface SettingsRow {
+  calculation_method?: number | null;
+  juristic_school?: number | null;
+  hijri_calculation_method?: string | null;
+  hijri_offset?: number | null;
+  sunrise_adjustment?: EngineSingleAdjustment | null;
+  ishraq_adjustment?: EngineSingleAdjustment | null;
+  chasht_adjustment?: EngineSingleAdjustment | null;
+  sunset_adjustment?: EngineSingleAdjustment | null;
+}
+
+export interface PrayerTimesRow {
+  prayer_adjustments?: EnginePrayerAdjustments | null;
+}
+
+/** The rows as stored, whether read live or from a snapshot taken before a save. */
+export const configFromRows = (
+  masjidId: string,
+  profile: ProfileRow,
+  settings: SettingsRow | null,
+  adjustments: PrayerTimesRow | null
+): MasjidTimingsConfig => {
   return {
     masjidId,
     latitude: profile.latitude,
@@ -154,7 +186,7 @@ const toHijri = (day: AlAdhanDay | undefined): HijriDate | null => {
   };
 };
 
-const fetchDaysByIsoDate = async (
+export const fetchDaysByIsoDate = async (
   config: MasjidTimingsConfig,
   fromIso: string,
   toIso: string
@@ -235,10 +267,39 @@ export const resolveWindow = async (
     throw error;
   }
 
+  const computed = computeDays(config, missing, alAdhanDays);
+
+  if (computed.length > 0) {
+    const { error: writeError } = await admin.from('masjid_prayer_days').upsert(
+      computed.map(row => ({
+        masjid_id: config.masjidId,
+        day: row.day,
+        times: row.times,
+        hijri: row.hijri,
+        computed_at: row.computed_at,
+      })),
+      { onConflict: 'masjid_id,day' }
+    );
+
+    // A failed write is a cache miss next time, not a failed request.
+    if (writeError) console.error('masjid_prayer_days upsert failed', writeError);
+
+    for (const row of computed) byDay.set(row.day, row);
+  }
+
+  return requested.map(day => byDay.get(day)).filter((row): row is ResolvedDay => !!row);
+};
+
+/** Resolves `days` from Al-Adhan rows already fetched; days Al-Adhan has no row for are left out. */
+export const computeDays = (
+  config: MasjidTimingsConfig,
+  days: string[],
+  alAdhanDays: Map<string, AlAdhanDay>
+): ResolvedDay[] => {
   const computed: ResolvedDay[] = [];
   const computedAt = new Date().toISOString();
 
-  for (const day of missing) {
+  for (const day of days) {
     const source = alAdhanDays.get(day);
     if (!source) continue;
 
@@ -260,25 +321,7 @@ export const resolveWindow = async (
     });
   }
 
-  if (computed.length > 0) {
-    const { error: writeError } = await admin.from('masjid_prayer_days').upsert(
-      computed.map(row => ({
-        masjid_id: config.masjidId,
-        day: row.day,
-        times: row.times,
-        hijri: row.hijri,
-        computed_at: row.computed_at,
-      })),
-      { onConflict: 'masjid_id,day' }
-    );
-
-    // A failed write is a cache miss next time, not a failed request.
-    if (writeError) console.error('masjid_prayer_days upsert failed', writeError);
-
-    for (const row of computed) byDay.set(row.day, row);
-  }
-
-  return requested.map(day => byDay.get(day)).filter((row): row is ResolvedDay => !!row);
+  return computed;
 };
 
 /** The window a phone gets by default: today in the masjid's zone, plus a week. */
