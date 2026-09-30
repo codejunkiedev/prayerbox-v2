@@ -6,6 +6,8 @@
  *   GET /search?q=&lat=&lng=&limit=
  *   GET /masjids?ids=<uuid>,<uuid>
  *   GET /timings?masjid_id=<uuid>&from=YYYY-MM-DD&to=YYYY-MM-DD
+ *   POST /devices    { device_id, token, platform, masjid_ids }
+ *   DELETE /devices  { device_id }
  *
  * Why a function rather than RPCs the app calls directly: 20260909000002 took
  * every table read away from `anon` after the old policies turned the publishable
@@ -21,13 +23,15 @@ import { shiftIsoDate, timeInTimeZone, todayInTimeZone } from '../_shared/aladha
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
 };
 
 const MAX_FOLLOWED_IDS = 50;
 const MAX_WINDOW_DAYS = 40;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+const PUSH_TOKEN_PATTERN = /^Expo(nent)?PushToken\[[^\]]{1,200}\]$/;
+const PLATFORMS = ['ios', 'android'];
 
 /**
  * Best-effort throttle. The directory is a deliberate enumeration of masjids
@@ -74,7 +78,9 @@ const numberParam = (params: URLSearchParams, key: string): number | null => {
 
 Deno.serve(async req => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
-  if (req.method !== 'GET') return json({ error: 'Method not allowed' }, 405);
+  if (!['GET', 'POST', 'DELETE'].includes(req.method)) {
+    return json({ error: 'Method not allowed' }, 405);
+  }
 
   const clientIp = (req.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim();
   if (rateLimited(clientIp)) return json({ error: 'Too many requests' }, 429);
@@ -89,6 +95,46 @@ Deno.serve(async req => {
   );
 
   try {
+    if (route === 'devices') {
+      if (req.method === 'GET') return json({ error: 'Method not allowed' }, 405);
+
+      const body = (await req.json().catch(() => null)) as {
+        device_id?: unknown;
+        token?: unknown;
+        platform?: unknown;
+        masjid_ids?: unknown;
+      } | null;
+      const deviceId = typeof body?.device_id === 'string' ? body.device_id : '';
+      if (!UUID_PATTERN.test(deviceId)) return json({ error: 'device_id is required' }, 400);
+
+      if (req.method === 'DELETE') {
+        const { error } = await admin.from('push_devices').delete().eq('id', deviceId);
+        if (error) throw error;
+        return json({ ok: true });
+      }
+
+      const token = typeof body?.token === 'string' ? body.token : '';
+      const platform = typeof body?.platform === 'string' ? body.platform : '';
+      if (!PUSH_TOKEN_PATTERN.test(token)) return json({ error: 'token is invalid' }, 400);
+      if (!PLATFORMS.includes(platform)) return json({ error: 'platform is invalid' }, 400);
+
+      const masjidIds = (Array.isArray(body?.masjid_ids) ? body.masjid_ids : [])
+        .filter((id): id is string => typeof id === 'string' && UUID_PATTERN.test(id))
+        .slice(0, MAX_FOLLOWED_IDS);
+
+      const { error } = await admin.rpc('register_push_device', {
+        p_device_id: deviceId,
+        p_token: token,
+        p_platform: platform,
+        p_masjid_ids: masjidIds,
+      });
+      if (error) throw error;
+
+      return json({ ok: true });
+    }
+
+    if (req.method !== 'GET') return json({ error: 'Method not allowed' }, 405);
+
     if (route === 'nearby') {
       const lat = numberParam(params, 'lat');
       const lng = numberParam(params, 'lng');

@@ -61,6 +61,10 @@ The maths is not reimplemented there. `src/utils/prayer-engine.ts` holds it — 
 
 Cached days are deleted outright whenever `settings`, `prayer_times` or a masjid's coordinates or timezone change. Stale times that still look fresh are the one failure this cannot afford.
 
+## Timing-change alerts
+
+For a masjid with followers, the invalidation trigger copies the cached days into `masjid_prayer_baseline` before deleting them and queues the masjid. Every five minutes `notify-prayer-changes` claims masjids whose last save is ten minutes old, resolves the next two weeks, compares start, athan and jamaat against the baseline date by date, and sends one Expo push per masjid. Comparing the same date on both sides is what keeps the sun's daily drift from counting as a change. The baseline then moves to the new times.
+
 The engine returns 24-hour `HH:mm` throughout; formatting is the caller's business.
 
 ## Caching
