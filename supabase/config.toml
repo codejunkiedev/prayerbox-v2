@@ -375,6 +375,10 @@ verify_jwt = false
 [functions.warm-prayer-cache]
 verify_jwt = false
 
+# Called by pg_cron, authenticated by PRAYER_CHANGES_SECRET.
+[functions.notify-prayer-changes]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
