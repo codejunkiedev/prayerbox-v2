@@ -5,12 +5,26 @@
  *   header: x-notify-secret: $PRAYER_CHANGES_SECRET
  *
  * Run every few minutes by pg_cron. Each run claims masjids whose last edit is
- * ten minutes old, resolves their next two weeks with the new configuration,
- * compares against `masjid_prayer_baseline` and pushes one message per masjid.
+ * ten minutes old, resolves their next two weeks under the settings saved before
+ * the first edit and under the current ones, and pushes one message per masjid.
  */
 import { createClient, type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { loadTimingsConfig, resolveWindow } from '../_shared/masjid-timings.ts';
-import { shiftIsoDate, todayInTimeZone } from '../_shared/aladhan.ts';
+import {
+  computeDays,
+  configFromRows,
+  fetchDaysByIsoDate,
+  loadTimingsConfig,
+  type MasjidTimingsConfig,
+  type PrayerTimesRow,
+  type ProfileRow,
+  type SettingsRow,
+} from '../_shared/masjid-timings.ts';
+import {
+  isoDateRange,
+  shiftIsoDate,
+  todayInTimeZone,
+  type AlAdhanDay,
+} from '../_shared/aladhan.ts';
 import { describeChanges, diffPrayerDays, type DayTimes } from '../_shared/prayer-changes.ts';
 import { sendPushMessages } from '../_shared/expo-push.ts';
 
@@ -36,41 +50,65 @@ const followerTokens = async (admin: SupabaseClient, masjidId: string): Promise<
   return (data ?? []).map(row => row.expo_push_token as string);
 };
 
-const processMasjid = async (admin: SupabaseClient, masjidId: string) => {
-  const config = await loadTimingsConfig(admin, masjidId);
-  if (!config) {
-    await admin.from('masjid_prayer_baseline').delete().eq('masjid_id', masjidId);
-    return { sent: 0, changes: 0 };
-  }
+interface Snapshot {
+  profile: ProfileRow | null;
+  settings: SettingsRow | null;
+  prayer_times: PrayerTimesRow | null;
+}
 
-  const today = todayInTimeZone(config.timezone);
-  const toIso = shiftIsoDate(today, WINDOW_DAYS);
+interface QueuedChange {
+  masjid_id: string;
+  changed_at: string;
+  previous: Snapshot | null;
+}
 
-  const [days, { data: baseline, error: baselineError }, { data: profile, error: profileError }] =
-    await Promise.all([
-      resolveWindow(admin, config, today, toIso),
-      admin
-        .from('masjid_prayer_baseline')
-        .select('day, times')
-        .eq('masjid_id', masjidId)
-        .gte('day', today)
-        .lte('day', toIso),
-      admin.from('masjid_profiles').select('name').eq('id', masjidId).single(),
-    ]);
-  if (baselineError) throw baselineError;
-  if (profileError) throw profileError;
+const processMasjid = async (
+  admin: SupabaseClient,
+  { masjid_id: masjidId, previous }: QueuedChange
+) => {
+  const current = await loadTimingsConfig(admin, masjidId);
+  if (!current || !previous?.profile) return { sent: 0, changes: 0 };
 
-  const after: DayTimes[] = days.map(row => ({ day: row.day, times: row.times }));
-  const changes = diffPrayerDays((baseline ?? []) as DayTimes[], after);
-
-  const { error: writeError } = await admin.from('masjid_prayer_baseline').upsert(
-    after.map(row => ({ masjid_id: masjidId, day: row.day, times: row.times })),
-    {
-      onConflict: 'masjid_id,day',
-    }
+  const before = configFromRows(
+    masjidId,
+    previous.profile,
+    previous.settings,
+    previous.prayer_times
   );
-  if (writeError) throw writeError;
-  await admin.from('masjid_prayer_baseline').delete().eq('masjid_id', masjidId).lt('day', today);
+  const today = todayInTimeZone(current.timezone);
+  const toIso = shiftIsoDate(today, WINDOW_DAYS);
+  const days = isoDateRange(today, toIso);
+
+  // Both sides resolve against the same Al-Adhan answer, so only the masjid's
+  // own settings can differ between them.
+  const sources = new Map<string, Promise<Map<string, AlAdhanDay>>>();
+  const source = (config: MasjidTimingsConfig) => {
+    const key = [
+      config.latitude,
+      config.longitude,
+      config.method,
+      config.school,
+      config.calendarMethod,
+    ].join('|');
+    if (!sources.has(key)) sources.set(key, fetchDaysByIsoDate(config, today, toIso));
+    return sources.get(key)!;
+  };
+
+  const [oldSource, newSource] = await Promise.all([source(before), source(current)]);
+  const toDayTimes = (rows: { day: string; times: DayTimes['times'] }[]): DayTimes[] =>
+    rows.map(row => ({ day: row.day, times: row.times }));
+
+  const changes = diffPrayerDays(
+    toDayTimes(computeDays(before, days, oldSource)),
+    toDayTimes(computeDays(current, days, newSource))
+  );
+
+  const { data: profile, error: profileError } = await admin
+    .from('masjid_profiles')
+    .select('name')
+    .eq('id', masjidId)
+    .single();
+  if (profileError) throw profileError;
 
   const message = describeChanges(profile.name, changes, today);
   if (!message) return { sent: 0, changes: 0 };
@@ -114,7 +152,7 @@ Deno.serve(async req => {
     return json({ error: 'Claim failed' }, 500);
   }
 
-  const queue = (claimed ?? []) as { masjid_id: string; changed_at: string }[];
+  const queue = (claimed ?? []) as QueuedChange[];
   summary.claimed = queue.length;
 
   for (const item of queue) {
@@ -122,7 +160,7 @@ Deno.serve(async req => {
 
     try {
       if (outOfTime) throw new Error('deadline');
-      const result = await processMasjid(admin, item.masjid_id);
+      const result = await processMasjid(admin, item);
       if (result.changes > 0) summary.notified += 1;
       summary.sent += result.sent;
     } catch (e) {
@@ -130,14 +168,13 @@ Deno.serve(async req => {
         summary.failed += 1;
         console.error(`notify-prayer-changes failed for ${item.masjid_id}`, e);
       }
-      // Back on the queue with its original time, unless a newer edit already is.
-      const { error: requeueError } = await admin.from('masjid_prayer_changes').upsert(
-        { masjid_id: item.masjid_id, changed_at: item.changed_at },
-        {
-          onConflict: 'masjid_id',
-          ignoreDuplicates: true,
-        }
-      );
+      // Back on the queue with the older snapshot, which covers any newer edit too.
+      const { error: requeueError } = await admin
+        .from('masjid_prayer_changes')
+        .upsert(
+          { masjid_id: item.masjid_id, changed_at: item.changed_at, previous: item.previous },
+          { onConflict: 'masjid_id' }
+        );
       if (requeueError) console.error('requeue failed', requeueError);
       else summary.requeued += 1;
     }

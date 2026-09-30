@@ -18,7 +18,7 @@ Fourteen tables in `public`. [`supabase/migrations/`](../supabase/migrations/) i
 | `display_revisions`                                           | `(masjid_id, revision, updated_at)`. The content-free counter displays subscribe to                                                                                    |
 | `masjid_prayer_days`                                          | Resolved times, one row per masjid per masjid-local day. A cache the `masjid-directory` function owns; no client role can reach it                                     |
 | `push_devices`, `push_subscriptions`                          | Phones that opted into timing-change alerts, keyed by a random install id, and the masjids each follows. Written through `masjid-directory` only                       |
-| `masjid_prayer_baseline`, `masjid_prayer_changes`             | The times followers were last told about, and the queue of masjids due a comparison. Owned by `notify-prayer-changes`                                                  |
+| `masjid_prayer_changes`                                       | The queue of masjids due a comparison, each with its settings from before the first save. Owned by `notify-prayer-changes`                                             |
 
 On `prayer_times` and `settings`, `user_id` is nullable and `ON DELETE SET NULL` — it records who last saved the row, not who owns it, so deleting an account does not delete a masjid's prayer configuration. Both are keyed `UNIQUE(masjid_id)`; the earlier per-user keying is gone.
 
@@ -33,7 +33,7 @@ Beyond the two RLS helpers and the display read functions covered in [Architectu
 - `event_ends_at(start, end)` — `COALESCE(end, start + INTERVAL '2 hours')`. Immutable because a generated column requires it, and **mirrored by `DEFAULT_EVENT_DURATION_MINUTES` in TypeScript — change both together.**
 - `update_member_last_active()` — bumps `masjid_members.last_active_at` on any content mutation.
 - `is_valid_timezone()` / `validate_masjid_timezone()` — a `BEFORE` trigger rejecting a `timezone` that is not in `pg_timezone_names`.
-- `invalidate_masjid_prayer_days()` — drops a masjid's cached days whenever `settings`, `prayer_times` or its coordinates/timezone change. For a masjid with followers it first copies those days into `masjid_prayer_baseline` and queues the masjid.
+- `invalidate_masjid_prayer_days()` — drops a masjid's cached days whenever `settings`, `prayer_times` or its coordinates/timezone change. For a masjid with followers it first queues the masjid with its settings as they were before the save.
 - `register_push_device()` / `claim_prayer_changes()` — the push registry write and the worker's queue claim, granted to `service_role` alone.
 - `search_masjids_nearby()` / `search_masjids_by_name()` / `get_masjids_public()` — the directory reads, granted to `service_role` alone. See [Architecture](./architecture.md#how-the-mobile-app-reads-data).
 
