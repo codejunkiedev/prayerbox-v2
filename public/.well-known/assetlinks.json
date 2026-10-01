@@ -5,7 +5,8 @@
       "namespace": "android_app",
       "package_name": "com.alkhairia.dhikr",
       "sha256_cert_fingerprints": [
-        "35:25:DA:A3:3A:E1:08:09:82:A4:6E:7E:A9:EC:30:D5:36:DB:AF:32:6E:01:78:E9:D9:E4:7A:7F:11:0A:9A:41"
+        "35:25:DA:A3:3A:E1:08:09:82:A4:6E:7E:A9:EC:30:D5:36:DB:AF:32:6E:01:78:E9:D9:E4:7A:7F:11:0A:9A:41",
+        "49:D0:84:24:00:CE:38:9A:68:C7:CA:F5:51:2F:34:4C:E0:18:9E:22:D6:B5:7F:3B:82:EF:47:BD:6E:6C:F9:41"
       ]
     }
   }
