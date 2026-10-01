@@ -23,6 +23,17 @@ export function FollowQrDisplay({
   const lang = i18n.language as DisplayLanguage;
   const isPortrait = orientation === 'portrait';
   const unit = isPortrait ? 'vw' : 'vh';
+  // Nastaliq stacks tall, so Urdu needs a smaller heading and far looser lines
+  // than Latin or Naskh text to keep wrapped lines from running into each other.
+  const isUrdu = lang === 'ur';
+  const titleSize = isPortrait
+    ? isUrdu
+      ? 'text-[6.4vw]'
+      : 'text-[8vw]'
+    : isUrdu
+      ? 'text-[3.6vw]'
+      : 'text-[4.6vw]';
+  const leading = isUrdu ? 'leading-[2.1]' : 'leading-snug';
 
   return (
     <div
@@ -37,7 +48,9 @@ export function FollowQrDisplay({
       >
         <div
           className={`flex flex-col ${
-            isPortrait ? 'items-center text-center gap-[2.5vh]' : 'flex-1 gap-[4vh]'
+            isPortrait
+              ? 'items-center text-center gap-[2.5vh]'
+              : `flex-1 ${isUrdu ? 'gap-[1.5vh]' : 'gap-[4vh]'}`
           }`}
         >
           {masjidName && (
@@ -47,10 +60,10 @@ export function FollowQrDisplay({
               {masjidName}
             </div>
           )}
-          <h2 className={`font-bold leading-tight ${isPortrait ? 'text-[8vw]' : 'text-[4.6vw]'}`}>
+          <h2 className={`font-bold ${isUrdu ? 'leading-[2]' : 'leading-tight'} ${titleSize}`}>
             {t('followQr.title')}
           </h2>
-          <p className={`text-white/85 ${isPortrait ? 'text-[4vw]' : 'text-[2.1vw]'}`}>
+          <p className={`text-white/85 ${leading} ${isPortrait ? 'text-[4vw]' : 'text-[2.1vw]'}`}>
             {t('followQr.subtitle')}
           </p>
           <p className={`text-white/70 ${isPortrait ? 'text-[3.2vw]' : 'text-[1.6vw]'}`}>
