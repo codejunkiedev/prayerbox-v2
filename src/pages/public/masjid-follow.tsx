@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
-import { Button } from '@/components/ui';
+import { buttonVariants } from '@/components/ui';
 import { getPublicMasjid, type PublicMasjid } from '@/lib/supabase';
 import { ALKHAIRI_PLAY_STORE_URL, masjidAppUrl } from '@/helpers';
 
@@ -76,13 +76,22 @@ export default function MasjidFollow() {
 
             <div className='space-y-3'>
               {isAndroid && (
-                <Button asChild className='w-full'>
-                  <a href={masjidAppUrl(masjid.id)}>Open in Alkhairi</a>
-                </Button>
+                <a
+                  href={masjidAppUrl(masjid.id)}
+                  className={buttonVariants({ className: 'w-full' })}
+                >
+                  Open in Alkhairi
+                </a>
               )}
-              <Button asChild variant={isAndroid ? 'outline' : 'default'} className='w-full'>
-                <a href={ALKHAIRI_PLAY_STORE_URL}>Get Alkhairi on Google Play</a>
-              </Button>
+              <a
+                href={ALKHAIRI_PLAY_STORE_URL}
+                className={buttonVariants({
+                  variant: isAndroid ? 'outline' : 'default',
+                  className: 'w-full',
+                })}
+              >
+                Get Alkhairi on Google Play
+              </a>
               {!isAndroid && (
                 <p className='text-xs text-muted-foreground'>
                   Alkhairi is available on Android for now.
