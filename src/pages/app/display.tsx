@@ -21,6 +21,7 @@ import {
   PostsDisplay,
   EventsDisplay,
   WeatherDisplay,
+  FollowQrDisplay,
   YouTubeVideoDisplay,
   AyatHadithDisplay,
 } from '@/components/display';
@@ -58,6 +59,9 @@ export default function Display() {
 
   const showPrayerTimes = displayScreen?.show_prayer_times ?? true;
   const showWeather = displayScreen?.show_weather ?? true;
+  // Un-listing withdraws the masjid from the app, so the invitation goes with it.
+  const followQrMasjidId =
+    displayScreen?.show_follow_qr && masjidProfile?.listed ? masjidProfile.id : null;
   const language = displayScreen?.language ?? 'en';
   const slideDelay = displayScreen?.slide_interval_seconds
     ? displayScreen.slide_interval_seconds * 1000
@@ -129,7 +133,10 @@ export default function Display() {
 
   // Build a set of slide indices that are YouTube videos (offset by prayer/weather slides)
   const youtubeSlideIndices = useMemo(() => {
-    const fixedSlideCount = (showPrayerTimes ? 1 : 0) + (showWeather && weatherForecast ? 1 : 0);
+    const fixedSlideCount =
+      (showPrayerTimes ? 1 : 0) +
+      (showWeather && weatherForecast ? 1 : 0) +
+      (followQrMasjidId ? 1 : 0);
     const indices = new Set<number>();
     orderedContent.forEach((item, i) => {
       if (item.contentType === 'youtube_videos') {
@@ -137,7 +144,7 @@ export default function Display() {
       }
     });
     return indices;
-  }, [orderedContent, showPrayerTimes, showWeather, weatherForecast]);
+  }, [orderedContent, showPrayerTimes, showWeather, weatherForecast, followQrMasjidId]);
 
   const advanceSlide = useCallback(() => {
     const swiper = swiperRef.current;
@@ -188,7 +195,10 @@ export default function Display() {
     return <ErrorDisplay errorMessage={weatherErrorMessage} />;
 
   const hasNoContent =
-    !showPrayerTimes && !(showWeather && weatherForecast) && orderedContent.length === 0;
+    !showPrayerTimes &&
+    !(showWeather && weatherForecast) &&
+    !followQrMasjidId &&
+    orderedContent.length === 0;
 
   if (hasNoContent) {
     return (
@@ -202,7 +212,10 @@ export default function Display() {
     );
   }
 
-  const fixedSlideCount = (showPrayerTimes ? 1 : 0) + (showWeather && weatherForecast ? 1 : 0);
+  const fixedSlideCount =
+    (showPrayerTimes ? 1 : 0) +
+    (showWeather && weatherForecast ? 1 : 0) +
+    (followQrMasjidId ? 1 : 0);
 
   const contentSlides = orderedContent.map((item, index) => {
     const slideIndex = fixedSlideCount + index;
@@ -293,6 +306,15 @@ export default function Display() {
               area={localizedArea}
               orientation={displayScreen?.orientation ?? 'landscape'}
               timeZone={masjidTimeZone}
+            />
+          </SwiperSlide>
+        )}
+        {followQrMasjidId && (
+          <SwiperSlide>
+            <FollowQrDisplay
+              masjidId={followQrMasjidId}
+              masjidName={localizedMasjidName}
+              orientation={displayScreen?.orientation ?? 'landscape'}
             />
           </SwiperSlide>
         )}

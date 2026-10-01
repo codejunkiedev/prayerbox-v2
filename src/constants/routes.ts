@@ -8,6 +8,7 @@ export enum AuthRoutes {
 export enum PublicRoutes {
   PrivacyPolicy = '/privacy',
   TermsConditions = '/terms',
+  Masjid = '/masjid/:id',
 }
 
 export enum AppRoutes {

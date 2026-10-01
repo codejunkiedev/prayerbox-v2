@@ -58,5 +58,10 @@
     "nextIqamah": "Next Iqamah",
     "hr": "hr",
     "min": "min"
+  },
+  "followQr": {
+    "title": "Follow this masjid on your phone",
+    "subtitle": "Scan with your phone camera or the Alkhairi app to get our prayer times and alerts when they change.",
+    "store": "The Alkhairi app is available on Google Play"
   }
 }
