@@ -32,6 +32,7 @@ import {
   Support,
   PrivacyPolicy,
   TermsConditions,
+  MasjidFollow,
 } from '@/pages';
 import { useDisplayStore, useAuthStore } from '@/store';
 
@@ -114,6 +115,7 @@ export default function Navigation() {
           {/* Public legal routes - accessible without authentication */}
           <Route path={PublicRoutes.PrivacyPolicy} element={<PrivacyPolicy />} />
           <Route path={PublicRoutes.TermsConditions} element={<TermsConditions />} />
+          <Route path={PublicRoutes.Masjid} element={<MasjidFollow />} />
 
           {/* Email auth routes - only accessible when not logged in with email */}
           <Route element={isLoggedInWithEmail ? <Navigate to={AppRoutes.Home} /> : <Outlet />}>

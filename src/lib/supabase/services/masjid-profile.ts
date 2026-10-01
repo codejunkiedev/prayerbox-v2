@@ -10,6 +10,7 @@ import {
   insertRecord,
 } from '../helpers';
 import { useAuthStore } from '@/store';
+import supabase from '../index';
 
 /**
  * Gets the masjid profile for the current authenticated user
@@ -121,4 +122,18 @@ export async function upsertMasjidProfile(
       updated_at: new Date().toISOString(),
     });
   }
+}
+
+export type PublicMasjid = Pick<MasjidProfile, 'id' | 'name' | 'area' | 'logo_url'>;
+
+/**
+ * A listed masjid as the Alkhairi app sees it, for the signed-out follow page.
+ * Resolves to null when the masjid is gone or no longer listed.
+ */
+export async function getPublicMasjid(id: string): Promise<PublicMasjid | null> {
+  const { data, error } = await supabase.functions.invoke(`masjid-directory/masjids?ids=${id}`, {
+    method: 'GET',
+  });
+  if (error) throw error;
+  return (data as { masjids?: PublicMasjid[] } | null)?.masjids?.[0] ?? null;
 }
