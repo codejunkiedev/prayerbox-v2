@@ -23,6 +23,7 @@ import {
   ScreenDetail,
   Settings,
   SettingsProfile,
+  SettingsAlkhairiApp,
   SettingsAccount,
   PrayerTimings,
   Display,
@@ -32,6 +33,7 @@ import {
   Support,
   PrivacyPolicy,
   TermsConditions,
+  MasjidFollow,
 } from '@/pages';
 import { useDisplayStore, useAuthStore } from '@/store';
 
@@ -114,6 +116,7 @@ export default function Navigation() {
           {/* Public legal routes - accessible without authentication */}
           <Route path={PublicRoutes.PrivacyPolicy} element={<PrivacyPolicy />} />
           <Route path={PublicRoutes.TermsConditions} element={<TermsConditions />} />
+          <Route path={PublicRoutes.Masjid} element={<MasjidFollow />} />
 
           {/* Email auth routes - only accessible when not logged in with email */}
           <Route element={isLoggedInWithEmail ? <Navigate to={AppRoutes.Home} /> : <Outlet />}>
@@ -188,6 +191,14 @@ export default function Navigation() {
               element={
                 <RequireAdmin>
                   <SettingsProfile />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsAlkhairiApp}
+              element={
+                <RequireAdmin>
+                  <SettingsAlkhairiApp />
                 </RequireAdmin>
               }
             />

@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { UserRound, Shield } from 'lucide-react';
+import { UserRound, Shield, Smartphone } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
 import { AppRoutes } from '@/constants';
 import { PageHeader } from '@/components/common';
@@ -13,6 +13,14 @@ const settingsModules = [
     route: AppRoutes.SettingsProfile,
     color: 'text-orange-600',
     requiresMasjid: false,
+  },
+  {
+    title: 'Alkhairi App',
+    description: 'List the masjid in the mobile app and get its follow QR',
+    icon: Smartphone,
+    route: AppRoutes.SettingsAlkhairiApp,
+    color: 'text-emerald-600',
+    requiresMasjid: true,
   },
   {
     title: 'Account',

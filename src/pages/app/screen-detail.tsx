@@ -275,6 +275,12 @@ export default function ScreenDetail() {
                 {screen.show_weather ? 'Shown' : 'Hidden'}
               </Badge>
             </div>
+            <div>
+              <span className='text-muted-foreground block'>Follow QR</span>
+              <Badge variant={screen.show_follow_qr ? 'default' : 'secondary'} className='mt-1'>
+                {screen.show_follow_qr ? 'Shown' : 'Hidden'}
+              </Badge>
+            </div>
           </div>
         </CardContent>
       </Card>

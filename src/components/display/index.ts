@@ -16,6 +16,9 @@ export const EventsDisplay = lazy(() =>
 export const WeatherDisplay = lazy(() =>
   import('./weather').then(m => ({ default: m.WeatherDisplay }))
 );
+export const FollowQrDisplay = lazy(() =>
+  import('./follow-qr').then(m => ({ default: m.FollowQrDisplay }))
+);
 export const YouTubeVideoDisplay = lazy(() =>
   import('./youtube-videos').then(m => ({ default: m.YouTubeVideoDisplay }))
 );

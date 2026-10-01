@@ -8,6 +8,7 @@ export enum AuthRoutes {
 export enum PublicRoutes {
   PrivacyPolicy = '/privacy',
   TermsConditions = '/terms',
+  Masjid = '/masjid/:id',
 }
 
 export enum AppRoutes {
@@ -25,6 +26,7 @@ export enum AppRoutes {
   ScreenCustomTheme = '/admin/screens/:id/customize-theme',
   Settings = '/admin/settings',
   SettingsProfile = '/admin/settings/profile',
+  SettingsAlkhairiApp = '/admin/settings/alkhairi-app',
 
   SettingsAccount = '/admin/settings/account',
   Moderators = '/admin/moderators',

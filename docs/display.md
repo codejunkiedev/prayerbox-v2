@@ -6,7 +6,7 @@ What a screen actually does once it is signed in. How it _fetches_ is in [Archit
 
 Route `/` (`pages/app/display.tsx`), a full-screen Swiper with an 800 ms crossfade.
 
-**Order:** prayer times (when `show_prayer_times`) → weather (when `show_weather` and a forecast exists) → each visible `screen_content` item in `display_order`.
+**Order:** prayer times (when `show_prayer_times`) → weather (when `show_weather` and a forecast exists) → follow QR (when `show_follow_qr` and the masjid is listed) → each visible `screen_content` item in `display_order`.
 
 Archived items and finished events are excluded server-side by the RPC. The client additionally re-filters events on a 60-second tick, so an event disappears between payload refetches, and drops YouTube slides when offline.
 

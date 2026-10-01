@@ -294,6 +294,7 @@ export interface DisplayScreen extends Base {
   orientation: ScreenOrientation;
   show_prayer_times: boolean;
   show_weather: boolean;
+  show_follow_qr: boolean;
   theme: Theme;
   custom_theme: CustomThemeConfig | null;
   language: DisplayLanguage;

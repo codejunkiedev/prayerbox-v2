@@ -94,7 +94,6 @@ export const masjidProfileSchema = z.object({
   website: z.string().refine(value => value === '' || WEBSITE_REGEX.test(value), {
     message: 'Please enter a valid website address',
   }),
-  listed: z.boolean(),
 });
 
 export type MasjidProfileData = z.infer<typeof masjidProfileSchema>;
@@ -193,6 +192,7 @@ export const screenSchema = z.object({
   orientation: z.enum(['landscape', 'portrait']),
   show_prayer_times: z.boolean(),
   show_weather: z.boolean(),
+  show_follow_qr: z.boolean(),
   language: z.enum(['en', 'ur', 'ar']),
   slide_interval_seconds: z
     .number({ invalid_type_error: 'Slide interval is required' })
