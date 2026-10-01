@@ -17,12 +17,14 @@ import {
   SelectValue,
 } from '@/components/ui';
 import { screenSchema, type ScreenData } from '@/lib/zod';
-import { createScreen, updateScreen } from '@/lib/supabase';
+import { createScreen, getMasjidProfile, updateScreen } from '@/lib/supabase';
 import type { DisplayScreen, PrayerAlertTrigger } from '@/types';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Copy } from 'lucide-react';
+import { Link } from 'react-router';
+import { AppRoutes } from '@/constants';
 
 type ScreenModalProps = {
   isOpen: boolean;
@@ -46,6 +48,7 @@ const toFormValues = (screen?: DisplayScreen): ScreenData => ({
   orientation: screen?.orientation ?? 'landscape',
   show_prayer_times: screen?.show_prayer_times ?? true,
   show_weather: screen?.show_weather ?? true,
+  show_follow_qr: screen?.show_follow_qr ?? false,
   language: screen?.language ?? 'en',
   slide_interval_seconds: screen?.slide_interval_seconds ?? 5,
   prayer_alert_triggers: screen?.prayer_alert_triggers ?? [],
@@ -55,6 +58,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [isListed, setIsListed] = useState(false);
   const isEdit = !!initialData;
 
   const {
@@ -71,6 +75,7 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
 
   const showPrayerTimes = watch('show_prayer_times');
   const showWeather = watch('show_weather');
+  const showFollowQr = watch('show_follow_qr');
   const orientation = watch('orientation');
   const language = watch('language');
   const alertTriggers = watch('prayer_alert_triggers');
@@ -90,6 +95,19 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
       setIsCopied(false);
     }
   }, [isOpen, initialData, reset]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let cancelled = false;
+    getMasjidProfile()
+      .then(profile => {
+        if (!cancelled) setIsListed(profile?.listed ?? false);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen]);
 
   const handleCopyCode = async () => {
     if (!initialData?.code) return;
@@ -256,6 +274,37 @@ export function ScreenModal({ isOpen, onClose, onSuccess, initialData }: ScreenM
                 </label>
               </div>
             </div>
+          </div>
+
+          <div className='space-y-2'>
+            <Label>Follow QR</Label>
+            <div className='flex items-center space-x-2'>
+              <Checkbox
+                id='show_follow_qr'
+                checked={showFollowQr}
+                disabled={!isListed && !showFollowQr}
+                onCheckedChange={checked => setValue('show_follow_qr', !!checked)}
+              />
+              <label htmlFor='show_follow_qr' className='text-sm cursor-pointer'>
+                Show Follow QR
+              </label>
+            </div>
+            <p className='text-xs text-muted-foreground'>
+              {isListed ? (
+                'Adds a slide people can scan to follow the masjid in the Alkhairi app.'
+              ) : (
+                <>
+                  Appears only while the masjid is listed in the Alkhairi app. Turn listing on in{' '}
+                  <Link
+                    to={AppRoutes.SettingsAlkhairiApp}
+                    className='text-foreground underline underline-offset-2'
+                  >
+                    Alkhairi App settings
+                  </Link>
+                  .
+                </>
+              )}
+            </p>
           </div>
 
           {/* No enable switch: the ticked times are the switch, and one that
