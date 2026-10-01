@@ -23,6 +23,7 @@ import {
   ScreenDetail,
   Settings,
   SettingsProfile,
+  SettingsAlkhairiApp,
   SettingsAccount,
   PrayerTimings,
   Display,
@@ -190,6 +191,14 @@ export default function Navigation() {
               element={
                 <RequireAdmin>
                   <SettingsProfile />
+                </RequireAdmin>
+              }
+            />
+            <Route
+              path={AppRoutes.SettingsAlkhairiApp}
+              element={
+                <RequireAdmin>
+                  <SettingsAlkhairiApp />
                 </RequireAdmin>
               }
             />
